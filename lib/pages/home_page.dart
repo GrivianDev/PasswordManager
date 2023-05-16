@@ -20,7 +20,7 @@ class _HomePageState extends State<HomePage> {
 
   void encrypt() {
     setState(() {
-      crypt = Encryption.encrypt(_txtInputController.text, _pwInputController.text);
+      Encryption.getAccountsFromString('string');
     });
   }
 
