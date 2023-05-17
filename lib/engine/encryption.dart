@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:encrypt/encrypt.dart';
 import 'package:passwordmanager/engine/account.dart';
 import 'package:passwordmanager/engine/manager.dart';
@@ -33,7 +35,16 @@ class Encryption {
   }
 
   static String generateStringFromAccounts(List<Account> accounts) {
-
+    const chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+    Random rand = Random();
+    String string = '';
+    for(int i = 0; i < accounts.length; i++) {
+      int length = rand.nextInt(64) + 1;
+      for(int j = 0; j < accounts.length; j++) {
+        string += String.fromCharCode(chars.codeUnitAt(rand.nextInt(chars.length)));
+      }
+      string += accounts.elementAt(i).asString();
+    }
     return '';
   }
 
