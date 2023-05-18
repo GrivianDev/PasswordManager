@@ -39,4 +39,18 @@ final class Manager {
       }
     }
   }
+
+  int accountCount() {
+    return _accounts.length;
+  }
+
+  Account? getAccountAt(int index) {
+    return _accounts.elementAt(index);
+  }
+
+  void testData() {
+    for(int i = 0; i < 4; i++) {
+      _accounts.add(Account(name: "Fortnite"));
+    }
+  }
 }

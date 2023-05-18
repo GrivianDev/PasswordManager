@@ -30,22 +30,21 @@ class Encryption {
     for(Match match in matches) {
       print(match.group(0));
     }
-
     return accounts;
   }
 
   static String generateStringFromAccounts(List<Account> accounts) {
     const chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
-    Random rand = Random();
+    Random rand = Random.secure();
     String string = '';
     for(int i = 0; i < accounts.length; i++) {
       int length = rand.nextInt(64) + 1;
       for(int j = 0; j < accounts.length; j++) {
         string += String.fromCharCode(chars.codeUnitAt(rand.nextInt(chars.length)));
       }
-      string += accounts.elementAt(i).asString();
+      string += accounts.elementAt(i).toString();
     }
-    return '';
+    return string;
   }
 
   static String _inflatePassword(String password) {

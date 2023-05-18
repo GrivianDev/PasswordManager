@@ -48,10 +48,6 @@ final class Account implements Comparable<Account> {
     return name.toLowerCase().compareTo(other.name.toLowerCase());
   }
 
-  String asString() {
-    return '$name:\n\nInfo:\n$info\n\nE-mail:\n$email\n\nPassword:\n$password';
-  }
-
   @override
   String toString() {
     String c = Manager.disallowedCharacter;

@@ -1,24 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:passwordmanager/pages/themes.dart';
+import 'package:provider/provider.dart';
 import 'engine/account.dart';
+import 'engine/manager.dart';
+import 'engine/persistance.dart';
 import 'pages/home_page.dart';
+import 'package:passwordmanager/pages/themes.dart';
+import 'package:passwordmanager/pages/account_display_page.dart';
 
 void main() {
-  runApp(const MyApp());
+  Settings.init();
+  runApp(Application());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class Application extends StatelessWidget {
+  Application({super.key}) {
+    Manager().testData();
+  }
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
+  Widget build(BuildContext context) => ChangeNotifierProvider(
+        create: (context) => ThemeProvider(),
+        builder: (context, _) {
+          final ThemeProvider themeProvider =
+              Provider.of<ThemeProvider>(context);
 
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const HomePage(title: 'X-Passwordmanager'),
-    );
-  }
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'Flutter Demo',
+            themeMode: themeProvider.themeMode,
+            theme: AppThemeData.lightTheme,
+            darkTheme: AppThemeData.darkTheme,
+            home: const HomePage(
+              title: 'Password Manager',
+            ),
+          );
+        },
+      );
 }
