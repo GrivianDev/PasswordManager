@@ -16,6 +16,7 @@ class _AccountDisplayState extends State<AccountDisplay> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        elevation: 0,
         iconTheme: Theme.of(context).iconTheme,
         backgroundColor: Theme.of(context).primaryColor,
         title: Text(
@@ -37,7 +38,7 @@ class _AccountDisplayState extends State<AccountDisplay> {
             color: Theme.of(context).primaryColor,
           ),
           Container(
-            margin: const EdgeInsets.all(25.0),
+            margin: const EdgeInsets.symmetric(horizontal: 15.0),
             decoration: BoxDecoration(
               borderRadius: const BorderRadius.all(
                 Radius.circular(20.0),

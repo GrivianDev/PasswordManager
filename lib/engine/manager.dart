@@ -49,7 +49,7 @@ final class Manager {
   }
 
   void testData() {
-    for(int i = 0; i < 4; i++) {
+    for(int i = 0; i < 20; i++) {
       _accounts.add(Account(name: "Fortnite"));
     }
   }
