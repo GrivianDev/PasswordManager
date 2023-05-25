@@ -1,4 +1,4 @@
-import 'manager.dart';
+import '../local_database.dart';
 
 final class Account implements Comparable<Account> {
   static const String _noEntry = 'none';
@@ -50,7 +50,7 @@ final class Account implements Comparable<Account> {
 
   @override
   String toString() {
-    String c = Manager.disallowedCharacter;
+    String c = LocalDataBase.disallowedCharacter;
     return '$c$tag$c$name$c$info$c$email$c$password$c';
   }
 }

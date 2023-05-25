@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../engine/account.dart';
+import '../engine/implementation/account.dart';
 
 class AccountDisplay extends StatefulWidget {
   const AccountDisplay({Key? key, required this.account}) : super(key: key);

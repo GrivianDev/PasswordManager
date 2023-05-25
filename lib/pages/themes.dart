@@ -13,6 +13,7 @@ class ThemeProvider extends ChangeNotifier {
 class AppThemeData {
   static final ThemeData darkTheme = ThemeData(
     primaryColor: const Color.fromRGBO(46, 50, 51, 1),
+    highlightColor: Colors.white,
     colorScheme: const ColorScheme.dark(
       primary: Colors.blue,
       background: Color.fromRGBO(77, 83, 84, 1),
@@ -24,6 +25,10 @@ class AppThemeData {
     textTheme: const TextTheme(
       headlineLarge: TextStyle(
         fontSize: 25.0,
+        color: Colors.white,
+      ),
+      bodyMedium: TextStyle(
+        fontSize: 20.0,
         color: Colors.white,
       ),
       bodySmall: TextStyle(
@@ -55,6 +60,7 @@ class AppThemeData {
 
   static final ThemeData lightTheme = ThemeData(
     primaryColor: Colors.white,
+    highlightColor: Colors.black87,
     colorScheme: const ColorScheme.light(
       primary: Color.fromRGBO(2, 10, 161, 1),
       background: Colors.grey,
@@ -66,6 +72,10 @@ class AppThemeData {
     textTheme: const TextTheme(
       headlineLarge: TextStyle(
         fontSize: 25.0,
+        color: Colors.black87,
+      ),
+      bodyMedium: TextStyle(
+        fontSize: 20.0,
         color: Colors.black87,
       ),
       bodySmall: TextStyle(

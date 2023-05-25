@@ -4,8 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/persistance.dart';
 import 'package:passwordmanager/pages/themes.dart';
 
-class NavBar extends StatelessWidget {
-  NavBar({Key? key}) : super(key: key);
+class HomeNavBar extends StatelessWidget {
+  HomeNavBar({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +31,7 @@ class NavBar extends StatelessWidget {
                   Settings.isLightMode() ? 'Light Mode' : 'Dark Mode'
               ),
             ],
-          ),
+          )
         ],
       ),
     );

@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:passwordmanager/pages/themes.dart';
 import 'package:provider/provider.dart';
-import 'engine/account.dart';
-import 'engine/manager.dart';
-import 'engine/persistance.dart';
-import 'pages/home_page.dart';
+
 import 'package:passwordmanager/pages/themes.dart';
-import 'package:passwordmanager/pages/account_display_page.dart';
+import 'package:passwordmanager/engine/persistance.dart';
+import 'package:passwordmanager/pages/home_page.dart';
 
 void main() {
   Settings.init();
@@ -14,9 +11,7 @@ void main() {
 }
 
 class Application extends StatelessWidget {
-  Application({super.key}) {
-    Manager().testData();
-  }
+  Application({super.key});
 
   @override
   Widget build(BuildContext context) => ChangeNotifierProvider(
