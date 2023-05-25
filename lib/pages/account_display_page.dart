@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:passwordmanager/pages/editing_page.dart';
 
 import '../engine/implementation/account.dart';
 
@@ -30,7 +31,14 @@ class _AccountDisplayState extends State<AccountDisplay> {
           Icons.edit,
           color: Theme.of(context).iconTheme.color,
         ),
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const EditingPage(title: 'Edit account'),
+            ),
+          );
+        },
       ),
       body: Stack(
         children: [

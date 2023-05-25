@@ -96,9 +96,11 @@ class _HomePageState extends State<HomePage> {
       } else {
         if (!context.mounted) return;
         await Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => ManagePage(title: 'Your accounts')));
+          context,
+          MaterialPageRoute(
+            builder: (context) => const ManagePage(title: 'Your accounts'),
+          ),
+        );
       }
     }
   }
@@ -135,9 +137,11 @@ class _HomePageState extends State<HomePage> {
 
       if (!context.mounted) return;
       await Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => ManagePage(title: 'Your accounts')));
+        context,
+        MaterialPageRoute(
+          builder: (context) => const ManagePage(title: 'Your accounts'),
+        ),
+      );
     }
   }
 
@@ -199,8 +203,6 @@ class _HomePageState extends State<HomePage> {
                                   borderRadius: BorderRadius.circular(25.0),
                                 ),
                               ),
-                              backgroundColor: MaterialStateProperty.all<Color>(
-                                  Theme.of(context).colorScheme.primary),
                             ),
                             onPressed: selectFile,
                             child: const Padding(
