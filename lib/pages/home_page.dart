@@ -6,9 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:passwordmanager/pages/manage_page.dart';
 import 'package:passwordmanager/pages/password_getter_page.dart';
 import 'package:passwordmanager/pages/widgets/home_navbar.dart';
-
-import '../engine/implementation/account.dart';
-import '../engine/local_database.dart';
+import 'package:passwordmanager/engine/local_database.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key, required this.title}) : super(key: key);
@@ -25,10 +23,12 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     _database = LocalDataBase();
+    super.initState();
   }
 
   Future<void> selectFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
+      lockParentWindow: true,
       dialogTitle: 'Select your save file',
       type: FileType.custom,
       allowedExtensions: ['x'],
@@ -37,7 +37,6 @@ class _HomePageState extends State<HomePage> {
 
     if (result != null) {
       File file = File(result.files.single.path ?? '');
-      print(file.path);
 
       if (!context.mounted) return;
       String? pw = await Navigator.push(
@@ -59,12 +58,10 @@ class _HomePageState extends State<HomePage> {
       _database.save();*/
 
       if (pw == null) return;
-      print(pw);
-
       _database.setSource(file, pw);
-      await _database.load();
-
-      //sleep(Duration(seconds: 1));
+      try {
+        await _database.load();
+      } on ArgumentError catch (_) {}
 
       if (_database.accounts.isEmpty && file.lengthSync() > 0) {
         if (!context.mounted) return;
@@ -106,8 +103,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> createFile() async {
-    String? path = await FilePicker.platform
-        .getDirectoryPath(dialogTitle: 'Select directory for save file');
+    String? path = await FilePicker.platform.getDirectoryPath(
+      dialogTitle: 'Select directory for save file',
+      lockParentWindow: true,
+    );
 
     if (path != null) {
       File file;
@@ -131,8 +130,6 @@ class _HomePageState extends State<HomePage> {
       );
 
       if (pw == null) return;
-      print(pw);
-
       _database.setSource(file, pw);
 
       if (!context.mounted) return;
@@ -206,7 +203,8 @@ class _HomePageState extends State<HomePage> {
                             ),
                             onPressed: selectFile,
                             child: const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 20.0),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 25.0, vertical: 2.5),
                               child: Icon(
                                 Icons.search,
                                 size: 40,

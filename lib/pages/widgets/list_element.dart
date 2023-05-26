@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:passwordmanager/engine/implementation/account.dart';
 import 'package:passwordmanager/pages/account_display_page.dart';
-
-import '../../engine/local_database.dart';
+import 'package:passwordmanager/engine/local_database.dart';
 
 class ListElement extends StatelessWidget {
   const ListElement({Key? key, required Account account, required this.parent})
@@ -12,10 +12,26 @@ class ListElement extends StatelessWidget {
   final State parent;
   final Account _account;
 
+  void copyClicked(BuildContext context) {
+    Clipboard.setData(ClipboardData(text: _account.password));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        content: Text(
+          'Copied password of "${_account.name}" to clipboard',
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 13,
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(15.0),
+      padding: const EdgeInsets.symmetric(vertical: 15.0),
       child: ElevatedButton(
         style: ButtonStyle(
           overlayColor: MaterialStateProperty.resolveWith<Color?>(
@@ -44,9 +60,7 @@ class ListElement extends StatelessWidget {
             ),
             const Spacer(),
             IconButton(
-              onPressed: () {
-                //TODO
-              },
+              onPressed: () => copyClicked(context),
               icon: Icon(
                 Icons.copy,
                 color: Theme.of(context).highlightColor,

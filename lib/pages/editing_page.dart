@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:passwordmanager/engine/implementation/account.dart';
 
 class EditingPage extends StatefulWidget {
-  const EditingPage({Key? key, required this.title, Account? account}) : _account = account, super(key: key);
+  EditingPage({Key? key, required this.title, Account? account})
+      : _account = account,
+        super(key: key);
 
   final String title;
   final Account? _account;
@@ -21,19 +23,23 @@ class _EditingPageState extends State<EditingPage> {
   late TextEditingController _emailController;
   late TextEditingController _pwController;
 
-  void confirmChanges() {
-
-  }
+  void confirmChanges() {}
 
   @override
   void initState() {
     _account = widget._account;
     changes = false;
-    _nameController = TextEditingController(text: _account != null ? _account?.name : '');
-    _tagController = TextEditingController(text: _account != null ? _account?.tag : '');
-    _infoController = TextEditingController(text: _account != null ? _account?.info : '');
-    _emailController = TextEditingController(text: _account != null ? _account?.email : '');
-    _pwController = TextEditingController(text: _account != null ? _account?.password : '');
+    _nameController =
+        TextEditingController(text: _account != null ? _account?.name : '');
+    _tagController =
+        TextEditingController(text: _account != null ? _account?.tag : '');
+    _infoController =
+        TextEditingController(text: _account != null ? _account?.info : '');
+    _emailController =
+        TextEditingController(text: _account != null ? _account?.email : '');
+    _pwController =
+        TextEditingController(text: _account != null ? _account?.password : '');
+    super.initState();
   }
 
   @override
@@ -51,7 +57,11 @@ class _EditingPageState extends State<EditingPage> {
     return Scaffold(
       appBar: AppBar(
         elevation: 0.0,
-        title: Text(widget.title),
+        title: Text(
+          widget.title,
+          style: Theme.of(context).textTheme.headlineLarge,
+        ),
+        iconTheme: Theme.of(context).iconTheme,
         backgroundColor: Theme.of(context).primaryColor,
       ),
       body: Container(
@@ -74,7 +84,9 @@ class _EditingPageState extends State<EditingPage> {
                 changes = true;
               }),
             ),
-            const SizedBox(height: 25,),
+            const SizedBox(
+              height: 25,
+            ),
             TextField(
               controller: _tagController,
               decoration: const InputDecoration(
@@ -84,7 +96,9 @@ class _EditingPageState extends State<EditingPage> {
                 changes = true;
               }),
             ),
-            const SizedBox(height: 25,),
+            const SizedBox(
+              height: 25,
+            ),
             TextField(
               controller: _infoController,
               maxLines: 10,
@@ -95,7 +109,9 @@ class _EditingPageState extends State<EditingPage> {
                 changes = true;
               }),
             ),
-            const SizedBox(height: 25,),
+            const SizedBox(
+              height: 25,
+            ),
             TextField(
               controller: _emailController,
               decoration: const InputDecoration(
@@ -105,7 +121,9 @@ class _EditingPageState extends State<EditingPage> {
                 changes = true;
               }),
             ),
-            const SizedBox(height: 25,),
+            const SizedBox(
+              height: 25,
+            ),
             TextField(
               controller: _pwController,
               decoration: const InputDecoration(
@@ -115,29 +133,32 @@ class _EditingPageState extends State<EditingPage> {
                 changes = true;
               }),
             ),
-            const SizedBox(height: 25,),
+            const SizedBox(
+              height: 25,
+            ),
             Align(
               alignment: Alignment.bottomRight,
               child: ElevatedButton(
                   style: ButtonStyle(
-                    shape: MaterialStateProperty.all<
-                        RoundedRectangleBorder>(
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                       RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(25.0),
                       ),
                     ),
-                    backgroundColor: MaterialStateProperty.all<Color>(changes ? Theme.of(context).colorScheme.primary : Colors.blueGrey),
+                    backgroundColor: MaterialStateProperty.all<Color>(changes
+                        ? Theme.of(context).colorScheme.primary
+                        : Colors.blueGrey),
                   ),
                   onPressed: changes ? confirmChanges : null,
                   child: const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 25.0, vertical: 5.0),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 25.0, vertical: 5.0),
                     child: Icon(
                       Icons.check,
                       size: 40,
                       color: Colors.white,
                     ),
-                  )
-              ),
+                  )),
             )
           ],
         ),

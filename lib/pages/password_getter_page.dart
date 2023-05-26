@@ -19,6 +19,7 @@ class _PasswordGetterPageState extends State<PasswordGetterPage> {
   void initState() {
     _isObscured = true;
     _pwController = TextEditingController();
+    super.initState();
   }
 
   @override

@@ -4,6 +4,8 @@ import 'package:passwordmanager/pages/widgets/list_element.dart';
 import 'package:passwordmanager/pages/widgets/navbar.dart';
 import 'package:passwordmanager/engine/local_database.dart';
 
+import 'editing_page.dart';
+
 class ManagePage extends StatefulWidget {
   const ManagePage({super.key, required this.title});
 
@@ -14,7 +16,7 @@ class ManagePage extends StatefulWidget {
 }
 
 class _ManagePageState extends State<ManagePage> {
-  final LocalDataBase _manager = LocalDataBase();
+  final LocalDataBase _database = LocalDataBase();
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +24,7 @@ class _ManagePageState extends State<ManagePage> {
       endDrawer: NavBar(),
       appBar: AppBar(
         elevation: 0,
+        automaticallyImplyLeading: false,
         iconTheme: Theme.of(context).iconTheme,
         actions: [
           Padding(
@@ -29,7 +32,7 @@ class _ManagePageState extends State<ManagePage> {
             child: Builder(
               builder: (context) => IconButton(
                 icon: const Icon(Icons.more_vert),
-                onPressed: () => Scaffold.of(context).openEndDrawer(),
+                onPressed: Scaffold.of(context).openEndDrawer,
               ),
             ),
           ),
@@ -44,7 +47,14 @@ class _ManagePageState extends State<ManagePage> {
           Icons.add,
           color: Colors.white,
         ),
-        onPressed: () {},
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => EditingPage(
+              title: 'Create account',
+            ),
+          ),
+        ),
       ),
       backgroundColor: Theme.of(context).primaryColor,
       body: Container(
@@ -55,32 +65,63 @@ class _ManagePageState extends State<ManagePage> {
           ),
           color: Theme.of(context).colorScheme.background,
         ),
-        child: Column(
-          children: [
-            const Padding(
-              padding: EdgeInsets.only(
-                  left: 10.0, right: 10.0, top: 20.0, bottom: 10.0),
-              child: TextField(
-                decoration: InputDecoration(
-                  prefixIcon: Icon(
-                    Icons.search,
-                  ),
-                  hintText: 'Search',
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 85.0),
+          child: Column(
+            children: [
+              Expanded(
+                child: Row(
+                  children: [
+                    const Expanded(
+                      child: TextField(
+                        decoration: InputDecoration(
+                          prefixIcon: Icon(Icons.search),
+                          hintText: 'Search',
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 15.0),
+                      child: ElevatedButton(
+                        onPressed: () {},
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Row(
+                            children: [
+                              const Padding(
+                                padding: EdgeInsets.only(right: 10.0),
+                                child: Icon(
+                                  Icons.save,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              Text(
+                                'Save',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: _manager.accounts.length,
-                itemBuilder: (context, index) {
-                  return ListElement(
+              Expanded(
+                flex: 4,
+                child: ListView.builder(
+                  itemCount: _database.accounts.length,
+                  itemBuilder: (context, index) => ListElement(
+                    account: _database.accounts.elementAt(index),
                     parent: this,
-                    account: _manager.accounts.elementAt(index),
-                  );
-                },
+                  ),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
