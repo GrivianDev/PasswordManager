@@ -68,19 +68,19 @@ class AccountDisplay extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.all(25.0),
                       child: SelectableText(
-                        'Info:\n${_account.tag}',
+                        'Info:\n${_account.info}',
                       ),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(25.0),
                       child: SelectableText(
-                        'E-mail:\n${_account.tag}',
+                        'E-mail:\n${_account.email}',
                       ),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(25.0),
                       child: SelectableText(
-                        'Password:\n${_account.tag}',
+                        'Password:\n${_account.password}',
                       ),
                     ),
                   ],

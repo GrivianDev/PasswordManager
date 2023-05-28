@@ -28,13 +28,16 @@ class HomePage extends StatelessWidget {
         ),
       ),
     );
-    if (pw == null) return;
-    database.setSource(File(lastPath), pw);
+
+    File file = File(lastPath);
+
+    if (pw == null || !file.existsSync()) return;
+    database.setSource(file, pw);
     try {
       await database.load();
     } on ArgumentError catch (_) {}
 
-    if (database.accounts.isEmpty && File(lastPath).lengthSync() > 0) {
+    if (database.accounts.isEmpty && file.lengthSync() > 0) {
       if (!context.mounted) return;
       showWrongPasswordDialog(context);
     } else {
@@ -73,7 +76,7 @@ class HomePage extends StatelessWidget {
         ),
       );
 
-      if (pw == null) return;
+      if (pw == null || !file.existsSync()) return;
       database.setSource(file, pw);
       try {
         await database.load();
@@ -124,7 +127,7 @@ class HomePage extends StatelessWidget {
         ),
       );
 
-      if (pw == null) return;
+      if (pw == null || file.existsSync()) return;
       database.setSource(file, pw);
 
       if (!context.mounted) return;
