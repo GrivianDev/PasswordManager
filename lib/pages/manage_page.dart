@@ -1,27 +1,20 @@
 import 'package:flutter/material.dart';
-
+import 'package:provider/provider.dart';
 import 'package:passwordmanager/pages/widgets/list_element.dart';
 import 'package:passwordmanager/pages/widgets/navbar.dart';
 import 'package:passwordmanager/engine/local_database.dart';
+import 'package:passwordmanager/pages/editing_page.dart';
+import 'package:passwordmanager/engine/persistance.dart';
 
-import 'editing_page.dart';
-
-class ManagePage extends StatefulWidget {
+class ManagePage extends StatelessWidget {
   const ManagePage({super.key, required this.title});
 
   final String title;
 
   @override
-  State<ManagePage> createState() => _ManagePageState();
-}
-
-class _ManagePageState extends State<ManagePage> {
-  final LocalDataBase _database = LocalDataBase();
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      endDrawer: NavBar(),
+      endDrawer: const NavBar(),
       appBar: AppBar(
         elevation: 0,
         automaticallyImplyLeading: false,
@@ -38,8 +31,7 @@ class _ManagePageState extends State<ManagePage> {
           ),
         ],
         backgroundColor: Theme.of(context).primaryColor,
-        title: Text(widget.title,
-            style: Theme.of(context).textTheme.headlineLarge),
+        title: Text(title, style: Theme.of(context).textTheme.headlineLarge),
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.green,
@@ -50,7 +42,7 @@ class _ManagePageState extends State<ManagePage> {
         onPressed: () => Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => EditingPage(
+            builder: (context) => const EditingPage(
               title: 'Create account',
             ),
           ),
@@ -80,43 +72,52 @@ class _ManagePageState extends State<ManagePage> {
                         ),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 15.0),
-                      child: ElevatedButton(
-                        onPressed: () {},
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Row(
-                            children: [
-                              const Padding(
-                                padding: EdgeInsets.only(right: 10.0),
-                                child: Icon(
-                                  Icons.save,
-                                  color: Colors.white,
+                    Consumer<Settings>(
+                      builder: (context, settings, child) => settings.isAutoSaving ? Container() : Padding(
+                        padding: const EdgeInsets.only(left: 15.0),
+                        child: ElevatedButton(
+                          onPressed: () {},
+                          child: Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Row(
+                              children: [
+                                const Padding(
+                                  padding: EdgeInsets.only(right: 10.0),
+                                  child: Icon(
+                                    Icons.save,
+                                    color: Colors.white,
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                'Save',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
+                                Text(
+                                  'Save',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall
+                                        ?.fontSize,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
+                    )
                   ],
                 ),
               ),
               Expanded(
                 flex: 4,
-                child: ListView.builder(
-                  itemCount: _database.accounts.length,
-                  itemBuilder: (context, index) => ListElement(
-                    account: _database.accounts.elementAt(index),
-                    parent: this,
+                child: Consumer<LocalDatabase>(
+                  builder: (context, database, child) => ListView.builder(
+                    itemCount: context.watch<LocalDatabase>().accounts.length,
+                    itemBuilder: (context, index) => ListElement(
+                      account: context
+                          .read<LocalDatabase>()
+                          .accounts
+                          .elementAt(index),
+                    ),
                   ),
                 ),
               ),

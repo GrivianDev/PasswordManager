@@ -2,13 +2,12 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:collection';
 import 'dart:math';
-
+import 'package:flutter/cupertino.dart';
 import 'package:passwordmanager/engine/encryption.dart';
+import 'package:passwordmanager/engine/implementation/account.dart';
 
-import 'implementation/account.dart';
-
-final class LocalDataBase {
-  static final LocalDataBase _instance = LocalDataBase._create();
+final class LocalDatabase extends ChangeNotifier {
+  static final LocalDatabase _instance = LocalDatabase._create();
   static const int _maxCapacity = 1000;
   static const String disallowedCharacter = '\u0407';
 
@@ -19,7 +18,7 @@ final class LocalDataBase {
   final Set<String> _tagsUsed;
 
   static List<Account> getAccountsFromString(String string) {
-    String c = LocalDataBase.disallowedCharacter;
+    String c = LocalDatabase.disallowedCharacter;
 
     List<Account> accounts = List.empty(growable: true);
     RegExp regex = RegExp('\\$c([^\\$c]+\\$c){5}');
@@ -55,7 +54,7 @@ final class LocalDataBase {
     return string;
   }
 
-  LocalDataBase._create()
+  LocalDatabase._create()
       : _accounts = List.from(
           [],
           growable: true,
@@ -65,7 +64,7 @@ final class LocalDataBase {
           (a, b) => a.toLowerCase().compareTo(b.toLowerCase()),
         );
 
-  factory LocalDataBase() => _instance;
+  factory LocalDatabase() => _instance;
 
   List<Account> get accounts => List.unmodifiable(_accounts);
 
@@ -78,10 +77,8 @@ final class LocalDataBase {
 
   Future<void> load() async {
     if(_sourceFile != null && _password != null) {
-      List<Account> list = LocalDataBase.getAccountsFromString(EncryptionProvider.encryption.decrypt(encryptedText: await _sourceFile?.readAsString(encoding: utf8) ?? '', password: _password!));
-      for(Account acc in list) {
-        addAccount(acc);
-      }
+      List<Account> list = LocalDatabase.getAccountsFromString(EncryptionProvider.encryption.decrypt(encryptedText: await _sourceFile?.readAsString(encoding: utf8) ?? '', password: _password!));
+      addAllAccounts(list);
     } else {
       throw Exception("Tried to load data without a provided file or password");
     }
@@ -90,20 +87,42 @@ final class LocalDataBase {
   Future<void> save() async {
     if(_sourceFile != null && _password != null) {
       if(_sourceFile!.existsSync()) await _sourceFile?.create(recursive: true);
-      await _sourceFile?.writeAsString(EncryptionProvider.encryption.encrypt(plainText: LocalDataBase.generateStringFromAccounts(_accounts), password: _password!), encoding: utf8);
+      await _sourceFile?.writeAsString(EncryptionProvider.encryption.encrypt(plainText: LocalDatabase.generateStringFromAccounts(_accounts), password: _password!), encoding: utf8);
     } else {
       throw Exception("Tried to save data without a provided file or password");
     }
   }
 
+  void addAllAccounts(List<Account> accounts) {
+    for(Account acc in accounts) {
+      if (_accounts.length < LocalDatabase._maxCapacity) {
+        _accounts.add(acc);
+        _tagsUsed.add(acc.tag);
+        _accounts.sort((a, b) => a.compareTo(b));
+      } else {
+        throw Exception("Maximum amount of accounts reached");
+      }
+    }
+    notifyListeners();
+  }
+
   void addAccount(Account acc) {
-    if (_accounts.length < LocalDataBase._maxCapacity) {
+    if (_accounts.length < LocalDatabase._maxCapacity) {
       _accounts.add(acc);
       _tagsUsed.add(acc.tag);
       _accounts.sort((a, b) => a.compareTo(b));
+      notifyListeners();
     } else {
       throw Exception("Maximum amount of accounts reached");
     }
+  }
+
+  void callEditOf(Account acc) {
+    _accounts.sort((a, b) => a.compareTo(b));
+    if(getAccountsWithTag(acc.tag).isEmpty) {
+      _tagsUsed.remove(acc.tag);
+    }
+    notifyListeners();
   }
 
   void removeAccount(Account acc) {
@@ -112,6 +131,7 @@ final class LocalDataBase {
         _tagsUsed.remove(acc.tag);
       }
     }
+    notifyListeners();
   }
 
   List<Account> getAccountsWithTag(String tag) {
@@ -125,5 +145,6 @@ final class LocalDataBase {
     _tagsUsed.clear();
     _sourceFile = null;
     _password = null;
+    notifyListeners();
   }
 }

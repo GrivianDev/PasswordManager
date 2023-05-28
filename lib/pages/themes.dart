@@ -1,14 +1,4 @@
 import 'package:flutter/material.dart';
-import '../engine/persistance.dart';
-
-class ThemeProvider extends ChangeNotifier {
-  ThemeMode get themeMode => Settings.isLightMode() ? ThemeMode.light : ThemeMode.dark;
-
-  Future<void> toggleTheme(bool isOn) async {
-    await Settings.setLightMode(isOn);
-    notifyListeners();
-  }
-}
 
 class AppThemeData {
   static final ThemeData darkTheme = ThemeData(

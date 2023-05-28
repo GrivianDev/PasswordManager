@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'package:passwordmanager/engine/persistance.dart';
-import 'package:passwordmanager/pages/themes.dart';
 import 'package:passwordmanager/engine/local_database.dart';
 
 class NavBar extends StatelessWidget {
-  NavBar({Key? key}) : super(key: key);
+  const NavBar({Key? key}) : super(key: key);
 
   void exit(BuildContext context) {
-    LocalDataBase().clear();
+    LocalDatabase().clear();
     Navigator.pop(context);
     Navigator.pop(context);
   }
@@ -28,13 +26,24 @@ class NavBar extends StatelessWidget {
           Row(
             children: [
               Switch.adaptive(
-                value: Settings.isLightMode(),
+                value: context.read<Settings>().isLightMode,
                 onChanged: (value) {
-                  Provider.of<ThemeProvider>(context, listen: false)
-                      .toggleTheme(value);
+                  context.read<Settings>().setLightMode(value);
                 },
               ),
-              Text(Settings.isLightMode() ? 'Light Mode' : 'Dark Mode'),
+              Text(context.read<Settings>().isLightMode ? 'Light Mode' : 'Dark Mode'),
+            ],
+          ),
+          Divider(color: Theme.of(context).colorScheme.background),
+          Row(
+            children: [
+              Switch.adaptive(
+                value: context.watch<Settings>().isAutoSaving,
+                onChanged: (value) {
+                  context.read<Settings>().setAutoSaving(value);
+                },
+              ),
+              Text(context.read<Settings>().isAutoSaving ? 'Autosaving' : 'Manual saving'),
             ],
           ),
           Divider(color: Theme.of(context).colorScheme.background),

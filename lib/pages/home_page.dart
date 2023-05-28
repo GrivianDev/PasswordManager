@@ -1,32 +1,56 @@
 import 'dart:io';
 import 'dart:math';
-
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:passwordmanager/pages/manage_page.dart';
 import 'package:passwordmanager/pages/password_getter_page.dart';
 import 'package:passwordmanager/pages/widgets/home_navbar.dart';
 import 'package:passwordmanager/engine/local_database.dart';
+import 'package:passwordmanager/engine/persistance.dart';
 
-class HomePage extends StatefulWidget {
+class HomePage extends StatelessWidget {
   const HomePage({Key? key, required this.title}) : super(key: key);
 
   final String title;
 
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
+  Future<void> openLast(BuildContext context) async {
+    LocalDatabase database = LocalDatabase();
+    String lastPath = context.read<Settings>().lastOpenedPath;
 
-class _HomePageState extends State<HomePage> {
-  late LocalDataBase _database;
+    if (!context.mounted) return;
+    String? pw = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PasswordGetterPage(
+          path: context.read<Settings>().lastOpenedPath,
+          title: 'Enter password',
+        ),
+      ),
+    );
+    if (pw == null) return;
+    database.setSource(File(lastPath), pw);
+    try {
+      await database.load();
+    } on ArgumentError catch (_) {}
 
-  @override
-  void initState() {
-    _database = LocalDataBase();
-    super.initState();
+    if (database.accounts.isEmpty && File(lastPath).lengthSync() > 0) {
+      if (!context.mounted) return;
+      showWrongPasswordDialog(context);
+    } else {
+      if (!context.mounted) return;
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const ManagePage(title: 'Your accounts'),
+        ),
+      );
+    }
   }
 
-  Future<void> selectFile() async {
+  Future<void> selectFile(BuildContext context) async {
+    LocalDatabase database = LocalDatabase();
+
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       lockParentWindow: true,
       dialogTitle: 'Select your save file',
@@ -49,50 +73,19 @@ class _HomePageState extends State<HomePage> {
         ),
       );
 
-      /*_database.addAccount(Account(name: 'Fortnite'));
-      _database.addAccount(Account(name: 'Diablo'));
-      _database.addAccount(Account(name: 'League'));
-      _database.addAccount(Account(name: 'Dumb and dumber'));
-      _database.addAccount(Account(name: 'gaaaaaaahd'));
-      _database.setSource(file, 'test');
-      _database.save();*/
-
       if (pw == null) return;
-      _database.setSource(file, pw);
+      database.setSource(file, pw);
       try {
-        await _database.load();
+        await database.load();
       } on ArgumentError catch (_) {}
 
-      if (_database.accounts.isEmpty && file.lengthSync() > 0) {
+      if (database.accounts.isEmpty && file.lengthSync() > 0) {
         if (!context.mounted) return;
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text('Wrong password!',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium),
-            actions: [
-              Center(
-                child: TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Text(
-                      'Return',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
+        showWrongPasswordDialog(context);
       } else {
         if (!context.mounted) return;
-        await Navigator.push(
+        context.read<Settings>().setLastOpenedPath(file.path);
+        Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => const ManagePage(title: 'Your accounts'),
@@ -102,7 +95,9 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> createFile() async {
+  Future<void> createFile(BuildContext context) async {
+    LocalDatabase database = LocalDatabase();
+
     String? path = await FilePicker.platform.getDirectoryPath(
       dialogTitle: 'Select directory for save file',
       lockParentWindow: true,
@@ -130,10 +125,11 @@ class _HomePageState extends State<HomePage> {
       );
 
       if (pw == null) return;
-      _database.setSource(file, pw);
+      database.setSource(file, pw);
 
       if (!context.mounted) return;
-      await Navigator.push(
+      context.read<Settings>().setLastOpenedPath(file.path);
+      Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => const ManagePage(title: 'Your accounts'),
@@ -142,10 +138,38 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Future<void> showWrongPasswordDialog(BuildContext context) async {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Wrong password!',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyMedium),
+        actions: [
+          Center(
+            child: TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Text(
+                  'Return',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      endDrawer: HomeNavBar(),
+      endDrawer: const HomeNavBar(),
       appBar: AppBar(
         elevation: 0,
         iconTheme: Theme.of(context).iconTheme,
@@ -161,8 +185,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
         backgroundColor: Theme.of(context).primaryColor,
-        title: Text(widget.title,
-            style: Theme.of(context).textTheme.headlineLarge),
+        title: Text(title, style: Theme.of(context).textTheme.headlineLarge),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -189,9 +212,7 @@ class _HomePageState extends State<HomePage> {
                             'Select your save file:',
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
-                          const SizedBox(
-                            height: 15.0,
-                          ),
+                          const SizedBox(height: 15.0),
                           ElevatedButton(
                             style: ButtonStyle(
                               shape: MaterialStateProperty.all<
@@ -201,7 +222,7 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               ),
                             ),
-                            onPressed: selectFile,
+                            onPressed: () => selectFile(context),
                             child: const Padding(
                               padding: EdgeInsets.symmetric(
                                   horizontal: 25.0, vertical: 2.5),
@@ -215,9 +236,29 @@ class _HomePageState extends State<HomePage> {
                         ],
                       ),
                       const Spacer(),
-                      const SizedBox(
-                        height: 50,
+                      Consumer<Settings>(
+                        builder: (context, settings, child) =>
+                            settings.lastOpenedPath.isNotEmpty
+                                ? TextButton(
+                                    onPressed: () => openLast(context),
+                                    child: Text(
+                                      'Open last: ${settings.lastOpenedPath}',
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                        fontSize: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium
+                                            ?.fontSize,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  )
+                                : Container(),
                       ),
+                      const Spacer(),
+                      const SizedBox(height: 50),
                       Column(
                         children: [
                           Text(
@@ -225,7 +266,7 @@ class _HomePageState extends State<HomePage> {
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                           TextButton(
-                            onPressed: createFile,
+                            onPressed: () => createFile(context),
                             child: Padding(
                               padding: const EdgeInsets.all(10.0),
                               child: Text(

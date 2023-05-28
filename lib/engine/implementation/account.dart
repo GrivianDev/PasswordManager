@@ -50,7 +50,7 @@ final class Account implements Comparable<Account> {
 
   @override
   String toString() {
-    String c = LocalDataBase.disallowedCharacter;
+    String c = LocalDatabase.disallowedCharacter;
     return '$c$tag$c$name$c$info$c$email$c$password$c';
   }
 }

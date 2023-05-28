@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-
 import 'package:passwordmanager/engine/implementation/account.dart';
+import 'package:passwordmanager/engine/local_database.dart';
 
 class EditingPage extends StatefulWidget {
-  EditingPage({Key? key, required this.title, Account? account})
+  const EditingPage({Key? key, required this.title, Account? account})
       : _account = account,
         super(key: key);
 
@@ -23,7 +23,72 @@ class _EditingPageState extends State<EditingPage> {
   late TextEditingController _emailController;
   late TextEditingController _pwController;
 
-  void confirmChanges() {}
+  void confirmChanges() {
+    LocalDatabase dataBase = LocalDatabase();
+    if(!isInvalidInput()) {
+      if (_account == null) {
+        dataBase.addAccount(
+          Account(
+            name: _nameController.text,
+            tag: _tagController.text,
+            info: _infoController.text,
+            email: _emailController.text,
+            password: _pwController.text,
+          ),
+        );
+      } else {
+        _account!.setName = _nameController.text;
+        _account!.setTag = _tagController.text;
+        _account!.setInfo = _infoController.text;
+        _account!.setEmail = _emailController.text;
+        _account!.setPassword = _pwController.text;
+        dataBase.callEditOf(_account!);
+      }
+      Navigator.of(context).pop();
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(
+            'Contains disallowed character',
+            style: Theme.of(context).textTheme.headlineLarge,
+          ),
+          content: Text(
+            'Consider using a different character instead of ${LocalDatabase.disallowedCharacter}.\nThis chracter is used for formatting so try to avoid it.',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          actions: [
+            Center(
+              child: TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Text(
+                    'OK',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  bool isInvalidInput() {
+    if (_nameController.text.contains(LocalDatabase.disallowedCharacter) ||
+        _tagController.text.contains(LocalDatabase.disallowedCharacter) ||
+        _infoController.text.contains(LocalDatabase.disallowedCharacter) ||
+        _emailController.text.contains(LocalDatabase.disallowedCharacter) ||
+        _pwController.text.contains(LocalDatabase.disallowedCharacter)) {
+      return true;
+    }
+    return false;
+  }
 
   @override
   void initState() {
@@ -139,27 +204,30 @@ class _EditingPageState extends State<EditingPage> {
             Align(
               alignment: Alignment.bottomRight,
               child: ElevatedButton(
-                  style: ButtonStyle(
-                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25.0),
-                      ),
+                style: ButtonStyle(
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25.0),
                     ),
-                    backgroundColor: MaterialStateProperty.all<Color>(changes
-                        ? Theme.of(context).colorScheme.primary
-                        : Colors.blueGrey),
                   ),
-                  onPressed: changes ? confirmChanges : null,
-                  child: const Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 25.0, vertical: 5.0),
-                    child: Icon(
-                      Icons.check,
-                      size: 40,
-                      color: Colors.white,
-                    ),
-                  )),
-            )
+                  backgroundColor: MaterialStateProperty.all<Color>(
+                    changes
+                        ? Theme.of(context).colorScheme.primary
+                        : Colors.blueGrey,
+                  ),
+                ),
+                onPressed: changes ? confirmChanges : null,
+                child: const Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 25.0, vertical: 5.0),
+                  child: Icon(
+                    Icons.check,
+                    size: 40,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),

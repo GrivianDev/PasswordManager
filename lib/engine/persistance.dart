@@ -1,6 +1,8 @@
+import 'dart:core';
+import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class Settings {
+class Settings extends ChangeNotifier {
   static late final SharedPreferences _instance;
 
   static const _keyLightMode = 'mode';
@@ -9,15 +11,24 @@ class Settings {
 
   static Future<void> init() async => _instance = await SharedPreferences.getInstance();
 
-  static Future<void> setLightMode(bool enabled) async => await _instance.setBool(_keyLightMode, enabled);
+  Future<void> setLightMode(bool enabled) async {
+    await _instance.setBool(_keyLightMode, enabled);
+    notifyListeners();
+  }
 
-  static bool isLightMode() => _instance.getBool(_keyLightMode) ?? true;
+  bool get isLightMode => _instance.getBool(_keyLightMode) ?? true;
 
-  static Future<void> setLastOpenedPath(String path) async => await _instance.setString(_keyLastOpenedPath, path);
+  Future<void> setLastOpenedPath(String path) async {
+    await _instance.setString(_keyLastOpenedPath, path);
+    notifyListeners();
+  }
 
-  static String getLastOpenedPath() => _instance.getString(_keyLastOpenedPath) ?? '';
+  String get lastOpenedPath => _instance.getString(_keyLastOpenedPath) ?? '';
 
-  static Future<void> setAutoSaving(bool enabled) async => await _instance.setBool(_keyAutoSaving, enabled);
+  Future<void> setAutoSaving(bool enabled) async {
+    await _instance.setBool(_keyAutoSaving, enabled);
+    notifyListeners();
+  }
 
-  static bool isAutoSaving() => _instance.getBool(_keyAutoSaving) ?? false;
+  bool get isAutoSaving => _instance.getBool(_keyAutoSaving) ?? false;
 }

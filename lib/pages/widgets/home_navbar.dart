@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'package:passwordmanager/engine/persistance.dart';
-import 'package:passwordmanager/pages/themes.dart';
 
 class HomeNavBar extends StatelessWidget {
-  HomeNavBar({Key? key}) : super(key: key);
+  const HomeNavBar({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -21,17 +19,16 @@ class HomeNavBar extends StatelessWidget {
           Row(
             children: [
               Switch.adaptive(
-                value: Settings.isLightMode(),
-                onChanged: (value) {
-                  Provider.of<ThemeProvider>(context, listen: false)
-                      .toggleTheme(value);
+                value: context.read<Settings>().isLightMode,
+                onChanged: (enabled) {
+                  context.read<Settings>().setLightMode(enabled);
                 },
               ),
               Text(
-                  Settings.isLightMode() ? 'Light Mode' : 'Dark Mode'
+                  context.read<Settings>().isLightMode ? 'Light Mode' : 'Dark Mode'
               ),
             ],
-          )
+          ),
         ],
       ),
     );
