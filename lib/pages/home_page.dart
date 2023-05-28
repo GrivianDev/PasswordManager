@@ -37,11 +37,12 @@ class HomePage extends StatelessWidget {
     try {
       if (!context.mounted) return;
       showDialog(
-          barrierDismissible: false,
-          context: context,
-          builder: (context) => const Center(
-                child: CircularProgressIndicator(),
-              ));
+        barrierDismissible: false,
+        context: context,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
       await database.load();
     } on ArgumentError catch (_) {
     } finally {
@@ -93,11 +94,12 @@ class HomePage extends StatelessWidget {
       try {
         if (!context.mounted) return;
         showDialog(
-            barrierDismissible: false,
-            context: context,
-            builder: (context) => const Center(
-                  child: CircularProgressIndicator(),
-                ));
+          barrierDismissible: false,
+          context: context,
+          builder: (context) => const Center(
+            child: CircularProgressIndicator(),
+          ),
+        );
         await database.load();
       } on ArgumentError catch (_) {
       } finally {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/local_database.dart';
-import 'package:passwordmanager/pages/themes.dart';
+import 'package:passwordmanager/engine/themes.dart';
 import 'package:passwordmanager/engine/persistance.dart';
 import 'package:passwordmanager/pages/home_page.dart';
 

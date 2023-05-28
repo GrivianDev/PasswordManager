@@ -24,8 +24,14 @@ class HomeNavBar extends StatelessWidget {
                   context.read<Settings>().setLightMode(enabled);
                 },
               ),
-              Text(
-                  context.read<Settings>().isLightMode ? 'Light Mode' : 'Dark Mode'
+              Expanded(
+                child: Text(
+                  context.read<Settings>().isLightMode
+                      ? 'Light Mode'
+                      : 'Dark Mode',
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                ),
               ),
             ],
           ),

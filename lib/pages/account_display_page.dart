@@ -35,10 +35,10 @@ class AccountDisplay extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Theme.of(context).colorScheme.background,
-        child: Icon(
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        child: const Icon(
           Icons.edit,
-          color: Theme.of(context).iconTheme.color,
+          color: Colors.white,
         ),
         onPressed: () => Navigator.push(
           context,
@@ -56,7 +56,7 @@ class AccountDisplay extends StatelessWidget {
             color: Theme.of(context).primaryColor,
           ),
           Container(
-            margin: const EdgeInsets.symmetric(horizontal: 15.0),
+            margin: const EdgeInsets.only(left: 15.0, right: 15.0, bottom: 15),
             decoration: BoxDecoration(
               borderRadius: const BorderRadius.all(
                 Radius.circular(20.0),

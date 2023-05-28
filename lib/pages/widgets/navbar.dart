@@ -31,9 +31,15 @@ class NavBar extends StatelessWidget {
                   context.read<Settings>().setLightMode(value);
                 },
               ),
-              Text(context.read<Settings>().isLightMode
-                  ? 'Light Mode'
-                  : 'Dark Mode'),
+              Expanded(
+                child: Text(
+                  context.read<Settings>().isLightMode
+                      ? 'Light Mode'
+                      : 'Dark Mode',
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                ),
+              ),
             ],
           ),
           Divider(color: Theme.of(context).colorScheme.background),
@@ -45,9 +51,15 @@ class NavBar extends StatelessWidget {
                   context.read<Settings>().setAutoSaving(value);
                 },
               ),
-              Text(context.read<Settings>().isAutoSaving
-                  ? 'Autosaving'
-                  : 'Manual saving'),
+              Expanded(
+                child: Text(
+                  context.read<Settings>().isAutoSaving
+                      ? 'Autosaving'
+                      : 'Manual saving',
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                ),
+              ),
             ],
           ),
           Divider(color: Theme.of(context).colorScheme.background),

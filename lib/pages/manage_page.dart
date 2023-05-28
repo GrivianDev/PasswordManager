@@ -5,8 +5,7 @@ import 'package:passwordmanager/pages/widgets/navbar.dart';
 import 'package:passwordmanager/engine/local_database.dart';
 import 'package:passwordmanager/pages/editing_page.dart';
 import 'package:passwordmanager/engine/persistance.dart';
-
-import '../engine/implementation/account.dart';
+import 'package:passwordmanager/engine/implementation/account.dart';
 
 class ManagePage extends StatelessWidget {
   const ManagePage({super.key, required this.title});
@@ -36,7 +35,7 @@ class ManagePage extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(
-          'Search results for "$string"',
+          'Search results for "$string":',
           style: Theme.of(context).textTheme.bodyMedium,
         ),
         content: SizedBox(
@@ -47,15 +46,17 @@ class ManagePage extends StatelessWidget {
           ),
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Text(
-                'Return',
-                style: TextStyle(
-                  fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
-                  color: Theme.of(context).colorScheme.primary,
+          Center(
+            child: TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Text(
+                  'Return',
+                  style: TextStyle(
+                    fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                 ),
               ),
             ),
@@ -71,13 +72,17 @@ class ManagePage extends StatelessWidget {
     List<Widget> children = List.of(accountsOfTag.isNotEmpty
         ? [
             Row(
-              children: <Widget>[
-                const Expanded(child: Divider()),
-                Text(
-                  tag,
-                  style: Theme.of(context).textTheme.bodyMedium,
+              children: [
+                const Expanded(child: Divider(thickness: 2)),
+                Expanded(
+                  child: Text(
+                    tag,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-                const Expanded(child: Divider()),
+                const Expanded(child: Divider(thickness: 2)),
               ],
             ),
           ]
