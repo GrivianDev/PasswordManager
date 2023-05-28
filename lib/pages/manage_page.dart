@@ -6,10 +6,104 @@ import 'package:passwordmanager/engine/local_database.dart';
 import 'package:passwordmanager/pages/editing_page.dart';
 import 'package:passwordmanager/engine/persistance.dart';
 
+import '../engine/implementation/account.dart';
+
 class ManagePage extends StatelessWidget {
   const ManagePage({super.key, required this.title});
 
   final String title;
+
+  void _search(BuildContext context, String string) {
+    List<Account> list = LocalDatabase()
+        .accounts
+        .where((element) =>
+            element.name.contains(string) |
+            element.tag.contains(string) |
+            element.info.contains(string) |
+            element.email.contains(string) |
+            element.password.contains(string))
+        .toList();
+
+    List<ListElement> listElements = List.empty(growable: true);
+    for (var element in list) {
+      listElements.add(ListElement(
+        account: element,
+        isSearchResult: true,
+      ));
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          'Search results for "$string"',
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView(
+            shrinkWrap: true,
+            children: listElements,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Text(
+                'Return',
+                style: TextStyle(
+                  fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  List<Widget> _buildTagTile(BuildContext context, String tag) {
+    List<Account> accountsOfTag =
+        context.read<LocalDatabase>().getAccountsWithTag(tag);
+    List<Widget> children = List.of(accountsOfTag.isNotEmpty
+        ? [
+            Row(
+              children: <Widget>[
+                const Expanded(child: Divider()),
+                Text(
+                  tag,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const Expanded(child: Divider()),
+              ],
+            ),
+          ]
+        : []);
+    for (Account acc in accountsOfTag) {
+      children.add(ListElement(account: acc));
+    }
+    return children;
+  }
+
+  Future<void> _save(BuildContext context) async {
+    try {
+      if (!context.mounted) return;
+      showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+      await context.read<LocalDatabase>().save();
+    } on ArgumentError catch (_) {
+    } finally {
+      if (context.mounted) Navigator.pop(context);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,46 +158,50 @@ class ManagePage extends StatelessWidget {
               Expanded(
                 child: Row(
                   children: [
-                    const Expanded(
+                    Expanded(
                       child: TextField(
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           prefixIcon: Icon(Icons.search),
                           hintText: 'Search',
                         ),
+                        onSubmitted: (string) => _search(context, string),
                       ),
                     ),
                     Consumer<Settings>(
-                      builder: (context, settings, child) => settings.isAutoSaving ? Container() : Padding(
-                        padding: const EdgeInsets.only(left: 15.0),
-                        child: ElevatedButton(
-                          onPressed: () {},
-                          child: Padding(
-                            padding: const EdgeInsets.all(12.0),
-                            child: Row(
-                              children: [
-                                const Padding(
-                                  padding: EdgeInsets.only(right: 10.0),
-                                  child: Icon(
-                                    Icons.save,
-                                    color: Colors.white,
+                      builder: (context, settings, child) => settings
+                              .isAutoSaving
+                          ? Container()
+                          : Padding(
+                              padding: const EdgeInsets.only(left: 15.0),
+                              child: ElevatedButton(
+                                onPressed: () => _save(context),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: Row(
+                                    children: [
+                                      const Padding(
+                                        padding: EdgeInsets.only(right: 10.0),
+                                        child: Icon(
+                                          Icons.save,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Save',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.fontSize,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                Text(
-                                  'Save',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall
-                                        ?.fontSize,
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
-                          ),
-                        ),
-                      ),
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -111,12 +209,11 @@ class ManagePage extends StatelessWidget {
                 flex: 4,
                 child: Consumer<LocalDatabase>(
                   builder: (context, database, child) => ListView.builder(
-                    itemCount: context.watch<LocalDatabase>().accounts.length,
-                    itemBuilder: (context, index) => ListElement(
-                      account: context
-                          .read<LocalDatabase>()
-                          .accounts
-                          .elementAt(index),
+                    itemCount: database.tags.length,
+                    itemBuilder: (context, index) => ListView(
+                      shrinkWrap: true,
+                      children: _buildTagTile(
+                          context, database.tags.elementAt(index)),
                     ),
                   ),
                 ),

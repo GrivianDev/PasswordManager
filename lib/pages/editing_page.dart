@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/implementation/account.dart';
 import 'package:passwordmanager/engine/local_database.dart';
+
+import '../engine/persistance.dart';
 
 class EditingPage extends StatefulWidget {
   const EditingPage({Key? key, required this.title, Account? account})
@@ -23,9 +26,33 @@ class _EditingPageState extends State<EditingPage> {
   late TextEditingController _emailController;
   late TextEditingController _pwController;
 
-  void confirmChanges() {
+  Future<void> _save() async {
+    bool success = _confirmChanges();
+    if (success && context.read<Settings>().isAutoSaving) {
+      try {
+        if (!context.mounted) return;
+        showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) => const Center(
+            child: CircularProgressIndicator(),
+          ),
+        );
+        await context.read<LocalDatabase>().save();
+      } on ArgumentError catch (_) {
+      } finally {
+        if (context.mounted) {
+          Navigator.pop(context);
+        }
+      }
+    }
+    if (success && context.mounted) Navigator.pop(context);
+  }
+
+  bool _confirmChanges() {
     LocalDatabase dataBase = LocalDatabase();
-    if(!isInvalidInput()) {
+    bool valid = !_isInvalidInput();
+    if (valid) {
       if (_account == null) {
         dataBase.addAccount(
           Account(
@@ -37,14 +64,14 @@ class _EditingPageState extends State<EditingPage> {
           ),
         );
       } else {
-        _account!.setName = _nameController.text;
-        _account!.setTag = _tagController.text;
-        _account!.setInfo = _infoController.text;
-        _account!.setEmail = _emailController.text;
-        _account!.setPassword = _pwController.text;
-        dataBase.callEditOf(_account!);
+        String oldTag = _account!.tag;
+        _account?.setName = _nameController.text;
+        _account?.setTag = _tagController.text;
+        _account?.setInfo = _infoController.text;
+        _account?.setEmail = _emailController.text;
+        _account?.setPassword = _pwController.text;
+        dataBase.callEditOf(oldTag, _account!);
       }
-      Navigator.of(context).pop();
     } else {
       showDialog(
         context: context,
@@ -77,9 +104,10 @@ class _EditingPageState extends State<EditingPage> {
         ),
       );
     }
+    return valid;
   }
 
-  bool isInvalidInput() {
+  bool _isInvalidInput() {
     if (_nameController.text.contains(LocalDatabase.disallowedCharacter) ||
         _tagController.text.contains(LocalDatabase.disallowedCharacter) ||
         _infoController.text.contains(LocalDatabase.disallowedCharacter) ||
@@ -137,98 +165,100 @@ class _EditingPageState extends State<EditingPage> {
           ),
           color: Theme.of(context).colorScheme.background,
         ),
-        child: ListView(
-          padding: const EdgeInsets.all(20.0),
-          children: [
-            TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Name',
-              ),
-              onChanged: (string) => setState(() {
-                changes = true;
-              }),
-            ),
-            const SizedBox(
-              height: 25,
-            ),
-            TextField(
-              controller: _tagController,
-              decoration: const InputDecoration(
-                labelText: 'Tag',
-              ),
-              onChanged: (string) => setState(() {
-                changes = true;
-              }),
-            ),
-            const SizedBox(
-              height: 25,
-            ),
-            TextField(
-              controller: _infoController,
-              maxLines: 10,
-              decoration: const InputDecoration(
-                labelText: 'Info',
-              ),
-              onChanged: (string) => setState(() {
-                changes = true;
-              }),
-            ),
-            const SizedBox(
-              height: 25,
-            ),
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-              ),
-              onChanged: (string) => setState(() {
-                changes = true;
-              }),
-            ),
-            const SizedBox(
-              height: 25,
-            ),
-            TextField(
-              controller: _pwController,
-              decoration: const InputDecoration(
-                labelText: 'Password',
-              ),
-              onChanged: (string) => setState(() {
-                changes = true;
-              }),
-            ),
-            const SizedBox(
-              height: 25,
-            ),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: ElevatedButton(
-                style: ButtonStyle(
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25.0),
-                    ),
+        child: LayoutBuilder(
+          builder: (context, constraints) => SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: IntrinsicHeight(
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    children: [
+                      TextField(
+                        controller: _nameController,
+                        decoration: const InputDecoration(
+                          labelText: 'Name',
+                        ),
+                        onChanged: (string) => setState(() {
+                          changes = true;
+                        }),
+                      ),
+                      const SizedBox(height: 25),
+                      TextField(
+                        controller: _tagController,
+                        decoration: const InputDecoration(
+                          labelText: 'Tag',
+                        ),
+                        onChanged: (string) => setState(() {
+                          changes = true;
+                        }),
+                      ),
+                      const SizedBox(height: 25),
+                      TextField(
+                        controller: _infoController,
+                        maxLines: 10,
+                        decoration: const InputDecoration(
+                          labelText: 'Info',
+                        ),
+                        onChanged: (string) => setState(() {
+                          changes = true;
+                        }),
+                      ),
+                      const SizedBox(height: 25),
+                      TextField(
+                        controller: _emailController,
+                        decoration: const InputDecoration(
+                          labelText: 'Email',
+                        ),
+                        onChanged: (string) => setState(() {
+                          changes = true;
+                        }),
+                      ),
+                      const SizedBox(height: 25),
+                      TextField(
+                        controller: _pwController,
+                        decoration: const InputDecoration(
+                          labelText: 'Password',
+                        ),
+                        onChanged: (string) => setState(() {
+                          changes = true;
+                        }),
+                      ),
+                      const SizedBox(height: 25),
+                      const Spacer(),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: ElevatedButton(
+                          style: ButtonStyle(
+                            shape:
+                            MaterialStateProperty.all<RoundedRectangleBorder>(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(25.0),
+                              ),
+                            ),
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                changes
+                                    ? Theme.of(context).colorScheme.primary
+                                    : Colors.blueGrey),
+                          ),
+                          onPressed: changes ? _save : null,
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 25.0, vertical: 5.0),
+                            child: Icon(
+                              Icons.check,
+                              size: 40,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  backgroundColor: MaterialStateProperty.all<Color>(
-                    changes
-                        ? Theme.of(context).colorScheme.primary
-                        : Colors.blueGrey,
-                  ),
-                ),
-                onPressed: changes ? confirmChanges : null,
-                child: const Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 25.0, vertical: 5.0),
-                  child: Icon(
-                    Icons.check,
-                    size: 40,
-                    color: Colors.white,
-                  ),
-                ),
+                )
               ),
             ),
-          ],
+          ),
         ),
       ),
     );

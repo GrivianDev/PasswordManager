@@ -28,7 +28,6 @@ final class AESEncryption implements Encryption {
     if(missing > 0) {
       password += hash.substring(0, missing);
     }
-    print('Password: $password | length: ${password.length}');
     return password;
   }
 }

@@ -14,7 +14,7 @@ class HomePage extends StatelessWidget {
 
   final String title;
 
-  Future<void> openLast(BuildContext context) async {
+  Future<void> _openLast(BuildContext context) async {
     LocalDatabase database = LocalDatabase();
     String lastPath = context.read<Settings>().lastOpenedPath;
 
@@ -33,13 +33,24 @@ class HomePage extends StatelessWidget {
 
     if (pw == null || !file.existsSync()) return;
     database.setSource(file, pw);
+
     try {
+      if (!context.mounted) return;
+      showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) => const Center(
+                child: CircularProgressIndicator(),
+              ));
       await database.load();
-    } on ArgumentError catch (_) {}
+    } on ArgumentError catch (_) {
+    } finally {
+      if (context.mounted) Navigator.pop(context);
+    }
 
     if (database.accounts.isEmpty && file.lengthSync() > 0) {
       if (!context.mounted) return;
-      showWrongPasswordDialog(context);
+      _showWrongPasswordDialog(context);
     } else {
       if (!context.mounted) return;
       Navigator.push(
@@ -51,7 +62,7 @@ class HomePage extends StatelessWidget {
     }
   }
 
-  Future<void> selectFile(BuildContext context) async {
+  Future<void> _selectFile(BuildContext context) async {
     LocalDatabase database = LocalDatabase();
 
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -78,13 +89,24 @@ class HomePage extends StatelessWidget {
 
       if (pw == null || !file.existsSync()) return;
       database.setSource(file, pw);
+
       try {
+        if (!context.mounted) return;
+        showDialog(
+            barrierDismissible: false,
+            context: context,
+            builder: (context) => const Center(
+                  child: CircularProgressIndicator(),
+                ));
         await database.load();
-      } on ArgumentError catch (_) {}
+      } on ArgumentError catch (_) {
+      } finally {
+        if (context.mounted) Navigator.pop(context);
+      }
 
       if (database.accounts.isEmpty && file.lengthSync() > 0) {
         if (!context.mounted) return;
-        showWrongPasswordDialog(context);
+        _showWrongPasswordDialog(context);
       } else {
         if (!context.mounted) return;
         context.read<Settings>().setLastOpenedPath(file.path);
@@ -98,7 +120,7 @@ class HomePage extends StatelessWidget {
     }
   }
 
-  Future<void> createFile(BuildContext context) async {
+  Future<void> _createFile(BuildContext context) async {
     LocalDatabase database = LocalDatabase();
 
     String? path = await FilePicker.platform.getDirectoryPath(
@@ -141,13 +163,15 @@ class HomePage extends StatelessWidget {
     }
   }
 
-  Future<void> showWrongPasswordDialog(BuildContext context) async {
-    showDialog(
+  Future<void> _showWrongPasswordDialog(BuildContext context) async {
+    return showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Wrong password!',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyMedium),
+        title: Text(
+          'Wrong password!',
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
         actions: [
           Center(
             child: TextButton(
@@ -225,7 +249,7 @@ class HomePage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            onPressed: () => selectFile(context),
+                            onPressed: () => _selectFile(context),
                             child: const Padding(
                               padding: EdgeInsets.symmetric(
                                   horizontal: 25.0, vertical: 2.5),
@@ -243,7 +267,7 @@ class HomePage extends StatelessWidget {
                         builder: (context, settings, child) =>
                             settings.lastOpenedPath.isNotEmpty
                                 ? TextButton(
-                                    onPressed: () => openLast(context),
+                                    onPressed: () => _openLast(context),
                                     child: Text(
                                       'Open last: ${settings.lastOpenedPath}',
                                       style: TextStyle(
@@ -269,7 +293,7 @@ class HomePage extends StatelessWidget {
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                           TextButton(
-                            onPressed: () => createFile(context),
+                            onPressed: () => _createFile(context),
                             child: Padding(
                               padding: const EdgeInsets.all(10.0),
                               child: Text(

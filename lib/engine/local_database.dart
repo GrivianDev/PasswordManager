@@ -23,9 +23,7 @@ final class LocalDatabase extends ChangeNotifier {
     List<Account> accounts = List.empty(growable: true);
     RegExp regex = RegExp('\\$c([^\\$c]+\\$c){5}');
     Iterable<Match> matches = regex.allMatches(string);
-    print('Found ${matches.length} matches');
     for(Match match in matches) {
-      print(match.group(0));
       List<String>? parts = match.group(0)?.split(c);
       if(parts != null) {
         parts.retainWhere((element) => element.isNotEmpty);
@@ -55,10 +53,7 @@ final class LocalDatabase extends ChangeNotifier {
   }
 
   LocalDatabase._create()
-      : _accounts = List.from(
-          [],
-          growable: true,
-        ),
+      : _accounts = List.empty(growable: true),
         _tagsUsed = SplayTreeSet.from(
           [],
           (a, b) => a.toLowerCase().compareTo(b.toLowerCase()),
@@ -76,6 +71,7 @@ final class LocalDatabase extends ChangeNotifier {
   }
 
   Future<void> load() async {
+    await Future.delayed(const Duration(seconds: 1));
     if(_sourceFile != null && _password != null) {
       List<Account> list = LocalDatabase.getAccountsFromString(EncryptionProvider.encryption.decrypt(encryptedText: await _sourceFile?.readAsString(encoding: utf8) ?? '', password: _password!));
       addAllAccounts(list);
@@ -85,6 +81,7 @@ final class LocalDatabase extends ChangeNotifier {
   }
 
   Future<void> save() async {
+    await Future.delayed(const Duration(seconds: 1));
     if(_sourceFile != null && _password != null) {
       if(_sourceFile!.existsSync()) await _sourceFile?.create(recursive: true);
       await _sourceFile?.writeAsString(EncryptionProvider.encryption.encrypt(plainText: LocalDatabase.generateStringFromAccounts(_accounts), password: _password!), encoding: utf8);
@@ -117,10 +114,11 @@ final class LocalDatabase extends ChangeNotifier {
     }
   }
 
-  void callEditOf(Account acc) {
+  void callEditOf(String oldTag, Account acc) {
     _accounts.sort((a, b) => a.compareTo(b));
-    if(getAccountsWithTag(acc.tag).isEmpty) {
-      _tagsUsed.remove(acc.tag);
+    _tagsUsed.add(acc.tag);
+    if (!_accounts.any((element) => element.tag == oldTag)) {
+      _tagsUsed.remove(oldTag);
     }
     notifyListeners();
   }

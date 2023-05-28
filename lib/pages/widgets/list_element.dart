@@ -4,15 +4,40 @@ import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/implementation/account.dart';
 import 'package:passwordmanager/pages/account_display_page.dart';
 import 'package:passwordmanager/engine/local_database.dart';
+import 'package:passwordmanager/engine/persistance.dart';
 
 class ListElement extends StatelessWidget {
-  const ListElement({Key? key, required Account account})
+  const ListElement(
+      {Key? key, required Account account, bool isSearchResult = false})
       : _account = account,
+        _isSearchResult = isSearchResult,
         super(key: key);
 
   final Account _account;
+  final bool _isSearchResult;
 
-  void copyClicked(BuildContext context) {
+  Future<void> _save(BuildContext context) async {
+    try {
+      if (!context.mounted) return;
+      showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+      await context.read<LocalDatabase>().save();
+    } on ArgumentError catch (_) {
+    } finally {
+      if (context.mounted) {
+        Navigator.pop(context);
+        Navigator.pop(context);
+        if (_isSearchResult) Navigator.pop(context);
+      }
+    }
+  }
+
+  void _copyClicked(BuildContext context) {
     Clipboard.setData(ClipboardData(text: _account.password));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -27,8 +52,8 @@ class ListElement extends StatelessWidget {
       ),
     );
   }
-  
-  void deleteClicked(BuildContext context) {
+
+  void _deleteClicked(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -48,10 +73,7 @@ class ListElement extends StatelessWidget {
               child: Text(
                 'Cancel',
                 style: TextStyle(
-                  fontSize: Theme.of(context)
-                      .textTheme
-                      .bodySmall
-                      ?.fontSize,
+                  fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
                   color: Theme.of(context).colorScheme.primary,
                 ),
               ),
@@ -62,21 +84,26 @@ class ListElement extends StatelessWidget {
             child: ElevatedButton(
               onPressed: () {
                 context.read<LocalDatabase>().removeAccount(_account);
-                Navigator.pop(context);
+                if (context.read<Settings>().isAutoSaving) {
+                  _save(context);
+                } else {
+                  if (_isSearchResult) {
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                  } else {
+                    Navigator.pop(context);
+                  }
+                }
               },
               style: ButtonStyle(
-                backgroundColor:
-                MaterialStateProperty.all<Color>(Colors.red),
+                backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: Text(
                   'DELETE',
                   style: TextStyle(
-                    fontSize: Theme.of(context)
-                        .textTheme
-                        .bodySmall
-                        ?.fontSize,
+                    fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
                     color: Colors.white,
                   ),
                 ),
@@ -120,14 +147,14 @@ class ListElement extends StatelessWidget {
             ),
             const Spacer(),
             IconButton(
-              onPressed: () => copyClicked(context),
+              onPressed: () => _copyClicked(context),
               icon: Icon(
                 Icons.copy,
                 color: Theme.of(context).highlightColor,
               ),
             ),
             IconButton(
-              onPressed: () => deleteClicked(context),
+              onPressed: () => _deleteClicked(context),
               icon: const Icon(
                 Icons.delete_outline,
                 color: Colors.red,
@@ -139,7 +166,10 @@ class ListElement extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => AccountDisplay(account: _account),
+              builder: (context) => AccountDisplay(
+                account: _account,
+                accessedThroughSearch: _isSearchResult,
+              ),
             ),
           );
         },

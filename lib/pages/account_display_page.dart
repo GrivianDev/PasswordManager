@@ -5,17 +5,26 @@ import 'package:passwordmanager/pages/editing_page.dart';
 import 'package:passwordmanager/engine/implementation/account.dart';
 
 class AccountDisplay extends StatelessWidget {
-  const AccountDisplay({Key? key, required Account account})
+  const AccountDisplay(
+      {Key? key, required Account account, bool accessedThroughSearch = false})
       : _account = account,
+        _accessedThroughSearch = accessedThroughSearch,
         super(key: key);
 
   final Account _account;
+  final bool _accessedThroughSearch;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back), onPressed: () {
+            if(_accessedThroughSearch) Navigator.pop(context);
+            Navigator.pop(context);
+        },
+        ),
         iconTheme: Theme.of(context).iconTheme,
         backgroundColor: Theme.of(context).primaryColor,
         title: Consumer<LocalDatabase>(

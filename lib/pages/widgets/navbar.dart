@@ -6,7 +6,7 @@ import 'package:passwordmanager/engine/local_database.dart';
 class NavBar extends StatelessWidget {
   const NavBar({Key? key}) : super(key: key);
 
-  void exit(BuildContext context) {
+  void _exit(BuildContext context) {
     LocalDatabase().clear();
     Navigator.pop(context);
     Navigator.pop(context);
@@ -31,7 +31,9 @@ class NavBar extends StatelessWidget {
                   context.read<Settings>().setLightMode(value);
                 },
               ),
-              Text(context.read<Settings>().isLightMode ? 'Light Mode' : 'Dark Mode'),
+              Text(context.read<Settings>().isLightMode
+                  ? 'Light Mode'
+                  : 'Dark Mode'),
             ],
           ),
           Divider(color: Theme.of(context).colorScheme.background),
@@ -43,7 +45,9 @@ class NavBar extends StatelessWidget {
                   context.read<Settings>().setAutoSaving(value);
                 },
               ),
-              Text(context.read<Settings>().isAutoSaving ? 'Autosaving' : 'Manual saving'),
+              Text(context.read<Settings>().isAutoSaving
+                  ? 'Autosaving'
+                  : 'Manual saving'),
             ],
           ),
           Divider(color: Theme.of(context).colorScheme.background),
@@ -51,7 +55,7 @@ class NavBar extends StatelessWidget {
             padding: const EdgeInsets.only(top: 20.0),
             child: IconButton(
               iconSize: 35.0,
-              onPressed: () => exit(context),
+              onPressed: () => _exit(context),
               icon: const Icon(
                 Icons.logout,
                 color: Colors.red,
