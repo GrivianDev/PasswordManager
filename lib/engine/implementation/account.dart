@@ -1,4 +1,4 @@
-import '../local_database.dart';
+import 'package:passwordmanager/engine/local_database.dart';
 
 final class Account implements Comparable<Account> {
   static const String _noEntry = 'none';

@@ -27,12 +27,12 @@ class Application extends StatelessWidget {
       builder: (context, child) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
-          title: 'Flutter Demo',
+          title: 'passwordmanager',
           themeMode: context.watch<Settings>().isLightMode ? ThemeMode.light : ThemeMode.dark,
           theme: AppThemeData.lightTheme,
           darkTheme: AppThemeData.darkTheme,
           home: const HomePage(
-            title: 'Password Manager',
+            title: 'Home',
           ),
         );
       },

@@ -65,6 +65,8 @@ final class LocalDatabase extends ChangeNotifier {
 
   Set<String> get tags => Set.unmodifiable(_tagsUsed);
 
+  File? get source => _sourceFile;
+
   void setSource(File file, String password) {
     _sourceFile = file;
     _password = password;

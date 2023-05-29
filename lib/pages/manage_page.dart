@@ -45,18 +45,17 @@ class ManagePage extends StatelessWidget {
             children: listElements,
           ),
         ),
+        actionsAlignment: MainAxisAlignment.center,
         actions: [
-          Center(
-            child: TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Text(
-                  'Return',
-                  style: TextStyle(
-                    fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Text(
+                'Return',
+                style: TextStyle(
+                  fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
             ),

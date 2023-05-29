@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:passwordmanager/pages/manage_page.dart';
 import 'package:passwordmanager/pages/password_getter_page.dart';
 import 'package:passwordmanager/pages/widgets/home_navbar.dart';
@@ -13,6 +15,53 @@ class HomePage extends StatelessWidget {
   const HomePage({Key? key, required this.title}) : super(key: key);
 
   final String title;
+
+  Future<void> _displayInfo(BuildContext context) async {
+    PackageInfo info = await PackageInfo.fromPlatform();
+    if (!context.mounted) return;
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(width: 560, height: 200, child: SvgPicture.asset('assets/logo.svg'),),
+              Text(
+                'Version: ${info.version}',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: 25),
+              Text(
+                'created by:',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              Text(
+                'Joel Lutz',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
+          ),
+        ),
+        actionsAlignment: MainAxisAlignment.center,
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Text(
+                'Return',
+                style: TextStyle(
+                  fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Future<void> _openLast(BuildContext context) async {
     LocalDatabase database = LocalDatabase();
@@ -205,6 +254,13 @@ class HomePage extends StatelessWidget {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 20.0),
+            child: IconButton(
+              icon: const Icon(Icons.info_outline),
+              onPressed: () => _displayInfo(context),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 20.0),
             child: Builder(
               builder: (context) => IconButton(
                 icon: const Icon(Icons.more_vert),
@@ -230,13 +286,14 @@ class HomePage extends StatelessWidget {
               constraints: BoxConstraints(minHeight: constraints.maxHeight),
               child: IntrinsicHeight(
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 20.0, bottom: 40.0),
+                  padding: const EdgeInsets.only(bottom: 40.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Column(
                         children: [
+                          SizedBox(width: 840, height: 300, child: SvgPicture.asset('assets/logo.svg'),),
                           Text(
                             'Select your save file:',
                             style: Theme.of(context).textTheme.bodyMedium,
@@ -265,6 +322,7 @@ class HomePage extends StatelessWidget {
                         ],
                       ),
                       const Spacer(),
+                      const SizedBox(height: 35),
                       Consumer<Settings>(
                         builder: (context, settings, child) =>
                             settings.lastOpenedPath.isNotEmpty
@@ -287,7 +345,7 @@ class HomePage extends StatelessWidget {
                                 : Container(),
                       ),
                       const Spacer(),
-                      const SizedBox(height: 50),
+                      const SizedBox(height: 35),
                       Column(
                         children: [
                           Text(
