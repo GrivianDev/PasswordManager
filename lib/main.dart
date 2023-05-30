@@ -5,8 +5,9 @@ import 'package:passwordmanager/engine/themes.dart';
 import 'package:passwordmanager/engine/persistance.dart';
 import 'package:passwordmanager/pages/home_page.dart';
 
-void main() {
-  Settings.init();
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Settings.init();
   runApp(const Application());
 }
 

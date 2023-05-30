@@ -76,7 +76,7 @@ final class LocalDatabase extends ChangeNotifier {
     await Future.delayed(const Duration(seconds: 1));
     if(_sourceFile != null && _password != null) {
       List<Account> list = LocalDatabase.getAccountsFromString(EncryptionProvider.encryption.decrypt(encryptedText: await _sourceFile?.readAsString(encoding: utf8) ?? '', password: _password!));
-      addAllAccounts(list);
+      _addAllAccounts(list);
     } else {
       throw Exception("Tried to load data without a provided file or password");
     }
@@ -92,7 +92,7 @@ final class LocalDatabase extends ChangeNotifier {
     }
   }
 
-  void addAllAccounts(List<Account> accounts) {
+  void _addAllAccounts(List<Account> accounts) {
     for(Account acc in accounts) {
       if (_accounts.length < LocalDatabase._maxCapacity) {
         _accounts.add(acc);

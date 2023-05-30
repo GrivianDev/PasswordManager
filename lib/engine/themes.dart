@@ -4,6 +4,7 @@ class AppThemeData {
   static final ThemeData darkTheme = ThemeData(
     primaryColor: const Color.fromRGBO(46, 50, 51, 1),
     highlightColor: Colors.white,
+    scaffoldBackgroundColor: const Color.fromRGBO(46, 50, 51, 1),
     colorScheme: const ColorScheme.dark(
       primary: Colors.blue,
       background: Color.fromRGBO(77, 83, 84, 1),
@@ -49,11 +50,12 @@ class AppThemeData {
   );
 
   static final ThemeData lightTheme = ThemeData(
-    primaryColor: Colors.white,
+    primaryColor: Colors.grey,
     highlightColor: Colors.black87,
+    scaffoldBackgroundColor: Colors.grey,
     colorScheme: const ColorScheme.light(
       primary: Color.fromRGBO(2, 10, 161, 1),
-      background: Colors.grey,
+      background: Colors.white,
     ),
 
     textSelectionTheme: const TextSelectionThemeData(

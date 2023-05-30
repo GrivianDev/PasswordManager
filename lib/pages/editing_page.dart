@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/implementation/account.dart';
 import 'package:passwordmanager/engine/local_database.dart';
-
-import '../engine/persistance.dart';
+import 'package:passwordmanager/engine/persistance.dart';
+import 'package:passwordmanager/pages/other/notifications.dart';
 
 class EditingPage extends StatefulWidget {
   const EditingPage({Key? key, required this.title, Account? account})
@@ -30,20 +30,16 @@ class _EditingPageState extends State<EditingPage> {
     bool success = _confirmChanges();
     if (success && context.read<Settings>().isAutoSaving) {
       try {
-        if (!context.mounted) return;
-        showDialog(
-          barrierDismissible: false,
-          context: context,
-          builder: (context) => const Center(
-            child: CircularProgressIndicator(),
-          ),
-        );
+        Notify.showLoading(context: context);
         await context.read<LocalDatabase>().save();
-      } on ArgumentError catch (_) {
+      } catch (e) {
+        await Notify.dialog(
+          context: context,
+          type: NotificationType.error,
+          title: 'Error: Could not save',
+        );
       } finally {
-        if (context.mounted) {
-          Navigator.pop(context);
-        }
+        if (context.mounted) Navigator.pop(context);
       }
     }
     if (success && context.mounted) Navigator.pop(context);
@@ -73,34 +69,13 @@ class _EditingPageState extends State<EditingPage> {
         dataBase.callEditOf(oldTag, _account!);
       }
     } else {
-      showDialog(
+      Notify.dialog(
         context: context,
-        builder: (context) => AlertDialog(
-          title: Text(
-            'Contains disallowed character',
-            style: Theme.of(context).textTheme.headlineLarge,
-          ),
-          content: Text(
-            'Consider using a different character instead of ${LocalDatabase.disallowedCharacter}.\nThis chracter is used for formatting so try to avoid it.',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-          actions: [
-            Center(
-              child: TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Text(
-                    'OK',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
+        type: NotificationType.error,
+        title: 'Contains disallowed character',
+        content: Text(
+          'Consider using a different character instead of ${LocalDatabase.disallowedCharacter}.\nThis chracter is used for formatting so try to avoid it.',
+          style: Theme.of(context).textTheme.bodySmall,
         ),
       );
     }
@@ -170,93 +145,102 @@ class _EditingPageState extends State<EditingPage> {
             child: ConstrainedBox(
               constraints: BoxConstraints(minHeight: constraints.maxHeight),
               child: IntrinsicHeight(
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    children: [
-                      TextField(
-                        controller: _nameController,
-                        decoration: const InputDecoration(
-                          labelText: 'Name',
-                        ),
-                        onChanged: (string) => setState(() {
-                          changes = true;
-                        }),
+                  child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: _nameController,
+                      decoration: const InputDecoration(
+                        labelText: 'Name',
                       ),
-                      const SizedBox(height: 25),
-                      TextField(
-                        controller: _tagController,
-                        decoration: const InputDecoration(
-                          labelText: 'Tag',
-                        ),
-                        onChanged: (string) => setState(() {
-                          changes = true;
-                        }),
+                      onChanged: (string) => !changes
+                          ? setState(() {
+                              changes = true;
+                            })
+                          : null,
+                    ),
+                    const SizedBox(height: 25),
+                    TextField(
+                      controller: _tagController,
+                      decoration: const InputDecoration(
+                        labelText: 'Tag',
                       ),
-                      const SizedBox(height: 25),
-                      TextField(
-                        controller: _infoController,
-                        maxLines: 10,
-                        decoration: const InputDecoration(
-                          labelText: 'Info',
-                        ),
-                        onChanged: (string) => setState(() {
-                          changes = true;
-                        }),
+                      onChanged: (string) => !changes
+                          ? setState(() {
+                              changes = true;
+                            })
+                          : null,
+                    ),
+                    const SizedBox(height: 25),
+                    TextField(
+                      controller: _infoController,
+                      maxLines: 10,
+                      decoration: const InputDecoration(
+                        labelText: 'Info',
                       ),
-                      const SizedBox(height: 25),
-                      TextField(
-                        controller: _emailController,
-                        decoration: const InputDecoration(
-                          labelText: 'Email',
-                        ),
-                        onChanged: (string) => setState(() {
-                          changes = true;
-                        }),
+                      onChanged: (string) => !changes
+                          ? setState(() {
+                              changes = true;
+                            })
+                          : null,
+                    ),
+                    const SizedBox(height: 25),
+                    TextField(
+                      controller: _emailController,
+                      decoration: const InputDecoration(
+                        labelText: 'Email',
                       ),
-                      const SizedBox(height: 25),
-                      TextField(
-                        controller: _pwController,
-                        decoration: const InputDecoration(
-                          labelText: 'Password',
-                        ),
-                        onChanged: (string) => setState(() {
-                          changes = true;
-                        }),
+                      onChanged: (string) => !changes
+                          ? setState(() {
+                              changes = true;
+                            })
+                          : null,
+                    ),
+                    const SizedBox(height: 25),
+                    TextField(
+                      controller: _pwController,
+                      decoration: const InputDecoration(
+                        labelText: 'Password',
                       ),
-                      const SizedBox(height: 25),
-                      const Spacer(),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: ElevatedButton(
-                          style: ButtonStyle(
-                            shape:
-                            MaterialStateProperty.all<RoundedRectangleBorder>(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(25.0),
-                              ),
-                            ),
-                            backgroundColor: MaterialStateProperty.all<Color>(
-                                changes
-                                    ? Theme.of(context).colorScheme.primary
-                                    : Colors.blueGrey),
-                          ),
-                          onPressed: changes ? _save : null,
-                          child: const Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 25.0, vertical: 5.0),
-                            child: Icon(
-                              Icons.check,
-                              size: 40,
-                              color: Colors.white,
+                      onChanged: (string) => !changes
+                          ? setState(() {
+                              changes = true;
+                            })
+                          : null,
+                    ),
+                    const SizedBox(height: 25),
+                    const Spacer(),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: ElevatedButton(
+                        style: ButtonStyle(
+                          shape:
+                              MaterialStateProperty.all<RoundedRectangleBorder>(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25.0),
                             ),
                           ),
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                              changes
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Colors.blueGrey),
+                        ),
+                        onPressed: changes ? _save : null,
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 25.0, vertical: 5.0),
+                          child: Icon(
+                            Icons.check,
+                            size: 40,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
-                    ],
-                  ),
-                )
-              ),
+                    ),
+                  ],
+                ),
+              )),
             ),
           ),
         ),

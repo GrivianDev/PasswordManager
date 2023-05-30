@@ -15,6 +15,7 @@ class NavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
+      backgroundColor: Theme.of(context).colorScheme.background,
       child: ListView(
         padding: const EdgeInsets.all(20.0),
         children: <Widget>[
@@ -22,7 +23,7 @@ class NavBar extends StatelessWidget {
             'Options',
             style: Theme.of(context).textTheme.headlineLarge,
           ),
-          Divider(color: Theme.of(context).colorScheme.background),
+          const Divider(color: Colors.grey),
           Row(
             children: [
               Switch.adaptive(
@@ -42,7 +43,7 @@ class NavBar extends StatelessWidget {
               ),
             ],
           ),
-          Divider(color: Theme.of(context).colorScheme.background),
+          const Divider(color: Colors.grey),
           Row(
             children: [
               Switch.adaptive(

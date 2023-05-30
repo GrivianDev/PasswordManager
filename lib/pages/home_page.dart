@@ -5,11 +5,12 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:passwordmanager/engine/local_database.dart';
+import 'package:passwordmanager/engine/persistance.dart';
 import 'package:passwordmanager/pages/manage_page.dart';
 import 'package:passwordmanager/pages/password_getter_page.dart';
 import 'package:passwordmanager/pages/widgets/home_navbar.dart';
-import 'package:passwordmanager/engine/local_database.dart';
-import 'package:passwordmanager/engine/persistance.dart';
+import 'package:passwordmanager/pages/other/notifications.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({Key? key, required this.title}) : super(key: key);
@@ -18,47 +19,35 @@ class HomePage extends StatelessWidget {
 
   Future<void> _displayInfo(BuildContext context) async {
     PackageInfo info = await PackageInfo.fromPlatform();
+
     if (!context.mounted) return;
-    showDialog(
+    Notify.dialog(
       context: context,
-      builder: (context) => AlertDialog(
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(width: 560, height: 200, child: SvgPicture.asset('assets/logo.svg'),),
-              Text(
-                'Version: ${info.version}',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              const SizedBox(height: 25),
-              Text(
-                'created by:',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              Text(
-                'Joel Lutz',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ],
-          ),
-        ),
-        actionsAlignment: MainAxisAlignment.center,
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Text(
-                'Return',
-                style: TextStyle(
-                  fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-              ),
+      type: NotificationType.notification,
+      content: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 560,
+              height: 80,
+              child: context.read<Settings>().isLightMode ? SvgPicture.asset('assets/lightLogo.svg') : SvgPicture.asset('assets/darkLogo.svg'),
             ),
-          ),
-        ],
+            Text(
+              'Version: ${info.version}',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 25),
+            Text(
+              'created by:',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            Text(
+              'Joel Lutz',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -85,22 +74,17 @@ class HomePage extends StatelessWidget {
 
     try {
       if (!context.mounted) return;
-      showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: (context) => const Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
+      Notify.showLoading(context: context);
       await database.load();
-    } on ArgumentError catch (_) {
+    } catch (e) {
+      //ERROR
     } finally {
       if (context.mounted) Navigator.pop(context);
     }
 
     if (database.accounts.isEmpty && file.lengthSync() > 0) {
       if (!context.mounted) return;
-      _showWrongPasswordDialog(context);
+      _showErrorDialog(context);
     } else {
       if (!context.mounted) return;
       Navigator.push(
@@ -115,50 +99,99 @@ class HomePage extends StatelessWidget {
   Future<void> _selectFile(BuildContext context) async {
     LocalDatabase database = LocalDatabase();
 
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      lockParentWindow: true,
-      dialogTitle: 'Select your save file',
-      type: FileType.custom,
-      allowedExtensions: ['x'],
-      allowMultiple: false,
-    );
-
-    if (result != null) {
-      File file = File(result.files.single.path ?? '');
-
-      if (!context.mounted) return;
-      String? pw = await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PasswordGetterPage(
-            path: file.path,
-            title: 'Enter password',
-          ),
-        ),
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        lockParentWindow: true,
+        dialogTitle: 'Select your save file',
+        type: FileType.any,
+        //allowedExtensions: ['x'],
+        allowMultiple: false,
       );
 
-      if (pw == null || !file.existsSync()) return;
-      database.setSource(file, pw);
-
-      try {
-        if (!context.mounted) return;
-        showDialog(
-          barrierDismissible: false,
-          context: context,
-          builder: (context) => const Center(
-            child: CircularProgressIndicator(),
+      if (result != null) {
+        File file = File(result.files.single.path ?? '');
+        if (!context.mounted || !file.path.endsWith('.x')) return;
+        String? pw = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PasswordGetterPage(
+              path: file.path,
+              title: 'Enter password',
+            ),
           ),
         );
-        await database.load();
-      } on ArgumentError catch (_) {
-      } finally {
-        if (context.mounted) Navigator.pop(context);
-      }
 
-      if (database.accounts.isEmpty && file.lengthSync() > 0) {
+        if (pw == null || !file.existsSync()) return;
+        database.setSource(file, pw);
+
+        try {
+          if (!context.mounted) return;
+          showDialog(
+            barrierDismissible: false,
+            context: context,
+            builder: (context) => const Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+          await database.load();
+        } catch (e) {
+          //ERROR
+        } finally {
+          if (context.mounted) Navigator.pop(context);
+        }
+
+        if (database.accounts.isEmpty && file.lengthSync() > 0) {
+          if (!context.mounted) return;
+          _showErrorDialog(context);
+        } else {
+          if (!context.mounted) return;
+          context.read<Settings>().setLastOpenedPath(file.path);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const ManagePage(title: 'Your accounts'),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      //General error
+    }
+  }
+
+  Future<void> _createFile(BuildContext context) async {
+    LocalDatabase database = LocalDatabase();
+
+    try {
+      String? path = await FilePicker.platform.getDirectoryPath(
+        dialogTitle: 'Select directory for save file',
+        lockParentWindow: true,
+      );
+
+      if (path != null) {
+        File file;
+        Random rand = Random.secure();
+        int tries = 1000;
+        do {
+          int random = rand.nextInt(10000) + 1000;
+          file = File('$path${Platform.pathSeparator}save-$random.x');
+          tries--;
+        } while (file.existsSync() && tries > 0);
+
         if (!context.mounted) return;
-        _showWrongPasswordDialog(context);
-      } else {
+        String? pw = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PasswordGetterPage(
+              path: file.path,
+              title: 'Set password for new file',
+            ),
+          ),
+        );
+
+        if (pw == null || file.existsSync()) return;
+        database.setSource(file, pw);
+
         if (!context.mounted) return;
         context.read<Settings>().setLastOpenedPath(file.path);
         Navigator.push(
@@ -168,78 +201,19 @@ class HomePage extends StatelessWidget {
           ),
         );
       }
+    } catch (e) {
+      //General error
     }
   }
 
-  Future<void> _createFile(BuildContext context) async {
-    LocalDatabase database = LocalDatabase();
-
-    String? path = await FilePicker.platform.getDirectoryPath(
-      dialogTitle: 'Select directory for save file',
-      lockParentWindow: true,
-    );
-
-    if (path != null) {
-      File file;
-      Random rand = Random.secure();
-      int tries = 1000;
-      do {
-        int random = rand.nextInt(10000) + 1000;
-        file = File('$path${Platform.pathSeparator}save-$random.x');
-        tries--;
-      } while (file.existsSync() && tries > 0);
-
-      if (!context.mounted) return;
-      String? pw = await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PasswordGetterPage(
-            path: file.path,
-            title: 'Set password for new file',
-          ),
-        ),
-      );
-
-      if (pw == null || file.existsSync()) return;
-      database.setSource(file, pw);
-
-      if (!context.mounted) return;
-      context.read<Settings>().setLastOpenedPath(file.path);
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const ManagePage(title: 'Your accounts'),
-        ),
-      );
-    }
-  }
-
-  Future<void> _showWrongPasswordDialog(BuildContext context) async {
-    return showDialog(
+  Future<void> _showErrorDialog(BuildContext context) async {
+    await Notify.dialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-          'Wrong password!',
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
-        actions: [
-          Center(
-            child: TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Text(
-                  'Return',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.primary,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
+      type: NotificationType.error,
+      title: 'Error occured!',
+      content: Text(
+        'Probable causes:\n-Wrong password\n-Decryption error',
+        style: Theme.of(context).textTheme.bodySmall,
       ),
     );
   }
@@ -293,7 +267,11 @@ class HomePage extends StatelessWidget {
                     children: [
                       Column(
                         children: [
-                          SizedBox(width: 840, height: 300, child: SvgPicture.asset('assets/logo.svg'),),
+                          SizedBox(
+                            width: 560,
+                            height: 120,
+                            child: context.read<Settings>().isLightMode ? SvgPicture.asset('assets/lightLogo.svg') : SvgPicture.asset('assets/darkLogo.svg'),
+                          ),
                           Text(
                             'Select your save file:',
                             style: Theme.of(context).textTheme.bodyMedium,
