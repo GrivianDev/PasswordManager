@@ -18,15 +18,19 @@ class EditingPage extends StatefulWidget {
 }
 
 class _EditingPageState extends State<EditingPage> {
-  Account? _account;
-  late bool changes;
-  late TextEditingController _nameController;
-  late TextEditingController _tagController;
-  late TextEditingController _infoController;
-  late TextEditingController _emailController;
-  late TextEditingController _pwController;
+  late bool _changes;
+  late final TextEditingController _nameController;
+  late final TextEditingController _tagController;
+  late final TextEditingController _infoController;
+  late final TextEditingController _emailController;
+  late final TextEditingController _pwController;
 
   Future<void> _save() async {
+    final NavigatorState navigator = Navigator.of(context);
+    final ScaffoldMessengerState scaffoldMessenger =
+        ScaffoldMessenger.of(context);
+    final Color backgroundColor = Theme.of(context).colorScheme.primary;
+
     bool success = _confirmChanges();
     if (success && context.read<Settings>().isAutoSaving) {
       try {
@@ -36,20 +40,51 @@ class _EditingPageState extends State<EditingPage> {
         await Notify.dialog(
           context: context,
           type: NotificationType.error,
-          title: 'Error: Could not save',
+          title: 'Error occured!',
+          content: Text(
+            'Could not save changes! Consider using a different save file.',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
         );
-      } finally {
-        if (context.mounted) Navigator.pop(context);
+        navigator.pop();
+        return;
       }
+      navigator.pop();
+
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          duration: const Duration(seconds: 1),
+          backgroundColor: backgroundColor,
+          content: const Row(
+            children: [
+              Text(
+                'Saved changes',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 13,
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(left: 5.0),
+                child: Icon(
+                  Icons.sync,
+                  size: 15,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
     }
-    if (success && context.mounted) Navigator.pop(context);
+    if (success) navigator.pop();
   }
 
   bool _confirmChanges() {
-    LocalDatabase dataBase = LocalDatabase();
+    final LocalDatabase dataBase = LocalDatabase();
     bool valid = !_isInvalidInput();
     if (valid) {
-      if (_account == null) {
+      if (widget._account == null) {
         dataBase.addAccount(
           Account(
             name: _nameController.text,
@@ -60,13 +95,13 @@ class _EditingPageState extends State<EditingPage> {
           ),
         );
       } else {
-        String oldTag = _account!.tag;
-        _account?.setName = _nameController.text;
-        _account?.setTag = _tagController.text;
-        _account?.setInfo = _infoController.text;
-        _account?.setEmail = _emailController.text;
-        _account?.setPassword = _pwController.text;
-        dataBase.callEditOf(oldTag, _account!);
+        String oldTag = widget._account!.tag;
+        widget._account?.setName = _nameController.text;
+        widget._account?.setTag = _tagController.text;
+        widget._account?.setInfo = _infoController.text;
+        widget._account?.setEmail = _emailController.text;
+        widget._account?.setPassword = _pwController.text;
+        dataBase.callEditOf(oldTag, widget._account!);
       }
     } else {
       Notify.dialog(
@@ -95,18 +130,17 @@ class _EditingPageState extends State<EditingPage> {
 
   @override
   void initState() {
-    _account = widget._account;
-    changes = false;
-    _nameController =
-        TextEditingController(text: _account != null ? _account?.name : '');
-    _tagController =
-        TextEditingController(text: _account != null ? _account?.tag : '');
-    _infoController =
-        TextEditingController(text: _account != null ? _account?.info : '');
-    _emailController =
-        TextEditingController(text: _account != null ? _account?.email : '');
-    _pwController =
-        TextEditingController(text: _account != null ? _account?.password : '');
+    _changes = false;
+    _nameController = TextEditingController(
+        text: widget._account != null ? widget._account?.name : '');
+    _tagController = TextEditingController(
+        text: widget._account != null ? widget._account?.tag : '');
+    _infoController = TextEditingController(
+        text: widget._account != null ? widget._account?.info : '');
+    _emailController = TextEditingController(
+        text: widget._account != null ? widget._account?.email : '');
+    _pwController = TextEditingController(
+        text: widget._account != null ? widget._account?.password : '');
     super.initState();
   }
 
@@ -154,9 +188,9 @@ class _EditingPageState extends State<EditingPage> {
                       decoration: const InputDecoration(
                         labelText: 'Name',
                       ),
-                      onChanged: (string) => !changes
+                      onChanged: (string) => !_changes
                           ? setState(() {
-                              changes = true;
+                              _changes = true;
                             })
                           : null,
                     ),
@@ -166,9 +200,9 @@ class _EditingPageState extends State<EditingPage> {
                       decoration: const InputDecoration(
                         labelText: 'Tag',
                       ),
-                      onChanged: (string) => !changes
+                      onChanged: (string) => !_changes
                           ? setState(() {
-                              changes = true;
+                              _changes = true;
                             })
                           : null,
                     ),
@@ -179,9 +213,9 @@ class _EditingPageState extends State<EditingPage> {
                       decoration: const InputDecoration(
                         labelText: 'Info',
                       ),
-                      onChanged: (string) => !changes
+                      onChanged: (string) => !_changes
                           ? setState(() {
-                              changes = true;
+                              _changes = true;
                             })
                           : null,
                     ),
@@ -191,9 +225,9 @@ class _EditingPageState extends State<EditingPage> {
                       decoration: const InputDecoration(
                         labelText: 'Email',
                       ),
-                      onChanged: (string) => !changes
+                      onChanged: (string) => !_changes
                           ? setState(() {
-                              changes = true;
+                              _changes = true;
                             })
                           : null,
                     ),
@@ -203,9 +237,9 @@ class _EditingPageState extends State<EditingPage> {
                       decoration: const InputDecoration(
                         labelText: 'Password',
                       ),
-                      onChanged: (string) => !changes
+                      onChanged: (string) => !_changes
                           ? setState(() {
-                              changes = true;
+                              _changes = true;
                             })
                           : null,
                     ),
@@ -222,11 +256,11 @@ class _EditingPageState extends State<EditingPage> {
                             ),
                           ),
                           backgroundColor: MaterialStateProperty.all<Color>(
-                              changes
+                              _changes
                                   ? Theme.of(context).colorScheme.primary
                                   : Colors.blueGrey),
                         ),
-                        onPressed: changes ? _save : null,
+                        onPressed: _changes ? _save : null,
                         child: const Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: 25.0, vertical: 5.0),

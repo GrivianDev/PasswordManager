@@ -31,7 +31,9 @@ class HomePage extends StatelessWidget {
             SizedBox(
               width: 560,
               height: 80,
-              child: context.read<Settings>().isLightMode ? SvgPicture.asset('assets/lightLogo.svg') : SvgPicture.asset('assets/darkLogo.svg'),
+              child: context.read<Settings>().isLightMode
+                  ? SvgPicture.asset('assets/lightLogo.svg')
+                  : SvgPicture.asset('assets/darkLogo.svg'),
             ),
             Text(
               'Version: ${info.version}',
@@ -53,10 +55,23 @@ class HomePage extends StatelessWidget {
   }
 
   Future<void> _openLast(BuildContext context) async {
-    LocalDatabase database = LocalDatabase();
-    String lastPath = context.read<Settings>().lastOpenedPath;
+    final NavigatorState navigator = Navigator.of(context);
+    final LocalDatabase database = LocalDatabase();
+    final File file = File(context.read<Settings>().lastOpenedPath);
 
-    if (!context.mounted) return;
+    if (!file.existsSync()) {
+      Notify.dialog(
+        context: context,
+        type: NotificationType.error,
+        title: 'Error occured!',
+        content: Text(
+          'File does not exits',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+      );
+      return;
+    }
+
     String? pw = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -67,9 +82,7 @@ class HomePage extends StatelessWidget {
       ),
     );
 
-    File file = File(lastPath);
-
-    if (pw == null || !file.existsSync()) return;
+    if (pw == null) return;
     database.setSource(file, pw);
 
     try {
@@ -77,18 +90,30 @@ class HomePage extends StatelessWidget {
       Notify.showLoading(context: context);
       await database.load();
     } catch (e) {
-      //ERROR
-    } finally {
-      if (context.mounted) Navigator.pop(context);
+      if (!context.mounted) return;
+      await Notify.dialog(
+        context: context,
+        type: NotificationType.error,
+        title: 'Error occured!',
+        content: Text(
+          'Error during decryption',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+      );
+      navigator.pop();
+      return;
     }
+    navigator.pop();
 
     if (database.accounts.isEmpty && file.lengthSync() > 0) {
       if (!context.mounted) return;
-      _showErrorDialog(context);
+      Notify.dialog(
+        context: context,
+        type: NotificationType.error,
+        title: 'Found no relevant data in file',
+      );
     } else {
-      if (!context.mounted) return;
-      Navigator.push(
-        context,
+      navigator.push(
         MaterialPageRoute(
           builder: (context) => const ManagePage(title: 'Your accounts'),
         ),
@@ -97,7 +122,9 @@ class HomePage extends StatelessWidget {
   }
 
   Future<void> _selectFile(BuildContext context) async {
-    LocalDatabase database = LocalDatabase();
+    final NavigatorState navigator = Navigator.of(context);
+    final LocalDatabase database = LocalDatabase();
+    final Settings settings = context.read<Settings>();
 
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -108,59 +135,85 @@ class HomePage extends StatelessWidget {
         allowMultiple: false,
       );
 
-      if (result != null) {
-        File file = File(result.files.single.path ?? '');
-        if (!context.mounted || !file.path.endsWith('.x')) return;
-        String? pw = await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => PasswordGetterPage(
-              path: file.path,
-              title: 'Enter password',
+      if (result == null) return;
+
+      final File file = File(result.files.single.path ?? '');
+
+      if (!file.path.endsWith('.x')) {
+        if (context.mounted) {
+          Notify.dialog(
+            context: context,
+            type: NotificationType.error,
+            title: 'Error occured!',
+            content: Text(
+              'File extension is not supported',
+              style: Theme.of(context).textTheme.bodySmall,
             ),
+          );
+        }
+        return;
+      }
+
+      String? pw = await navigator.push(
+        MaterialPageRoute(
+          builder: (context) => PasswordGetterPage(
+            path: file.path,
+            title: 'Enter password',
+          ),
+        ),
+      );
+
+      if (pw == null || !file.existsSync()) return;
+      database.setSource(file, pw);
+
+      try {
+        if (!context.mounted) return;
+        Notify.showLoading(context: context);
+        await database.load();
+      } catch (e) {
+        if (!context.mounted) return;
+        await Notify.dialog(
+          context: context,
+          type: NotificationType.error,
+          title: 'Error occured!',
+          content: Text(
+            'Error during decryption',
+            style: Theme.of(context).textTheme.bodySmall,
           ),
         );
+        navigator.pop();
+        return;
+      }
+      navigator.pop();
 
-        if (pw == null || !file.existsSync()) return;
-        database.setSource(file, pw);
-
-        try {
-          if (!context.mounted) return;
-          showDialog(
-            barrierDismissible: false,
-            context: context,
-            builder: (context) => const Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
-          await database.load();
-        } catch (e) {
-          //ERROR
-        } finally {
-          if (context.mounted) Navigator.pop(context);
-        }
-
-        if (database.accounts.isEmpty && file.lengthSync() > 0) {
-          if (!context.mounted) return;
-          _showErrorDialog(context);
-        } else {
-          if (!context.mounted) return;
-          context.read<Settings>().setLastOpenedPath(file.path);
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const ManagePage(title: 'Your accounts'),
-            ),
-          );
-        }
+      if (database.accounts.isEmpty && file.lengthSync() > 0) {
+        if (!context.mounted) return;
+        Notify.dialog(
+          context: context,
+          type: NotificationType.error,
+          title: 'Found no relevant data in file',
+        );
+      } else {
+        settings.setLastOpenedPath(file.path);
+        navigator.push(
+          MaterialPageRoute(
+            builder: (context) => const ManagePage(title: 'Your accounts'),
+          ),
+        );
       }
     } catch (e) {
-      //General error
+      Notify.dialog(
+        context: context,
+        type: NotificationType.error,
+        title: 'Unknown error',
+      );
     }
   }
 
   Future<void> _createFile(BuildContext context) async {
-    LocalDatabase database = LocalDatabase();
+    final NavigatorState navigator = Navigator.of(context);
+    final LocalDatabase database = LocalDatabase();
+    final Settings settings = context.read<Settings>();
 
     try {
       String? path = await FilePicker.platform.getDirectoryPath(
@@ -168,54 +221,44 @@ class HomePage extends StatelessWidget {
         lockParentWindow: true,
       );
 
-      if (path != null) {
-        File file;
-        Random rand = Random.secure();
-        int tries = 1000;
-        do {
-          int random = rand.nextInt(10000) + 1000;
-          file = File('$path${Platform.pathSeparator}save-$random.x');
-          tries--;
-        } while (file.existsSync() && tries > 0);
+      if (path == null) return;
 
-        if (!context.mounted) return;
-        String? pw = await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => PasswordGetterPage(
-              path: file.path,
-              title: 'Set password for new file',
-            ),
+      File file;
+      Random rand = Random.secure();
+      int tries = 1000;
+      do {
+        int random = rand.nextInt(10000) + 1000;
+        file = File('$path${Platform.pathSeparator}save-$random.x');
+        tries--;
+      } while (file.existsSync() && tries > 0);
+      if(file.existsSync()) return;
+
+
+      String? pw = await navigator.push(
+        MaterialPageRoute(
+          builder: (context) => PasswordGetterPage(
+            path: file.path,
+            title: 'Set password for new file',
           ),
-        );
+        ),
+      );
 
-        if (pw == null || file.existsSync()) return;
-        database.setSource(file, pw);
+      if (pw == null) return;
+      database.setSource(file, pw);
 
-        if (!context.mounted) return;
-        context.read<Settings>().setLastOpenedPath(file.path);
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const ManagePage(title: 'Your accounts'),
-          ),
-        );
-      }
+      settings.setLastOpenedPath(file.path);
+      navigator.push(
+        MaterialPageRoute(
+          builder: (context) => const ManagePage(title: 'Your accounts'),
+        ),
+      );
     } catch (e) {
-      //General error
+      Notify.dialog(
+        context: context,
+        type: NotificationType.error,
+        title: 'Unknown error',
+      );
     }
-  }
-
-  Future<void> _showErrorDialog(BuildContext context) async {
-    await Notify.dialog(
-      context: context,
-      type: NotificationType.error,
-      title: 'Error occured!',
-      content: Text(
-        'Probable causes:\n-Wrong password\n-Decryption error',
-        style: Theme.of(context).textTheme.bodySmall,
-      ),
-    );
   }
 
   @override
@@ -270,7 +313,9 @@ class HomePage extends StatelessWidget {
                           SizedBox(
                             width: 560,
                             height: 120,
-                            child: context.read<Settings>().isLightMode ? SvgPicture.asset('assets/lightLogo.svg') : SvgPicture.asset('assets/darkLogo.svg'),
+                            child: context.read<Settings>().isLightMode
+                                ? SvgPicture.asset('assets/lightLogo.svg')
+                                : SvgPicture.asset('assets/darkLogo.svg'),
                           ),
                           Text(
                             'Select your save file:',
@@ -337,12 +382,12 @@ class HomePage extends StatelessWidget {
                               child: Text(
                                 'Create a new one',
                                 style: TextStyle(
-                                    fontSize: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.fontSize,
-                                    color:
-                                        Theme.of(context).colorScheme.primary),
+                                  fontSize: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.fontSize,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
                               ),
                             ),
                           ),

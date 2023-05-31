@@ -17,7 +17,11 @@ class ListElement extends StatelessWidget {
   final Account _account;
   final bool _isSearchResult;
 
-  Future<void> _save(BuildContext context) async {
+  void _save(BuildContext context) async {
+    final NavigatorState navigator = Navigator.of(context);
+    final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
+    final Color backgroundColor = Theme.of(context).colorScheme.primary;
+
     try {
       Notify.showLoading(context: context);
       await context.read<LocalDatabase>().save();
@@ -31,19 +35,45 @@ class ListElement extends StatelessWidget {
           style: Theme.of(context).textTheme.bodySmall,
         ),
       );
-    } finally {
-      if (context.mounted) {
-        Navigator.pop(context);
-        Navigator.pop(context);
-        if (_isSearchResult) Navigator.pop(context);
-      }
+      navigator.pop();
+      if (_isSearchResult) navigator.pop();
+      return;
     }
+    navigator.pop();
+    if (_isSearchResult) navigator.pop();
+
+    scaffoldMessenger.showSnackBar(
+      SnackBar(
+        duration: const Duration(seconds: 1),
+        backgroundColor: backgroundColor,
+        content: const Row(
+          children: [
+            Text(
+              'Saved changes',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 13,
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(left: 5.0),
+              child: Icon(
+                Icons.sync,
+                size: 15,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _copyClicked(BuildContext context) {
     Clipboard.setData(ClipboardData(text: _account.password));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
+        duration: const Duration(milliseconds: 1500),
         backgroundColor: Theme.of(context).colorScheme.primary,
         content: Text(
           'Copied password of "${_account.name}" to clipboard',
@@ -66,16 +96,10 @@ class ListElement extends StatelessWidget {
         style: Theme.of(context).textTheme.bodySmall,
       ),
       onConfirm: () {
+        Navigator.pop(context);
         context.read<LocalDatabase>().removeAccount(_account);
         if (context.read<Settings>().isAutoSaving) {
           _save(context);
-        } else {
-          if (_isSearchResult) {
-            Navigator.pop(context);
-            Navigator.pop(context);
-          } else {
-            Navigator.pop(context);
-          }
         }
       },
     );

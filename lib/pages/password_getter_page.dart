@@ -13,11 +13,13 @@ class PasswordGetterPage extends StatefulWidget {
 
 class _PasswordGetterPageState extends State<PasswordGetterPage> {
   late bool _isObscured;
+  late bool _changes;
   late TextEditingController _pwController;
 
   @override
   void initState() {
     _isObscured = true;
+    _changes = false;
     _pwController = TextEditingController();
     super.initState();
   }
@@ -59,6 +61,7 @@ class _PasswordGetterPageState extends State<PasswordGetterPage> {
                     Text(
                       widget.path ?? '',
                       style: Theme.of(context).textTheme.bodyMedium,
+                      textAlign: TextAlign.center,
                     ),
                     const SizedBox(
                       height: 10.0,
@@ -82,7 +85,11 @@ class _PasswordGetterPageState extends State<PasswordGetterPage> {
                               : Icons.visibility),
                         ),
                       ),
-                      onChanged: (string) => setState(() {}),
+                      onChanged: !_changes
+                          ? (string) => setState(() {
+                                _changes = true;
+                              })
+                          : null,
                       onSubmitted: (string) => _pwController.text.isNotEmpty
                           ? Navigator.pop(context, string)
                           : null,

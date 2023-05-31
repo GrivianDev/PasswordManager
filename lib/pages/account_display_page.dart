@@ -60,36 +60,32 @@ class AccountDisplay extends StatelessWidget {
                 builder: (context, database, child) => Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.all(25.0),
-                      child: SelectableText(
-                        'Tag:\n${_account.tag}',
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(25.0),
-                      child: SelectableText(
-                        'Info:\n${_account.info}',
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(25.0),
-                      child: SelectableText(
-                        'E-mail:\n${_account.email}',
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(25.0),
-                      child: SelectableText(
-                        'Password:\n${_account.password}',
-                      ),
-                    ),
+                    SelectableDisplay(text: 'Tag:\n${_account.tag}'),
+                    SelectableDisplay(text: 'Info:\n${_account.info}'),
+                    SelectableDisplay(text: 'E-mail:\n${_account.email}'),
+                    SelectableDisplay(text: 'Password:\n${_account.password}'),
                   ],
                 ),
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class SelectableDisplay extends StatelessWidget {
+  const SelectableDisplay({Key? key, required String text}) : _text = text, super(key: key);
+
+  final String _text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(25.0),
+      child: SelectableText(
+        _text,
       ),
     );
   }

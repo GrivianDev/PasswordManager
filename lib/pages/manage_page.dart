@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:passwordmanager/pages/widgets/account_list_view.dart';
 import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/local_database.dart';
 import 'package:passwordmanager/engine/persistance.dart';
@@ -26,10 +27,12 @@ class ManagePage extends StatelessWidget {
 
     List<ListElement> listElements = List.empty(growable: true);
     for (Account acc in list) {
-      listElements.add(ListElement(
-        account: acc,
-        isSearchResult: true,
-      ));
+      listElements.add(
+        ListElement(
+          account: acc,
+          isSearchResult: true,
+        ),
+      );
     }
 
     Notify.dialog(
@@ -46,36 +49,11 @@ class ManagePage extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildTagTile(BuildContext context, String tag) {
-    List<Account> accountsOfTag =
-        context.read<LocalDatabase>().getAccountsWithTag(tag);
-    List<Widget> children = List.of(accountsOfTag.isNotEmpty
-        ? [
-            Row(
-              children: [
-                const Expanded(
-                    child: Divider(thickness: 1.5, color: Colors.grey)),
-                Expanded(
-                  child: Text(
-                    tag,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                const Expanded(
-                    child: Divider(thickness: 1.5, color: Colors.grey)),
-              ],
-            ),
-          ]
-        : []);
-    for (Account acc in accountsOfTag) {
-      children.add(ListElement(account: acc));
-    }
-    return children;
-  }
-
   Future<void> _save(BuildContext context) async {
+    final NavigatorState navigator = Navigator.of(context);
+    final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
+    final Color backgroundColor = Theme.of(context).colorScheme.primary;
+
     try {
       Notify.showLoading(context: context);
       await context.read<LocalDatabase>().save();
@@ -83,15 +61,42 @@ class ManagePage extends StatelessWidget {
       await Notify.dialog(
         context: context,
         type: NotificationType.error,
-        title: 'Error: Could not save',
+        title: 'Error occured!',
         content: Text(
-          'Consider using a different save file.',
+          'Could not save changes! Consider using a different save file.',
           style: Theme.of(context).textTheme.bodySmall,
         ),
       );
-    } finally {
-      if (context.mounted) Navigator.pop(context);
+      navigator.pop();
+      return;
     }
+    navigator.pop();
+
+    scaffoldMessenger.showSnackBar(
+      SnackBar(
+        duration: const Duration(seconds: 1),
+        backgroundColor: backgroundColor,
+        content: const Row(
+          children: [
+            Text(
+              'Saved changes',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 13,
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(left: 5.0),
+              child: Icon(
+                Icons.sync,
+                size: 15,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -204,17 +209,7 @@ class ManagePage extends StatelessWidget {
                 ),
                 Expanded(
                   flex: 4,
-                  child: Consumer<LocalDatabase>(
-                    builder: (context, database, child) => ListView.builder(
-                      itemCount: database.tags.length,
-                      itemBuilder: (context, index) => ListView(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        children: _buildTagTile(
-                            context, database.tags.elementAt(index)),
-                      ),
-                    ),
-                  ),
+                  child: AccountListView(),
                 ),
               ],
             ),

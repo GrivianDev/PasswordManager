@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:passwordmanager/pages/widgets/splash.dart';
 import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/local_database.dart';
 import 'package:passwordmanager/engine/themes.dart';
 import 'package:passwordmanager/engine/persistance.dart';
-import 'package:passwordmanager/pages/home_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,9 +32,7 @@ class Application extends StatelessWidget {
           themeMode: context.watch<Settings>().isLightMode ? ThemeMode.light : ThemeMode.dark,
           theme: AppThemeData.lightTheme,
           darkTheme: AppThemeData.darkTheme,
-          home: const HomePage(
-            title: 'Home',
-          ),
+          home: const SplashScreen()
         );
       },
     );

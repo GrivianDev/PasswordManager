@@ -18,18 +18,28 @@ final class Notify {
     );
   }
 
-  static Future<void> dialog({required BuildContext context, required NotificationType type, String? title, Widget? content, void Function()? onConfirm}) async {
-    await showDialog(
+  static Future<void> dialog(
+      {required BuildContext context,
+      required NotificationType type,
+      String? title,
+      Widget? content,
+      void Function()? onConfirm}) {
+    return showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: title != null ? Text(
-          title ?? 'Notification',
-          style: TextStyle(
-            fontWeight: Theme.of(context).textTheme.headlineLarge!.fontWeight,
-            fontSize: Theme.of(context).textTheme.headlineLarge!.fontSize,
-            color: type == NotificationType.error ? Colors.red : Theme.of(context).textTheme.headlineLarge!.color,
-          ),
-        ) : null,
+        title: title != null
+            ? Text(
+                title ?? 'Notification',
+                style: TextStyle(
+                  fontWeight:
+                      Theme.of(context).textTheme.headlineLarge!.fontWeight,
+                  fontSize: Theme.of(context).textTheme.headlineLarge!.fontSize,
+                  color: type == NotificationType.error
+                      ? Colors.red
+                      : Theme.of(context).textTheme.headlineLarge!.color,
+                ),
+              )
+            : null,
         content: content,
         actionsAlignment: (type == NotificationType.confirmDialog ||
                 type == NotificationType.deleteDialog)

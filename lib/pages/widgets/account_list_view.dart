@@ -1,0 +1,56 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:passwordmanager/engine/implementation/account.dart';
+import 'package:passwordmanager/engine/local_database.dart';
+import 'package:passwordmanager/pages/widgets/list_element.dart';
+
+class AccountListView extends StatelessWidget {
+  //Needs to be not const
+  AccountListView({Key? key}) : super(key: key);
+
+  List<Widget> _buildTagTile(BuildContext context, String tag) {
+    List<Account> accountsOfTag =
+        context.read<LocalDatabase>().getAccountsWithTag(tag);
+    List<Widget> children = List.of(accountsOfTag.isNotEmpty
+        ? [
+            Row(
+              children: [
+                const Expanded(
+                    child: Divider(thickness: 1.5, color: Colors.grey)),
+                Expanded(
+                  child: Text(
+                    tag,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const Expanded(
+                    child: Divider(thickness: 1.5, color: Colors.grey)),
+              ],
+            ),
+          ]
+        : []);
+    for (Account acc in accountsOfTag) {
+      children.add(ListElement(account: acc));
+    }
+    return children;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<LocalDatabase>(
+      builder: (context, database, child) => ListView.builder(
+        itemCount: database.tags.length,
+        itemBuilder: (context, index) => ListView(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          children: _buildTagTile(
+            context,
+            database.tags.elementAt(index),
+          ),
+        ),
+      ),
+    );
+  }
+}

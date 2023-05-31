@@ -36,20 +36,20 @@ final class LocalDatabase extends ChangeNotifier {
   static String generateStringFromAccounts(List<Account> accounts) {
     const chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
     Random rand = Random.secure();
-    String string = '';
+    StringBuffer buffer = StringBuffer();
     for(int i = 0; i < accounts.length; i++) {
       int length = rand.nextInt(64) + 1;
       for(int j = 0; j < length; j++) {
-        string += String.fromCharCode(chars.codeUnitAt(rand.nextInt(chars.length)));
+        buffer.write(String.fromCharCode(chars.codeUnitAt(rand.nextInt(chars.length))));
       }
-      string += accounts.elementAt(i).toString();
+      buffer.write(accounts.elementAt(i).toString());
     }
     int length = rand.nextInt(64) + 1;
     for(int j = 0; j < length; j++) {
-      string += String.fromCharCode(chars.codeUnitAt(rand.nextInt(chars.length)));
+      buffer.write(String.fromCharCode(chars.codeUnitAt(rand.nextInt(chars.length))));
     }
 
-    return string;
+    return buffer.toString();
   }
 
   LocalDatabase._create()
@@ -73,8 +73,8 @@ final class LocalDatabase extends ChangeNotifier {
   }
 
   Future<void> load() async {
-    await Future.delayed(const Duration(seconds: 1));
     if(_sourceFile != null && _password != null) {
+      await Future.delayed(const Duration(seconds: 1));
       List<Account> list = LocalDatabase.getAccountsFromString(EncryptionProvider.encryption.decrypt(encryptedText: await _sourceFile?.readAsString(encoding: utf8) ?? '', password: _password!));
       _addAllAccounts(list);
     } else {
@@ -83,8 +83,8 @@ final class LocalDatabase extends ChangeNotifier {
   }
 
   Future<void> save() async {
-    await Future.delayed(const Duration(seconds: 1));
     if(_sourceFile != null && _password != null) {
+      await Future.delayed(const Duration(seconds: 1));
       if(_sourceFile!.existsSync()) await _sourceFile?.create(recursive: true);
       await _sourceFile?.writeAsString(EncryptionProvider.encryption.encrypt(plainText: LocalDatabase.generateStringFromAccounts(_accounts), password: _password!), encoding: utf8);
     } else {
