@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:passwordmanager/engine/local_database.dart';
@@ -12,11 +13,17 @@ import 'package:passwordmanager/pages/password_getter_page.dart';
 import 'package:passwordmanager/pages/widgets/home_navbar.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 
+/// The entry point of the application. Can display the current version information and provides options for:
+/// * Searching a save file
+/// * Reopening the last save file
+/// * Creating a new save file
 class HomePage extends StatelessWidget {
   const HomePage({Key? key, required this.title}) : super(key: key);
 
   final String title;
 
+  /// Displays the current app information such as the version number.
+  /// Additionally shows a link to the github repository.
   Future<void> _displayInfo(BuildContext context) async {
     PackageInfo info = await PackageInfo.fromPlatform();
 
@@ -40,6 +47,20 @@ class HomePage extends StatelessWidget {
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 25),
+            TextButton(
+              onPressed: () async => await launchUrl(Uri.parse('https://github.com/grievous110/PasswordManager/tree/main')),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.code),
+                  Padding(
+                    padding: EdgeInsets.only(left: 5.0),
+                    child: Text('View code'),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 25),
             Text(
               'created by:',
               style: Theme.of(context).textTheme.bodySmall,
@@ -54,6 +75,11 @@ class HomePage extends StatelessWidget {
     );
   }
 
+  /// Tries to open the last save file through the [Settings.lastOpenedPath] property.
+  /// Cases an error is thrown:
+  /// * The file does not exist anymore
+  /// * The file could not be correctly decrypted / wrong password
+  /// * Everything worked but there was not at least one account loaded in the [LocalDatabase]
   Future<void> _openLast(BuildContext context) async {
     final NavigatorState navigator = Navigator.of(context);
     final LocalDatabase database = LocalDatabase();
@@ -65,7 +91,7 @@ class HomePage extends StatelessWidget {
         type: NotificationType.error,
         title: 'Error occured!',
         content: Text(
-          'File does not exits',
+          'File does not exist',
           style: Theme.of(context).textTheme.bodySmall,
         ),
       );
@@ -121,6 +147,12 @@ class HomePage extends StatelessWidget {
     }
   }
 
+  /// Tries to open a save file by using the platform specific filepicker.
+  /// Cases an error is thrown:
+  /// * The file extension is NOT ".x"
+  /// * The file could not be correctly decrypted / wrong password
+  /// * Everything worked but there was not at least one account loaded in the [LocalDatabase]
+  /// * An unknown error occured
   Future<void> _selectFile(BuildContext context) async {
     final NavigatorState navigator = Navigator.of(context);
     final LocalDatabase database = LocalDatabase();
@@ -210,6 +242,12 @@ class HomePage extends StatelessWidget {
     }
   }
 
+
+  /// Tries to "create" the last save file through the [Settings.lastOpenedPath] property.
+  /// Note: the file itself is only created once the [LocalDatabase] saves for the first time.
+  /// Cases an error is thrown:
+  /// * An unknown error occured
+  /// * Special case (nothing happens): The autogeneration didnt find a file that did not already exist before.
   Future<void> _createFile(BuildContext context) async {
     final NavigatorState navigator = Navigator.of(context);
     final LocalDatabase database = LocalDatabase();
@@ -231,8 +269,7 @@ class HomePage extends StatelessWidget {
         file = File('$path${Platform.pathSeparator}save-$random.x');
         tries--;
       } while (file.existsSync() && tries > 0);
-      if(file.existsSync()) return;
-
+      if (file.existsSync()) return;
 
       String? pw = await navigator.push(
         MaterialPageRoute(

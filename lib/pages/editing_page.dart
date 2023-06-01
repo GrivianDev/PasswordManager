@@ -5,6 +5,8 @@ import 'package:passwordmanager/engine/local_database.dart';
 import 'package:passwordmanager/engine/persistance.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 
+/// A Stateful widget that provides the option to edit account templates.
+/// Note: The EditingPage is used for creating AND editing [Account] instances despite it beeing named "EditingPage".
 class EditingPage extends StatefulWidget {
   const EditingPage({Key? key, required this.title, Account? account})
       : _account = account,
@@ -17,6 +19,7 @@ class EditingPage extends StatefulWidget {
   State<EditingPage> createState() => _EditingPageState();
 }
 
+/// State that stores all data with controllers. Changes can only be applied if something has indeed changed at least once.
 class _EditingPageState extends State<EditingPage> {
   late bool _changes;
   late final TextEditingController _nameController;
@@ -25,6 +28,10 @@ class _EditingPageState extends State<EditingPage> {
   late final TextEditingController _emailController;
   late final TextEditingController _pwController;
 
+  /// Asynchronous method to save the fact that the account has been edited or added.
+  /// Note: this method is executes even if autosaving is not active. Changes are
+  /// only persisted if autosiaving is active.
+  /// Displays a snackbar if succeded.
   Future<void> _save() async {
     final NavigatorState navigator = Navigator.of(context);
     final ScaffoldMessengerState scaffoldMessenger =
@@ -53,7 +60,7 @@ class _EditingPageState extends State<EditingPage> {
 
       scaffoldMessenger.showSnackBar(
         SnackBar(
-          duration: const Duration(seconds: 1),
+          duration: const Duration(milliseconds: 1500),
           backgroundColor: backgroundColor,
           content: const Row(
             children: [
@@ -80,20 +87,36 @@ class _EditingPageState extends State<EditingPage> {
     if (success) navigator.pop();
   }
 
+  /// Returns true if and only if all criteria is met. Uses the [_isInvalidInput] method to verify:
+  /// * [LocalDataBase] does allow a new account when trying to add another.
+  /// * Input contain no dissallowed characters.
   bool _confirmChanges() {
     final LocalDatabase dataBase = LocalDatabase();
     bool valid = !_isInvalidInput();
     if (valid) {
       if (widget._account == null) {
-        dataBase.addAccount(
-          Account(
-            name: _nameController.text,
-            tag: _tagController.text,
-            info: _infoController.text,
-            email: _emailController.text,
-            password: _pwController.text,
-          ),
-        );
+        try {
+          dataBase.addAccount(
+            Account(
+              name: _nameController.text,
+              tag: _tagController.text,
+              info: _infoController.text,
+              email: _emailController.text,
+              password: _pwController.text,
+            ),
+          );
+        } catch(e) {
+          Notify.dialog(
+            context: context,
+            type: NotificationType.error,
+            title: 'Maximum of accounts reached!',
+            content: Text(
+              'That is a lot of accounts. Maybe delete some?',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          );
+          return false;
+        }
       } else {
         String oldTag = widget._account!.tag;
         widget._account?.setName = _nameController.text;
@@ -107,7 +130,7 @@ class _EditingPageState extends State<EditingPage> {
       Notify.dialog(
         context: context,
         type: NotificationType.error,
-        title: 'Contains disallowed character',
+        title: 'Contains disallowed character!',
         content: Text(
           'Consider using a different character instead of ${LocalDatabase.disallowedCharacter}.\nThis chracter is used for formatting so try to avoid it.',
           style: Theme.of(context).textTheme.bodySmall,

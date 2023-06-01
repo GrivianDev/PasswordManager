@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+/// Widget that provides a password upon beeing popped. The user is asked to type in a password that
+/// the is used to encrypt data.
 class PasswordGetterPage extends StatefulWidget {
   const PasswordGetterPage({Key? key, required this.path, required this.title})
       : super(key: key);
@@ -11,6 +13,7 @@ class PasswordGetterPage extends StatefulWidget {
   State<PasswordGetterPage> createState() => _PasswordGetterPageState();
 }
 
+/// State checking that passwords can only be submitted if the text input has changed at least once.
 class _PasswordGetterPageState extends State<PasswordGetterPage> {
   late bool _isObscured;
   late bool _changes;

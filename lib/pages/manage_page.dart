@@ -9,20 +9,27 @@ import 'package:passwordmanager/pages/widgets/navbar.dart';
 import 'package:passwordmanager/pages/editing_page.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 
+/// The main core page of this project. The widget provides four main fuctionalites:
+/// * A Searchbar to search for specific [Account] instances that contain the keyword.
+/// * An [AccountListView] to display all accounts in a scrollable way.
+/// * Button for saving changes.
+/// * Button for adding a new [Account].
 class ManagePage extends StatelessWidget {
   const ManagePage({super.key, required this.title});
 
   final String title;
 
+  /// Case insensetive search for accounts. A widget is displayed with the found accoutns.
   void _search(BuildContext context, String string) {
+    string = string.toLowerCase();
     List<Account> list = LocalDatabase()
         .accounts
         .where((element) =>
-            element.name.contains(string) |
-            element.tag.contains(string) |
-            element.info.contains(string) |
-            element.email.contains(string) |
-            element.password.contains(string))
+            element.name.toLowerCase().contains(string) |
+            element.tag.toLowerCase().contains(string) |
+            element.info.toLowerCase().contains(string) |
+            element.email.toLowerCase().contains(string) |
+            element.password.toLowerCase().contains(string))
         .toList();
 
     List<ListElement> listElements = List.empty(growable: true);
@@ -49,6 +56,9 @@ class ManagePage extends StatelessWidget {
     );
   }
 
+  /// Asynchronous method to save the fact that changes happened.
+  /// Note: Can only accessed through the button that is only visible when autosaving is not activated.
+  /// Displays a snackbar if succeded.
   Future<void> _save(BuildContext context) async {
     final NavigatorState navigator = Navigator.of(context);
     final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
@@ -74,7 +84,7 @@ class ManagePage extends StatelessWidget {
 
     scaffoldMessenger.showSnackBar(
       SnackBar(
-        duration: const Duration(seconds: 1),
+        duration: const Duration(milliseconds: 1500),
         backgroundColor: backgroundColor,
         content: const Row(
           children: [

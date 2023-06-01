@@ -4,8 +4,11 @@ import 'package:passwordmanager/engine/implementation/account.dart';
 import 'package:passwordmanager/engine/local_database.dart';
 import 'package:passwordmanager/pages/widgets/list_element.dart';
 
+/// The ListView displaying all [Account] instances based on the tag and order in the alphabet.
+/// "Relativly" expensive because changes need to call the [_buildTagTile] everytime the database adds,
+/// edits or removes accounts.
 class AccountListView extends StatelessWidget {
-  //Needs to be not const
+  //Needs to be not const. Otherwise [_builTagTile] will not be called as needed.
   AccountListView({Key? key}) : super(key: key);
 
   List<Widget> _buildTagTile(BuildContext context, String tag) {

@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:passwordmanager/engine/persistance.dart';
 import 'package:passwordmanager/pages/home_page.dart';
 
+/// Little animated Splashcreen that navigates to the [HomePage] automaticly after a few seconds.
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
 

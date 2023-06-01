@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:passwordmanager/pages/manage_page.dart';
 import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/persistance.dart';
 import 'package:passwordmanager/engine/local_database.dart';
 
+/// Navbar that gives more options, in particular the option to activate and deactivate autosaving.
+/// Also this widget is the only option to exit the [ManagePage]. External tries to exit the page for example
+/// through the Android back button are suppressed. You have to explicitly leave the page through clicking logout.
 class NavBar extends StatelessWidget {
   const NavBar({Key? key}) : super(key: key);
 
+  /// Exits the [ManagePage] and completly wipes the database by calling [LocalDatabase.clear].
   void _exit(BuildContext context) {
     LocalDatabase().clear();
     Navigator.pop(context);
@@ -26,6 +31,8 @@ class NavBar extends StatelessWidget {
           const Divider(color: Colors.grey),
           Row(
             children: [
+              // This doesnt need to active watch the settings property because a theme change will trigger an automatic rebuild
+              // since the MaterialApp is already watching the theme.
               Switch.adaptive(
                 value: context.read<Settings>().isLightMode,
                 onChanged: (value) {
@@ -46,6 +53,7 @@ class NavBar extends StatelessWidget {
           const Divider(color: Colors.grey),
           Row(
             children: [
+              // This watches the isAutoSaving property because it is not rebuild otherwise.
               Switch.adaptive(
                 value: context.watch<Settings>().isAutoSaving,
                 onChanged: (value) {

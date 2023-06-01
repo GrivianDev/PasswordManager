@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+/// Class that provides the themedata used in this project.
+/// The data can be accessed through the static getters [darkTheme] and [lightTheme].
 class AppThemeData {
   static final ThemeData darkTheme = ThemeData(
     primaryColor: const Color.fromRGBO(46, 50, 51, 1),

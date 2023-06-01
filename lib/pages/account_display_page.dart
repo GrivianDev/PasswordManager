@@ -4,6 +4,7 @@ import 'package:passwordmanager/engine/local_database.dart';
 import 'package:passwordmanager/engine/implementation/account.dart';
 import 'package:passwordmanager/pages/editing_page.dart';
 
+/// Simple widget for displaying all data of an [Accout]. Can navigate to the [EditPage] for editing the displayed account.
 class AccountDisplay extends StatelessWidget {
   const AccountDisplay(
       {Key? key, required Account account, bool accessedThroughSearch = false})

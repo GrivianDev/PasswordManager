@@ -7,7 +7,10 @@ import 'package:passwordmanager/engine/persistance.dart';
 import 'package:passwordmanager/pages//other/notifications.dart';
 import 'package:passwordmanager/pages/account_display_page.dart';
 
+/// An element in the account list. The Widget itself is clickable wich navigates to the [AccountDisplayPage] of the stored [Account] instance.
+/// Hovewer, this widget also provides the option to copy the password of the stored account to the clipboard or delete the account.
 class ListElement extends StatelessWidget {
+  // The _isSearchResult property states if an additional widget (the search result widget) needs to be popped in addition to the loading screen when saving.
   const ListElement(
       {Key? key, required Account account, bool isSearchResult = false})
       : _account = account,
@@ -17,6 +20,8 @@ class ListElement extends StatelessWidget {
   final Account _account;
   final bool _isSearchResult;
 
+  /// Asynchronous method to save the fact that the account has been deleted.
+  /// Displays a snackbar if succeded.
   void _save(BuildContext context) async {
     final NavigatorState navigator = Navigator.of(context);
     final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
@@ -44,7 +49,7 @@ class ListElement extends StatelessWidget {
 
     scaffoldMessenger.showSnackBar(
       SnackBar(
-        duration: const Duration(seconds: 1),
+        duration: const Duration(milliseconds: 1500),
         backgroundColor: backgroundColor,
         content: const Row(
           children: [
@@ -73,7 +78,7 @@ class ListElement extends StatelessWidget {
     Clipboard.setData(ClipboardData(text: _account.password));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        duration: const Duration(milliseconds: 1500),
+        duration: const Duration(seconds: 2),
         backgroundColor: Theme.of(context).colorScheme.primary,
         content: Text(
           'Copied password of "${_account.name}" to clipboard',
@@ -86,6 +91,8 @@ class ListElement extends StatelessWidget {
     );
   }
 
+  /// Displays a dialog to avoid accidentally deleting accounts. If autosaving is active
+  /// then the [_save] method is called.
   void _deleteClicked(BuildContext context) {
     Notify.dialog(
       context: context,
