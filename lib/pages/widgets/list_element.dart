@@ -150,7 +150,7 @@ class ListElement extends StatelessWidget {
                 color: Theme.of(context).highlightColor,
               ),
             ),
-            IconButton(
+            if(Settings.isWindows) IconButton(
               onPressed: () => _deleteClicked(context),
               icon: const Icon(
                 Icons.delete_outline,

@@ -12,8 +12,8 @@ import 'package:passwordmanager/pages/other/notifications.dart';
 /// The main core page of this project. The widget provides four main fuctionalites:
 /// * A Searchbar to search for specific [Account] instances that contain the keyword.
 /// * An [AccountListView] to display all accounts in a scrollable way.
-/// * Button for saving changes.
-/// * Button for adding a new [Account].
+/// * Button for saving changes (Only on windows).
+/// * Button for adding a new [Account] (Only on windows).
 class ManagePage extends StatelessWidget {
   const ManagePage({super.key, required this.title});
 
@@ -32,7 +32,7 @@ class ManagePage extends StatelessWidget {
             element.password.toLowerCase().contains(string))
         .toList();
 
-    List<ListElement> listElements = List.empty(growable: true);
+    List<Widget> listElements = List.empty(growable: true);
     for (Account acc in list) {
       listElements.add(
         ListElement(
@@ -42,10 +42,22 @@ class ManagePage extends StatelessWidget {
       );
     }
 
+    int count = listElements.length;
+    if (listElements.isEmpty) {
+      listElements.add(
+        const Center(
+          child: Icon(
+            Icons.no_accounts,
+            size: 50.0,
+          ),
+        ),
+      );
+    }
+
     Notify.dialog(
       context: context,
       type: NotificationType.notification,
-      title: 'Search results for "$string":',
+      title: '$count result(s) for "$string":',
       content: SizedBox(
         width: double.maxFinite,
         child: ListView(
@@ -61,7 +73,8 @@ class ManagePage extends StatelessWidget {
   /// Displays a snackbar if succeded.
   Future<void> _save(BuildContext context) async {
     final NavigatorState navigator = Navigator.of(context);
-    final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
+    final ScaffoldMessengerState scaffoldMessenger =
+        ScaffoldMessenger.of(context);
     final Color backgroundColor = Theme.of(context).colorScheme.primary;
 
     try {
@@ -133,21 +146,23 @@ class ManagePage extends StatelessWidget {
           backgroundColor: Theme.of(context).primaryColor,
           title: Text(title, style: Theme.of(context).textTheme.headlineLarge),
         ),
-        floatingActionButton: FloatingActionButton(
-          backgroundColor: Colors.green,
-          child: const Icon(
-            Icons.add,
-            color: Colors.white,
-          ),
-          onPressed: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const EditingPage(
-                title: 'Create account',
-              ),
-            ),
-          ),
-        ),
+        floatingActionButton: Settings.isWindows
+            ? FloatingActionButton(
+                backgroundColor: Colors.green,
+                child: const Icon(
+                  Icons.add,
+                  color: Colors.white,
+                ),
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const EditingPage(
+                      title: 'Create account',
+                    ),
+                  ),
+                ),
+              )
+            : null,
         backgroundColor: Theme.of(context).primaryColor,
         body: Container(
           decoration: BoxDecoration(
@@ -177,42 +192,43 @@ class ManagePage extends StatelessWidget {
                             onSubmitted: (string) => _search(context, string),
                           ),
                         ),
-                        Consumer<Settings>(
-                          builder: (context, settings, child) => settings
-                                  .isAutoSaving
-                              ? Container()
-                              : Padding(
-                                  padding: const EdgeInsets.only(left: 15.0),
-                                  child: ElevatedButton(
-                                    onPressed: () => _save(context),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(12.0),
-                                      child: Row(
-                                        children: [
-                                          const Padding(
-                                            padding:
-                                                EdgeInsets.only(right: 10.0),
-                                            child: Icon(
-                                              Icons.save,
-                                              color: Colors.white,
+                        if (Settings.isWindows)
+                          Consumer<Settings>(
+                            builder: (context, settings, child) => settings
+                                    .isAutoSaving
+                                ? Container()
+                                : Padding(
+                                    padding: const EdgeInsets.only(left: 15.0),
+                                    child: ElevatedButton(
+                                      onPressed: () => _save(context),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(12.0),
+                                        child: Row(
+                                          children: [
+                                            const Padding(
+                                              padding:
+                                                  EdgeInsets.only(right: 10.0),
+                                              child: Icon(
+                                                Icons.save,
+                                                color: Colors.white,
+                                              ),
                                             ),
-                                          ),
-                                          Text(
-                                            'Save',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: Theme.of(context)
-                                                  .textTheme
-                                                  .bodySmall
-                                                  ?.fontSize,
+                                            Text(
+                                              'Save',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: Theme.of(context)
+                                                    .textTheme
+                                                    .bodySmall
+                                                    ?.fontSize,
+                                              ),
                                             ),
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                        ),
+                          ),
                       ],
                     ),
                   ),

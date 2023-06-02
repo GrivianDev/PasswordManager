@@ -15,8 +15,8 @@ import 'package:passwordmanager/pages/other/notifications.dart';
 
 /// The entry point of the application. Can display the current version information and provides options for:
 /// * Searching a save file
-/// * Reopening the last save file
-/// * Creating a new save file
+/// * Reopening the last save file (only on Windows)
+/// * Creating a new save file (only on Windows)
 class HomePage extends StatelessWidget {
   const HomePage({Key? key, required this.title}) : super(key: key);
 
@@ -48,7 +48,8 @@ class HomePage extends StatelessWidget {
             ),
             const SizedBox(height: 25),
             TextButton(
-              onPressed: () async => await launchUrl(Uri.parse('https://github.com/grievous110/PasswordManager/tree/main')),
+              onPressed: () async => await launchUrl(Uri.parse(
+                  'https://github.com/grievous110/PasswordManager/tree/main')),
               child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -85,6 +86,7 @@ class HomePage extends StatelessWidget {
     final LocalDatabase database = LocalDatabase();
     final File file = File(context.read<Settings>().lastOpenedPath);
 
+    if (!context.mounted) return;
     if (!file.existsSync()) {
       Notify.dialog(
         context: context,
@@ -158,11 +160,14 @@ class HomePage extends StatelessWidget {
     final LocalDatabase database = LocalDatabase();
     final Settings settings = context.read<Settings>();
 
+    if (!Platform.isWindows) await FilePicker.platform.clearTemporaryFiles();
+
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         lockParentWindow: true,
         dialogTitle: 'Select your save file',
         type: FileType.any,
+        allowCompression: false,
         //allowedExtensions: ['x'],
         allowMultiple: false,
       );
@@ -234,6 +239,7 @@ class HomePage extends StatelessWidget {
         );
       }
     } catch (e) {
+      if (!context.mounted) return;
       Notify.dialog(
         context: context,
         type: NotificationType.error,
@@ -241,7 +247,6 @@ class HomePage extends StatelessWidget {
       );
     }
   }
-
 
   /// Tries to "create" the last save file through the [Settings.lastOpenedPath] property.
   /// Note: the file itself is only created once the [LocalDatabase] saves for the first time.
@@ -324,7 +329,15 @@ class HomePage extends StatelessWidget {
           ),
         ],
         backgroundColor: Theme.of(context).primaryColor,
-        title: Text(title, style: Theme.of(context).textTheme.headlineLarge),
+        title: Row(
+          children: [
+            Text(title, style: Theme.of(context).textTheme.headlineLarge),
+            Padding(
+              padding: const EdgeInsets.only(left: 20.0, top: 5.0),
+              child: Icon(Settings.isWindows ? Icons.desktop_windows_outlined : Icons.phone_android_outlined),
+            ),
+          ],
+        ),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -369,11 +382,13 @@ class HomePage extends StatelessWidget {
                               ),
                             ),
                             onPressed: () => _selectFile(context),
-                            child: const Padding(
-                              padding: EdgeInsets.symmetric(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
                                   horizontal: 25.0, vertical: 2.5),
                               child: Icon(
-                                Icons.search,
+                                Platform.isAndroid
+                                    ? Icons.remove_red_eye
+                                    : Icons.search,
                                 size: 40,
                                 color: Colors.white,
                               ),
@@ -383,53 +398,56 @@ class HomePage extends StatelessWidget {
                       ),
                       const Spacer(),
                       const SizedBox(height: 35),
-                      Consumer<Settings>(
-                        builder: (context, settings, child) =>
-                            settings.lastOpenedPath.isNotEmpty
-                                ? TextButton(
-                                    onPressed: () => _openLast(context),
-                                    child: Text(
-                                      'Open last: ${settings.lastOpenedPath}',
-                                      style: TextStyle(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
-                                        fontSize: Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium
-                                            ?.fontSize,
+                      if (Settings.isWindows) ...[
+                        Consumer<Settings>(
+                          builder: (context, settings, child) =>
+                              settings.lastOpenedPath.isNotEmpty
+                                  ? TextButton(
+                                      onPressed: () => _openLast(context),
+                                      child: Text(
+                                        'Open last: ${settings.lastOpenedPath}',
+                                        style: TextStyle(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                          fontSize: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium
+                                              ?.fontSize,
+                                        ),
+                                        textAlign: TextAlign.center,
                                       ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  )
-                                : Container(),
-                      ),
-                      const Spacer(),
-                      const SizedBox(height: 35),
-                      Column(
-                        children: [
-                          Text(
-                            'No save file?',
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                          TextButton(
-                            onPressed: () => _createFile(context),
-                            child: Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Text(
-                                'Create a new one',
-                                style: TextStyle(
-                                  fontSize: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium
-                                      ?.fontSize,
-                                  color: Theme.of(context).colorScheme.primary,
+                                    )
+                                  : Container(),
+                        ),
+                        const Spacer(),
+                        const SizedBox(height: 35),
+                        Column(
+                          children: [
+                            Text(
+                              'No save file?',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                            TextButton(
+                              onPressed: () => _createFile(context),
+                              child: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Text(
+                                  'Create a new one',
+                                  style: TextStyle(
+                                    fontSize: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.fontSize,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
+                          ],
+                        ),
+                      ],
                     ],
                   ),
                 ),

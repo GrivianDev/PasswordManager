@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/persistance.dart';
 import 'package:passwordmanager/engine/local_database.dart';
 
-/// Navbar that gives more options, in particular the option to activate and deactivate autosaving.
+/// Navbar that gives more options, in particular the option to activate and deactivate autosaving (Is deactivated on windows).
 /// Also this widget is the only option to exit the [ManagePage]. External tries to exit the page for example
 /// through the Android back button are suppressed. You have to explicitly leave the page through clicking logout.
 class NavBar extends StatelessWidget {
@@ -51,26 +51,28 @@ class NavBar extends StatelessWidget {
             ],
           ),
           const Divider(color: Colors.grey),
-          Row(
-            children: [
-              // This watches the isAutoSaving property because it is not rebuild otherwise.
-              Switch.adaptive(
-                value: context.watch<Settings>().isAutoSaving,
-                onChanged: (value) {
-                  context.read<Settings>().setAutoSaving(value);
-                },
-              ),
-              Expanded(
-                child: Text(
-                  context.read<Settings>().isAutoSaving
-                      ? 'Autosaving'
-                      : 'Manual saving',
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
+          if(Settings.isWindows) ... [
+            Row(
+              children: [
+                // This watches the isAutoSaving property because it is not rebuild otherwise.
+                Switch.adaptive(
+                  value: context.watch<Settings>().isAutoSaving,
+                  onChanged: (value) {
+                    context.read<Settings>().setAutoSaving(value);
+                  },
                 ),
-              ),
-            ],
-          ),
+                Expanded(
+                  child: Text(
+                    context.read<Settings>().isAutoSaving
+                        ? 'Autosaving'
+                        : 'Manual saving',
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
+            ),
+          ],
           Divider(color: Theme.of(context).colorScheme.background),
           Padding(
             padding: const EdgeInsets.only(top: 20.0),

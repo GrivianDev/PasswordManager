@@ -1,4 +1,5 @@
 import 'dart:core';
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -9,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class Settings extends ChangeNotifier {
   static late final SharedPreferences _instance;
 
+  static final isWindows = Platform.isWindows;
   static const _keyLightMode = 'mode';
   static const _keyLastOpenedPath = 'path';
   static const _keyAutoSaving = 'saving';
