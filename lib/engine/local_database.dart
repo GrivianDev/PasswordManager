@@ -130,7 +130,7 @@ final class LocalDatabase extends ChangeNotifier {
   /// Method to add a new [Account] to the database. The intern List will sort accounts and tags alphabetically.
   /// If the new Account has a tag that was not used before it will be saved in the [_tagsUsed] property.
   /// If there are to many accounts already present (specified in [LocalDatabase._maxCapacity]) and Exception is thrown.
-  /// * A call to this method notifies all listeners.
+  /// * A call to this method notifies all listeners if [Account] was added.
   void addAccount(Account acc) {
     if (_accounts.length < LocalDatabase._maxCapacity) {
       _accounts.add(acc);
@@ -156,14 +156,14 @@ final class LocalDatabase extends ChangeNotifier {
 
   /// Method to remove the given [Account] from the database. If the old tag is not used by
   /// other accounts then this property will be removed from the database.
-  /// * A call to this method notifies all listeners.
+  /// * A call to this method notifies all listeners if [Account] was removed.
   void removeAccount(Account acc) {
     if (_accounts.remove(acc)) {
       if (!_accounts.any((element) => element.tag == acc.tag)) {
         _tagsUsed.remove(acc.tag);
       }
+      notifyListeners();
     }
-    notifyListeners();
   }
 
   /// Returns all [Account] references that have this particular tag.

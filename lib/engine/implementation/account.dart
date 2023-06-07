@@ -1,9 +1,10 @@
 import 'package:passwordmanager/engine/local_database.dart';
 
+/// Core class that holds information about an account.
+/// Implements the [Comparable] interface. The natural order of
+/// instances is the lowercase alphabetical order.
 final class Account implements Comparable<Account> {
   static const String _noEntry = 'none';
-  static int _idSeed = 0;
-  final int id;
 
   late String _tag;
 
@@ -18,7 +19,7 @@ final class Account implements Comparable<Account> {
       String? info,
       String? email,
       String? password})
-      : id = ++_idSeed {
+  {
     setTag = tag;
     setName = name;
     setInfo = info;
@@ -48,6 +49,7 @@ final class Account implements Comparable<Account> {
     return name.toLowerCase().compareTo(other.name.toLowerCase());
   }
 
+  /// Returns a format that can be easily read from a string with a RegEx.
   @override
   String toString() {
     String c = LocalDatabase.disallowedCharacter;
