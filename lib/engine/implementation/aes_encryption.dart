@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+import 'package:crypto/crypto.dart';
 import 'package:encrypt/encrypt.dart';
 import 'package:passwordmanager/engine/encryption.dart';
 
@@ -10,8 +13,8 @@ final class AESEncryption implements Encryption {
   /// Uses [_inflatePassword] to generate the full 256 bit key.
   @override
   String encrypt({required String plainText, required String password}) {
-    password = _inflatePassword(password);
-    Encrypter crypt = Encrypter(AES(Key.fromUtf8(password)));
+    Uint8List hash = AESEncryption.sha256Hash(utf8.encode(password));
+    Encrypter crypt = Encrypter(AES(Key(hash)));
     Encrypted encrypted = crypt.encrypt(plainText, iv: IV.fromLength(16));
     return encrypted.base64;
   }
@@ -21,25 +24,20 @@ final class AESEncryption implements Encryption {
   /// Uses [_inflatePassword] to generate the full 256 bit key.
   @override
   String decrypt({required String encryptedText, required String password}) {
-    password = _inflatePassword(password);
-    Encrypter crypt = Encrypter(AES(Key.fromUtf8(password)));
+    Uint8List hash = AESEncryption.sha256Hash(utf8.encode(password));
+    Encrypter crypt = Encrypter(AES(Key(hash)));
     String decrypted = crypt.decrypt64(encryptedText, iv: IV.fromLength(16));
     return decrypted;
   }
 
-  /// AES 256 bit requires a 256 bit key (in this implementation an utf8 string of length 32 [32*8=256]). However,
-  /// users should not be forced to always have a password containing exactly 32 characters. This method appends the
-  /// hashcode of the password as string until the length of 32 is reached. Appending the hash is safer because of its relative unpredictablility
-  /// than concatenating the password "hello" to the key "hellohellohellohellohellohellohe". Otherwise "hello" and "hellohello" for example would generate the same key.
-  String _inflatePassword(String password) {
-    String hash = password.hashCode.toString();
-    int missing = 32 - password.length;
-    while(hash.length < missing) {
-      hash += hash;
-    }
-    if(missing > 0) {
-      password += hash.substring(0, missing);
-    }
-    return password;
+  /// AES 256 bit requires a 256 bit key. This method hashes a given byte list
+  /// with the sha-256 hash algorithm. The result is a list of bytes that always consists of 256 bit.
+  static Uint8List sha256Hash(List<int> bytes) {
+    return Uint8List.fromList(sha256.convert(bytes).bytes);
+  }
+
+  /// Returns the hash bytes after applying sha-256 twice.
+  static Uint8List sha256DoubledHash(List<int> bytes) {
+    return Uint8List.fromList(sha256.convert(sha256.convert(bytes).bytes).bytes);
   }
 }
