@@ -1,5 +1,8 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:passwordmanager/engine/persistance.dart';
+import 'package:passwordmanager/pages/widgets/hoverbuilder.dart';
 import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/local_database.dart';
 import 'package:passwordmanager/engine/implementation/account.dart';
@@ -28,22 +31,24 @@ class AccountDisplay extends StatelessWidget {
           ),
         ),
       ),
-      floatingActionButton: Settings.isWindows ? FloatingActionButton(
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        child: const Icon(
-          Icons.edit,
-          color: Colors.white,
-        ),
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => EditingPage(
-              title: 'Edit account',
-              account: _account,
-            ),
-          ),
-        ),
-      ) : null,
+      floatingActionButton: Settings.isWindows
+          ? FloatingActionButton(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              child: const Icon(
+                Icons.edit,
+                color: Colors.white,
+              ),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EditingPage(
+                    title: 'Edit account',
+                    account: _account,
+                  ),
+                ),
+              ),
+            )
+          : null,
       body: Stack(
         children: [
           Container(
@@ -62,10 +67,39 @@ class AccountDisplay extends StatelessWidget {
                 builder: (context, database, child) => Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    SelectableDisplay(text: 'Tag:\n${_account.tag}'),
-                    SelectableDisplay(text: 'Info:\n${_account.info}'),
-                    SelectableDisplay(text: 'E-mail:\n${_account.email}'),
-                    SelectableDisplay(text: 'Password:\n${_account.password}'),
+                    SelectableDisplay(description: 'Tag:', text: _account.tag),
+                    SelectableDisplay(
+                        description: 'Info:', text: _account.info),
+                    SelectableDisplay(
+                        description: 'E-mail:', text: _account.email),
+                    Padding(
+                      padding: const EdgeInsets.only(
+                          left: 15, right: 15.0, top: 25.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 10.0),
+                            child: Text('Password:'),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                                left: 10, right: 10.0, bottom: 25.0),
+                            child: HoverBuilder(
+                              builder: (isHovered) => isHovered
+                                  ? SelectableText(_account.password)
+                                  : ImageFiltered(
+                                      imageFilter: ImageFilter.blur(
+                                        sigmaX: 5.0,
+                                        sigmaY: 5.0,
+                                      ),
+                                      child: SelectableText(_account.password),
+                                    ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -78,17 +112,24 @@ class AccountDisplay extends StatelessWidget {
 }
 
 class SelectableDisplay extends StatelessWidget {
-  const SelectableDisplay({Key? key, required String text}) : _text = text, super(key: key);
+  const SelectableDisplay(
+      {Key? key, required String text, required this.description})
+      : _text = text,
+        super(key: key);
 
+  final String description;
   final String _text;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(25.0),
-      child: SelectableText(
-        _text,
-      ),
-    );
+        padding: const EdgeInsets.all(25.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(description),
+            SelectableText(_text),
+          ],
+        ));
   }
 }

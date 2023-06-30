@@ -60,7 +60,7 @@ final class LocalDatabase extends ChangeNotifier {
     return buffer.toString();
   }
 
-  /// Constructor for initialising this singelton.
+  /// Private constructor for initialising this singelton.
   LocalDatabase._create()
       : _accounts = List.empty(growable: true),
         _tagsUsed = SplayTreeSet.from(
@@ -75,7 +75,7 @@ final class LocalDatabase extends ChangeNotifier {
   /// Returns all currently stored [Account] references as unmodifiable List.
   List<Account> get accounts => List.unmodifiable(_accounts);
 
-  /// Returns all currently stored tag-string references as unmodifiable List.
+  /// Returns all currently stored tag-string references as unmodifiable Set.
   Set<String> get tags => Set.unmodifiable(_tagsUsed);
 
   File? get source => _sourceFile;

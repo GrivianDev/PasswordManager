@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:passwordmanager/pages/widgets/hoverbuilder.dart';
 import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/implementation/account.dart';
 import 'package:passwordmanager/engine/local_database.dart';
@@ -20,11 +21,25 @@ class ListElement extends StatelessWidget {
   final Account _account;
   final bool _isSearchResult;
 
+  /// Returns a preview of the email in the following format: testing@example.com => t...g@example.com, but only
+  /// if there was a valid email fomatting criteria.
+  String? _mailPreview() {
+    if (_account.email.contains('@')) {
+      String show = String.fromCharCode(_account.email.codeUnitAt(0));
+      show = '$show...';
+      int remainsIndex = _account.email.indexOf('@') - 1;
+      if (remainsIndex < 0) return null;
+      return '$show${_account.email.substring(remainsIndex)}';
+    }
+    return null;
+  }
+
   /// Asynchronous method to save the fact that the account has been deleted.
   /// Displays a snackbar if succeded.
   void _save(BuildContext context) async {
     final NavigatorState navigator = Navigator.of(context);
-    final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
+    final ScaffoldMessengerState scaffoldMessenger =
+        ScaffoldMessenger.of(context);
     final Color backgroundColor = Theme.of(context).colorScheme.primary;
 
     try {
@@ -116,60 +131,83 @@ class ListElement extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 15.0),
-      child: ElevatedButton(
-        style: ButtonStyle(
-          overlayColor: MaterialStateProperty.resolveWith<Color?>(
-            (Set<MaterialState> states) {
-              return states.contains(MaterialState.hovered)
-                  ? Colors.blueAccent.shade100
-                  : null;
-            },
+      child: HoverBuilder(
+        builder: (isHovered) => ElevatedButton(
+          style: ButtonStyle(
+            overlayColor: MaterialStateProperty.resolveWith<Color?>(
+              (Set<MaterialState> states) {
+                return states.contains(MaterialState.hovered)
+                    ? Colors.blue
+                    : null;
+              },
+            ),
+            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+              RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(5.0),
+              ),
+            ),
+            backgroundColor: MaterialStateProperty.all<Color>(
+                Theme.of(context).primaryColor),
           ),
-          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-            RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(5.0),
-            ),
+          child: Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        _account.name,
+                        style: Theme.of(context).textTheme.bodySmall,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if(isHovered) Expanded(
+                      child: Text(
+                        isHovered ? _mailPreview() ?? '' : '',
+                        style: Theme.of(context).textTheme.bodySmall,
+                        textAlign: TextAlign.center,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Expanded(child: Container(),),
+                  ],
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                    onPressed: () => _copyClicked(context),
+                    icon: Icon(
+                      Icons.copy,
+                      color: Theme.of(context).highlightColor,
+                    ),
+                  ),
+                  if (Settings.isWindows)
+                    IconButton(
+                      onPressed: () => _deleteClicked(context),
+                      icon: const Icon(
+                        Icons.delete_outline,
+                        color: Colors.red,
+                      ),
+                    ),
+                ],
+              ),
+            ],
           ),
-          backgroundColor:
-              MaterialStateProperty.all<Color>(Theme.of(context).primaryColor),
+          onPressed: () {
+            if (_isSearchResult) Navigator.pop(context);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AccountDisplay(
+                  account: _account,
+                ),
+              ),
+            );
+          },
         ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                _account.name,
-                style: Theme.of(context).textTheme.bodySmall,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            const Spacer(),
-            IconButton(
-              onPressed: () => _copyClicked(context),
-              icon: Icon(
-                Icons.copy,
-                color: Theme.of(context).highlightColor,
-              ),
-            ),
-            if(Settings.isWindows) IconButton(
-              onPressed: () => _deleteClicked(context),
-              icon: const Icon(
-                Icons.delete_outline,
-                color: Colors.red,
-              ),
-            ),
-          ],
-        ),
-        onPressed: () {
-          if (_isSearchResult) Navigator.pop(context);
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => AccountDisplay(
-                account: _account,
-              ),
-            ),
-          );
-        },
       ),
     );
   }

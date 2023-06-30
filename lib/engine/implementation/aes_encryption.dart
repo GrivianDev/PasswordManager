@@ -13,7 +13,7 @@ final class AESEncryption implements Encryption {
   /// Uses [_inflatePassword] to generate the full 256 bit key.
   @override
   String encrypt({required String plainText, required String password}) {
-    Uint8List hash = AESEncryption.sha256Hash(utf8.encode(password));
+    Uint8List hash = Hashing.sha256Hash(utf8.encode(password));
     Encrypter crypt = Encrypter(AES(Key(hash)));
     Encrypted encrypted = crypt.encrypt(plainText, iv: IV.fromLength(16));
     return encrypted.base64;
@@ -24,13 +24,18 @@ final class AESEncryption implements Encryption {
   /// Uses [_inflatePassword] to generate the full 256 bit key.
   @override
   String decrypt({required String encryptedText, required String password}) {
-    Uint8List hash = AESEncryption.sha256Hash(utf8.encode(password));
+    Uint8List hash = Hashing.sha256Hash(utf8.encode(password));
     Encrypter crypt = Encrypter(AES(Key(hash)));
     String decrypted = crypt.decrypt64(encryptedText, iv: IV.fromLength(16));
     return decrypted;
   }
+}
 
-  /// AES 256 bit requires a 256 bit key. This method hashes a given byte list
+/// Helper class for generating hash values based on input bytes.
+/// Currently implements sha-256 hashing.
+final class Hashing {
+
+  /// This method hashes a given byte list
   /// with the sha-256 hash algorithm. The result is a list of bytes that always consists of 256 bit.
   static Uint8List sha256Hash(List<int> bytes) {
     return Uint8List.fromList(sha256.convert(bytes).bytes);
