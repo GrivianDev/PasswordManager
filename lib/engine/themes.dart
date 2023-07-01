@@ -7,6 +7,22 @@ class AppThemeData {
     primaryColor: const Color.fromRGBO(46, 50, 51, 1),
     highlightColor: Colors.white,
     scaffoldBackgroundColor: const Color.fromRGBO(46, 50, 51, 1),
+
+    appBarTheme: const AppBarTheme(
+      backgroundColor: Color.fromRGBO(46, 50, 51, 1),
+      iconTheme: IconThemeData(
+        color: Colors.white,
+      ),
+      titleTextStyle: TextStyle(
+        fontSize: 25.0,
+        color: Colors.white,
+      ),
+    ),
+
+    drawerTheme: const DrawerThemeData(
+      backgroundColor: Color.fromRGBO(77, 83, 84, 1),
+    ),
+
     colorScheme: const ColorScheme.dark(
       primary: Colors.blue,
       background: Color.fromRGBO(77, 83, 84, 1),
@@ -46,15 +62,35 @@ class AppThemeData {
       trackColor: MaterialStateProperty.all(Colors.blueGrey),
     ),
 
+    floatingActionButtonTheme: const FloatingActionButtonThemeData(
+      backgroundColor: Colors.blue,
+    ),
+
     iconTheme: const IconThemeData(
-      color: Colors.white
+      color: Colors.white,
     ),
   );
 
   static final ThemeData lightTheme = ThemeData(
     primaryColor: Colors.grey,
-    highlightColor: Colors.black87,
+    highlightColor: Colors.grey,
     scaffoldBackgroundColor: Colors.grey,
+
+    appBarTheme: const AppBarTheme(
+      backgroundColor: Colors.grey,
+      iconTheme: IconThemeData(
+        color: Colors.black,
+      ),
+      titleTextStyle: TextStyle(
+        fontSize: 25.0,
+        color: Colors.black87,
+      ),
+    ),
+
+    drawerTheme: const DrawerThemeData(
+      backgroundColor: Colors.white,
+    ),
+
     colorScheme: const ColorScheme.light(
       primary: Color.fromRGBO(2, 10, 161, 1),
       background: Colors.white,
@@ -92,6 +128,10 @@ class AppThemeData {
     switchTheme: SwitchThemeData(
       thumbColor: MaterialStateProperty.all(Colors.grey),
       trackColor: MaterialStateProperty.all(Colors.black),
+    ),
+
+    floatingActionButtonTheme: const FloatingActionButtonThemeData(
+      backgroundColor: Color.fromRGBO(2, 10, 161, 1),
     ),
 
     iconTheme: const IconThemeData(

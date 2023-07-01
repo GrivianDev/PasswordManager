@@ -182,12 +182,7 @@ class _EditingPageState extends State<EditingPage> {
     return Scaffold(
       appBar: AppBar(
         elevation: 0.0,
-        title: Text(
-          widget.title,
-          style: Theme.of(context).textTheme.headlineLarge,
-        ),
-        iconTheme: Theme.of(context).iconTheme,
-        backgroundColor: Theme.of(context).primaryColor,
+        title: Text(widget.title),
       ),
       body: Container(
         decoration: BoxDecoration(

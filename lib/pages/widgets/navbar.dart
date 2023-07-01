@@ -20,7 +20,6 @@ class NavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      backgroundColor: Theme.of(context).colorScheme.background,
       child: ListView(
         padding: const EdgeInsets.all(20.0),
         children: <Widget>[
@@ -73,7 +72,7 @@ class NavBar extends StatelessWidget {
               ],
             ),
           ],
-          Divider(color: Theme.of(context).colorScheme.background),
+          const Divider(color: Colors.grey),
           Padding(
             padding: const EdgeInsets.only(top: 20.0),
             child: IconButton(

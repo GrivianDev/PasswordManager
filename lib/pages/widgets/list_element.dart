@@ -181,7 +181,7 @@ class ListElement extends StatelessWidget {
                     onPressed: () => _copyClicked(context),
                     icon: Icon(
                       Icons.copy,
-                      color: Theme.of(context).highlightColor,
+                      color: Theme.of(context).iconTheme.color,
                     ),
                   ),
                   if (Settings.isWindows)

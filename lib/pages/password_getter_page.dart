@@ -38,11 +38,8 @@ class _PasswordGetterPageState extends State<PasswordGetterPage> {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        iconTheme: Theme.of(context).iconTheme,
-        backgroundColor: Theme.of(context).primaryColor,
         title: Text(
           widget.title,
-          style: Theme.of(context).textTheme.headlineLarge,
         ),
       ),
       body: Container(

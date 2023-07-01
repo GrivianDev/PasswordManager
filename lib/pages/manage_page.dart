@@ -21,6 +21,7 @@ class ManagePage extends StatelessWidget {
 
   /// Case insensetive search for accounts. A widget is displayed with the found accoutns.
   void _search(BuildContext context, String string) {
+    if(string.isEmpty) return;
     string = string.toLowerCase();
     List<Account> list = LocalDatabase()
         .accounts
@@ -131,7 +132,6 @@ class ManagePage extends StatelessWidget {
         appBar: AppBar(
           elevation: 0,
           automaticallyImplyLeading: false,
-          iconTheme: Theme.of(context).iconTheme,
           actions: [
             Padding(
               padding: const EdgeInsets.only(right: 20.0),
@@ -143,8 +143,7 @@ class ManagePage extends StatelessWidget {
               ),
             ),
           ],
-          backgroundColor: Theme.of(context).primaryColor,
-          title: Text(title, style: Theme.of(context).textTheme.headlineLarge),
+          title: Text(title),
         ),
         floatingActionButton: Settings.isWindows
             ? FloatingActionButton(
@@ -163,7 +162,6 @@ class ManagePage extends StatelessWidget {
                 ),
               )
             : null,
-        backgroundColor: Theme.of(context).primaryColor,
         body: Container(
           decoration: BoxDecoration(
             borderRadius: const BorderRadius.only(

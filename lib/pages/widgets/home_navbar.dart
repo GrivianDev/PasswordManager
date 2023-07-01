@@ -9,7 +9,6 @@ class HomeNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      backgroundColor: Theme.of(context).colorScheme.background,
       child: ListView(
         padding: const EdgeInsets.all(20.0),
         children: <Widget>[

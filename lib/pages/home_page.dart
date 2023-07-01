@@ -46,22 +46,46 @@ class HomePage extends StatelessWidget {
               'Version: ${info.version}',
               style: Theme.of(context).textTheme.bodySmall,
             ),
-            const SizedBox(height: 25),
-            TextButton(
-              onPressed: () async => await launchUrl(Uri.parse(
-                  'https://github.com/grievous110/PasswordManager/tree/main')),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.code),
-                  Padding(
-                    padding: EdgeInsets.only(left: 5.0),
-                    child: Text('View code'),
-                  ),
-                ],
+            Padding(
+              padding: const EdgeInsets.only(top: 25.0),
+              child: TextButton(
+                onPressed: () async => await launchUrl(Uri.parse(
+                    'https://github.com/grievous110/PasswordManager/tree/main')),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.code),
+                    Padding(
+                      padding: EdgeInsets.only(left: 5.0),
+                      child: Text('View code'),
+                    ),
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: 25),
+            Padding(
+              padding: const EdgeInsets.only(top: 5.0, bottom: 25),
+              child: TextButton(
+                onPressed: () => showLicensePage(
+                  context: context,
+                  applicationName: 'Ethercrypt',
+                  applicationIcon: const Padding(
+                    padding: EdgeInsets.only(top: 10.0),
+                    child: Icon(Icons.shield_outlined),
+                  ),
+                ),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.copyright),
+                    Padding(
+                      padding: EdgeInsets.only(left: 5.0),
+                      child: Text('Licenses'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
             Text(
               'created by:',
               style: Theme.of(context).textTheme.bodySmall,
@@ -309,7 +333,6 @@ class HomePage extends StatelessWidget {
       endDrawer: const HomeNavBar(),
       appBar: AppBar(
         elevation: 0,
-        iconTheme: Theme.of(context).iconTheme,
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 20.0),
@@ -328,13 +351,14 @@ class HomePage extends StatelessWidget {
             ),
           ),
         ],
-        backgroundColor: Theme.of(context).primaryColor,
         title: Row(
           children: [
             Text(title, style: Theme.of(context).textTheme.headlineLarge),
             Padding(
               padding: const EdgeInsets.only(left: 20.0, top: 5.0),
-              child: Icon(Settings.isWindows ? Icons.desktop_windows_outlined : Icons.phone_android_outlined),
+              child: Icon(Settings.isWindows
+                  ? Icons.desktop_windows_outlined
+                  : Icons.phone_android_outlined),
             ),
           ],
         ),

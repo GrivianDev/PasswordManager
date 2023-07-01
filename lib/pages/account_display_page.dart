@@ -22,18 +22,12 @@ class AccountDisplay extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        iconTheme: Theme.of(context).iconTheme,
-        backgroundColor: Theme.of(context).primaryColor,
         title: Consumer<LocalDatabase>(
-          builder: (context, database, child) => Text(
-            _account.name,
-            style: Theme.of(context).textTheme.headlineLarge,
-          ),
+          builder: (context, database, child) => Text(_account.name),
         ),
       ),
       floatingActionButton: Settings.isWindows
           ? FloatingActionButton(
-              backgroundColor: Theme.of(context).colorScheme.primary,
               child: const Icon(
                 Icons.edit,
                 color: Colors.white,
@@ -49,63 +43,56 @@ class AccountDisplay extends StatelessWidget {
               ),
             )
           : null,
-      body: Stack(
-        children: [
-          Container(
-            color: Theme.of(context).primaryColor,
+      body: Container(
+        margin: const EdgeInsets.only(left: 15.0, right: 15.0, bottom: 15),
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.all(
+            Radius.circular(20.0),
           ),
-          Container(
-            margin: const EdgeInsets.only(left: 15.0, right: 15.0, bottom: 15),
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.all(
-                Radius.circular(20.0),
-              ),
-              color: Theme.of(context).colorScheme.background,
-            ),
-            child: SingleChildScrollView(
-              child: Consumer<LocalDatabase>(
-                builder: (context, database, child) => Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    SelectableDisplay(description: 'Tag:', text: _account.tag),
-                    SelectableDisplay(
-                        description: 'Info:', text: _account.info),
-                    SelectableDisplay(
-                        description: 'E-mail:', text: _account.email),
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          left: 15, right: 15.0, top: 25.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 10.0),
-                            child: Text('Password:'),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(
-                                left: 10, right: 10.0, bottom: 25.0),
-                            child: HoverBuilder(
-                              builder: (isHovered) => isHovered
-                                  ? SelectableText(_account.password)
-                                  : ImageFiltered(
-                                      imageFilter: ImageFilter.blur(
-                                        sigmaX: 5.0,
-                                        sigmaY: 5.0,
-                                      ),
-                                      child: SelectableText(_account.password),
-                                    ),
-                            ),
-                          ),
-                        ],
+          color: Theme.of(context).colorScheme.background,
+        ),
+        child: SingleChildScrollView(
+          child: Consumer<LocalDatabase>(
+            builder: (context, database, child) => Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SelectableDisplay(description: 'Tag:', text: _account.tag),
+                SelectableDisplay(
+                    description: 'Info:', text: _account.info),
+                SelectableDisplay(
+                    description: 'E-mail:', text: _account.email),
+                Padding(
+                  padding: const EdgeInsets.only(
+                      left: 15, right: 15.0, top: 25.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 10.0),
+                        child: Text('Password:'),
                       ),
-                    ),
-                  ],
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            left: 10, right: 10.0, bottom: 25.0),
+                        child: HoverBuilder(
+                          builder: (isHovered) => isHovered
+                              ? SelectableText(_account.password)
+                              : ImageFiltered(
+                            imageFilter: ImageFilter.blur(
+                              sigmaX: 5.0,
+                              sigmaY: 5.0,
+                            ),
+                            child: SelectableText(_account.password),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
