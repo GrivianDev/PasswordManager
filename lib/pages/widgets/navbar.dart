@@ -177,7 +177,7 @@ class NavBar extends StatelessWidget {
                         style: TextStyle(
                           fontSize:
                               Theme.of(context).textTheme.bodyMedium!.fontSize,
-                          color: Colors.blue,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                     ),
@@ -203,7 +203,7 @@ class NavBar extends StatelessWidget {
                         style: TextStyle(
                           fontSize:
                           Theme.of(context).textTheme.bodyMedium!.fontSize,
-                          color: Colors.blue,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                     ),
