@@ -44,16 +44,16 @@ class _EditingPageState extends State<EditingPage> {
         Notify.showLoading(context: context);
         await context.read<LocalDatabase>().save();
       } catch (e) {
-        await Notify.dialog(
+        navigator.pop();
+        Notify.dialog(
           context: context,
           type: NotificationType.error,
-          title: 'Error occured!',
+          title: 'Could not save changes!',
           content: Text(
-            'Could not save changes! Consider using a different save file.',
+            e.toString(),
             style: Theme.of(context).textTheme.bodySmall,
           ),
         );
-        navigator.pop();
         return;
       }
       navigator.pop();
@@ -93,9 +93,9 @@ class _EditingPageState extends State<EditingPage> {
   bool _confirmChanges() {
     final LocalDatabase dataBase = LocalDatabase();
     bool valid = !_isInvalidInput();
-    if (valid) {
-      if (widget._account == null) {
-        try {
+    try {
+      if (valid) {
+        if (widget._account == null) {
           dataBase.addAccount(
             Account(
               name: _nameController.text,
@@ -105,39 +105,32 @@ class _EditingPageState extends State<EditingPage> {
               password: _pwController.text,
             ),
           );
-        } catch(e) {
-          Notify.dialog(
-            context: context,
-            type: NotificationType.error,
-            title: 'Maximum of accounts reached!',
-            content: Text(
-              'That is a lot of accounts. Maybe delete some?',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          );
-          return false;
+        } else {
+          String oldTag = widget._account!.tag;
+          widget._account?.setName = _nameController.text;
+          widget._account?.setTag = _tagController.text;
+          widget._account?.setInfo = _infoController.text;
+          widget._account?.setEmail = _emailController.text;
+          widget._account?.setPassword = _pwController.text;
+          dataBase.callEditOf(oldTag, widget._account!);
         }
       } else {
-        String oldTag = widget._account!.tag;
-        widget._account?.setName = _nameController.text;
-        widget._account?.setTag = _tagController.text;
-        widget._account?.setInfo = _infoController.text;
-        widget._account?.setEmail = _emailController.text;
-        widget._account?.setPassword = _pwController.text;
-        dataBase.callEditOf(oldTag, widget._account!);
+        throw Exception(
+            'Consider using a different character instead of ${LocalDatabase.disallowedCharacter}.\nThis chracter is used for formatting so try to avoid it.');
       }
-    } else {
+    } catch (e) {
       Notify.dialog(
         context: context,
         type: NotificationType.error,
-        title: 'Contains disallowed character!',
+        title: 'Error occured!',
         content: Text(
-          'Consider using a different character instead of ${LocalDatabase.disallowedCharacter}.\nThis chracter is used for formatting so try to avoid it.',
+          e.toString(),
           style: Theme.of(context).textTheme.bodySmall,
         ),
       );
+      return false;
     }
-    return valid;
+    return true;
   }
 
   bool _isInvalidInput() {
@@ -203,6 +196,7 @@ class _EditingPageState extends State<EditingPage> {
                   children: [
                     TextField(
                       controller: _nameController,
+                      maxLength: 50,
                       decoration: const InputDecoration(
                         labelText: 'Name',
                       ),
@@ -215,6 +209,7 @@ class _EditingPageState extends State<EditingPage> {
                     const SizedBox(height: 25),
                     TextField(
                       controller: _tagController,
+                      maxLength: 50,
                       decoration: const InputDecoration(
                         labelText: 'Tag',
                       ),
@@ -226,6 +221,7 @@ class _EditingPageState extends State<EditingPage> {
                     ),
                     const SizedBox(height: 25),
                     TextField(
+                      maxLength: 250,
                       controller: _infoController,
                       maxLines: 10,
                       decoration: const InputDecoration(
@@ -239,6 +235,7 @@ class _EditingPageState extends State<EditingPage> {
                     ),
                     const SizedBox(height: 25),
                     TextField(
+                      maxLength: 50,
                       controller: _emailController,
                       decoration: const InputDecoration(
                         labelText: 'Email',
@@ -251,6 +248,7 @@ class _EditingPageState extends State<EditingPage> {
                     ),
                     const SizedBox(height: 25),
                     TextField(
+                      maxLength: 50,
                       controller: _pwController,
                       decoration: const InputDecoration(
                         labelText: 'Password',

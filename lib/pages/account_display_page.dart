@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:passwordmanager/engine/persistance.dart';
 import 'package:passwordmanager/pages/widgets/hoverbuilder.dart';
@@ -26,7 +25,7 @@ class AccountDisplay extends StatelessWidget {
           builder: (context, database, child) => Text(_account.name),
         ),
       ),
-      floatingActionButton: Settings.isWindows
+      floatingActionButton: Settings.isWindows || context.read<Settings>().isOnlineModeEnabled
           ? FloatingActionButton(
               child: const Icon(
                 Icons.edit,

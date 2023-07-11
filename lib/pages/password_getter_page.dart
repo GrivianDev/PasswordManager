@@ -13,16 +13,16 @@ class PasswordGetterPage extends StatefulWidget {
   State<PasswordGetterPage> createState() => _PasswordGetterPageState();
 }
 
-/// State checking that passwords can only be submitted if the text input has changed at least once.
+/// State checking that passwords can only be submitted if the text input is not empty.
 class _PasswordGetterPageState extends State<PasswordGetterPage> {
   late bool _isObscured;
-  late bool _changes;
+  late bool _canSubmit;
   late TextEditingController _pwController;
 
   @override
   void initState() {
     _isObscured = true;
-    _changes = false;
+    _canSubmit = false;
     _pwController = TextEditingController();
     super.initState();
   }
@@ -85,14 +85,11 @@ class _PasswordGetterPageState extends State<PasswordGetterPage> {
                               : Icons.visibility),
                         ),
                       ),
-                      onChanged: !_changes
-                          ? (string) => setState(() {
-                                _changes = true;
-                              })
-                          : null,
-                      onSubmitted: (string) => _pwController.text.isNotEmpty
-                          ? Navigator.pop(context, string)
-                          : null,
+                      onChanged: (string) => setState(() {
+                        _canSubmit = _pwController.text.isNotEmpty;
+                      }),
+                      onSubmitted: (string) =>
+                          _canSubmit ? Navigator.pop(context, string) : null,
                     ),
                     const Spacer(),
                     Align(
@@ -100,7 +97,7 @@ class _PasswordGetterPageState extends State<PasswordGetterPage> {
                       child: Padding(
                         padding: const EdgeInsets.only(top: 50.0),
                         child: TextButton(
-                          onPressed: () => _pwController.text.isNotEmpty
+                          onPressed: () => _canSubmit
                               ? Navigator.pop(context, _pwController.text)
                               : null,
                           child: Padding(
@@ -108,9 +105,9 @@ class _PasswordGetterPageState extends State<PasswordGetterPage> {
                             child: Text(
                               'SUBMIT',
                               style: TextStyle(
-                                color: _pwController.text.isEmpty
-                                    ? Colors.blueGrey
-                                    : Theme.of(context).colorScheme.primary,
+                                color: _canSubmit
+                                    ? Theme.of(context).colorScheme.primary
+                                    : Colors.blueGrey,
                                 fontSize: 16,
                               ),
                             ),

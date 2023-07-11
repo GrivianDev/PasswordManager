@@ -1,10 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:passwordmanager/engine/cloud_connector.dart';
 import 'package:passwordmanager/engine/persistance.dart';
+import 'package:passwordmanager/pages/other/notifications.dart';
 
 /// Simplified navigation bar for the [HomePage]. The only option is to change the current theme.
 class HomeNavBar extends StatelessWidget {
   const HomeNavBar({Key? key}) : super(key: key);
+
+  /// Logs in the app into the firebase cloud or does the logout logic.
+  Future<void> changeOnlineMode(BuildContext context, bool enabled) async {
+    final FirebaseConnector connector = context.read<FirebaseConnector>();
+    final Settings settings = context.read<Settings>();
+    try {
+      if (enabled) {
+        await connector.login();
+      } else {
+        connector.logout();
+      }
+      settings.setOnlineMode(enabled);
+    } catch (e) {
+      if (!context.mounted) return;
+      Notify.dialog(
+        context: context,
+        type: NotificationType.error,
+        title: 'Error occured!',
+        content: Text(
+          e.toString(),
+          style: Theme
+              .of(context)
+              .textTheme
+              .bodySmall,
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +66,27 @@ class HomeNavBar extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
               ),
+            ],
+          ),
+          const Divider(color: Colors.grey),
+          Row(
+            children: [
+              Switch.adaptive(
+                value: context.watch<Settings>().isOnlineModeEnabled,
+                onChanged: (enabled) => !FirebaseConnector.deactivated ? changeOnlineMode(context, enabled) : null,
+              ),
+              Expanded(
+                child: Text(
+                  context.read<Settings>().isOnlineModeEnabled
+                      ? 'Online'
+                      : 'Offline',
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              Icon(context.read<Settings>().isOnlineModeEnabled
+                  ? Icons.cloud_sync
+                  : Icons.cloud_off),
             ],
           ),
         ],

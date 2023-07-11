@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:typed_data';
-import 'package:crypto/crypto.dart';
 import 'package:encrypt/encrypt.dart';
 import 'package:passwordmanager/engine/encryption.dart';
+import 'package:passwordmanager/engine/implementation/hashing.dart';
 
 /// An implementation of the AES 256 bit encryption algorithm.
 /// Overrides the [encrypt] and [decrypt] method of the [Encryption] interface.
@@ -28,21 +28,5 @@ final class AESEncryption implements Encryption {
     Encrypter crypt = Encrypter(AES(Key(hash)));
     String decrypted = crypt.decrypt64(encryptedText, iv: IV.fromLength(16));
     return decrypted;
-  }
-}
-
-/// Helper class for generating hash values based on input bytes.
-/// Currently implements sha-256 hashing.
-final class Hashing {
-
-  /// This method hashes a given byte list
-  /// with the sha-256 hash algorithm. The result is a list of bytes that always consists of 256 bit.
-  static Uint8List sha256Hash(List<int> bytes) {
-    return Uint8List.fromList(sha256.convert(bytes).bytes);
-  }
-
-  /// Returns the hash bytes after applying sha-256 twice.
-  static Uint8List sha256DoubledHash(List<int> bytes) {
-    return Uint8List.fromList(sha256.convert(sha256.convert(bytes).bytes).bytes);
   }
 }

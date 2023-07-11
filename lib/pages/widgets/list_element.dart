@@ -36,29 +36,33 @@ class ListElement extends StatelessWidget {
 
   /// Asynchronous method to save the fact that the account has been deleted.
   /// Displays a snackbar if succeded.
-  void _save(BuildContext context) async {
+  Future<void> _save(BuildContext context) async {
     final NavigatorState navigator = Navigator.of(context);
     final ScaffoldMessengerState scaffoldMessenger =
         ScaffoldMessenger.of(context);
     final Color backgroundColor = Theme.of(context).colorScheme.primary;
+    final LocalDatabase database = LocalDatabase();
 
     try {
       Notify.showLoading(context: context);
-      await context.read<LocalDatabase>().save();
+      await database.save();
     } catch (e) {
-      await Notify.dialog(
+      navigator.pop();
+      if (_isSearchResult) navigator.pop();
+
+      Notify.dialog(
         context: context,
         type: NotificationType.error,
-        title: 'Error: Could not save',
+        title: 'Could not save changes!',
         content: Text(
-          'Consider using a different save file.',
+          e.toString(),
           style: Theme.of(context).textTheme.bodySmall,
         ),
       );
-      navigator.pop();
-      if (_isSearchResult) navigator.pop();
+      database.notifyListeners();
       return;
     }
+    database.notifyListeners();
     navigator.pop();
     if (_isSearchResult) navigator.pop();
 
@@ -117,11 +121,14 @@ class ListElement extends StatelessWidget {
         'Are you sure that you want to delete all information about your "${_account.name}" account ?\nAction can not be undone!',
         style: Theme.of(context).textTheme.bodySmall,
       ),
-      onConfirm: () {
+      onConfirm: () async {
+        final LocalDatabase database = LocalDatabase();
         Navigator.pop(context);
-        context.read<LocalDatabase>().removeAccount(_account);
+        database.removeAccount(_account, notify: false);
         if (context.read<Settings>().isAutoSaving) {
-          _save(context);
+          await _save(context);
+        } else {
+          database.notifyListeners();
         }
       },
     );
@@ -184,7 +191,7 @@ class ListElement extends StatelessWidget {
                       color: Theme.of(context).iconTheme.color,
                     ),
                   ),
-                  if (Settings.isWindows)
+                  if (Settings.isWindows || context.read<Settings>().isOnlineModeEnabled)
                     IconButton(
                       onPressed: () => _deleteClicked(context),
                       icon: const Icon(

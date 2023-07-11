@@ -21,7 +21,7 @@ class ManagePage extends StatelessWidget {
 
   /// Case insensetive search for accounts. A widget is displayed with the found accoutns.
   void _search(BuildContext context, String string) {
-    if(string.isEmpty) return;
+    if (string.isEmpty) return;
     string = string.toLowerCase();
     List<Account> list = LocalDatabase()
         .accounts
@@ -71,7 +71,7 @@ class ManagePage extends StatelessWidget {
 
   /// Asynchronous method to save the fact that changes happened.
   /// Note: Can only accessed through the button that is only visible when autosaving is not activated.
-  /// Displays a snackbar if succeded.
+  /// Displays a snackbar if succeeded.
   Future<void> _save(BuildContext context) async {
     final NavigatorState navigator = Navigator.of(context);
     final ScaffoldMessengerState scaffoldMessenger =
@@ -80,18 +80,18 @@ class ManagePage extends StatelessWidget {
 
     try {
       Notify.showLoading(context: context);
-      await context.read<LocalDatabase>().save();
+      await LocalDatabase().save();
     } catch (e) {
-      await Notify.dialog(
+      navigator.pop();
+      Notify.dialog(
         context: context,
         type: NotificationType.error,
-        title: 'Error occured!',
+        title: 'Could not save changes!',
         content: Text(
-          'Could not save changes! Consider using a different save file.',
+          e.toString(),
           style: Theme.of(context).textTheme.bodySmall,
         ),
       );
-      navigator.pop();
       return;
     }
     navigator.pop();
@@ -145,23 +145,24 @@ class ManagePage extends StatelessWidget {
           ],
           title: Text(title),
         ),
-        floatingActionButton: Settings.isWindows
-            ? FloatingActionButton(
-                backgroundColor: Colors.green,
-                child: const Icon(
-                  Icons.add,
-                  color: Colors.white,
-                ),
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const EditingPage(
-                      title: 'Create account',
+        floatingActionButton:
+            Settings.isWindows || context.read<Settings>().isOnlineModeEnabled
+                ? FloatingActionButton(
+                    backgroundColor: Colors.green,
+                    child: const Icon(
+                      Icons.add,
+                      color: Colors.white,
                     ),
-                  ),
-                ),
-              )
-            : null,
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const EditingPage(
+                          title: 'Create account',
+                        ),
+                      ),
+                    ),
+                  )
+                : null,
         body: Container(
           decoration: BoxDecoration(
             borderRadius: const BorderRadius.only(
@@ -190,7 +191,8 @@ class ManagePage extends StatelessWidget {
                             onSubmitted: (string) => _search(context, string),
                           ),
                         ),
-                        if (Settings.isWindows)
+                        if (Settings.isWindows ||
+                            context.read<Settings>().isOnlineModeEnabled)
                           Consumer<Settings>(
                             builder: (context, settings, child) => settings
                                     .isAutoSaving
@@ -203,11 +205,15 @@ class ManagePage extends StatelessWidget {
                                         padding: const EdgeInsets.all(12.0),
                                         child: Row(
                                           children: [
-                                            const Padding(
-                                              padding:
-                                                  EdgeInsets.only(right: 10.0),
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  right: 10.0),
                                               child: Icon(
-                                                Icons.save,
+                                                context
+                                                        .read<Settings>()
+                                                        .isOnlineModeEnabled
+                                                    ? Icons.sync
+                                                    : Icons.save,
                                                 color: Colors.white,
                                               ),
                                             ),
