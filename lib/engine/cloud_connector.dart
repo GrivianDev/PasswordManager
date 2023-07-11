@@ -5,24 +5,23 @@ import 'package:firedart/auth/token_store.dart';
 import 'package:firedart/firestore/firestore.dart';
 import 'package:firedart/firestore/models.dart';
 import 'package:firedart/firestore/token_authenticator.dart';
-import 'package:passwordmanager/engine/persistance.dart';
 import 'package:passwordmanager/engine/implementation/hashing.dart';
 
 import 'keys/access.dart';
 
-/// Subclass of [TokenStore] that manages the tokens acquired by the firebase authentication.
-class KeyTokenStorage extends TokenStore {
-  final Settings _settings = Settings();
+/// Doesn't actually persist tokens. Useful for testing or in environments where
+/// persistence isn't available but it's fine signing in for each session.
+class VolatileStore extends TokenStore {
+  @override
+  Token? read() => null;
 
   @override
-  Token? read() => _settings.keyToken.isNotEmpty ? Token.fromMap(json.decode(_settings.keyToken)) : null;
+  void write(Token? token) {}
 
   @override
-  void write(Token? token) => token != null ? _settings.setKeyToken(json.encode(token?.toMap())) : null;
-
-  @override
-  void delete() => _settings.deleteToken();
+  void delete() {}
 }
+
 
 /// Main class for managing the connection to the firebase cloud.
 /// Needs to be initialized through a call to the [init] function and can optionally be deactivated.
@@ -44,13 +43,13 @@ final class FirebaseConnector {
   static Future<void> init({bool deactivate = false}) async {
     deactivated = deactivate;
     if(!deactivated) {
-      _auth = FirebaseAuth(KeyStore.apiKey, KeyTokenStorage());
+      _auth = FirebaseAuth(KeyStore.apiKey, VolatileStore());
       _firestore = Firestore(KeyStore.projectId, authenticator: TokenAuthenticator.from(_auth)?.authenticate);
       _storage = _firestore.collection('ethercrypt-storage');
     }
   }
 
-  /// Performs a login action. Ethercrypt alone is granted access through strict security rules to the cloud data, so the app needs
+  /// Performs a optional login action. Ethercrypt alone is granted access through strict security rules to the cloud data, so the app needs
   /// to be logged in to manipulate data. An exception might be thrown if:
   /// * Failed login
   /// * Internet connection is missing
@@ -76,6 +75,7 @@ final class FirebaseConnector {
   /// * Internet connection is missing
   Future<bool> docExists(String name) async {
     try {
+      await login();
       final List<Document> docs = await _storage.where('name', isEqualTo: name).get();
       return docs.isNotEmpty;
     } catch(e) {
@@ -91,6 +91,7 @@ final class FirebaseConnector {
   /// * Internet connection is missing
   Future<bool> verifyPassword({required String name, required String password}) async {
     try {
+      await login();
       final List<Document> docs = await _storage.where('name', isEqualTo: name).get();
       if(docs.isEmpty) return false;
       if(docs.elementAt(0).map['hash'] == Hashing.asString(Hashing.sha256DoubledHash(utf8.encode(password)))) {
@@ -111,6 +112,7 @@ final class FirebaseConnector {
   /// * Internet connection is missing
   Future<void> _setActiveDocument(String name) async {
     try {
+      await login();
       final List<Document> docs = await _storage.where('name', isEqualTo: name).get();
       if(docs.isNotEmpty) _id = docs.elementAt(0).id;
     } catch(e) {
@@ -124,6 +126,7 @@ final class FirebaseConnector {
   /// * Internet connection is missing
   Future<void> createDocument({required String name, required Uint8List hash, required String data}) async {
     try {
+      await login();
       final Document doc = await _storage.add({
         'name': name,
         'hash': Hashing.asString(hash),
@@ -141,6 +144,7 @@ final class FirebaseConnector {
   /// * Internet connection is missing
   Future<String> getData() async {
     try {
+      await login();
       final Document doc = await _storage.document(_id).get();
       return doc.map['data'];
     } catch(e) {
@@ -154,6 +158,7 @@ final class FirebaseConnector {
   /// * Internet connection is missing
   Future<void> editDocument({required String newData}) async {
     try {
+      await login();
       await _storage.document(_id).update({
         'data': newData,
       });
@@ -168,6 +173,7 @@ final class FirebaseConnector {
   /// * Internet connection is missing
   Future<void> deleteDocument() async {
     try {
+      await login();
       await _storage.document(_id).delete();
       _id = '';
     } catch(e) {

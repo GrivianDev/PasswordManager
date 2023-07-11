@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
+import 'package:passwordmanager/pages/home_page.dart';
 import 'package:passwordmanager/pages/upload_page.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +21,7 @@ class NavBar extends StatelessWidget {
   /// Exits the [ManagePage] and completly wipes the database by calling [LocalDatabase.clear].
   void _exit(BuildContext context) {
     LocalDatabase().clear();
-    if(context.read<Settings>().isOnlineModeEnabled) Navigator.pop(context);
+    if (context.read<Settings>().isOnlineModeEnabled) Navigator.pop(context);
     Navigator.pop(context);
     Navigator.pop(context);
   }
@@ -29,32 +30,32 @@ class NavBar extends StatelessWidget {
   /// Does nothing if deletion fails.
   void _deleteStorage(BuildContext context) {
     Notify.dialog(
-      context: context,
-      type: NotificationType.deleteDialog,
-      title: 'Are you sure?',
-      content: Text(
-        'Do you really want to wipe all data of cloud storage? Action cannot be undone!',
-        style: Theme.of(context).textTheme.bodySmall,
-      ),
-      onConfirm: () async {
-        NavigatorState navigator = Navigator.of(context);
-        FirebaseConnector connector = context.read<FirebaseConnector>();
+        context: context,
+        type: NotificationType.deleteDialog,
+        title: 'Are you sure?',
+        content: Text(
+          'Do you really want to wipe all data of cloud storage? Action cannot be undone!',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+        onConfirm: () async {
+          NavigatorState navigator = Navigator.of(context);
+          FirebaseConnector connector = context.read<FirebaseConnector>();
 
-        try {
-          navigator.pop();
-          Notify.showLoading(context: context);
-          await connector.deleteDocument();
-          LocalDatabase().clear();
-          navigator.pop();
-          navigator.pop();
-          navigator.pop();
-          navigator.pop();
-        } catch(e) {
-          navigator.pop();
-          navigator.pop();
-        }
-      }
-    );
+          try {
+            navigator.pop();
+            Notify.showLoading(context: context);
+            await connector.deleteDocument();
+            LocalDatabase().clear();
+            navigator.pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => const HomePage(title: 'Home'),
+              ),
+            );
+          } catch (e) {
+            navigator.pop();
+            navigator.pop();
+          }
+        });
   }
 
   /// Saves a backup of the currently loaded accounts in the selected file.
@@ -70,7 +71,7 @@ class NavBar extends StatelessWidget {
         type: FileType.custom,
         allowedExtensions: ['x'],
       );
-      if(path == null) return;
+      if (path == null) return;
 
       navigator.pop();
       File file = File(path!);
@@ -79,7 +80,7 @@ class NavBar extends StatelessWidget {
       }
       await file.create(recursive: true);
       await file.writeAsString(LocalDatabase().cipher!);
-      if(!context.mounted) return;
+      if (!context.mounted) return;
       Notify.dialog(
         context: context,
         type: NotificationType.notification,
@@ -89,7 +90,7 @@ class NavBar extends StatelessWidget {
           style: Theme.of(context).textTheme.bodySmall,
         ),
       );
-    } catch(e) {
+    } catch (e) {
       if (!context.mounted) return;
       Notify.dialog(
         context: context,
@@ -189,7 +190,8 @@ class NavBar extends StatelessWidget {
           if (!context.read<Settings>().isOnlineModeEnabled) ...[
             const Divider(color: Colors.grey),
             TextButton(
-              onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const UploadPage())),
+              onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => const UploadPage())),
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 6.0),
                 child: Row(
@@ -202,7 +204,7 @@ class NavBar extends StatelessWidget {
                         'Upload data',
                         style: TextStyle(
                           fontSize:
-                          Theme.of(context).textTheme.bodyMedium!.fontSize,
+                              Theme.of(context).textTheme.bodyMedium!.fontSize,
                           color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
