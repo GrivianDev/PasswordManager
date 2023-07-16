@@ -183,7 +183,7 @@ final class LocalDatabase extends ChangeNotifier {
     return list;
   }
 
-  /// Completly wipes all data from the database. In addition the [_sourceFile] and [_password] property
+  /// Completly wipes all data from the database. In addition the [_source] and [_password] property
   /// will be set to null.
   /// * A call to this method notifies all listeners.
   void clear({bool notify = true}) {

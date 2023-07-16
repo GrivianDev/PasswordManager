@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:passwordmanager/pages/widgets/account_list_view.dart';
 import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/local_database.dart';
 import 'package:passwordmanager/engine/persistance.dart';
 import 'package:passwordmanager/engine/implementation/account.dart';
 import 'package:passwordmanager/pages/widgets/list_element.dart';
+import 'package:passwordmanager/pages/widgets/account_list_view.dart';
 import 'package:passwordmanager/pages/widgets/navbar.dart';
 import 'package:passwordmanager/pages/editing_page.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
@@ -185,7 +185,10 @@ class ManagePage extends StatelessWidget {
                           child: TextField(
                             autofocus: false,
                             decoration: const InputDecoration(
-                              prefixIcon: Icon(Icons.search),
+                              prefixIcon: Padding(
+                                padding: EdgeInsets.only(left: 5.0),
+                                child: Icon(Icons.search),
+                              ),
                               hintText: 'Search',
                             ),
                             onSubmitted: (string) => _search(context, string),

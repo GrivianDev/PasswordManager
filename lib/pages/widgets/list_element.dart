@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:passwordmanager/engine/clipboard_timer.dart';
 import 'package:passwordmanager/pages/widgets/hoverbuilder.dart';
 import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/implementation/account.dart';
@@ -93,8 +93,11 @@ class ListElement extends StatelessWidget {
     );
   }
 
-  void _copyClicked(BuildContext context) {
-    Clipboard.setData(ClipboardData(text: _account.password));
+  /// Copies password for 30 seconds to the clipboard and clears it afterwards.
+  Future<void> _copyClicked(BuildContext context) async {
+    await ClipboardTimer.timed(text: _account.password, duration: const Duration(seconds: 30));
+
+    if(!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         duration: const Duration(seconds: 2),
@@ -163,10 +166,13 @@ class ListElement extends StatelessWidget {
                 child: Row(
                   children: [
                     Expanded(
-                      child: Text(
-                        _account.name,
-                        style: Theme.of(context).textTheme.bodySmall,
-                        overflow: TextOverflow.ellipsis,
+                      child: Padding(
+                        padding: EdgeInsets.only(top: Settings.isWindows ? 0.0 : 5.0),
+                        child: Text(
+                          _account.name,
+                          style: Theme.of(context).textTheme.bodySmall,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ),
                     if(isHovered) Expanded(

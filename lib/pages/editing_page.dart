@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/implementation/account.dart';
 import 'package:passwordmanager/engine/local_database.dart';
 import 'package:passwordmanager/engine/persistance.dart';
+import 'package:passwordmanager/engine/safety_analyser.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 
 /// A Stateful widget that provides the option to edit account templates.
@@ -250,8 +251,20 @@ class _EditingPageState extends State<EditingPage> {
                     TextField(
                       maxLength: 50,
                       controller: _pwController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Password',
+                        suffixIcon: Padding(
+                          padding: const EdgeInsets.only(right: 5.0),
+                          child: IconButton(
+                            onPressed: () => {
+                                _pwController.text = SafetyAnalyser.generateSavePassword(),
+                                setState(() {
+                                  _changes = true;
+                                }),
+                              },
+                            icon: const Icon(Icons.refresh),
+                          ),
+                        ),
                       ),
                       onChanged: (string) => !_changes
                           ? setState(() {

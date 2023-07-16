@@ -6,6 +6,7 @@ import 'package:passwordmanager/engine/persistance.dart';
 import 'package:passwordmanager/engine/source.dart';
 import 'package:passwordmanager/pages/manage_page.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
+import 'package:passwordmanager/engine/safety_analyser.dart';
 
 /// Page that is used to access firebase cloud via the [FirebaseConnector]. Can verify your access
 /// to a certain storage or create a new storage.
@@ -95,11 +96,62 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
     }
   }
 
+  /// Building method for a small indicator on how strong the users password is.
+  Column buildPasswordStrengthIndictator(BuildContext context) {
+    final double rating =
+        SafetyAnalyser.rateSafety(password: _pwController.text);
+    String text = 'Weak';
+    if (rating > 0.5) {
+      text = 'Decent';
+    }
+    if (rating > 0.85) {
+      text = 'Strong';
+    }
+    return Column(
+      children: [
+        Text(
+          'Password strength:',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+        SizedBox(
+          width: 250,
+          height: 50,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 120.0,
+                height: 20.0,
+                child: LinearProgressIndicator(
+                  color: Theme.of(context).colorScheme.primary,
+                  backgroundColor: Theme.of(context).primaryColor,
+                  value: rating,
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 10.0),
+                child: Text(
+                  text,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontSize: Theme.of(context).textTheme.bodySmall!.fontSize,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   void initState() {
     _isObscured = true;
     _canSubmit = false;
-    _nameController = TextEditingController(text: widget.login ? context.read<Settings>().lastOpenedCloudDoc : '');
+    _nameController = TextEditingController(
+        text: widget.login ? context.read<Settings>().lastOpenedCloudDoc : '');
     _pwController = TextEditingController();
     super.initState();
   }
@@ -138,7 +190,12 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
                   children: [
                     TextField(
                       maxLength: 32,
-                      autofocus: true,
+                      autofocus: (context
+                                  .read<Settings>()
+                                  .lastOpenedCloudDoc
+                                  .isEmpty &&
+                              widget.login) ||
+                          !widget.login,
                       controller: _nameController,
                       decoration: const InputDecoration(
                         labelText: 'Storage name',
@@ -151,19 +208,30 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
                     TextField(
                       obscureText: _isObscured,
                       maxLength: 32,
+                      autofocus: context
+                              .read<Settings>()
+                              .lastOpenedCloudDoc
+                              .isNotEmpty &&
+                          widget.login,
                       controller: _pwController,
                       decoration: InputDecoration(
                         labelText: 'Password',
-                        prefixIcon: const Icon(Icons.key),
-                        suffixIcon: IconButton(
-                          onPressed: () {
-                            setState(() {
-                              _isObscured = !_isObscured;
-                            });
-                          },
-                          icon: Icon(_isObscured
-                              ? Icons.visibility_off
-                              : Icons.visibility),
+                        prefixIcon: const Padding(
+                          padding: EdgeInsets.only(left: 5.0),
+                          child: Icon(Icons.key),
+                        ),
+                        suffixIcon: Padding(
+                          padding: const EdgeInsets.only(right: 5.0),
+                          child: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                _isObscured = !_isObscured;
+                              });
+                            },
+                            icon: Icon(_isObscured
+                                ? Icons.visibility_off
+                                : Icons.visibility),
+                          ),
                         ),
                       ),
                       onChanged: (string) => setState(() {
@@ -172,6 +240,7 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
                       }),
                       onSubmitted: (string) => _canSubmit ? submit() : null,
                     ),
+                    if (!widget.login) buildPasswordStrengthIndictator(context),
                     const Spacer(),
                     Align(
                       alignment: Alignment.bottomRight,

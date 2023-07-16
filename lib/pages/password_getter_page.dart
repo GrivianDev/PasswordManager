@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:passwordmanager/engine/safety_analyser.dart';
 
 /// Widget that provides a password upon beeing popped. The user is asked to type in a password that
 /// the is used to encrypt data.
 class PasswordGetterPage extends StatefulWidget {
-  const PasswordGetterPage({Key? key, required this.path, required this.title})
+  const PasswordGetterPage({Key? key, required this.path, required this.title, this.showIndicator = false})
       : super(key: key);
 
   final String title;
   final String? path;
+  final bool showIndicator;
 
   @override
   State<PasswordGetterPage> createState() => _PasswordGetterPageState();
@@ -18,6 +20,54 @@ class _PasswordGetterPageState extends State<PasswordGetterPage> {
   late bool _isObscured;
   late bool _canSubmit;
   late TextEditingController _pwController;
+
+  /// Building method for a small indicator on how strong the users password is.
+  Column buildPasswordStrengthIndictator(BuildContext context) {
+    final double rating =
+    SafetyAnalyser.rateSafety(password: _pwController.text);
+    String text = 'Weak';
+    if (rating > 0.5) {
+      text = 'Decent';
+    }
+    if (rating > 0.85) {
+      text = 'Strong';
+    }
+    return Column(
+      children: [
+        Text('Password strength:', style: Theme.of(context).textTheme.bodySmall,),
+        SizedBox(
+          width: 250,
+          height: 50,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 120.0,
+                height: 20.0,
+                child: LinearProgressIndicator(
+                  color: Theme.of(context).colorScheme.primary,
+                  backgroundColor: Theme.of(context).primaryColor,
+                  value: rating,
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 10.0),
+                child: Text(
+
+                  text,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontSize: Theme.of(context).textTheme.bodySmall!.fontSize,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 
   @override
   void initState() {
@@ -73,16 +123,22 @@ class _PasswordGetterPageState extends State<PasswordGetterPage> {
                       controller: _pwController,
                       decoration: InputDecoration(
                         labelText: 'Password',
-                        prefixIcon: const Icon(Icons.key),
-                        suffixIcon: IconButton(
-                          onPressed: () {
-                            setState(() {
-                              _isObscured = !_isObscured;
-                            });
-                          },
-                          icon: Icon(_isObscured
-                              ? Icons.visibility_off
-                              : Icons.visibility),
+                        prefixIcon: const Padding(
+                          padding: EdgeInsets.only(left: 5.0),
+                          child: Icon(Icons.key),
+                        ),
+                        suffixIcon: Padding(
+                          padding: const EdgeInsets.only(right: 5.0),
+                          child: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                _isObscured = !_isObscured;
+                              });
+                            },
+                            icon: Icon(_isObscured
+                                ? Icons.visibility_off
+                                : Icons.visibility),
+                          ),
                         ),
                       ),
                       onChanged: (string) => setState(() {
@@ -91,6 +147,7 @@ class _PasswordGetterPageState extends State<PasswordGetterPage> {
                       onSubmitted: (string) =>
                           _canSubmit ? Navigator.pop(context, string) : null,
                     ),
+                    if(widget.showIndicator) buildPasswordStrengthIndictator(context),
                     const Spacer(),
                     Align(
                       alignment: Alignment.bottomRight,

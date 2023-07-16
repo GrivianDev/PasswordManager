@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:passwordmanager/pages/cloud_access_page.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:file_picker/file_picker.dart';
@@ -10,6 +9,7 @@ import 'package:passwordmanager/engine/local_database.dart';
 import 'package:passwordmanager/engine/persistance.dart';
 import 'package:passwordmanager/engine/source.dart';
 import 'package:passwordmanager/pages/manage_page.dart';
+import 'package:passwordmanager/pages/cloud_access_page.dart';
 import 'package:passwordmanager/pages/password_getter_page.dart';
 import 'package:passwordmanager/pages/widgets/home_navbar.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
@@ -341,6 +341,7 @@ class OfflinePage extends StatelessWidget {
           builder: (context) => PasswordGetterPage(
             path: file.path,
             title: 'Set password for new file',
+            showIndicator: true,
           ),
         ),
       );

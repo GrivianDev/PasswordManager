@@ -21,9 +21,12 @@ class NavBar extends StatelessWidget {
   /// Exits the [ManagePage] and completly wipes the database by calling [LocalDatabase.clear].
   void _exit(BuildContext context) {
     LocalDatabase().clear();
-    if (context.read<Settings>().isOnlineModeEnabled) Navigator.pop(context);
-    Navigator.pop(context);
-    Navigator.pop(context);
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(
+        builder: (context) => const HomePage(title: 'Home'),
+      ),
+      (route) => false,
+    );
   }
 
   /// Forever deletes current storage from firebase cloud and wipes database by calling [LocalDatabase.clear].
@@ -46,10 +49,11 @@ class NavBar extends StatelessWidget {
             Notify.showLoading(context: context);
             await connector.deleteDocument();
             LocalDatabase().clear();
-            navigator.pushReplacement(
+            navigator.pushAndRemoveUntil(
               MaterialPageRoute(
                 builder: (context) => const HomePage(title: 'Home'),
               ),
+              (route) => false,
             );
           } catch (e) {
             navigator.pop();
@@ -74,7 +78,7 @@ class NavBar extends StatelessWidget {
       if (path == null) return;
 
       navigator.pop();
-      File file = File(path!);
+      File file = File(path);
       if (!file.path.endsWith('.x')) {
         throw Exception('File extension is not supported');
       }
