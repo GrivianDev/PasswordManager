@@ -52,7 +52,7 @@ final class Account implements Comparable<Account> {
   /// Returns a format that can be easily read from a string with a RegEx.
   @override
   String toString() {
-    String c = LocalDatabase.disallowedCharacter;
+    const String c = LocalDatabase.disallowedCharacter;
     return '$c$tag$c$name$c$info$c$email$c$password$c';
   }
 }

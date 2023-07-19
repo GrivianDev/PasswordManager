@@ -19,7 +19,7 @@ class ManagePage extends StatelessWidget {
 
   final String title;
 
-  /// Case insensetive search for accounts. A widget is displayed with the found accoutns.
+  /// Case insensetive search for accounts. A widget is displayed with the found accounts.
   void _search(BuildContext context, String string) {
     if (string.isEmpty) return;
     string = string.toLowerCase();
@@ -70,7 +70,7 @@ class ManagePage extends StatelessWidget {
   }
 
   /// Asynchronous method to save the fact that changes happened.
-  /// Note: Can only accessed through the button that is only visible when autosaving is not activated.
+  /// Note: Can only be accessed through the button that is only visible when autosaving is not activated.
   /// Displays a snackbar if succeeded.
   Future<void> _save(BuildContext context) async {
     final NavigatorState navigator = Navigator.of(context);

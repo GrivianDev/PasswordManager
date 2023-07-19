@@ -11,7 +11,7 @@ import 'package:passwordmanager/engine/implementation/hashing.dart';
 /// LocalDatabase is the core class of this project. This object exists only once
 /// stored in the [_instance] property as Singelton. The [LocalDatabase] constructor just returns this reference.
 /// In addition this class extends the [ChangeNotifier]. Outside calls with [addAccount], [callEditOf], [removeAccount] or [clear] notify all listeners.
-/// Uses a [Source] to determine if cloud or local file should be used.
+/// Uses a [Source] to determine if cloud or local file should be used for saving changes.
 final class LocalDatabase extends ChangeNotifier {
   static final LocalDatabase _instance = LocalDatabase._create();
   static const int _maxCapacity = 1000;

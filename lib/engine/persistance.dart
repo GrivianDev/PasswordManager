@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// Class providing data like the current theme, the last opened path and if autosaving is activated.
 /// This class must be initialised through the [init] call before use.
-/// Extends ChangeNotifier and here [setLightMode], [setLastOpenedPath] and [setAutoSaving] notifies listeners.
+/// Extends ChangeNotifier and here calling any setter notifies all listeners.
 /// Stores the data through SharedPreferences.
 class Settings extends ChangeNotifier {
   static late final SharedPreferences _instance;
@@ -67,6 +67,6 @@ class Settings extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Retruns the name of the last opened cloud storage or an empty string nothing was stored.
+  /// Returns the name of the last opened cloud storage or an empty string if nothing was stored.
   String get lastOpenedCloudDoc => _instance.getString(_keyLastOpenedCloudDoc) ?? '';
 }

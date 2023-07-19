@@ -29,7 +29,7 @@ class HomePage extends StatelessWidget {
   /// Displays the current app information such as the version number.
   /// Additionally shows a link to the github repository.
   Future<void> _displayInfo(BuildContext context) async {
-    PackageInfo info = await PackageInfo.fromPlatform();
+    final PackageInfo info = await PackageInfo.fromPlatform();
 
     if (!context.mounted) return;
     Notify.dialog(
@@ -186,8 +186,7 @@ class OfflinePage extends StatelessWidget {
     try {
       if (!file.existsSync()) throw Exception('File does not exist');
 
-      String? pw = await Navigator.push(
-        context,
+      String? pw = await navigator.push(
         MaterialPageRoute(
           builder: (context) => PasswordGetterPage(
             path: context.read<Settings>().lastOpenedPath,
@@ -243,7 +242,7 @@ class OfflinePage extends StatelessWidget {
     final LocalDatabase database = LocalDatabase();
     final Settings settings = context.read<Settings>();
 
-    if (!Platform.isWindows) await FilePicker.platform.clearTemporaryFiles();
+    if (!Settings.isWindows) await FilePicker.platform.clearTemporaryFiles();
 
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -309,11 +308,11 @@ class OfflinePage extends StatelessWidget {
     }
   }
 
-  /// Tries to "create" the last save file through the [Settings.lastOpenedPath] property.
+  /// Creates a save file in the selected directory.
   /// Note: the file itself is only created once the [LocalDatabase] saves for the first time.
   /// Cases an error is thrown:
   /// * An unknown error occured
-  /// * Special case (nothing happens): The autogeneration didnt find a file that did not already exist before.
+  /// * Special case (nothing happens): The autogeneration did not find a file that did not already exist before.
   Future<void> _createFile(BuildContext context) async {
     final NavigatorState navigator = Navigator.of(context);
     final LocalDatabase database = LocalDatabase();
@@ -327,12 +326,12 @@ class OfflinePage extends StatelessWidget {
 
       if (path == null) return;
 
-      File file;
       int counter = 0;
-      file = File('$path${Platform.pathSeparator}save.x');
+      File file = File('$path${Platform.pathSeparator}save.x');
       while (file.existsSync()) {
         counter++;
         file = File('$path${Platform.pathSeparator}save-$counter.x');
+        if(counter > 9999) break;
       }
       if (file.existsSync()) return;
 

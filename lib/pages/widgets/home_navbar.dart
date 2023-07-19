@@ -4,12 +4,12 @@ import 'package:passwordmanager/engine/cloud_connector.dart';
 import 'package:passwordmanager/engine/persistance.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 
-/// Simplified navigation bar for the [HomePage]. The only option is to change the current theme.
+/// Simplified navigation bar for the [HomePage]. The only options are to change the current theme and go online.
 class HomeNavBar extends StatelessWidget {
   const HomeNavBar({Key? key}) : super(key: key);
 
   /// Logs in the app into the firebase cloud or does the logout logic.
-  Future<void> changeOnlineMode(BuildContext context, bool enabled) async {
+  Future<void> _changeOnlineMode(BuildContext context, bool enabled) async {
     final FirebaseConnector connector = context.read<FirebaseConnector>();
     final Settings settings = context.read<Settings>();
     try {
@@ -60,8 +60,8 @@ class HomeNavBar extends StatelessWidget {
               Expanded(
                 child: Text(
                   context.read<Settings>().isLightMode
-                      ? 'Light Mode'
-                      : 'Dark Mode',
+                      ? 'Light theme'
+                      : 'Dark theme',
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
                 ),
@@ -73,7 +73,7 @@ class HomeNavBar extends StatelessWidget {
             children: [
               Switch.adaptive(
                 value: context.watch<Settings>().isOnlineModeEnabled,
-                onChanged: (enabled) => !FirebaseConnector.deactivated ? changeOnlineMode(context, enabled) : null,
+                onChanged: (enabled) => !FirebaseConnector.deactivated ? _changeOnlineMode(context, enabled) : null,
               ),
               Expanded(
                 child: Text(

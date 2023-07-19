@@ -10,7 +10,7 @@ import 'package:passwordmanager/engine/persistance.dart';
 import 'package:passwordmanager/engine/cloud_connector.dart';
 import 'package:passwordmanager/engine/local_database.dart';
 
-/// Navbar that gives more options, in particular the option to activate and deactivate autosaving (Is deactivated mobile offlinemode).
+/// Navbar that gives more options, in particular the option to activate and deactivate autosaving (Is not visible in mobile offlinemode).
 /// Also this widget is the only option to exit the [ManagePage]. External tries to exit the page for example
 /// through the Android back button are suppressed. You have to explicitly leave the page through clicking logout.
 /// Additional option in offlinemode is to upload current data.
@@ -37,12 +37,12 @@ class NavBar extends StatelessWidget {
         type: NotificationType.deleteDialog,
         title: 'Are you sure?',
         content: Text(
-          'Do you really want to wipe all data of cloud storage? Action cannot be undone!',
+          'Do you really want to wipe all data of this cloud storage? Action cannot be undone!',
           style: Theme.of(context).textTheme.bodySmall,
         ),
         onConfirm: () async {
-          NavigatorState navigator = Navigator.of(context);
-          FirebaseConnector connector = context.read<FirebaseConnector>();
+          final NavigatorState navigator = Navigator.of(context);
+          final FirebaseConnector connector = context.read<FirebaseConnector>();
 
           try {
             navigator.pop();
@@ -62,7 +62,7 @@ class NavBar extends StatelessWidget {
         });
   }
 
-  /// Saves a backup of the currently loaded accounts in the selected file.
+  /// Saves a backup of the currently loaded accounts into the selected file.
   /// Allows overwriting files.
   Future<void> _storeBackup(BuildContext context) async {
     final NavigatorState navigator = Navigator.of(context);
@@ -121,7 +121,7 @@ class NavBar extends StatelessWidget {
           const Divider(color: Colors.grey),
           Row(
             children: [
-              // This doesnt need to active watch the settings property because a theme change will trigger an automatic rebuild
+              // This doesnt need to actively watch the settings property because a theme change will trigger an automatic rebuild
               // since the MaterialApp is already watching the theme.
               Switch.adaptive(
                 value: context.read<Settings>().isLightMode,
@@ -132,8 +132,8 @@ class NavBar extends StatelessWidget {
               Expanded(
                 child: Text(
                   context.read<Settings>().isLightMode
-                      ? 'Light Mode'
-                      : 'Dark Mode',
+                      ? 'Light theme'
+                      : 'Dark theme',
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
                 ),

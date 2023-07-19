@@ -8,9 +8,9 @@ import 'package:passwordmanager/engine/implementation/hashing.dart';
 /// Overrides the [encrypt] and [decrypt] method of the [Encryption] interface.
 final class AESEncryption implements Encryption {
 
-  /// Plaintext is encrypted using a 256 bit key generated from the password.
+  /// Plaintext is encrypted using a 256 bit key generated from the utf8 encoded password.
   /// Ciphertext is returned in base64 encoding.
-  /// Uses [_inflatePassword] to generate the full 256 bit key.
+  /// Uses the [Hashing.sha256Hash] method to generate the full 256 bit key.
   @override
   String encrypt({required String plainText, required String password}) {
     Uint8List hash = Hashing.sha256Hash(utf8.encode(password));
@@ -19,9 +19,9 @@ final class AESEncryption implements Encryption {
     return encrypted.base64;
   }
 
-  /// Ciphertext is decrypted using a 256 bit key generated from the password.
+  /// Ciphertext is decrypted using a 256 bit key generated from the utf8 encoded password.
   /// Ciphertext needs to be provided in base64 encoding.
-  /// Uses [_inflatePassword] to generate the full 256 bit key.
+  /// Uses the [Hashing.sha256Hash] method to generate the full 256 bit key.
   @override
   String decrypt({required String encryptedText, required String password}) {
     Uint8List hash = Hashing.sha256Hash(utf8.encode(password));

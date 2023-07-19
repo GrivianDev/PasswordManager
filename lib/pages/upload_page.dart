@@ -105,7 +105,7 @@ class _UploadPageState extends State<UploadPage> {
                 controller: _nameController,
                 autofocus: true,
                 decoration: const InputDecoration(
-                  labelText: 'Storge name',
+                  labelText: 'Storage name',
                 ),
                 onChanged: (string) => setState(() {
                   _canSubmit = _nameController.text.isNotEmpty;

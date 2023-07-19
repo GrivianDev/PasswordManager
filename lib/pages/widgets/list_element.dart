@@ -121,7 +121,7 @@ class ListElement extends StatelessWidget {
       title: 'Are you sure?',
       type: NotificationType.deleteDialog,
       content: Text(
-        'Are you sure that you want to delete all information about your "${_account.name}" account ?\nAction can not be undone!',
+        'Are you sure that you want to delete all information about your "${_account.name}" account?\nAction can not be undone!',
         style: Theme.of(context).textTheme.bodySmall,
       ),
       onConfirm: () async {
@@ -183,7 +183,7 @@ class ListElement extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    Expanded(child: Container(),),
+                    Expanded(child: Container()),
                   ],
                 ),
               ),

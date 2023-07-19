@@ -10,7 +10,7 @@ final class SafetyAnalyser {
 
   /// Returns a rating between [0-1] based on these factors:
   /// * Does password contain different characters overall
-  /// * Is recommended passwordlength of 12 reached, if not how much is missing.
+  /// * Is recommended password length of 12 reached, if not how much is missing.
   /// * Were lowercase, uppercase, numbers and special characters used.
   static double rateSafety({required String password}) {
     if(password.isEmpty) return 0.0;
