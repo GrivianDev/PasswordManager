@@ -6,7 +6,7 @@ import 'package:passwordmanager/engine/persistance.dart';
 import 'package:passwordmanager/engine/source.dart';
 import 'package:passwordmanager/pages/manage_page.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
-import 'package:passwordmanager/engine/safety_analyser.dart';
+import 'package:passwordmanager/engine/safety.dart';
 
 /// Page that is used to access firebase cloud via the [FirebaseConnector]. Can verify your access
 /// to a certain storage or create a new storage.
@@ -40,6 +40,8 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
     try {
       if (widget.login) {
         // Login logic ---------------------------
+        Guardian.failIfAccessDenied();
+
         final bool exists = await connector.docExists(_nameController.text);
         if (!exists) {
           throw Exception(
@@ -49,7 +51,10 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
           name: _nameController.text,
           password: _pwController.text,
         );
-        if (!verify) throw Exception('Wrong password');
+        if (!verify) {
+          Guardian.callAccessFailed();
+          throw Exception('Wrong password');
+        }
         database.setSource(Source(connector: connector), _pwController.text);
         await database.load();
         await settings.setLastOpenedCloudDoc(_nameController.text);
@@ -89,7 +94,7 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
         title: 'Error occured!',
         content: Text(
           e.toString(),
-          style: Theme.of(context).textTheme.bodySmall,
+          style: Theme.of(context).textTheme.displaySmall,
         ),
       );
       database.clear(notify: false);
@@ -167,7 +172,6 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        elevation: 0,
         title: Text(
           widget.login ? 'Access storage' : 'Register storage',
         ),
@@ -180,90 +184,93 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
           ),
           color: Theme.of(context).colorScheme.background,
         ),
-        padding: const EdgeInsets.all(35.0),
-        child: LayoutBuilder(
-          builder: (context, constraints) => SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: constraints.maxHeight),
-              child: IntrinsicHeight(
-                child: Column(
-                  children: [
-                    TextField(
-                      maxLength: 32,
-                      autofocus: (context
-                                  .read<Settings>()
-                                  .lastOpenedCloudDoc
-                                  .isEmpty &&
-                              widget.login) ||
-                          !widget.login,
-                      controller: _nameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Storage name',
-                      ),
-                      onChanged: (string) => setState(() {
-                        _canSubmit = _nameController.text.isNotEmpty &&
-                            _pwController.text.isNotEmpty;
-                      }),
-                    ),
-                    TextField(
-                      obscureText: _isObscured,
-                      maxLength: 32,
-                      autofocus: context
-                              .read<Settings>()
-                              .lastOpenedCloudDoc
-                              .isNotEmpty &&
-                          widget.login,
-                      controller: _pwController,
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        prefixIcon: const Padding(
-                          padding: EdgeInsets.only(left: 5.0),
-                          child: Icon(Icons.key),
+        child: Padding(
+          padding: const EdgeInsets.all(25.0),
+          child: LayoutBuilder(
+            builder: (context, constraints) => SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: IntrinsicHeight(
+                  child: Column(
+                    children: [
+                      TextField(
+                        maxLength: 32,
+                        autofocus: (context
+                                    .read<Settings>()
+                                    .lastOpenedCloudDoc
+                                    .isEmpty &&
+                                widget.login) ||
+                            !widget.login,
+                        controller: _nameController,
+                        decoration: const InputDecoration(
+                          labelText: 'Storage name',
                         ),
-                        suffixIcon: Padding(
-                          padding: const EdgeInsets.only(right: 5.0),
-                          child: IconButton(
-                            onPressed: () {
-                              setState(() {
-                                _isObscured = !_isObscured;
-                              });
-                            },
-                            icon: Icon(_isObscured
-                                ? Icons.visibility_off
-                                : Icons.visibility),
+                        onChanged: (string) => setState(() {
+                          _canSubmit = _nameController.text.isNotEmpty &&
+                              _pwController.text.isNotEmpty;
+                        }),
+                      ),
+                      TextField(
+                        obscureText: _isObscured,
+                        maxLength: 32,
+                        autofocus: context
+                                .read<Settings>()
+                                .lastOpenedCloudDoc
+                                .isNotEmpty &&
+                            widget.login,
+                        controller: _pwController,
+                        decoration: InputDecoration(
+                          labelText: 'Password',
+                          prefixIcon: const Padding(
+                            padding: EdgeInsets.only(left: 5.0),
+                            child: Icon(Icons.key),
+                          ),
+                          suffixIcon: Padding(
+                            padding: const EdgeInsets.only(right: 5.0),
+                            child: IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  _isObscured = !_isObscured;
+                                });
+                              },
+                              icon: Icon(_isObscured
+                                  ? Icons.visibility_off
+                                  : Icons.visibility),
+                            ),
                           ),
                         ),
+                        onChanged: (string) => setState(() {
+                          _canSubmit = _nameController.text.isNotEmpty &&
+                              _pwController.text.isNotEmpty;
+                        }),
+                        onSubmitted: (string) => _canSubmit ? submit() : null,
                       ),
-                      onChanged: (string) => setState(() {
-                        _canSubmit = _nameController.text.isNotEmpty &&
-                            _pwController.text.isNotEmpty;
-                      }),
-                      onSubmitted: (string) => _canSubmit ? submit() : null,
-                    ),
-                    if (!widget.login) buildPasswordStrengthIndictator(context),
-                    const Spacer(),
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 50.0),
-                        child: TextButton(
-                          onPressed: () => _canSubmit ? submit() : null,
-                          child: Padding(
-                            padding: const EdgeInsets.all(20.0),
-                            child: Text(
-                              widget.login ? 'SUBMIT' : 'CREATE',
-                              style: TextStyle(
-                                color: _canSubmit
-                                    ? Theme.of(context).colorScheme.primary
-                                    : Colors.blueGrey,
-                                fontSize: 16,
+                      if (!widget.login)
+                        buildPasswordStrengthIndictator(context),
+                      const Spacer(),
+                      Align(
+                        alignment: Alignment.bottomRight,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 50.0),
+                          child: TextButton(
+                            onPressed: () => _canSubmit ? submit() : null,
+                            child: Padding(
+                              padding: const EdgeInsets.all(20.0),
+                              child: Text(
+                                widget.login ? 'SUBMIT' : 'CREATE',
+                                style: TextStyle(
+                                  color: _canSubmit
+                                      ? Theme.of(context).colorScheme.primary
+                                      : Colors.blueGrey,
+                                  fontSize: 16,
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

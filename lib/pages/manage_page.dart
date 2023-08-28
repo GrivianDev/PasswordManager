@@ -89,7 +89,7 @@ class ManagePage extends StatelessWidget {
         title: 'Could not save changes!',
         content: Text(
           e.toString(),
-          style: Theme.of(context).textTheme.bodySmall,
+          style: Theme.of(context).textTheme.displaySmall,
         ),
       );
       return;
@@ -123,6 +123,22 @@ class ManagePage extends StatelessWidget {
     );
   }
 
+  /// Asynchronous method to display some info of the current file or storage.
+  Future<void> _showDetails(BuildContext context) async {
+    final LocalDatabase database = LocalDatabase();
+    final Settings settings = context.read<Settings>();
+
+    await Notify.dialog(
+      context: context,
+      type: NotificationType.notification,
+      title: 'Details ${settings.isOnlineModeEnabled ? '(Cloud storage)' : '(Local file)'}',
+      content: Text(
+        '${database.accounts.length}/${LocalDatabase.maxCapacity} accounts\n${database.tags.length} tags',
+        style: Theme.of(context).textTheme.displaySmall,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -130,9 +146,15 @@ class ManagePage extends StatelessWidget {
       child: Scaffold(
         endDrawer: const NavBar(),
         appBar: AppBar(
-          elevation: 0,
           automaticallyImplyLeading: false,
           actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 20.0),
+              child: IconButton(
+                icon: const Icon(Icons.sticky_note_2_outlined),
+                onPressed: () => _showDetails(context),
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.only(right: 20.0),
               child: Builder(

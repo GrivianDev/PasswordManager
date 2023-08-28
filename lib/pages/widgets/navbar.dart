@@ -1,9 +1,10 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
-import 'package:passwordmanager/pages/home_page.dart';
-import 'package:passwordmanager/pages/upload_page.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:passwordmanager/pages/home_page.dart';
+import 'package:passwordmanager/pages/settings_page.dart';
+import 'package:passwordmanager/pages/upload_page.dart';
 import 'package:passwordmanager/pages/manage_page.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 import 'package:passwordmanager/engine/persistance.dart';
@@ -38,7 +39,7 @@ class NavBar extends StatelessWidget {
         title: 'Are you sure?',
         content: Text(
           'Do you really want to wipe all data of this cloud storage? Action cannot be undone!',
-          style: Theme.of(context).textTheme.bodySmall,
+          style: Theme.of(context).textTheme.displaySmall,
         ),
         onConfirm: () async {
           final NavigatorState navigator = Navigator.of(context);
@@ -91,7 +92,7 @@ class NavBar extends StatelessWidget {
         title: 'Successfully saved backup',
         content: Text(
           'Saved file under:\n${file.path}',
-          style: Theme.of(context).textTheme.bodySmall,
+          style: Theme.of(context).textTheme.displaySmall,
         ),
       );
     } catch (e) {
@@ -102,7 +103,7 @@ class NavBar extends StatelessWidget {
         title: 'Error occured!',
         content: Text(
           e.toString(),
-          style: Theme.of(context).textTheme.bodySmall,
+          style: Theme.of(context).textTheme.displaySmall,
         ),
       );
     }
@@ -119,51 +120,33 @@ class NavBar extends StatelessWidget {
             style: Theme.of(context).textTheme.headlineLarge,
           ),
           const Divider(color: Colors.grey),
-          Row(
-            children: [
-              // This doesnt need to actively watch the settings property because a theme change will trigger an automatic rebuild
-              // since the MaterialApp is already watching the theme.
-              Switch.adaptive(
-                value: context.read<Settings>().isLightMode,
-                onChanged: (value) {
-                  context.read<Settings>().setLightMode(value);
-                },
+          TextButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const SettingsPage(),
               ),
-              Expanded(
-                child: Text(
-                  context.read<Settings>().isLightMode
-                      ? 'Light theme'
-                      : 'Dark theme',
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ],
-          ),
-          if (Settings.isWindows ||
-              context.read<Settings>().isOnlineModeEnabled) ...[
-            const Divider(color: Colors.grey),
-            Row(
-              children: [
-                // This watches the isAutoSaving property because it is not rebuild otherwise.
-                Switch.adaptive(
-                  value: context.watch<Settings>().isAutoSaving,
-                  onChanged: (value) {
-                    context.read<Settings>().setAutoSaving(value);
-                  },
-                ),
-                Expanded(
-                  child: Text(
-                    context.read<Settings>().isAutoSaving
-                        ? 'Autosaving'
-                        : 'Manual saving',
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ],
             ),
-          ],
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.settings),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 15.0),
+                    child: Text(
+                      'Settings',
+                      style: TextStyle(
+                        fontSize:
+                            Theme.of(context).textTheme.bodyMedium!.fontSize,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
           if (Settings.isWindows &&
               context.read<Settings>().isOnlineModeEnabled) ...[
             const Divider(color: Colors.grey),
@@ -182,7 +165,6 @@ class NavBar extends StatelessWidget {
                         style: TextStyle(
                           fontSize:
                               Theme.of(context).textTheme.bodyMedium!.fontSize,
-                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                     ),
@@ -209,7 +191,6 @@ class NavBar extends StatelessWidget {
                         style: TextStyle(
                           fontSize:
                               Theme.of(context).textTheme.bodyMedium!.fontSize,
-                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                     ),
@@ -222,6 +203,7 @@ class NavBar extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
             child: IconButton(
+              tooltip: "Exit",
               iconSize: 35.0,
               onPressed: () => _exit(context),
               icon: const Icon(

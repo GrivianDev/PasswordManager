@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/implementation/account.dart';
 import 'package:passwordmanager/engine/local_database.dart';
 import 'package:passwordmanager/engine/persistance.dart';
-import 'package:passwordmanager/engine/safety_analyser.dart';
+import 'package:passwordmanager/engine/safety.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 
 /// A Stateful widget that provides the option to edit account templates.
@@ -52,7 +52,7 @@ class _EditingPageState extends State<EditingPage> {
           title: 'Could not save changes!',
           content: Text(
             e.toString(),
-            style: Theme.of(context).textTheme.bodySmall,
+            style: Theme.of(context).textTheme.displaySmall,
           ),
         );
         return;
@@ -126,7 +126,7 @@ class _EditingPageState extends State<EditingPage> {
         title: 'Error occured!',
         content: Text(
           e.toString(),
-          style: Theme.of(context).textTheme.bodySmall,
+          style: Theme.of(context).textTheme.displaySmall,
         ),
       );
       return false;
@@ -175,7 +175,6 @@ class _EditingPageState extends State<EditingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        elevation: 0.0,
         title: Text(widget.title),
       ),
       body: Container(
@@ -257,7 +256,7 @@ class _EditingPageState extends State<EditingPage> {
                           padding: const EdgeInsets.only(right: 5.0),
                           child: IconButton(
                             onPressed: () => {
-                                _pwController.text = SafetyAnalyser.generateSavePassword(),
+                                _pwController.text = SafetyAnalyser.generateSavePassword(context),
                                 setState(() {
                                   _changes = true;
                                 }),

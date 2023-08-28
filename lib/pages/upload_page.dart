@@ -46,7 +46,7 @@ class _UploadPageState extends State<UploadPage> {
         title: 'Upload success!',
         content: Text(
           'You can now access this storage in online mode under the name "${_nameController.text}" and with the same password.',
-          style: Theme.of(context).textTheme.bodySmall,
+          style: Theme.of(context).textTheme.displaySmall,
         ),
       );
       navigator.pop();
@@ -60,7 +60,7 @@ class _UploadPageState extends State<UploadPage> {
         title: 'Error occured!',
         content: Text(
           e.toString(),
-          style: Theme.of(context).textTheme.bodySmall,
+          style: Theme.of(context).textTheme.displaySmall,
         ),
       );
     }
@@ -83,7 +83,6 @@ class _UploadPageState extends State<UploadPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        elevation: 0,
         title: const Text(
           'Upload to cloud',
         ),
@@ -96,11 +95,11 @@ class _UploadPageState extends State<UploadPage> {
           ),
           color: Theme.of(context).colorScheme.background,
         ),
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: TextField(
+        child: Padding(
+          padding: const EdgeInsets.all(25.0),
+          child: Column(
+            children: [
+              TextField(
                 maxLength: 32,
                 controller: _nameController,
                 autofocus: true,
@@ -112,30 +111,30 @@ class _UploadPageState extends State<UploadPage> {
                 }),
                 onSubmitted: (string) => _canSubmit ? _upload(context) : null,
               ),
-            ),
-            const Spacer(),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: TextButton(
-                  onPressed: () => _canSubmit ? _upload(context) : null,
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Text(
-                      'UPLOAD',
-                      style: TextStyle(
-                        color: _canSubmit
-                            ? Theme.of(context).colorScheme.primary
-                            : Colors.blueGrey,
-                        fontSize: 16,
+              const Spacer(),
+              Align(
+                alignment: Alignment.bottomRight,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 50.0),
+                  child: TextButton(
+                    onPressed: () => _canSubmit ? _upload(context) : null,
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Text(
+                        'UPLOAD',
+                        style: TextStyle(
+                          color: _canSubmit
+                              ? Theme.of(context).colorScheme.primary
+                              : Colors.blueGrey,
+                          fontSize: 16,
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

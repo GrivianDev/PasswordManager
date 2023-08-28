@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:passwordmanager/engine/safety.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:file_picker/file_picker.dart';
@@ -109,7 +110,6 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       endDrawer: const HomeNavBar(),
       appBar: AppBar(
-        elevation: 0,
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 20.0),
@@ -130,7 +130,12 @@ class HomePage extends StatelessWidget {
         ],
         title: Row(
           children: [
-            Text(title, style: Theme.of(context).textTheme.headlineLarge),
+            Flexible(
+              child: Text(
+                title,
+                style: Theme.of(context).textTheme.headlineLarge,
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.only(left: 20.0, top: 5.0),
               child: Icon(Settings.isWindows
@@ -185,6 +190,7 @@ class OfflinePage extends StatelessWidget {
 
     try {
       if (!file.existsSync()) throw Exception('File does not exist');
+      Guardian.failIfAccessDenied();
 
       String? pw = await navigator.push(
         MaterialPageRoute(
@@ -204,6 +210,7 @@ class OfflinePage extends StatelessWidget {
         await database.load();
       } catch (e) {
         navigator.pop();
+        Guardian.callAccessFailed();
         throw Exception('Error during decryption');
       }
       navigator.pop();
@@ -225,7 +232,7 @@ class OfflinePage extends StatelessWidget {
         title: 'Error occured!',
         content: Text(
           e.toString(),
-          style: Theme.of(context).textTheme.bodySmall,
+          style: Theme.of(context).textTheme.displaySmall,
         ),
       );
     }
@@ -245,6 +252,8 @@ class OfflinePage extends StatelessWidget {
     if (!Settings.isWindows) await FilePicker.platform.clearTemporaryFiles();
 
     try {
+      Guardian.failIfAccessDenied();
+
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         lockParentWindow: true,
         dialogTitle: 'Select your save file',
@@ -280,6 +289,7 @@ class OfflinePage extends StatelessWidget {
         await database.load();
       } catch (e) {
         navigator.pop();
+        Guardian.callAccessFailed();
         throw Exception('Error during decryption');
       }
       navigator.pop();
@@ -302,7 +312,7 @@ class OfflinePage extends StatelessWidget {
         title: 'Error occured!',
         content: Text(
           e.toString(),
-          style: Theme.of(context).textTheme.bodySmall,
+          style: Theme.of(context).textTheme.displaySmall,
         ),
       );
     }
@@ -331,7 +341,7 @@ class OfflinePage extends StatelessWidget {
       while (file.existsSync()) {
         counter++;
         file = File('$path${Platform.pathSeparator}save-$counter.x');
-        if(counter > 9999) break;
+        if (counter > 9999) break;
       }
       if (file.existsSync()) return;
 
@@ -415,13 +425,11 @@ class OfflinePage extends StatelessWidget {
                         child: Text(
                           'Open last: ${settings.lastOpenedPath}',
                           style: TextStyle(
-                            color: Theme.of(context).colorScheme.primary,
                             fontSize: Theme.of(context)
                                 .textTheme
                                 .bodyMedium
                                 ?.fontSize,
                           ),
-                          textAlign: TextAlign.center,
                         ),
                       )
                     : Container(),
@@ -443,7 +451,6 @@ class OfflinePage extends StatelessWidget {
                     style: TextStyle(
                       fontSize:
                           Theme.of(context).textTheme.bodyMedium?.fontSize,
-                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                 ),
@@ -501,6 +508,7 @@ class OnlinePage extends StatelessWidget {
           ],
         ),
         const Spacer(),
+        const SizedBox(height: 35),
         Column(
           children: [
             Text(
@@ -508,15 +516,17 @@ class OnlinePage extends StatelessWidget {
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             TextButton(
-              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const CloudAccessPage(login: false))),
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const CloudAccessPage(login: false),
+                ),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: Text(
                   'Register a new storage',
                   style: TextStyle(
                     fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize,
-                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
               ),

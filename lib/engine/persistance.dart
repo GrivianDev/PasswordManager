@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// This class must be initialised through the [init] call before use.
 /// Extends ChangeNotifier and here calling any setter notifies all listeners.
 /// Stores the data through SharedPreferences.
+/// Implemented that at least one of the propertys use letters/numbers/special chars has to be set to true at al times.
 class Settings extends ChangeNotifier {
   static late final SharedPreferences _instance;
 
@@ -16,6 +17,9 @@ class Settings extends ChangeNotifier {
   static const _keyAutoSaving = 'saving';
   static const _keyOnlineMode = 'online';
   static const _keyLastOpenedCloudDoc = 'cloud_docname';
+  static const _keyPwGenUseLetters = 'use_letters';
+  static const _keyPwGenUseNumbers = 'use_numbers';
+  static const _keyPwGenUseSpecialChars = 'use_special_chars';
 
   /// Initialises the class by setting the [_instance] property.
   static Future<void> init() async => _instance = await SharedPreferences.getInstance();
@@ -69,4 +73,40 @@ class Settings extends ChangeNotifier {
 
   /// Returns the name of the last opened cloud storage or an empty string if nothing was stored.
   String get lastOpenedCloudDoc => _instance.getString(_keyLastOpenedCloudDoc) ?? '';
+
+  /// Set if the password generation should use letters.
+  /// * A call to this method notifies all listeners.
+  Future<bool> setUseLetters(bool enabled) async {
+    if(!(enabled || useNumbersEnabled || useSpecialCharsEnabled)) return false;
+    final bool success = await _instance.setBool(_keyPwGenUseLetters, enabled);
+    notifyListeners();
+    return success;
+  }
+
+  /// Returns if the password generation should use letters.
+  bool get useLettersEnabled => _instance.getBool(_keyPwGenUseLetters) ?? true;
+
+  /// Set if the password generation should use numbers.
+  /// * A call to this method notifies all listeners.
+  Future<bool> setUseNumbers(bool enabled) async {
+    if(!(enabled || useLettersEnabled || useSpecialCharsEnabled)) return false;
+    final bool success = await _instance.setBool(_keyPwGenUseNumbers, enabled);
+    notifyListeners();
+    return success;
+  }
+
+  /// Returns if the password generation should use numbers.
+  bool get useNumbersEnabled => _instance.getBool(_keyPwGenUseNumbers) ?? true;
+
+  /// Set if the password generation should use special characters.
+  /// * A call to this method notifies all listeners.
+  Future<bool> setUseSpecialChars(bool enabled) async {
+    if(!(enabled || useLettersEnabled || useNumbersEnabled)) return false;
+    final bool success = await _instance.setBool(_keyPwGenUseSpecialChars, enabled);
+    notifyListeners();
+    return success;
+  }
+
+  /// Returns if the password generation should use special chars.
+  bool get useSpecialCharsEnabled => _instance.getBool(_keyPwGenUseSpecialChars) ?? true;
 }

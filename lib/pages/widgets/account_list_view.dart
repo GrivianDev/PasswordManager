@@ -25,7 +25,6 @@ class AccountListView extends StatelessWidget {
                     tag,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyMedium,
-                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 const Expanded(

@@ -1,4 +1,8 @@
+import 'dart:async';
 import 'dart:math';
+import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
+import 'package:passwordmanager/engine/persistance.dart';
 
 /// Class providing two static methods: [SafetyAnalyser.rateSafety], [SafetyAnalyser.generateSavePassword].
 /// Used for determening if a password is considered save or generate strong passwords.
@@ -50,15 +54,45 @@ final class SafetyAnalyser {
     }
     variety /= 4.0;
 
-    final double sum = occuranceRating + lengthRating + variety;
+    final double sum = occuranceRating + variety;
 
-    return sum / 3.0;
+    return lengthRating * (sum / 2.0);
   }
 
   /// Generates a random password consisting of [20-32] characters.
-  static String generateSavePassword() {
-    const String chars = alphabet + uAlphabet + numbers + specialChars;
+  static String generateSavePassword(BuildContext context) {
+    final Settings settings = context.read<Settings>();
+    String chars = '';
+    if(settings.useLettersEnabled) chars += alphabet + uAlphabet;
+    if(settings.useNumbersEnabled) chars += numbers;
+    if(settings.useSpecialCharsEnabled) chars += specialChars;
     final Random rand = Random.secure();
     return String.fromCharCodes(Iterable<int>.generate(rand.nextInt(12) + 20, (_) => chars.codeUnitAt(rand.nextInt(chars.length))));
+  }
+}
+
+/// Small class that acts as a kind of security guard for important actions.
+/// Implements an increasing cooldown for important actions that failed too often.
+final class Guardian {
+  static const int _cooldown = 15;
+  static const int _maxTries = 3;
+  static int _cooldownMultiplier = 0;
+  static int _remainingTries = _maxTries;
+  static Timer? _timer;
+
+  /// Call this method at the beginning of the important action and catch the possible Exception.
+  static void failIfAccessDenied() {
+    if(_remainingTries <= 0) {
+      throw Exception("Too many failed attempts. Try again in a few seconds.");
+    }
+  }
+
+  /// Call this method if the important action fails in a security relevant case.
+  /// Too many calls will start a timer that will cause a call to [failIfAccessDenied] to throw an Exception.
+  static void callAccessFailed() {
+    if(--_remainingTries <= 0) {
+      _cooldownMultiplier++;
+      _timer = Timer(Duration(seconds: _cooldownMultiplier * _cooldown), () => _remainingTries = _maxTries);
+    }
   }
 }

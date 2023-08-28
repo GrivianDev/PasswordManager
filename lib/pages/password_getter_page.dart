@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:passwordmanager/engine/safety_analyser.dart';
+import 'package:passwordmanager/engine/safety.dart';
 
 /// Widget that provides a password upon beeing popped. The user is asked to type in a password that
 /// the is used to encrypt data.
 class PasswordGetterPage extends StatefulWidget {
-  const PasswordGetterPage({Key? key, required this.path, required this.title, this.showIndicator = false})
+  const PasswordGetterPage(
+      {Key? key,
+      required this.path,
+      required this.title,
+      this.showIndicator = false})
       : super(key: key);
 
   final String title;
@@ -24,7 +28,7 @@ class _PasswordGetterPageState extends State<PasswordGetterPage> {
   /// Building method for a small indicator on how strong the users password is.
   Column buildPasswordStrengthIndictator(BuildContext context) {
     final double rating =
-    SafetyAnalyser.rateSafety(password: _pwController.text);
+        SafetyAnalyser.rateSafety(password: _pwController.text);
     String text = 'Weak';
     if (rating > 0.5) {
       text = 'Decent';
@@ -34,7 +38,10 @@ class _PasswordGetterPageState extends State<PasswordGetterPage> {
     }
     return Column(
       children: [
-        Text('Password strength:', style: Theme.of(context).textTheme.bodySmall,),
+        Text(
+          'Password strength:',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
         SizedBox(
           width: 250,
           height: 50,
@@ -54,7 +61,6 @@ class _PasswordGetterPageState extends State<PasswordGetterPage> {
               Padding(
                 padding: const EdgeInsets.only(left: 10.0),
                 child: Text(
-
                   text,
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.primary,
@@ -87,7 +93,6 @@ class _PasswordGetterPageState extends State<PasswordGetterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        elevation: 0,
         title: Text(
           widget.title,
         ),
@@ -100,79 +105,81 @@ class _PasswordGetterPageState extends State<PasswordGetterPage> {
           ),
           color: Theme.of(context).colorScheme.background,
         ),
-        padding: const EdgeInsets.all(35.0),
-        child: LayoutBuilder(
-          builder: (context, constraints) => SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: constraints.maxHeight),
-              child: IntrinsicHeight(
-                child: Column(
-                  children: [
-                    Text(
-                      widget.path ?? '',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(
-                      height: 10.0,
-                    ),
-                    TextField(
-                      obscureText: _isObscured,
-                      maxLength: 32,
-                      autofocus: true,
-                      controller: _pwController,
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        prefixIcon: const Padding(
-                          padding: EdgeInsets.only(left: 5.0),
-                          child: Icon(Icons.key),
-                        ),
-                        suffixIcon: Padding(
-                          padding: const EdgeInsets.only(right: 5.0),
-                          child: IconButton(
-                            onPressed: () {
-                              setState(() {
-                                _isObscured = !_isObscured;
-                              });
-                            },
-                            icon: Icon(_isObscured
-                                ? Icons.visibility_off
-                                : Icons.visibility),
+        child: Padding(
+          padding: const EdgeInsets.all(25.0),
+          child: LayoutBuilder(
+            builder: (context, constraints) => SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: IntrinsicHeight(
+                  child: Column(
+                    children: [
+                      Text(
+                        widget.path ?? '',
+                        style: Theme.of(context).textTheme.displayMedium,
+                      ),
+                      const SizedBox(
+                        height: 10.0,
+                      ),
+                      TextField(
+                        obscureText: _isObscured,
+                        maxLength: 32,
+                        autofocus: true,
+                        controller: _pwController,
+                        decoration: InputDecoration(
+                          labelText: 'Password',
+                          prefixIcon: const Padding(
+                            padding: EdgeInsets.only(left: 5.0),
+                            child: Icon(Icons.key),
+                          ),
+                          suffixIcon: Padding(
+                            padding: const EdgeInsets.only(right: 5.0),
+                            child: IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  _isObscured = !_isObscured;
+                                });
+                              },
+                              icon: Icon(_isObscured
+                                  ? Icons.visibility_off
+                                  : Icons.visibility),
+                            ),
                           ),
                         ),
+                        onChanged: (string) => setState(() {
+                          _canSubmit = _pwController.text.isNotEmpty;
+                        }),
+                        onSubmitted: (string) =>
+                            _canSubmit ? Navigator.pop(context, string) : null,
                       ),
-                      onChanged: (string) => setState(() {
-                        _canSubmit = _pwController.text.isNotEmpty;
-                      }),
-                      onSubmitted: (string) =>
-                          _canSubmit ? Navigator.pop(context, string) : null,
-                    ),
-                    if(widget.showIndicator) buildPasswordStrengthIndictator(context),
-                    const Spacer(),
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 50.0),
-                        child: TextButton(
-                          onPressed: () => _canSubmit
-                              ? Navigator.pop(context, _pwController.text)
-                              : null,
-                          child: Padding(
-                            padding: const EdgeInsets.all(20.0),
-                            child: Text(
-                              'SUBMIT',
-                              style: TextStyle(
-                                color: _canSubmit
-                                    ? Theme.of(context).colorScheme.primary
-                                    : Colors.blueGrey,
-                                fontSize: 16,
+                      if (widget.showIndicator)
+                        buildPasswordStrengthIndictator(context),
+                      const Spacer(),
+                      Align(
+                        alignment: Alignment.bottomRight,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 50.0),
+                          child: TextButton(
+                            onPressed: () => _canSubmit
+                                ? Navigator.pop(context, _pwController.text)
+                                : null,
+                            child: Padding(
+                              padding: const EdgeInsets.all(20.0),
+                              child: Text(
+                                'SUBMIT',
+                                style: TextStyle(
+                                  color: _canSubmit
+                                      ? Theme.of(context).colorScheme.primary
+                                      : Colors.blueGrey,
+                                  fontSize: 16,
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

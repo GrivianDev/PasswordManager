@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/cloud_connector.dart';
 import 'package:passwordmanager/engine/persistance.dart';
+import 'package:passwordmanager/pages/settings_page.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 
 /// Simplified navigation bar for the [HomePage]. The only options are to change the current theme and go online.
@@ -27,10 +28,7 @@ class HomeNavBar extends StatelessWidget {
         title: 'Error occured!',
         content: Text(
           e.toString(),
-          style: Theme
-              .of(context)
-              .textTheme
-              .bodySmall,
+          style: Theme.of(context).textTheme.displaySmall,
         ),
       );
     }
@@ -47,33 +45,41 @@ class HomeNavBar extends StatelessWidget {
             style: Theme.of(context).textTheme.headlineLarge,
           ),
           const Divider(color: Colors.grey),
-          Row(
-            children: [
-              // This doesnt need to active watch the settings property because a theme change will trigger an automatic rebuild
-              // since the MaterialApp is already watching the theme.
-              Switch.adaptive(
-                value: context.read<Settings>().isLightMode,
-                onChanged: (enabled) {
-                  context.read<Settings>().setLightMode(enabled);
-                },
+          TextButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const SettingsPage(),
               ),
-              Expanded(
-                child: Text(
-                  context.read<Settings>().isLightMode
-                      ? 'Light theme'
-                      : 'Dark theme',
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.settings),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 15.0),
+                    child: Text(
+                      'Settings',
+                      style: TextStyle(
+                        fontSize:
+                            Theme.of(context).textTheme.bodyMedium!.fontSize,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
           const Divider(color: Colors.grey),
           Row(
             children: [
               Switch.adaptive(
                 value: context.watch<Settings>().isOnlineModeEnabled,
-                onChanged: (enabled) => !FirebaseConnector.deactivated ? _changeOnlineMode(context, enabled) : null,
+                onChanged: (enabled) => !FirebaseConnector.deactivated
+                    ? _changeOnlineMode(context, enabled)
+                    : null,
               ),
               Expanded(
                 child: Text(

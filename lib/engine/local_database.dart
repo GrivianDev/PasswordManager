@@ -14,7 +14,7 @@ import 'package:passwordmanager/engine/implementation/hashing.dart';
 /// Uses a [Source] to determine if cloud or local file should be used for saving changes.
 final class LocalDatabase extends ChangeNotifier {
   static final LocalDatabase _instance = LocalDatabase._create();
-  static const int _maxCapacity = 1000;
+  static const int maxCapacity = 1000;
   static const String disallowedCharacter = '\u0407';
 
   Source? _source;
@@ -126,7 +126,7 @@ final class LocalDatabase extends ChangeNotifier {
   /// * A call to this method notifies all listeners.
   void _addAllAccounts(List<Account> accounts) {
     for(Account acc in accounts) {
-      if (_accounts.length < LocalDatabase._maxCapacity) {
+      if (_accounts.length < LocalDatabase.maxCapacity) {
         _accounts.add(acc);
         _tagsUsed.add(acc.tag);
         _accounts.sort((a, b) => a.compareTo(b));
@@ -139,10 +139,10 @@ final class LocalDatabase extends ChangeNotifier {
 
   /// Method to add a new [Account] to the database. The intern List will sort accounts and tags alphabetically.
   /// If the new Account has a tag that was not used before it will be saved in the [_tagsUsed] property.
-  /// If there are to many accounts already present (specified in [LocalDatabase._maxCapacity]) and Exception is thrown.
+  /// If there are to many accounts already present (specified in [LocalDatabase.maxCapacity]) and Exception is thrown.
   /// * A call to this method notifies all listeners if [Account] was added.
   void addAccount(Account acc, {bool notify = true}) {
-    if (_accounts.length < LocalDatabase._maxCapacity) {
+    if (_accounts.length < LocalDatabase.maxCapacity) {
       _accounts.add(acc);
       _tagsUsed.add(acc.tag);
       _accounts.sort((a, b) => a.compareTo(b));

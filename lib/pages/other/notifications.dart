@@ -66,7 +66,6 @@ final class Notify {
                     : 'Return',
                 style: TextStyle(
                   fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
-                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
             ),
