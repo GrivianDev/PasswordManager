@@ -4,19 +4,19 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/persistance.dart';
 
-/// Class providing two static methods: [SafetyAnalyser.rateSafety], [SafetyAnalyser.generateSavePassword].
+/// Class providing two methods: [SafetyAnalyser.rateSafety], [SafetyAnalyser.generateSavePassword].
 /// Used for determening if a password is considered save or generate strong passwords.
 final class SafetyAnalyser {
-  static const String alphabet = 'abcdefghijklmnopqrstuvwxyz';
-  static const String uAlphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  static const String numbers = '0123456789';
-  static const String specialChars = '\'\$^°ß!"§%&/()=?,;.:-_#*+|<>~´`{[]}';
+  final String alphabet = 'abcdefghijklmnopqrstuvwxyz';
+  final String uAlphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  final String numbers = '0123456789';
+  final String specialChars = '\'\$^°ß!"§%&/()=?,;.:-_#*+|<>~´`{[]}';
 
   /// Returns a rating between [0-1] based on these factors:
   /// * Does password contain different characters overall
   /// * Is recommended password length of 12 reached, if not how much is missing.
   /// * Were lowercase, uppercase, numbers and special characters used.
-  static double rateSafety({required String password}) {
+  double rateSafety({required String password}) {
     if(password.isEmpty) return 0.0;
 
     // 1) Test if not always the same symbols have been used
@@ -60,7 +60,7 @@ final class SafetyAnalyser {
   }
 
   /// Generates a random password consisting of [20-32] characters.
-  static String generateSavePassword(BuildContext context) {
+  String generateSavePassword(BuildContext context) {
     final Settings settings = context.read<Settings>();
     String chars = '';
     if(settings.useLettersEnabled) chars += alphabet + uAlphabet;

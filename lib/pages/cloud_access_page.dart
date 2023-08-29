@@ -104,7 +104,7 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
   /// Building method for a small indicator on how strong the users password is.
   Column buildPasswordStrengthIndictator(BuildContext context) {
     final double rating =
-        SafetyAnalyser.rateSafety(password: _pwController.text);
+        SafetyAnalyser().rateSafety(password: _pwController.text);
     String text = 'Weak';
     if (rating > 0.5) {
       text = 'Decent';
