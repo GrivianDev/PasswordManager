@@ -54,7 +54,7 @@ class HomeNavBar extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 6.0),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   const Icon(Icons.settings),
                   Padding(
@@ -73,6 +73,7 @@ class HomeNavBar extends StatelessWidget {
           ),
           const Divider(color: Colors.grey),
           Row(
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Switch.adaptive(
                 value: context.watch<Settings>().isOnlineModeEnabled,
@@ -80,18 +81,21 @@ class HomeNavBar extends StatelessWidget {
                     ? _changeOnlineMode(context, enabled)
                     : null,
               ),
-              Expanded(
+              Padding(
+                padding: const EdgeInsets.only(left: 5.0),
                 child: Text(
                   context.read<Settings>().isOnlineModeEnabled
                       ? 'Online'
                       : 'Offline',
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ),
-              Icon(context.read<Settings>().isOnlineModeEnabled
-                  ? Icons.cloud_sync
-                  : Icons.cloud_off),
+              Padding(
+                padding: const EdgeInsets.only(left: 15.0),
+                child: Icon(context.read<Settings>().isOnlineModeEnabled
+                    ? Icons.cloud_sync
+                    : Icons.cloud_off),
+              ),
             ],
           ),
         ],

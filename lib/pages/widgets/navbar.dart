@@ -53,7 +53,7 @@ class NavBar extends StatelessWidget {
               child: TextField(
                 controller: controller,
                 decoration: const InputDecoration(
-                  constraints: BoxConstraints(maxWidth: 100, maxHeight: 50.0),
+                  constraints: BoxConstraints(maxWidth: 100, maxHeight: 60.0),
                   hintText: 'Enter "DELETE"',
                 ),
               ),
@@ -152,7 +152,7 @@ class NavBar extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 6.0),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   const Icon(Icons.settings),
                   Padding(
@@ -177,7 +177,7 @@ class NavBar extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 6.0),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     const Icon(Icons.cloud_download_outlined),
                     Padding(
@@ -203,7 +203,7 @@ class NavBar extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 6.0),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     const Icon(Icons.cloud_upload),
                     Padding(
@@ -221,44 +221,46 @@ class NavBar extends StatelessWidget {
               ),
             ),
           ],
-          const Divider(color: Colors.grey),
-          Padding(
-            padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
-            child: IconButton(
-              tooltip: "Exit",
-              iconSize: 35.0,
-              onPressed: () => _exit(context),
-              icon: const Icon(
-                Icons.logout,
-                color: Colors.red,
-              ),
-            ),
-          ),
           if (context.read<Settings>().isOnlineModeEnabled) ...[
             const Divider(color: Colors.grey),
             TextButton(
-              onLongPress: () async => _deleteStorage(context),
-              onPressed: null,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.delete_outline,
-                    color: Colors.red,
-                    size: 35.0,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 15.0),
-                    child: Text(
-                      'Delete',
-                      style: TextStyle(
-                        fontSize:
-                            Theme.of(context).textTheme.bodyMedium!.fontSize,
-                        color: Colors.red,
+              onPressed: () async => _deleteStorage(context),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const Icon(
+                      Icons.delete_outline,
+                      color: Colors.red,
+                      size: 30.0,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 15.0),
+                      child: Text(
+                        'Delete',
+                        style: TextStyle(
+                          fontSize:
+                              Theme.of(context).textTheme.bodyMedium!.fontSize,
+                          color: Colors.red,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
+              ),
+            ),
+            const Divider(color: Colors.grey),
+            Padding(
+              padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
+              child: IconButton(
+                tooltip: "Exit",
+                iconSize: 35.0,
+                onPressed: () => _exit(context),
+                icon: const Icon(
+                  Icons.logout,
+                  color: Colors.red,
+                ),
               ),
             ),
           ],
