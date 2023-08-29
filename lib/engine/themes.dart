@@ -72,8 +72,8 @@ class AppThemeData {
       ),
     ),
     switchTheme: SwitchThemeData(
-      thumbColor: MaterialStateProperty.all(Colors.blue),
-      trackColor: MaterialStateProperty.all(Colors.blueGrey),
+      thumbColor: MaterialStateProperty.all<Color>(Colors.blue),
+      trackColor: MaterialStateProperty.all<Color>(Colors.blueGrey),
     ),
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
       backgroundColor: Colors.blue,
@@ -82,7 +82,7 @@ class AppThemeData {
       color: Colors.white,
     ),
     checkboxTheme: CheckboxThemeData(
-      fillColor: MaterialStateProperty.all(Colors.blue),
+      fillColor: MaterialStateProperty.all<Color>(Colors.blue),
     ),
   );
 
@@ -156,8 +156,8 @@ class AppThemeData {
       ),
     ),
     switchTheme: SwitchThemeData(
-      thumbColor: MaterialStateProperty.all(Colors.grey),
-      trackColor: MaterialStateProperty.all(Colors.black),
+      thumbColor: MaterialStateProperty.all<Color>(Colors.grey),
+      trackColor: MaterialStateProperty.all<Color>(Colors.black),
     ),
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
       backgroundColor: Color.fromRGBO(2, 10, 161, 1),
@@ -166,7 +166,7 @@ class AppThemeData {
       color: Colors.black,
     ),
     checkboxTheme: CheckboxThemeData(
-      fillColor: MaterialStateProperty.all(const Color.fromRGBO(2, 10, 161, 1)),
+      fillColor: MaterialStateProperty.all<Color>(const Color.fromRGBO(2, 10, 161, 1)),
     ),
   );
 }

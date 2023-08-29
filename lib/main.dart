@@ -39,7 +39,7 @@ class Application extends StatelessWidget {
       builder: (context, child) {
         return MaterialApp(
             debugShowCheckedModeBanner: false,
-            title: 'passwordmanager',
+            title: 'Ethercrypt',
             themeMode: context.watch<Settings>().isLightMode
                 ? ThemeMode.light
                 : ThemeMode.dark,
