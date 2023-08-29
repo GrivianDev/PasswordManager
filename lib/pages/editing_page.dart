@@ -191,7 +191,7 @@ class _EditingPageState extends State<EditingPage> {
               constraints: BoxConstraints(minHeight: constraints.maxHeight),
               child: IntrinsicHeight(
                   child: Padding(
-                padding: const EdgeInsets.all(20.0),
+                padding: const EdgeInsets.all(25.0),
                 child: Column(
                   children: [
                     TextField(

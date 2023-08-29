@@ -115,8 +115,8 @@ class ListElement extends StatelessWidget {
 
   /// Displays a dialog to avoid accidentally deleting accounts. If autosaving is active
   /// then the [_save] method is called.
-  void _deleteClicked(BuildContext context) {
-    Notify.dialog(
+  Future<void> _deleteClicked(BuildContext context) async {
+    await Notify.dialog(
       context: context,
       title: 'Are you sure?',
       type: NotificationType.deleteDialog,
@@ -131,6 +131,7 @@ class ListElement extends StatelessWidget {
         if (context.read<Settings>().isAutoSaving) {
           await _save(context);
         } else {
+          if(_isSearchResult) Navigator.pop(context);
           database.notifyListeners();
         }
       },
@@ -197,7 +198,7 @@ class ListElement extends StatelessWidget {
                   ),
                   if (Settings.isWindows || context.read<Settings>().isOnlineModeEnabled)
                     IconButton(
-                      onPressed: () => _deleteClicked(context),
+                      onPressed: () async => _deleteClicked(context),
                       icon: const Icon(
                         Icons.delete_outline,
                         color: Colors.red,

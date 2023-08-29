@@ -107,13 +107,13 @@ class _PasswordGetterPageState extends State<PasswordGetterPage> {
           ),
           color: Theme.of(context).colorScheme.background,
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(25.0),
-          child: LayoutBuilder(
-            builder: (context, constraints) => SingleChildScrollView(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: IntrinsicHeight(
+        child: LayoutBuilder(
+          builder: (context, constraints) => SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: IntrinsicHeight(
+                child: Padding(
+                  padding: const EdgeInsets.all(25.0),
                   child: Column(
                     children: [
                       Text(
