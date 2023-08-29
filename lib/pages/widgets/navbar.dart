@@ -32,35 +32,58 @@ class NavBar extends StatelessWidget {
 
   /// Forever deletes current storage from firebase cloud and wipes database by calling [LocalDatabase.clear].
   /// Does nothing if deletion fails.
-  void _deleteStorage(BuildContext context) {
-    Notify.dialog(
-        context: context,
-        type: NotificationType.deleteDialog,
-        title: 'Are you sure?',
-        content: Text(
-          'Do you really want to wipe all data of this cloud storage? Action cannot be undone!',
-          style: Theme.of(context).textTheme.displaySmall,
-        ),
-        onConfirm: () async {
-          final NavigatorState navigator = Navigator.of(context);
-          final FirebaseConnector connector = context.read<FirebaseConnector>();
+  Future<void> _deleteStorage(BuildContext context) async {
+    final TextEditingController controller = TextEditingController();
 
-          try {
-            navigator.pop();
-            Notify.showLoading(context: context);
-            await connector.deleteDocument();
-            LocalDatabase().clear();
-            navigator.pushAndRemoveUntil(
-              MaterialPageRoute(
-                builder: (context) => const HomePage(title: 'Home'),
+    await Notify.dialog(
+      context: context,
+      type: NotificationType.deleteDialog,
+      title: 'Are you sure?',
+      content: SizedBox(
+        width: double.maxFinite,
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            Text(
+              'Do you really want to wipe all data of this cloud storage? Action cannot be undone!',
+              style: Theme.of(context).textTheme.displaySmall,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 15.0),
+              child: TextField(
+                controller: controller,
+                decoration: const InputDecoration(
+                  constraints: BoxConstraints(maxWidth: 100, maxHeight: 50.0),
+                  hintText: 'Enter "DELETE"',
+                ),
               ),
-              (route) => false,
-            );
-          } catch (e) {
-            navigator.pop();
-            navigator.pop();
-          }
-        });
+            ),
+          ],
+        ),
+      ),
+      onConfirm: () async {
+        if (controller.text != 'DELETE') return;
+        final NavigatorState navigator = Navigator.of(context);
+        final FirebaseConnector connector = context.read<FirebaseConnector>();
+
+        try {
+          navigator.pop();
+          Notify.showLoading(context: context);
+          await connector.deleteDocument();
+          LocalDatabase().clear();
+          navigator.pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: (context) => const HomePage(title: 'Home'),
+            ),
+            (route) => false,
+          );
+        } catch (e) {
+          navigator.pop();
+          navigator.pop();
+        }
+      },
+    );
+    controller.dispose();
   }
 
   /// Saves a backup of the currently loaded accounts into the selected file.
@@ -121,8 +144,7 @@ class NavBar extends StatelessWidget {
           ),
           const Divider(color: Colors.grey),
           TextButton(
-            onPressed: () => Navigator.push(
-              context,
+            onPressed: () => Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => const SettingsPage(),
               ),
@@ -215,7 +237,7 @@ class NavBar extends StatelessWidget {
           if (context.read<Settings>().isOnlineModeEnabled) ...[
             const Divider(color: Colors.grey),
             TextButton(
-              onLongPress: () => _deleteStorage(context),
+              onLongPress: () async => _deleteStorage(context),
               onPressed: null,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,

@@ -26,7 +26,7 @@ class _PasswordGetterPageState extends State<PasswordGetterPage> {
   late TextEditingController _pwController;
 
   /// Building method for a small indicator on how strong the users password is.
-  Column buildPasswordStrengthIndictator(BuildContext context) {
+  Column _buildPasswordStrengthIndictator(BuildContext context) {
     final double rating =
         SafetyAnalyser().rateSafety(password: _pwController.text);
     String text = 'Weak';
@@ -153,7 +153,7 @@ class _PasswordGetterPageState extends State<PasswordGetterPage> {
                             _canSubmit ? Navigator.pop(context, string) : null,
                       ),
                       if (widget.showIndicator)
-                        buildPasswordStrengthIndictator(context),
+                        _buildPasswordStrengthIndictator(context),
                       const Spacer(),
                       Align(
                         alignment: Alignment.bottomRight,

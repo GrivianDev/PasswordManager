@@ -30,7 +30,7 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
   /// * Login:
   /// * Tests if storage name exists
   /// * Verifys entered password
-  Future<void> submit() async {
+  Future<void> _submit() async {
     final NavigatorState navigator = Navigator.of(context);
     final FirebaseConnector connector = context.read<FirebaseConnector>();
     final LocalDatabase database = LocalDatabase();
@@ -102,7 +102,7 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
   }
 
   /// Building method for a small indicator on how strong the users password is.
-  Column buildPasswordStrengthIndictator(BuildContext context) {
+  Column _buildPasswordStrengthIndictator(BuildContext context) {
     final double rating =
         SafetyAnalyser().rateSafety(password: _pwController.text);
     String text = 'Weak';
@@ -243,17 +243,17 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
                           _canSubmit = _nameController.text.isNotEmpty &&
                               _pwController.text.isNotEmpty;
                         }),
-                        onSubmitted: (string) => _canSubmit ? submit() : null,
+                        onSubmitted: (string) => _canSubmit ? _submit() : null,
                       ),
                       if (!widget.login)
-                        buildPasswordStrengthIndictator(context),
+                        _buildPasswordStrengthIndictator(context),
                       const Spacer(),
                       Align(
                         alignment: Alignment.bottomRight,
                         child: Padding(
                           padding: const EdgeInsets.only(top: 50.0),
                           child: TextButton(
-                            onPressed: () => _canSubmit ? submit() : null,
+                            onPressed: () => _canSubmit ? _submit() : null,
                             child: Padding(
                               padding: const EdgeInsets.all(20.0),
                               child: Text(

@@ -31,11 +31,17 @@ final class FirebaseConnector {
   static late CollectionReference _storage;
 
   String _id = '';
+  String? _name;
 
   bool get isLoggedIn => _auth.isSignedIn;
 
+  String? get name => _name;
+
   /// Deletes the id of the last active document
-  void invalidate() => _id = '';
+  void invalidate() {
+    _id = '';
+    _name = null;
+  }
 
   /// Method to initialize the [FirebaseConnector] class. An own [Firestore] and [FirebaseAuth] object are
   /// created for authentication. In addition a reference to the core collection is stored.
@@ -94,6 +100,7 @@ final class FirebaseConnector {
       final List<Document> docs = await _storage.where('name', isEqualTo: name).get();
       if(docs.isEmpty) return false;
       if(docs.elementAt(0).map['hash'] == Hashing.asString(Hashing.sha256DoubledHash(utf8.encode(password)))) {
+        _name = name;
         _id = docs.elementAt(0).id;
         return true;
       } else {
@@ -116,6 +123,7 @@ final class FirebaseConnector {
         'hash': Hashing.asString(hash),
         'data': data,
       });
+      _name = name;
       _id = doc.id;
     } catch(e) {
       throw Exception('Could not add new document');

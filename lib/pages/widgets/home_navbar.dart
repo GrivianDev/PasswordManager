@@ -46,8 +46,7 @@ class HomeNavBar extends StatelessWidget {
           ),
           const Divider(color: Colors.grey),
           TextButton(
-            onPressed: () => Navigator.push(
-              context,
+            onPressed: () => Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => const SettingsPage(),
               ),

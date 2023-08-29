@@ -15,6 +15,8 @@ final class Source {
     if(_sourceFile != null && _connector != null) throw Exception('Source object does not allow two valid sources');
   }
 
+  String? get name => _sourceFile != null ? _sourceFile!.path.split(Platform.pathSeparator).last : _connector!.name ?? 'none';
+
   bool get isValid => _sourceFile != null ? _sourceFile!.existsSync() : _connector!.isLoggedIn;
 
   void invalidate() => _connector != null ? _connector!.invalidate() : {};

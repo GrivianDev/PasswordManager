@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/local_database.dart';
 import 'package:passwordmanager/engine/persistance.dart';
+import 'package:passwordmanager/engine/source.dart';
 import 'package:passwordmanager/engine/implementation/account.dart';
 import 'package:passwordmanager/pages/widgets/list_element.dart';
 import 'package:passwordmanager/pages/widgets/account_list_view.dart';
@@ -127,13 +128,14 @@ class ManagePage extends StatelessWidget {
   Future<void> _showDetails(BuildContext context) async {
     final LocalDatabase database = LocalDatabase();
     final Settings settings = context.read<Settings>();
+    final Source? source = LocalDatabase().source;
 
     await Notify.dialog(
       context: context,
       type: NotificationType.notification,
       title: 'Details ${settings.isOnlineModeEnabled ? '(Cloud storage)' : '(Local file)'}',
       content: Text(
-        '${database.accounts.length}/${LocalDatabase.maxCapacity} accounts\n${database.tags.length} tags',
+        'Name: "${source?.name ?? 'none'}"\nAccounts: ${database.accounts.length}/${LocalDatabase.maxCapacity}\nTags: ${database.tags.length}',
         style: Theme.of(context).textTheme.displaySmall,
       ),
     );

@@ -7,10 +7,10 @@ import 'package:passwordmanager/engine/persistance.dart';
 /// Class providing two methods: [SafetyAnalyser.rateSafety], [SafetyAnalyser.generateSavePassword].
 /// Used for determening if a password is considered save or generate strong passwords.
 final class SafetyAnalyser {
-  final String alphabet = 'abcdefghijklmnopqrstuvwxyz';
-  final String uAlphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  final String numbers = '0123456789';
-  final String specialChars = '\'\$^°ß!"§%&/()=?,;.:-_#*+|<>~´`{[]}';
+  static const String alphabet = 'abcdefghijklmnopqrstuvwxyz';
+  static const String uAlphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  static const String numbers = '0123456789';
+  static const String specialChars = '\'\$^°ß!"§%&/()=?,;.:-_#*+|<>~´`{[]}';
 
   /// Returns a rating between [0-1] based on these factors:
   /// * Does password contain different characters overall
@@ -62,7 +62,7 @@ final class SafetyAnalyser {
   /// Generates a random password consisting of [20-32] characters.
   String generateSavePassword(BuildContext context) {
     final Settings settings = context.read<Settings>();
-    String chars = '';
+    String chars = (settings.useLettersEnabled || settings.useNumbersEnabled || settings.useSpecialCharsEnabled) ? '' : alphabet + uAlphabet;
     if(settings.useLettersEnabled) chars += alphabet + uAlphabet;
     if(settings.useNumbersEnabled) chars += numbers;
     if(settings.useSpecialCharsEnabled) chars += specialChars;
