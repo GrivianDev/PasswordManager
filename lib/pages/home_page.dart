@@ -60,9 +60,11 @@ class HomePage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(Icons.code),
-                    Padding(
-                      padding: EdgeInsets.only(left: 5.0),
-                      child: Text('View code'),
+                    Flexible(
+                      child: Padding(
+                        padding: EdgeInsets.only(left: 5.0),
+                        child: Text('View code'),
+                      ),
                     ),
                   ],
                 ),
@@ -83,9 +85,11 @@ class HomePage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(Icons.copyright),
-                    Padding(
-                      padding: EdgeInsets.only(left: 5.0),
-                      child: Text('Licenses'),
+                    Flexible(
+                      child: Padding(
+                        padding: EdgeInsets.only(left: 5.0),
+                        child: Text('Licenses'),
+                      ),
                     ),
                   ],
                 ),

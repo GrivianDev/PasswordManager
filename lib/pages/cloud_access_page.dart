@@ -134,13 +134,15 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
                   borderRadius: BorderRadius.circular(10.0),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(left: 10.0),
-                child: Text(
-                  text,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.primary,
-                    fontSize: Theme.of(context).textTheme.bodySmall!.fontSize,
+              Flexible(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 10.0),
+                  child: Text(
+                    text,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontSize: Theme.of(context).textTheme.bodySmall!.fontSize,
+                    ),
                   ),
                 ),
               ),

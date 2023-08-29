@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "passwordmanager" "\0"
+            VALUE "CompanyName", "com.secure" "\0"
+            VALUE "FileDescription", "ethercrypt" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "passwordmanager" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2023 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "passwordmanager.exe" "\0"
-            VALUE "ProductName", "passwordmanager" "\0"
+            VALUE "InternalName", "ethercrypt" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2023 com.secure.ethercrypt All rights reserved." "\0"
+            VALUE "OriginalFilename", "ethercrypt.exe" "\0"
+            VALUE "ProductName", "ethercrypt" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

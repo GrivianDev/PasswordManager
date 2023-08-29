@@ -57,13 +57,15 @@ class HomeNavBar extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   const Icon(Icons.settings),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 15.0),
-                    child: Text(
-                      'Settings',
-                      style: TextStyle(
-                        fontSize:
-                            Theme.of(context).textTheme.bodyMedium!.fontSize,
+                  Flexible(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 15.0),
+                      child: Text(
+                        'Settings',
+                        style: TextStyle(
+                          fontSize:
+                              Theme.of(context).textTheme.bodyMedium!.fontSize,
+                        ),
                       ),
                     ),
                   ),
@@ -81,13 +83,15 @@ class HomeNavBar extends StatelessWidget {
                     ? _changeOnlineMode(context, enabled)
                     : null,
               ),
-              Padding(
-                padding: const EdgeInsets.only(left: 5.0),
-                child: Text(
-                  context.read<Settings>().isOnlineModeEnabled
-                      ? 'Online'
-                      : 'Offline',
-                  style: Theme.of(context).textTheme.bodyMedium,
+              Flexible(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 5.0),
+                  child: Text(
+                    context.read<Settings>().isOnlineModeEnabled
+                        ? 'Online'
+                        : 'Offline',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
                 ),
               ),
               Padding(

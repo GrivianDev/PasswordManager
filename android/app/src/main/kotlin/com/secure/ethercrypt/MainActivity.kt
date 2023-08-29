@@ -1,4 +1,4 @@
-package com.example.passwordmanager
+package com.secure.ethercrypt
 
 import io.flutter.embedding.android.FlutterActivity
 

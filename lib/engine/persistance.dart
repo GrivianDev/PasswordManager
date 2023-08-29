@@ -12,14 +12,14 @@ class Settings extends ChangeNotifier {
   static late final SharedPreferences _instance;
 
   static final isWindows = Platform.isWindows;
-  static const _keyLightMode = 'mode';
-  static const _keyLastOpenedPath = 'path';
-  static const _keyAutoSaving = 'saving';
-  static const _keyOnlineMode = 'online';
-  static const _keyLastOpenedCloudDoc = 'cloud_docname';
-  static const _keyPwGenUseLetters = 'use_letters';
-  static const _keyPwGenUseNumbers = 'use_numbers';
-  static const _keyPwGenUseSpecialChars = 'use_special_chars';
+  static const _keyLightMode = 'ethercrypt.mode';
+  static const _keyLastOpenedPath = 'ethercrypt.path';
+  static const _keyAutoSaving = 'ethercrypt.saving';
+  static const _keyOnlineMode = 'ethercrypt.online';
+  static const _keyLastOpenedCloudDoc = 'ethercrypt.cloud_docname';
+  static const _keyPwGenUseLetters = 'ethercrypt.use_letters';
+  static const _keyPwGenUseNumbers = 'ethercrypt.use_numbers';
+  static const _keyPwGenUseSpecialChars = 'ethercrypt.use_special_chars';
 
   /// Initialises the class by setting the [_instance] property.
   static Future<void> init() async => _instance = await SharedPreferences.getInstance();

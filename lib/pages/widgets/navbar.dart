@@ -155,13 +155,15 @@ class NavBar extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   const Icon(Icons.settings),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 15.0),
-                    child: Text(
-                      'Settings',
-                      style: TextStyle(
-                        fontSize:
-                            Theme.of(context).textTheme.bodyMedium!.fontSize,
+                  Flexible(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 15.0),
+                      child: Text(
+                        'Settings',
+                        style: TextStyle(
+                          fontSize:
+                              Theme.of(context).textTheme.bodyMedium!.fontSize,
+                        ),
                       ),
                     ),
                   ),
@@ -180,13 +182,15 @@ class NavBar extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     const Icon(Icons.cloud_download_outlined),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 15.0),
-                      child: Text(
-                        'Save backup',
-                        style: TextStyle(
-                          fontSize:
-                              Theme.of(context).textTheme.bodyMedium!.fontSize,
+                    Flexible(
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 15.0),
+                        child: Text(
+                          'Save backup',
+                          style: TextStyle(
+                            fontSize:
+                                Theme.of(context).textTheme.bodyMedium!.fontSize,
+                          ),
                         ),
                       ),
                     ),
@@ -206,13 +210,15 @@ class NavBar extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     const Icon(Icons.cloud_upload),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 15.0),
-                      child: Text(
-                        'Upload data',
-                        style: TextStyle(
-                          fontSize:
-                              Theme.of(context).textTheme.bodyMedium!.fontSize,
+                    Flexible(
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 15.0),
+                        child: Text(
+                          'Upload data',
+                          style: TextStyle(
+                            fontSize:
+                                Theme.of(context).textTheme.bodyMedium!.fontSize,
+                          ),
                         ),
                       ),
                     ),
@@ -235,14 +241,16 @@ class NavBar extends StatelessWidget {
                       color: Colors.red,
                       size: 30.0,
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 15.0),
-                      child: Text(
-                        'Delete',
-                        style: TextStyle(
-                          fontSize:
-                              Theme.of(context).textTheme.bodyMedium!.fontSize,
-                          color: Colors.red,
+                    Flexible(
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 15.0),
+                        child: Text(
+                          'Delete',
+                          style: TextStyle(
+                            fontSize:
+                                Theme.of(context).textTheme.bodyMedium!.fontSize,
+                            color: Colors.red,
+                          ),
                         ),
                       ),
                     ),
@@ -250,20 +258,20 @@ class NavBar extends StatelessWidget {
                 ),
               ),
             ),
-            const Divider(color: Colors.grey),
-            Padding(
-              padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
-              child: IconButton(
-                tooltip: "Exit",
-                iconSize: 35.0,
-                onPressed: () => _exit(context),
-                icon: const Icon(
-                  Icons.logout,
-                  color: Colors.red,
-                ),
+          ],
+          const Divider(color: Colors.grey),
+          Padding(
+            padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
+            child: IconButton(
+              tooltip: "Exit",
+              iconSize: 35.0,
+              onPressed: () => _exit(context),
+              icon: const Icon(
+                Icons.logout,
+                color: Colors.red,
               ),
             ),
-          ],
+          ),
         ],
       ),
     );
