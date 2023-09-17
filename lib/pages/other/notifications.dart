@@ -46,6 +46,7 @@ final class Notify {
                   color: type == NotificationType.error
                       ? Colors.red
                       : Theme.of(context).textTheme.headlineLarge!.color,
+                  overflow: TextOverflow.clip,
                 ),
               )
             : null,
@@ -65,7 +66,8 @@ final class Notify {
                     ? 'Cancel'
                     : 'Return',
                 style: TextStyle(
-                  fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
+                  fontSize: Theme.of(context).textTheme.displaySmall?.fontSize,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ),
@@ -89,7 +91,8 @@ final class Notify {
                         ? "Confirm"
                         : "DELETE",
                     style: TextStyle(
-                      fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
+                      fontSize: Theme.of(context).textTheme.displaySmall?.fontSize,
+                      overflow: TextOverflow.ellipsis,
                       color: Colors.white,
                     ),
                   ),

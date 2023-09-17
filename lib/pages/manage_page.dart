@@ -90,7 +90,7 @@ class ManagePage extends StatelessWidget {
         title: 'Could not save changes!',
         content: Text(
           e.toString(),
-          style: Theme.of(context).textTheme.displaySmall,
+          style: Theme.of(context).textTheme.bodySmall,
         ),
       );
       return;
@@ -136,7 +136,7 @@ class ManagePage extends StatelessWidget {
       title: 'Details ${settings.isOnlineModeEnabled ? '(Cloud storage)' : '(Local file)'}',
       content: Text(
         'Name: "${source?.name ?? 'none'}"\nAccounts: ${database.accounts.length}/${LocalDatabase.maxCapacity}\nTags: ${database.tags.length}',
-        style: Theme.of(context).textTheme.displaySmall,
+        style: Theme.of(context).textTheme.bodySmall,
       ),
     );
   }
@@ -250,7 +250,7 @@ class ManagePage extends StatelessWidget {
                                                 color: Colors.white,
                                                 fontSize: Theme.of(context)
                                                     .textTheme
-                                                    .bodySmall
+                                                    .displaySmall
                                                     ?.fontSize,
                                               ),
                                             ),

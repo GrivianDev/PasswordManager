@@ -28,7 +28,7 @@ class HomeNavBar extends StatelessWidget {
         title: 'Error occured!',
         content: Text(
           e.toString(),
-          style: Theme.of(context).textTheme.displaySmall,
+          style: Theme.of(context).textTheme.bodySmall,
         ),
       );
     }
@@ -42,7 +42,7 @@ class HomeNavBar extends StatelessWidget {
         children: <Widget>[
           Text(
             'Options',
-            style: Theme.of(context).textTheme.headlineLarge,
+            style: Theme.of(context).textTheme.displayLarge,
           ),
           const Divider(color: Colors.grey),
           TextButton(
@@ -64,7 +64,8 @@ class HomeNavBar extends StatelessWidget {
                         'Settings',
                         style: TextStyle(
                           fontSize:
-                              Theme.of(context).textTheme.bodyMedium!.fontSize,
+                              Theme.of(context).textTheme.displayMedium!.fontSize,
+                          overflow: Theme.of(context).textTheme.displayMedium!.overflow,
                         ),
                       ),
                     ),
@@ -90,7 +91,7 @@ class HomeNavBar extends StatelessWidget {
                     context.read<Settings>().isOnlineModeEnabled
                         ? 'Online'
                         : 'Offline',
-                    style: Theme.of(context).textTheme.bodyMedium,
+                    style: Theme.of(context).textTheme.displayMedium,
                   ),
                 ),
               ),

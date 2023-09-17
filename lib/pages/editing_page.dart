@@ -52,7 +52,7 @@ class _EditingPageState extends State<EditingPage> {
           title: 'Could not save changes!',
           content: Text(
             e.toString(),
-            style: Theme.of(context).textTheme.displaySmall,
+            style: Theme.of(context).textTheme.bodySmall,
           ),
         );
         return;
@@ -126,7 +126,7 @@ class _EditingPageState extends State<EditingPage> {
         title: 'Error occured!',
         content: Text(
           e.toString(),
-          style: Theme.of(context).textTheme.displaySmall,
+          style: Theme.of(context).textTheme.bodySmall,
         ),
       );
       return false;

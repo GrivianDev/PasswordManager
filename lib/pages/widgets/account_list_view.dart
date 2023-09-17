@@ -24,7 +24,7 @@ class AccountListView extends StatelessWidget {
                   child: Text(
                     tag,
                     textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyMedium,
+                    style: Theme.of(context).textTheme.displayMedium,
                   ),
                 ),
                 const Expanded(

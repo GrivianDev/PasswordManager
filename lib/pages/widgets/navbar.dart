@@ -46,7 +46,7 @@ class NavBar extends StatelessWidget {
           children: [
             Text(
               'Do you really want to wipe all data of this cloud storage? Action cannot be undone!',
-              style: Theme.of(context).textTheme.displaySmall,
+              style: Theme.of(context).textTheme.bodySmall,
             ),
             Padding(
               padding: const EdgeInsets.only(top: 15.0),
@@ -115,7 +115,7 @@ class NavBar extends StatelessWidget {
         title: 'Successfully saved backup',
         content: Text(
           'Saved file under:\n${file.path}',
-          style: Theme.of(context).textTheme.displaySmall,
+          style: Theme.of(context).textTheme.bodySmall,
         ),
       );
     } catch (e) {
@@ -126,7 +126,7 @@ class NavBar extends StatelessWidget {
         title: 'Error occured!',
         content: Text(
           e.toString(),
-          style: Theme.of(context).textTheme.displaySmall,
+          style: Theme.of(context).textTheme.bodySmall,
         ),
       );
     }
@@ -140,7 +140,7 @@ class NavBar extends StatelessWidget {
         children: <Widget>[
           Text(
             'Options',
-            style: Theme.of(context).textTheme.headlineLarge,
+            style: Theme.of(context).textTheme.displayLarge,
           ),
           const Divider(color: Colors.grey),
           TextButton(
@@ -162,7 +162,8 @@ class NavBar extends StatelessWidget {
                         'Settings',
                         style: TextStyle(
                           fontSize:
-                              Theme.of(context).textTheme.bodyMedium!.fontSize,
+                              Theme.of(context).textTheme.displayMedium!.fontSize,
+                          overflow: Theme.of(context).textTheme.displayMedium!.overflow,
                         ),
                       ),
                     ),
@@ -189,7 +190,8 @@ class NavBar extends StatelessWidget {
                           'Save backup',
                           style: TextStyle(
                             fontSize:
-                                Theme.of(context).textTheme.bodyMedium!.fontSize,
+                                Theme.of(context).textTheme.displayMedium!.fontSize,
+                            overflow: Theme.of(context).textTheme.displayMedium!.overflow,
                           ),
                         ),
                       ),
@@ -217,7 +219,8 @@ class NavBar extends StatelessWidget {
                           'Upload data',
                           style: TextStyle(
                             fontSize:
-                                Theme.of(context).textTheme.bodyMedium!.fontSize,
+                                Theme.of(context).textTheme.displayMedium!.fontSize,
+                            overflow: Theme.of(context).textTheme.displayMedium!.overflow,
                           ),
                         ),
                       ),
@@ -248,7 +251,8 @@ class NavBar extends StatelessWidget {
                           'Delete',
                           style: TextStyle(
                             fontSize:
-                                Theme.of(context).textTheme.bodyMedium!.fontSize,
+                                Theme.of(context).textTheme.displayMedium!.fontSize,
+                            overflow: Theme.of(context).textTheme.displayMedium!.overflow,
                             color: Colors.red,
                           ),
                         ),

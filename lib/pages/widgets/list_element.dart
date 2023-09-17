@@ -56,7 +56,7 @@ class ListElement extends StatelessWidget {
         title: 'Could not save changes!',
         content: Text(
           e.toString(),
-          style: Theme.of(context).textTheme.displaySmall,
+          style: Theme.of(context).textTheme.bodySmall,
         ),
       );
       database.notifyListeners();
@@ -122,7 +122,7 @@ class ListElement extends StatelessWidget {
       type: NotificationType.deleteDialog,
       content: Text(
         'Are you sure that you want to delete all information about your "${_account.name}" account?\nAction can not be undone!',
-        style: Theme.of(context).textTheme.displaySmall,
+        style: Theme.of(context).textTheme.bodySmall,
       ),
       onConfirm: () async {
         final LocalDatabase database = LocalDatabase();
@@ -171,14 +171,14 @@ class ListElement extends StatelessWidget {
                         padding: EdgeInsets.only(top: Settings.isWindows ? 0.0 : 5.0),
                         child: Text(
                           _account.name,
-                          style: Theme.of(context).textTheme.bodySmall,
+                          style: Theme.of(context).textTheme.displaySmall,
                         ),
                       ),
                     ),
                     if(isHovered) Expanded(
                       child: Text(
                         isHovered ? _mailPreview() ?? '' : '',
-                        style: Theme.of(context).textTheme.bodySmall,
+                        style: Theme.of(context).textTheme.displaySmall,
                         textAlign: TextAlign.center,
                       ),
                     ),

@@ -40,7 +40,7 @@ class _PasswordGetterPageState extends State<PasswordGetterPage> {
       children: [
         Text(
           'Password strength:',
-          style: Theme.of(context).textTheme.bodySmall,
+          style: Theme.of(context).textTheme.displaySmall,
         ),
         SizedBox(
           width: 250,
@@ -65,7 +65,8 @@ class _PasswordGetterPageState extends State<PasswordGetterPage> {
                     text,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.primary,
-                      fontSize: Theme.of(context).textTheme.bodySmall!.fontSize,
+                      fontSize: Theme.of(context).textTheme.displaySmall!.fontSize,
+                      overflow: Theme.of(context).textTheme.displaySmall!.overflow,
                     ),
                   ),
                 ),
@@ -118,7 +119,7 @@ class _PasswordGetterPageState extends State<PasswordGetterPage> {
                     children: [
                       Text(
                         widget.path ?? '',
-                        style: Theme.of(context).textTheme.displayMedium,
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
                       const SizedBox(
                         height: 10.0,
@@ -174,6 +175,7 @@ class _PasswordGetterPageState extends State<PasswordGetterPage> {
                                       ? Theme.of(context).colorScheme.primary
                                       : Colors.blueGrey,
                                   fontSize: 16,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             ),

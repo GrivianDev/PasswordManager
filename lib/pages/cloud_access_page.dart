@@ -94,7 +94,7 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
         title: 'Error occured!',
         content: Text(
           e.toString(),
-          style: Theme.of(context).textTheme.displaySmall,
+          style: Theme.of(context).textTheme.bodySmall,
         ),
       );
       database.clear(notify: false);
@@ -116,7 +116,7 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
       children: [
         Text(
           'Password strength:',
-          style: Theme.of(context).textTheme.bodySmall,
+          style: Theme.of(context).textTheme.displaySmall,
         ),
         SizedBox(
           width: 250,
@@ -141,7 +141,8 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
                     text,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.primary,
-                      fontSize: Theme.of(context).textTheme.bodySmall!.fontSize,
+                      fontSize: Theme.of(context).textTheme.displaySmall!.fontSize,
+                      overflow: Theme.of(context).textTheme.displaySmall!.overflow,
                     ),
                   ),
                 ),
@@ -265,6 +266,7 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
                                       ? Theme.of(context).colorScheme.primary
                                       : Colors.blueGrey,
                                   fontSize: 16,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             ),

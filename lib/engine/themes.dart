@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 /// Class that provides the themedata used in this project.
@@ -15,6 +17,7 @@ class AppThemeData {
       ),
       titleTextStyle: TextStyle(
         fontSize: 25.0,
+        fontWeight: FontWeight.w400,
         color: Colors.white,
         overflow: TextOverflow.ellipsis,
       ),
@@ -32,33 +35,39 @@ class AppThemeData {
     textTheme: const TextTheme(
       headlineLarge: TextStyle(
         fontSize: 25.0,
+        fontWeight: FontWeight.w400,
         color: Colors.white,
-        overflow: TextOverflow.ellipsis,
+        overflow: TextOverflow.clip,
       ),
       bodyMedium: TextStyle(
         fontSize: 20.0,
+        fontWeight: FontWeight.w400,
         color: Colors.white,
-        overflow: TextOverflow.ellipsis,
+        overflow: TextOverflow.clip,
       ),
       bodySmall: TextStyle(
         fontSize: 16.0,
+        fontWeight: FontWeight.w400,
         color: Colors.white,
-        overflow: TextOverflow.ellipsis,
+        overflow: TextOverflow.clip,
       ),
       displayLarge: TextStyle(
         fontSize: 25.0,
+        fontWeight: FontWeight.w400,
         color: Colors.white,
-        overflow: TextOverflow.clip,
+        overflow: TextOverflow.ellipsis,
       ),
       displayMedium: TextStyle(
         fontSize: 20.0,
+        fontWeight: FontWeight.w400,
         color: Colors.white,
-        overflow: TextOverflow.clip,
+        overflow: TextOverflow.ellipsis,
       ),
       displaySmall: TextStyle(
         fontSize: 16.0,
+        fontWeight: FontWeight.w400,
         color: Colors.white,
-        overflow: TextOverflow.clip,
+        overflow: TextOverflow.ellipsis,
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
@@ -98,6 +107,7 @@ class AppThemeData {
       ),
       titleTextStyle: TextStyle(
         fontSize: 25.0,
+        fontWeight: FontWeight.w400,
         color: Colors.black87,
         overflow: TextOverflow.ellipsis,
       ),
@@ -115,33 +125,39 @@ class AppThemeData {
     textTheme: const TextTheme(
       headlineLarge: TextStyle(
         fontSize: 25.0,
+        fontWeight: FontWeight.w400,
         color: Colors.black87,
-        overflow: TextOverflow.ellipsis,
+        overflow: TextOverflow.clip,
       ),
       bodyMedium: TextStyle(
         fontSize: 20.0,
+        fontWeight: FontWeight.w400,
         color: Colors.black87,
-        overflow: TextOverflow.ellipsis,
+        overflow: TextOverflow.clip,
       ),
       bodySmall: TextStyle(
         fontSize: 16.0,
+        fontWeight: FontWeight.w400,
         color: Colors.black87,
-        overflow: TextOverflow.ellipsis,
+        overflow: TextOverflow.clip,
       ),
       displayLarge: TextStyle(
         fontSize: 25.0,
+        fontWeight: FontWeight.w400,
         color: Colors.black87,
-        overflow: TextOverflow.clip,
+        overflow: TextOverflow.ellipsis,
       ),
       displayMedium: TextStyle(
         fontSize: 20.0,
+        fontWeight: FontWeight.w400,
         color: Colors.black87,
-        overflow: TextOverflow.clip,
+        overflow: TextOverflow.ellipsis,
       ),
       displaySmall: TextStyle(
         fontSize: 16.0,
+        fontWeight: FontWeight.w400,
         color: Colors.black87,
-        overflow: TextOverflow.clip,
+        overflow: TextOverflow.ellipsis,
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(

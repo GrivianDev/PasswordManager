@@ -63,7 +63,7 @@ class HomePage extends StatelessWidget {
                     Flexible(
                       child: Padding(
                         padding: EdgeInsets.only(left: 5.0),
-                        child: Text('View code'),
+                        child: Text('View code', style: TextStyle(overflow: TextOverflow.ellipsis)),
                       ),
                     ),
                   ],
@@ -88,7 +88,7 @@ class HomePage extends StatelessWidget {
                     Flexible(
                       child: Padding(
                         padding: EdgeInsets.only(left: 5.0),
-                        child: Text('Licenses'),
+                        child: Text('Licenses', style: TextStyle(overflow: TextOverflow.ellipsis)),
                       ),
                     ),
                   ],
@@ -137,7 +137,7 @@ class HomePage extends StatelessWidget {
             Flexible(
               child: Text(
                 title,
-                style: Theme.of(context).textTheme.headlineLarge,
+                style: Theme.of(context).appBarTheme.titleTextStyle,
               ),
             ),
             Padding(
@@ -236,7 +236,7 @@ class OfflinePage extends StatelessWidget {
         title: 'Error occured!',
         content: Text(
           e.toString(),
-          style: Theme.of(context).textTheme.displaySmall,
+          style: Theme.of(context).textTheme.bodySmall,
         ),
       );
     }
@@ -316,7 +316,7 @@ class OfflinePage extends StatelessWidget {
         title: 'Error occured!',
         content: Text(
           e.toString(),
-          style: Theme.of(context).textTheme.displaySmall,
+          style: Theme.of(context).textTheme.bodySmall,
         ),
       );
     }
@@ -394,7 +394,7 @@ class OfflinePage extends StatelessWidget {
             ),
             Text(
               'Select your save file:',
-              style: Theme.of(context).textTheme.bodyMedium,
+              style: Theme.of(context).textTheme.displayMedium,
             ),
             const SizedBox(height: 15.0),
             ElevatedButton(
@@ -444,7 +444,7 @@ class OfflinePage extends StatelessWidget {
             children: [
               Text(
                 'No save file?',
-                style: Theme.of(context).textTheme.bodyMedium,
+                style: Theme.of(context).textTheme.displayMedium,
               ),
               TextButton(
                 onPressed: () => _createFile(context),
@@ -454,7 +454,8 @@ class OfflinePage extends StatelessWidget {
                     'Create a new one',
                     style: TextStyle(
                       fontSize:
-                          Theme.of(context).textTheme.bodyMedium?.fontSize,
+                          Theme.of(context).textTheme.displayMedium?.fontSize,
+                      overflow: Theme.of(context).textTheme.displayMedium!.overflow,
                     ),
                   ),
                 ),
@@ -487,7 +488,7 @@ class OnlinePage extends StatelessWidget {
             ),
             Text(
               'Access existing cloud storage:',
-              style: Theme.of(context).textTheme.bodyMedium,
+              style: Theme.of(context).textTheme.displayMedium,
             ),
             const SizedBox(height: 15.0),
             ElevatedButton(
@@ -517,7 +518,7 @@ class OnlinePage extends StatelessWidget {
           children: [
             Text(
               'No cloud storage?',
-              style: Theme.of(context).textTheme.bodyMedium,
+              style: Theme.of(context).textTheme.displayMedium,
             ),
             TextButton(
               onPressed: () => Navigator.of(context).push(
@@ -530,7 +531,8 @@ class OnlinePage extends StatelessWidget {
                 child: Text(
                   'Register a new storage',
                   style: TextStyle(
-                    fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize,
+                    fontSize: Theme.of(context).textTheme.displayMedium!.fontSize,
+                    overflow: Theme.of(context).textTheme.displayMedium!.overflow,
                   ),
                 ),
               ),

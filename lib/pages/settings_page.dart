@@ -37,7 +37,7 @@ class SettingsPage extends StatelessWidget {
                     context.read<Settings>().isLightMode
                         ? 'Light theme'
                         : 'Dark theme',
-                    style: Theme.of(context).textTheme.bodyMedium,
+                    style: Theme.of(context).textTheme.displayMedium,
                   ),
                 ),
               ],
@@ -55,7 +55,7 @@ class SettingsPage extends StatelessWidget {
                     context.read<Settings>().isAutoSaving
                         ? 'Autosaving'
                         : 'Manual saving',
-                    style: Theme.of(context).textTheme.bodyMedium,
+                    style: Theme.of(context).textTheme.displayMedium,
                   ),
                 ),
               ],
@@ -63,7 +63,7 @@ class SettingsPage extends StatelessWidget {
             const Divider(color: Colors.grey),
             Text(
               'Password generation:',
-              style: Theme.of(context).textTheme.headlineLarge,
+              style: Theme.of(context).textTheme.displayLarge,
             ),
             Row(
               children: [
@@ -74,7 +74,7 @@ class SettingsPage extends StatelessWidget {
                 Flexible(
                   child: Text(
                     'Use letters',
-                    style: Theme.of(context).textTheme.bodyMedium,
+                    style: Theme.of(context).textTheme.displayMedium,
                   ),
                 ),
               ],
@@ -88,7 +88,7 @@ class SettingsPage extends StatelessWidget {
                 Flexible(
                   child: Text(
                     'Use numbers',
-                    style: Theme.of(context).textTheme.bodyMedium,
+                    style: Theme.of(context).textTheme.displayMedium,
                   ),
                 ),
               ],
@@ -102,7 +102,7 @@ class SettingsPage extends StatelessWidget {
                 Flexible(
                   child: Text(
                     'Use special characters',
-                    style: Theme.of(context).textTheme.bodyMedium,
+                    style: Theme.of(context).textTheme.displayMedium,
                   ),
                 ),
               ],

@@ -46,7 +46,7 @@ class _UploadPageState extends State<UploadPage> {
         title: 'Upload success!',
         content: Text(
           'You can now access this storage in online mode under the name "${_nameController.text}" and with the same password.',
-          style: Theme.of(context).textTheme.displaySmall,
+          style: Theme.of(context).textTheme.bodySmall,
         ),
       );
       navigator.pop();
@@ -60,7 +60,7 @@ class _UploadPageState extends State<UploadPage> {
         title: 'Error occured!',
         content: Text(
           e.toString(),
-          style: Theme.of(context).textTheme.displaySmall,
+          style: Theme.of(context).textTheme.bodySmall,
         ),
       );
     }
@@ -134,6 +134,7 @@ class _UploadPageState extends State<UploadPage> {
                                       ? Theme.of(context).colorScheme.primary
                                       : Colors.blueGrey,
                                   fontSize: 16,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             ),

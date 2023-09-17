@@ -66,7 +66,7 @@ class AccountDisplay extends StatelessWidget {
                     children: [
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                        child: Text('Password:', style: Theme.of(context).textTheme.bodyMedium),
+                        child: Text('Password:', style: Theme.of(context).textTheme.displayMedium),
                       ),
                       Padding(
                         padding: const EdgeInsets.only(
@@ -75,7 +75,7 @@ class AccountDisplay extends StatelessWidget {
                           builder: (isHovered) => isHovered
                               ? SelectableText(
                                   _account.password,
-                                  style: Theme.of(context).textTheme.displaySmall,
+                                  style: Theme.of(context).textTheme.bodySmall,
                                 )
                               : ImageFiltered(
                                   imageFilter: ImageFilter.blur(
@@ -85,7 +85,7 @@ class AccountDisplay extends StatelessWidget {
                                   child: SelectableText(
                                     _account.password,
                                     style:
-                                        Theme.of(context).textTheme.displaySmall,
+                                        Theme.of(context).textTheme.bodySmall,
                                   ),
                                 ),
                         ),
@@ -118,8 +118,8 @@ class SelectableDisplay extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(description, style: Theme.of(context).textTheme.bodyMedium),
-          SelectableText(_text, style: Theme.of(context).textTheme.displaySmall),
+          Text(description, style: Theme.of(context).textTheme.displayMedium),
+          SelectableText(_text, style: Theme.of(context).textTheme.bodySmall),
         ],
       ),
     );
