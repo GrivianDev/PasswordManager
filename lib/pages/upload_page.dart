@@ -29,8 +29,7 @@ class _UploadPageState extends State<UploadPage> {
       await connector.login();
       final bool exists = await connector.docExists(_nameController.text);
       if (exists) {
-        throw Exception(
-            'Storage with the name "${_nameController.text}" already exists');
+        throw Exception('Storage with the name "${_nameController.text}" already exists');
       }
       await connector.createDocument(
         name: _nameController.text,
@@ -114,8 +113,7 @@ class _UploadPageState extends State<UploadPage> {
                         onChanged: (string) => setState(() {
                           _canSubmit = _nameController.text.isNotEmpty;
                         }),
-                        onSubmitted: (string) =>
-                            _canSubmit ? _upload(context) : null,
+                        onSubmitted: (string) => _canSubmit ? _upload(context) : null,
                       ),
                       const Spacer(),
                       Align(
@@ -123,18 +121,14 @@ class _UploadPageState extends State<UploadPage> {
                         child: Padding(
                           padding: const EdgeInsets.only(top: 50.0),
                           child: TextButton(
-                            onPressed: () =>
-                                _canSubmit ? _upload(context) : null,
+                            onPressed: () => _canSubmit ? _upload(context) : null,
                             child: Padding(
                               padding: const EdgeInsets.all(20.0),
                               child: Text(
                                 'UPLOAD',
                                 style: TextStyle(
-                                  color: _canSubmit
-                                      ? Theme.of(context).colorScheme.primary
-                                      : Colors.blueGrey,
-                                  fontSize: 16,
-                                  overflow: TextOverflow.ellipsis,
+                                  color: _canSubmit ? null : Colors.blueGrey,
+                                  fontSize: Theme.of(context).textTheme.displaySmall!.fontSize,
                                 ),
                               ),
                             ),

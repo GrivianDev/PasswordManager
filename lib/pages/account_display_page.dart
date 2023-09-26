@@ -9,8 +9,7 @@ import 'package:passwordmanager/pages/editing_page.dart';
 
 /// Simple widget for displaying all data of an [Accout]. Can navigate to the [EditPage] for editing the displayed account (Only on windows).
 class AccountDisplay extends StatelessWidget {
-  const AccountDisplay(
-      {Key? key, required Account account, bool accessedThroughSearch = false})
+  const AccountDisplay({Key? key, required Account account, bool accessedThroughSearch = false})
       : _account = account,
         super(key: key);
 
@@ -24,24 +23,23 @@ class AccountDisplay extends StatelessWidget {
           builder: (context, database, child) => Text(_account.name),
         ),
       ),
-      floatingActionButton:
-          Settings.isWindows || context.read<Settings>().isOnlineModeEnabled
-              ? FloatingActionButton(
-                  child: const Icon(
-                    Icons.edit,
-                    color: Colors.white,
+      floatingActionButton: Settings.isWindows || context.read<Settings>().isOnlineModeEnabled
+          ? FloatingActionButton(
+              child: const Icon(
+                Icons.edit,
+                color: Colors.white,
+              ),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EditingPage(
+                    title: 'Edit account',
+                    account: _account,
                   ),
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => EditingPage(
-                        title: 'Edit account',
-                        account: _account,
-                      ),
-                    ),
-                  ),
-                )
-              : null,
+                ),
+              ),
+            )
+          : null,
       body: Container(
         margin: const EdgeInsets.only(left: 15.0, right: 15.0, bottom: 15),
         decoration: BoxDecoration(
@@ -59,8 +57,7 @@ class AccountDisplay extends StatelessWidget {
                 SelectableDisplay(description: 'Info:', text: _account.info),
                 SelectableDisplay(description: 'E-mail:', text: _account.email),
                 Padding(
-                  padding:
-                      const EdgeInsets.only(left: 15, right: 15.0, top: 25.0),
+                  padding: const EdgeInsets.only(left: 15, right: 15.0, top: 25.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -69,8 +66,7 @@ class AccountDisplay extends StatelessWidget {
                         child: Text('Password:', style: Theme.of(context).textTheme.displayMedium),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(
-                            left: 10, right: 10.0, bottom: 25.0),
+                        padding: const EdgeInsets.only(left: 10, right: 10.0, bottom: 25.0),
                         child: HoverBuilder(
                           builder: (isHovered) => isHovered
                               ? SelectableText(
@@ -84,8 +80,7 @@ class AccountDisplay extends StatelessWidget {
                                   ),
                                   child: SelectableText(
                                     _account.password,
-                                    style:
-                                        Theme.of(context).textTheme.bodySmall,
+                                    style: Theme.of(context).textTheme.bodySmall,
                                   ),
                                 ),
                         ),
@@ -103,8 +98,7 @@ class AccountDisplay extends StatelessWidget {
 }
 
 class SelectableDisplay extends StatelessWidget {
-  const SelectableDisplay(
-      {Key? key, required String text, required this.description})
+  const SelectableDisplay({Key? key, required String text, required this.description})
       : _text = text,
         super(key: key);
 

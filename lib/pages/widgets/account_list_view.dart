@@ -12,14 +12,12 @@ class AccountListView extends StatelessWidget {
   AccountListView({Key? key}) : super(key: key);
 
   List<Widget> _buildTagTile(BuildContext context, String tag) {
-    List<Account> accountsOfTag =
-        context.read<LocalDatabase>().getAccountsWithTag(tag);
+    List<Account> accountsOfTag = context.read<LocalDatabase>().getAccountsWithTag(tag);
     List<Widget> children = List.of(accountsOfTag.isNotEmpty
         ? [
             Row(
               children: [
-                const Expanded(
-                    child: Divider(thickness: 1.5, color: Colors.grey)),
+                const Expanded(child: Divider(thickness: 1.5, color: Colors.grey)),
                 Expanded(
                   child: Text(
                     tag,
@@ -27,8 +25,7 @@ class AccountListView extends StatelessWidget {
                     style: Theme.of(context).textTheme.displayMedium,
                   ),
                 ),
-                const Expanded(
-                    child: Divider(thickness: 1.5, color: Colors.grey)),
+                const Expanded(child: Divider(thickness: 1.5, color: Colors.grey)),
               ],
             ),
           ]

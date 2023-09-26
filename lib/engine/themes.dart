@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 /// Class that provides the themedata used in this project.
@@ -9,6 +7,7 @@ class AppThemeData {
     primaryColor: const Color.fromRGBO(46, 50, 51, 1),
     highlightColor: Colors.white,
     scaffoldBackgroundColor: const Color.fromRGBO(46, 50, 51, 1),
+    //dialogBackgroundColor: const Color.fromRGBO(77, 83, 84, 1).withOpacity(1),
     appBarTheme: const AppBarTheme(
       elevation: 0.0,
       backgroundColor: Color.fromRGBO(46, 50, 51, 1),
@@ -21,6 +20,32 @@ class AppThemeData {
         color: Colors.white,
         overflow: TextOverflow.ellipsis,
       ),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ButtonStyle(
+        backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+      ),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: ButtonStyle(
+        textStyle: MaterialStateProperty.all<TextStyle>(
+          const TextStyle(
+            fontSize: 20.0,
+            fontWeight: FontWeight.w500,
+            color: Colors.white,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        iconColor: MaterialStateProperty.all<Color>(Colors.blue),
+      ),
+    ),
+    expansionTileTheme: const ExpansionTileThemeData(
+      backgroundColor: Color.fromRGBO(46, 50, 51, 1),
+      collapsedBackgroundColor: Color.fromRGBO(77, 83, 84, 1),
+      textColor: Colors.blue,
+      childrenPadding: EdgeInsets.all(10.0),
+      iconColor: Colors.blue,
+      collapsedIconColor: Colors.white,
     ),
     drawerTheme: const DrawerThemeData(
       backgroundColor: Color.fromRGBO(77, 83, 84, 1),
@@ -92,6 +117,7 @@ class AppThemeData {
     ),
     checkboxTheme: CheckboxThemeData(
       fillColor: MaterialStateProperty.all<Color>(Colors.blue),
+      checkColor: MaterialStateProperty.all<Color>(Colors.white),
     ),
   );
 
@@ -111,6 +137,27 @@ class AppThemeData {
         color: Colors.black87,
         overflow: TextOverflow.ellipsis,
       ),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: ButtonStyle(
+        textStyle: MaterialStateProperty.all<TextStyle>(
+          const TextStyle(
+            fontSize: 20.0,
+            fontWeight: FontWeight.w500,
+            color: Colors.black,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        iconColor: MaterialStateProperty.all<Color>(const Color.fromRGBO(2, 10, 161, 1)),
+      ),
+    ),
+    expansionTileTheme: const ExpansionTileThemeData(
+      backgroundColor: Colors.grey,
+      collapsedBackgroundColor: Colors.white,
+      textColor: Color.fromRGBO(2, 10, 161, 1),
+      childrenPadding: EdgeInsets.all(10.0),
+      iconColor: Color.fromRGBO(2, 10, 161, 1),
+      collapsedIconColor: Colors.black,
     ),
     drawerTheme: const DrawerThemeData(
       backgroundColor: Colors.white,
@@ -167,12 +214,11 @@ class AppThemeData {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(25.0),
-        borderSide:
-            const BorderSide(width: 2, color: Color.fromRGBO(2, 10, 161, 1)),
+        borderSide: const BorderSide(width: 2, color: Color.fromRGBO(2, 10, 161, 1)),
       ),
     ),
     switchTheme: SwitchThemeData(
-      thumbColor: MaterialStateProperty.all<Color>(Colors.grey),
+      thumbColor: MaterialStateProperty.all<Color>(const Color.fromRGBO(2, 10, 161, 1)),
       trackColor: MaterialStateProperty.all<Color>(Colors.black),
     ),
     floatingActionButtonTheme: const FloatingActionButtonThemeData(

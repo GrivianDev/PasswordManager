@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:passwordmanager/engine/safety.dart';
+import 'package:passwordmanager/pages/help_page.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:file_picker/file_picker.dart';
@@ -43,9 +44,7 @@ class HomePage extends StatelessWidget {
             SizedBox(
               width: 560,
               height: 80,
-              child: context.read<Settings>().isLightMode
-                  ? SvgPicture.asset('assets/lightLogo.svg')
-                  : SvgPicture.asset('assets/darkLogo.svg'),
+              child: context.read<Settings>().isLightMode ? SvgPicture.asset('assets/lightLogo.svg') : SvgPicture.asset('assets/darkLogo.svg'),
             ),
             Text(
               'Version: ${info.version}',
@@ -54,16 +53,53 @@ class HomePage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(top: 25.0),
               child: TextButton(
-                onPressed: () async => await launchUrl(Uri.parse(
-                    'https://github.com/grievous110/PasswordManager/tree/main')),
-                child: const Row(
+                onPressed: () async => await launchUrl(Uri.parse('https://github.com/grievous110/PasswordManager/tree/main')),
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.code),
+                    const Icon(Icons.code),
                     Flexible(
                       child: Padding(
-                        padding: EdgeInsets.only(left: 5.0),
-                        child: Text('View code', style: TextStyle(overflow: TextOverflow.ellipsis)),
+                        padding: const EdgeInsets.only(left: 5.0),
+                        child: Text(
+                          'View code',
+                          style: TextStyle(
+                            fontSize: Theme.of(context).textTheme.displaySmall!.fontSize,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 5.0),
+              child: TextButton(
+                onPressed: () => {
+                  Navigator.of(context).pop(),
+                  showLicensePage(
+                    context: context,
+                    applicationName: 'Ethercrypt',
+                    applicationIcon: const Padding(
+                      padding: EdgeInsets.only(top: 10.0),
+                      child: Icon(Icons.shield_outlined),
+                    ),
+                  ),
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.copyright),
+                    Flexible(
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 5.0),
+                        child: Text(
+                          'Licenses',
+                          style: TextStyle(
+                            fontSize: Theme.of(context).textTheme.displaySmall!.fontSize,
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -73,22 +109,27 @@ class HomePage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(top: 5.0, bottom: 25),
               child: TextButton(
-                onPressed: () => showLicensePage(
-                  context: context,
-                  applicationName: 'Ethercrypt',
-                  applicationIcon: const Padding(
-                    padding: EdgeInsets.only(top: 10.0),
-                    child: Icon(Icons.shield_outlined),
+                onPressed: () => {
+                  Navigator.of(context).pop(),
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const HelpPage(),
+                    ),
                   ),
-                ),
-                child: const Row(
+                },
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.copyright),
+                    const Icon(Icons.help_outline),
                     Flexible(
                       child: Padding(
-                        padding: EdgeInsets.only(left: 5.0),
-                        child: Text('Licenses', style: TextStyle(overflow: TextOverflow.ellipsis)),
+                        padding: const EdgeInsets.only(left: 5.0),
+                        child: Text(
+                          'Help',
+                          style: TextStyle(
+                            fontSize: Theme.of(context).textTheme.displaySmall!.fontSize,
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -142,9 +183,7 @@ class HomePage extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.only(left: 20.0, top: 5.0),
-              child: Icon(Settings.isWindows
-                  ? Icons.desktop_windows_outlined
-                  : Icons.phone_android_outlined),
+              child: Icon(Settings.isWindows ? Icons.desktop_windows_outlined : Icons.phone_android_outlined),
             ),
           ],
         ),
@@ -163,13 +202,11 @@ class HomePage extends StatelessWidget {
               constraints: BoxConstraints(minHeight: constraints.maxHeight),
               child: IntrinsicHeight(
                 child: Padding(
-                    padding: const EdgeInsets.only(bottom: 40.0),
-                    child: Consumer<Settings>(
-                      builder: (context, settings, child) =>
-                          settings.isOnlineModeEnabled
-                              ? const OnlinePage()
-                              : const OfflinePage(),
-                    )),
+                  padding: const EdgeInsets.only(bottom: 40.0),
+                  child: Consumer<Settings>(
+                    builder: (context, settings, child) => settings.isOnlineModeEnabled ? const OnlinePage() : const OfflinePage(),
+                  ),
+                ),
               ),
             ),
           ),
@@ -388,9 +425,7 @@ class OfflinePage extends StatelessWidget {
             SizedBox(
               width: 560,
               height: 120,
-              child: context.read<Settings>().isLightMode
-                  ? SvgPicture.asset('assets/lightLogo.svg')
-                  : SvgPicture.asset('assets/darkLogo.svg'),
+              child: context.read<Settings>().isLightMode ? SvgPicture.asset('assets/lightLogo.svg') : SvgPicture.asset('assets/darkLogo.svg'),
             ),
             Text(
               'Select your save file:',
@@ -407,8 +442,7 @@ class OfflinePage extends StatelessWidget {
               ),
               onPressed: () => _selectFile(context),
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 25.0, vertical: 2.5),
+                padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 2.5),
                 child: Icon(
                   Settings.isWindows ? Icons.search : Icons.remove_red_eye,
                   size: 40,
@@ -422,21 +456,17 @@ class OfflinePage extends StatelessWidget {
         const SizedBox(height: 35),
         if (Settings.isWindows) ...[
           Consumer<Settings>(
-            builder: (context, settings, child) =>
-                settings.lastOpenedPath.isNotEmpty
-                    ? TextButton(
-                        onPressed: () => _openLast(context),
-                        child: Text(
-                          'Open last: ${settings.lastOpenedPath}',
-                          style: TextStyle(
-                            fontSize: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
-                                ?.fontSize,
-                          ),
-                        ),
-                      )
-                    : Container(),
+            builder: (context, settings, child) => settings.lastOpenedPath.isNotEmpty
+                ? TextButton(
+                    onPressed: () => _openLast(context),
+                    child: Text(
+                      'Open last: ${settings.lastOpenedPath}',
+                      style: TextStyle(
+                        overflow: Theme.of(context).textTheme.bodySmall!.overflow,
+                      ),
+                    ),
+                  )
+                : Container(),
           ),
           const Spacer(),
           const SizedBox(height: 35),
@@ -448,15 +478,10 @@ class OfflinePage extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () => _createFile(context),
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
+                child: const Padding(
+                  padding: EdgeInsets.all(10.0),
                   child: Text(
                     'Create a new one',
-                    style: TextStyle(
-                      fontSize:
-                          Theme.of(context).textTheme.displayMedium?.fontSize,
-                      overflow: Theme.of(context).textTheme.displayMedium!.overflow,
-                    ),
                   ),
                 ),
               ),
@@ -482,9 +507,7 @@ class OnlinePage extends StatelessWidget {
             SizedBox(
               width: 560,
               height: 120,
-              child: context.read<Settings>().isLightMode
-                  ? SvgPicture.asset('assets/lightLogo.svg')
-                  : SvgPicture.asset('assets/darkLogo.svg'),
+              child: context.read<Settings>().isLightMode ? SvgPicture.asset('assets/lightLogo.svg') : SvgPicture.asset('assets/darkLogo.svg'),
             ),
             Text(
               'Access existing cloud storage:',
@@ -499,8 +522,7 @@ class OnlinePage extends StatelessWidget {
                   ),
                 ),
               ),
-              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const CloudAccessPage(login: true))),
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const CloudAccessPage(login: true))),
               child: const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 25.0, vertical: 2.5),
                 child: Icon(
@@ -526,14 +548,10 @@ class OnlinePage extends StatelessWidget {
                   builder: (context) => const CloudAccessPage(login: false),
                 ),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
+              child: const Padding(
+                padding: EdgeInsets.all(10.0),
                 child: Text(
                   'Register a new storage',
-                  style: TextStyle(
-                    fontSize: Theme.of(context).textTheme.displayMedium!.fontSize,
-                    overflow: Theme.of(context).textTheme.displayMedium!.overflow,
-                  ),
                 ),
               ),
             ),

@@ -12,15 +12,13 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
-    with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _animation;
 
   @override
   void initState() {
-    _controller =
-        AnimationController(vsync: this, duration: const Duration(milliseconds: 1500));
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1500));
     _animation = Tween(
       begin: 0.0,
       end: 1.0,
@@ -57,9 +55,7 @@ class _SplashScreenState extends State<SplashScreen>
               SizedBox(
                 width: 560,
                 height: 120,
-                child: context.read<Settings>().isLightMode
-                    ? SvgPicture.asset('assets/lightLogo.svg')
-                    : SvgPicture.asset('assets/darkLogo.svg'),
+                child: context.read<Settings>().isLightMode ? SvgPicture.asset('assets/lightLogo.svg') : SvgPicture.asset('assets/darkLogo.svg'),
               ),
               const Icon(
                 Icons.shield_outlined,

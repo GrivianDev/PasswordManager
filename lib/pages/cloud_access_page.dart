@@ -44,8 +44,7 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
 
         final bool exists = await connector.docExists(_nameController.text);
         if (!exists) {
-          throw Exception(
-              'Storage with the name "${_nameController.text}" does not exist');
+          throw Exception('Storage with the name "${_nameController.text}" does not exist');
         }
         final bool verify = await connector.verifyPassword(
           name: _nameController.text,
@@ -68,8 +67,7 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
         // Create logic ---------------------------
         final bool exists = await connector.docExists(_nameController.text);
         if (exists) {
-          throw Exception(
-              'Storage with the name "${_nameController.text}" already exists');
+          throw Exception('Storage with the name "${_nameController.text}" already exists');
         }
         database.setSource(Source(connector: connector), _pwController.text);
         await connector.createDocument(
@@ -103,8 +101,7 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
 
   /// Building method for a small indicator on how strong the users password is.
   Column _buildPasswordStrengthIndictator(BuildContext context) {
-    final double rating =
-        SafetyAnalyser().rateSafety(password: _pwController.text);
+    final double rating = SafetyAnalyser().rateSafety(password: _pwController.text);
     String text = 'Weak';
     if (rating > 0.5) {
       text = 'Decent';
@@ -158,8 +155,7 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
   void initState() {
     _isObscured = true;
     _canSubmit = false;
-    _nameController = TextEditingController(
-        text: widget.login ? context.read<Settings>().lastOpenedCloudDoc : '');
+    _nameController = TextEditingController(text: widget.login ? context.read<Settings>().lastOpenedCloudDoc : '');
     _pwController = TextEditingController();
     super.initState();
   }
@@ -198,29 +194,19 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
                     children: [
                       TextField(
                         maxLength: 32,
-                        autofocus: (context
-                                    .read<Settings>()
-                                    .lastOpenedCloudDoc
-                                    .isEmpty &&
-                                widget.login) ||
-                            !widget.login,
+                        autofocus: (context.read<Settings>().lastOpenedCloudDoc.isEmpty && widget.login) || !widget.login,
                         controller: _nameController,
                         decoration: const InputDecoration(
                           labelText: 'Storage name',
                         ),
                         onChanged: (string) => setState(() {
-                          _canSubmit = _nameController.text.isNotEmpty &&
-                              _pwController.text.isNotEmpty;
+                          _canSubmit = _nameController.text.isNotEmpty && _pwController.text.isNotEmpty;
                         }),
                       ),
                       TextField(
                         obscureText: _isObscured,
                         maxLength: 32,
-                        autofocus: context
-                                .read<Settings>()
-                                .lastOpenedCloudDoc
-                                .isNotEmpty &&
-                            widget.login,
+                        autofocus: context.read<Settings>().lastOpenedCloudDoc.isNotEmpty && widget.login,
                         controller: _pwController,
                         decoration: InputDecoration(
                           labelText: 'Password',
@@ -236,20 +222,16 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
                                   _isObscured = !_isObscured;
                                 });
                               },
-                              icon: Icon(_isObscured
-                                  ? Icons.visibility_off
-                                  : Icons.visibility),
+                              icon: Icon(_isObscured ? Icons.visibility_off : Icons.visibility),
                             ),
                           ),
                         ),
                         onChanged: (string) => setState(() {
-                          _canSubmit = _nameController.text.isNotEmpty &&
-                              _pwController.text.isNotEmpty;
+                          _canSubmit = _nameController.text.isNotEmpty && _pwController.text.isNotEmpty;
                         }),
                         onSubmitted: (string) => _canSubmit ? _submit() : null,
                       ),
-                      if (!widget.login)
-                        _buildPasswordStrengthIndictator(context),
+                      if (!widget.login) _buildPasswordStrengthIndictator(context),
                       const Spacer(),
                       Align(
                         alignment: Alignment.bottomRight,
@@ -262,11 +244,8 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
                               child: Text(
                                 widget.login ? 'SUBMIT' : 'CREATE',
                                 style: TextStyle(
-                                  color: _canSubmit
-                                      ? Theme.of(context).colorScheme.primary
-                                      : Colors.blueGrey,
-                                  fontSize: 16,
-                                  overflow: TextOverflow.ellipsis,
+                                  color: _canSubmit ? null : Colors.blueGrey,
+                                  fontSize: Theme.of(context).textTheme.displaySmall!.fontSize,
                                 ),
                               ),
                             ),

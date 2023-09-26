@@ -149,22 +149,17 @@ class NavBar extends StatelessWidget {
                 builder: (context) => const SettingsPage(),
               ),
             ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6.0),
+            child: const Padding(
+              padding: EdgeInsets.symmetric(vertical: 6.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  const Icon(Icons.settings),
+                  Icon(Icons.settings),
                   Flexible(
                     child: Padding(
-                      padding: const EdgeInsets.only(left: 15.0),
+                      padding: EdgeInsets.only(left: 15.0),
                       child: Text(
                         'Settings',
-                        style: TextStyle(
-                          fontSize:
-                              Theme.of(context).textTheme.displayMedium!.fontSize,
-                          overflow: Theme.of(context).textTheme.displayMedium!.overflow,
-                        ),
                       ),
                     ),
                   ),
@@ -172,27 +167,21 @@ class NavBar extends StatelessWidget {
               ),
             ),
           ),
-          if (Settings.isWindows &&
-              context.read<Settings>().isOnlineModeEnabled) ...[
+          if (Settings.isWindows && context.read<Settings>().isOnlineModeEnabled) ...[
             const Divider(color: Colors.grey),
             TextButton(
               onPressed: () => _storeBackup(context),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6.0),
+              child: const Padding(
+                padding: EdgeInsets.symmetric(vertical: 6.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    const Icon(Icons.cloud_download_outlined),
+                    Icon(Icons.cloud_download_outlined),
                     Flexible(
                       child: Padding(
-                        padding: const EdgeInsets.only(left: 15.0),
+                        padding: EdgeInsets.only(left: 15.0),
                         child: Text(
                           'Save backup',
-                          style: TextStyle(
-                            fontSize:
-                                Theme.of(context).textTheme.displayMedium!.fontSize,
-                            overflow: Theme.of(context).textTheme.displayMedium!.overflow,
-                          ),
                         ),
                       ),
                     ),
@@ -204,24 +193,18 @@ class NavBar extends StatelessWidget {
           if (!context.read<Settings>().isOnlineModeEnabled) ...[
             const Divider(color: Colors.grey),
             TextButton(
-              onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => const UploadPage())),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6.0),
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const UploadPage())),
+              child: const Padding(
+                padding: EdgeInsets.symmetric(vertical: 6.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    const Icon(Icons.cloud_upload),
+                    Icon(Icons.cloud_upload),
                     Flexible(
                       child: Padding(
-                        padding: const EdgeInsets.only(left: 15.0),
+                        padding: EdgeInsets.only(left: 15.0),
                         child: Text(
                           'Upload data',
-                          style: TextStyle(
-                            fontSize:
-                                Theme.of(context).textTheme.displayMedium!.fontSize,
-                            overflow: Theme.of(context).textTheme.displayMedium!.overflow,
-                          ),
                         ),
                       ),
                     ),
@@ -234,25 +217,22 @@ class NavBar extends StatelessWidget {
             const Divider(color: Colors.grey),
             TextButton(
               onPressed: () async => _deleteStorage(context),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4.0),
+              child: const Padding(
+                padding: EdgeInsets.symmetric(vertical: 4.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.delete_outline,
                       color: Colors.red,
                       size: 30.0,
                     ),
                     Flexible(
                       child: Padding(
-                        padding: const EdgeInsets.only(left: 15.0),
+                        padding: EdgeInsets.only(left: 15.0),
                         child: Text(
                           'Delete',
                           style: TextStyle(
-                            fontSize:
-                                Theme.of(context).textTheme.displayMedium!.fontSize,
-                            overflow: Theme.of(context).textTheme.displayMedium!.overflow,
                             color: Colors.red,
                           ),
                         ),

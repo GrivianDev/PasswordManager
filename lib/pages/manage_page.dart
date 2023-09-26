@@ -75,8 +75,7 @@ class ManagePage extends StatelessWidget {
   /// Displays a snackbar if succeeded.
   Future<void> _save(BuildContext context) async {
     final NavigatorState navigator = Navigator.of(context);
-    final ScaffoldMessengerState scaffoldMessenger =
-        ScaffoldMessenger.of(context);
+    final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
     final Color backgroundColor = Theme.of(context).colorScheme.primary;
 
     try {
@@ -169,24 +168,23 @@ class ManagePage extends StatelessWidget {
           ],
           title: Text(title),
         ),
-        floatingActionButton:
-            Settings.isWindows || context.read<Settings>().isOnlineModeEnabled
-                ? FloatingActionButton(
-                    backgroundColor: Colors.green,
-                    child: const Icon(
-                      Icons.add,
-                      color: Colors.white,
+        floatingActionButton: Settings.isWindows || context.read<Settings>().isOnlineModeEnabled
+            ? FloatingActionButton(
+                backgroundColor: Colors.green,
+                child: const Icon(
+                  Icons.add,
+                  color: Colors.white,
+                ),
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const EditingPage(
+                      title: 'Create account',
                     ),
-                    onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const EditingPage(
-                          title: 'Create account',
-                        ),
-                      ),
-                    ),
-                  )
-                : null,
+                  ),
+                ),
+              )
+            : null,
         body: Container(
           decoration: BoxDecoration(
             borderRadius: const BorderRadius.only(
@@ -218,11 +216,9 @@ class ManagePage extends StatelessWidget {
                             onSubmitted: (string) => _search(context, string),
                           ),
                         ),
-                        if (Settings.isWindows ||
-                            context.read<Settings>().isOnlineModeEnabled)
+                        if (Settings.isWindows || context.read<Settings>().isOnlineModeEnabled)
                           Consumer<Settings>(
-                            builder: (context, settings, child) => settings
-                                    .isAutoSaving
+                            builder: (context, settings, child) => settings.isAutoSaving
                                 ? Container()
                                 : Padding(
                                     padding: const EdgeInsets.only(left: 15.0),
@@ -233,14 +229,9 @@ class ManagePage extends StatelessWidget {
                                         child: Row(
                                           children: [
                                             Padding(
-                                              padding: const EdgeInsets.only(
-                                                  right: 10.0),
+                                              padding: const EdgeInsets.only(right: 10.0),
                                               child: Icon(
-                                                context
-                                                        .read<Settings>()
-                                                        .isOnlineModeEnabled
-                                                    ? Icons.sync
-                                                    : Icons.save,
+                                                context.read<Settings>().isOnlineModeEnabled ? Icons.sync : Icons.save,
                                                 color: Colors.white,
                                               ),
                                             ),
@@ -248,10 +239,7 @@ class ManagePage extends StatelessWidget {
                                               'Save',
                                               style: TextStyle(
                                                 color: Colors.white,
-                                                fontSize: Theme.of(context)
-                                                    .textTheme
-                                                    .displaySmall
-                                                    ?.fontSize,
+                                                fontSize: Theme.of(context).textTheme.displaySmall?.fontSize,
                                               ),
                                             ),
                                           ],

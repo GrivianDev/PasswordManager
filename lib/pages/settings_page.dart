@@ -34,9 +34,7 @@ class SettingsPage extends StatelessWidget {
                 ),
                 Flexible(
                   child: Text(
-                    context.read<Settings>().isLightMode
-                        ? 'Light theme'
-                        : 'Dark theme',
+                    context.read<Settings>().isLightMode ? 'Light theme' : 'Dark theme',
                     style: Theme.of(context).textTheme.displayMedium,
                   ),
                 ),
@@ -52,9 +50,7 @@ class SettingsPage extends StatelessWidget {
                 ),
                 Flexible(
                   child: Text(
-                    context.read<Settings>().isAutoSaving
-                        ? 'Autosaving'
-                        : 'Manual saving',
+                    context.read<Settings>().isAutoSaving ? 'Autosaving' : 'Manual saving',
                     style: Theme.of(context).textTheme.displayMedium,
                   ),
                 ),

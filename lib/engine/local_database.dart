@@ -50,7 +50,7 @@ final class LocalDatabase extends ChangeNotifier {
     Random rand = Random.secure();
     StringBuffer buffer = StringBuffer();
     for(int i = 0; i < accounts.length; i++) {
-      int length = rand.nextInt(16) + 1;
+      int length = rand.nextInt(8) + 1;
       for(int j = 0; j < length; j++) {
         buffer.write(String.fromCharCode(chars.codeUnitAt(rand.nextInt(chars.length))));
       }

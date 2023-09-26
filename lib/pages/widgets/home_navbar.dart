@@ -51,22 +51,17 @@ class HomeNavBar extends StatelessWidget {
                 builder: (context) => const SettingsPage(),
               ),
             ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6.0),
+            child: const Padding(
+              padding: EdgeInsets.symmetric(vertical: 6.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  const Icon(Icons.settings),
+                  Icon(Icons.settings),
                   Flexible(
                     child: Padding(
-                      padding: const EdgeInsets.only(left: 15.0),
+                      padding: EdgeInsets.only(left: 15.0),
                       child: Text(
                         'Settings',
-                        style: TextStyle(
-                          fontSize:
-                              Theme.of(context).textTheme.displayMedium!.fontSize,
-                          overflow: Theme.of(context).textTheme.displayMedium!.overflow,
-                        ),
                       ),
                     ),
                   ),
@@ -80,26 +75,20 @@ class HomeNavBar extends StatelessWidget {
             children: [
               Switch.adaptive(
                 value: context.watch<Settings>().isOnlineModeEnabled,
-                onChanged: (enabled) => !FirebaseConnector.deactivated
-                    ? _changeOnlineMode(context, enabled)
-                    : null,
+                onChanged: (enabled) => !FirebaseConnector.deactivated ? _changeOnlineMode(context, enabled) : null,
               ),
               Flexible(
                 child: Padding(
                   padding: const EdgeInsets.only(left: 5.0),
                   child: Text(
-                    context.read<Settings>().isOnlineModeEnabled
-                        ? 'Online'
-                        : 'Offline',
+                    context.read<Settings>().isOnlineModeEnabled ? 'Online' : 'Offline',
                     style: Theme.of(context).textTheme.displayMedium,
                   ),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 15.0),
-                child: Icon(context.read<Settings>().isOnlineModeEnabled
-                    ? Icons.cloud_sync
-                    : Icons.cloud_off),
+                child: Icon(context.read<Settings>().isOnlineModeEnabled ? Icons.cloud_sync : Icons.cloud_off),
               ),
             ],
           ),

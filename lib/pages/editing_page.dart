@@ -35,8 +35,7 @@ class _EditingPageState extends State<EditingPage> {
   /// Displays a snackbar if succeded.
   Future<void> _save() async {
     final NavigatorState navigator = Navigator.of(context);
-    final ScaffoldMessengerState scaffoldMessenger =
-        ScaffoldMessenger.of(context);
+    final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
     final Color backgroundColor = Theme.of(context).colorScheme.primary;
 
     bool success = _confirmChanges();
@@ -148,16 +147,11 @@ class _EditingPageState extends State<EditingPage> {
   @override
   void initState() {
     _changes = false;
-    _nameController = TextEditingController(
-        text: widget._account != null ? widget._account?.name : '');
-    _tagController = TextEditingController(
-        text: widget._account != null ? widget._account?.tag : '');
-    _infoController = TextEditingController(
-        text: widget._account != null ? widget._account?.info : '');
-    _emailController = TextEditingController(
-        text: widget._account != null ? widget._account?.email : '');
-    _pwController = TextEditingController(
-        text: widget._account != null ? widget._account?.password : '');
+    _nameController = TextEditingController(text: widget._account != null ? widget._account?.name : '');
+    _tagController = TextEditingController(text: widget._account != null ? widget._account?.tag : '');
+    _infoController = TextEditingController(text: widget._account != null ? widget._account?.info : '');
+    _emailController = TextEditingController(text: widget._account != null ? widget._account?.email : '');
+    _pwController = TextEditingController(text: widget._account != null ? widget._account?.password : '');
     super.initState();
   }
 
@@ -256,11 +250,11 @@ class _EditingPageState extends State<EditingPage> {
                           padding: const EdgeInsets.only(right: 5.0),
                           child: IconButton(
                             onPressed: () => {
-                                _pwController.text = SafetyAnalyser().generateSavePassword(context),
-                                setState(() {
-                                  _changes = true;
-                                }),
-                              },
+                              _pwController.text = SafetyAnalyser().generateSavePassword(context),
+                              setState(() {
+                                _changes = true;
+                              }),
+                            },
                             icon: const Icon(Icons.refresh),
                           ),
                         ),
@@ -277,21 +271,16 @@ class _EditingPageState extends State<EditingPage> {
                       alignment: Alignment.centerRight,
                       child: ElevatedButton(
                         style: ButtonStyle(
-                          shape:
-                              MaterialStateProperty.all<RoundedRectangleBorder>(
+                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                             RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(25.0),
                             ),
                           ),
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                              _changes
-                                  ? Theme.of(context).colorScheme.primary
-                                  : Colors.blueGrey),
+                          backgroundColor: MaterialStateProperty.all<Color>(_changes ? Theme.of(context).colorScheme.primary : Colors.blueGrey),
                         ),
                         onPressed: _changes ? _save : null,
                         child: const Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 25.0, vertical: 5.0),
+                          padding: EdgeInsets.symmetric(horizontal: 25.0, vertical: 5.0),
                           child: Icon(
                             Icons.check,
                             size: 40,

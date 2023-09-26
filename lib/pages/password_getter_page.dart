@@ -4,12 +4,7 @@ import 'package:passwordmanager/engine/safety.dart';
 /// Widget that provides a password upon beeing popped. The user is asked to type in a password that
 /// the is used to encrypt data.
 class PasswordGetterPage extends StatefulWidget {
-  const PasswordGetterPage(
-      {Key? key,
-      required this.path,
-      required this.title,
-      this.showIndicator = false})
-      : super(key: key);
+  const PasswordGetterPage({Key? key, required this.path, required this.title, this.showIndicator = false}) : super(key: key);
 
   final String title;
   final String? path;
@@ -27,8 +22,7 @@ class _PasswordGetterPageState extends State<PasswordGetterPage> {
 
   /// Building method for a small indicator on how strong the users password is.
   Column _buildPasswordStrengthIndictator(BuildContext context) {
-    final double rating =
-        SafetyAnalyser().rateSafety(password: _pwController.text);
+    final double rating = SafetyAnalyser().rateSafety(password: _pwController.text);
     String text = 'Weak';
     if (rating > 0.5) {
       text = 'Decent';
@@ -143,39 +137,30 @@ class _PasswordGetterPageState extends State<PasswordGetterPage> {
                                   _isObscured = !_isObscured;
                                 });
                               },
-                              icon: Icon(_isObscured
-                                  ? Icons.visibility_off
-                                  : Icons.visibility),
+                              icon: Icon(_isObscured ? Icons.visibility_off : Icons.visibility),
                             ),
                           ),
                         ),
                         onChanged: (string) => setState(() {
                           _canSubmit = _pwController.text.isNotEmpty;
                         }),
-                        onSubmitted: (string) =>
-                            _canSubmit ? Navigator.pop(context, string) : null,
+                        onSubmitted: (string) => _canSubmit ? Navigator.pop(context, string) : null,
                       ),
-                      if (widget.showIndicator)
-                        _buildPasswordStrengthIndictator(context),
+                      if (widget.showIndicator) _buildPasswordStrengthIndictator(context),
                       const Spacer(),
                       Align(
                         alignment: Alignment.bottomRight,
                         child: Padding(
                           padding: const EdgeInsets.only(top: 50.0),
                           child: TextButton(
-                            onPressed: () => _canSubmit
-                                ? Navigator.pop(context, _pwController.text)
-                                : null,
+                            onPressed: () => _canSubmit ? Navigator.pop(context, _pwController.text) : null,
                             child: Padding(
                               padding: const EdgeInsets.all(20.0),
                               child: Text(
                                 'SUBMIT',
                                 style: TextStyle(
-                                  color: _canSubmit
-                                      ? Theme.of(context).colorScheme.primary
-                                      : Colors.blueGrey,
-                                  fontSize: 16,
-                                  overflow: TextOverflow.ellipsis,
+                                  color: _canSubmit ? null : Colors.blueGrey,
+                                  fontSize: Theme.of(context).textTheme.displaySmall!.fontSize,
                                 ),
                               ),
                             ),

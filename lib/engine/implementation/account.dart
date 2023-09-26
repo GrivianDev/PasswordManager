@@ -13,13 +13,7 @@ final class Account implements Comparable<Account> {
   late String _email;
   late String _password;
 
-  Account(
-      {String? tag,
-      String? name,
-      String? info,
-      String? email,
-      String? password})
-  {
+  Account({String? tag, String? name, String? info, String? email, String? password}) {
     setTag = tag;
     setName = name;
     setInfo = info;
@@ -33,16 +27,11 @@ final class Account implements Comparable<Account> {
   String get email => _email;
   String get password => _password;
 
-  set setTag(String? string) =>
-      _tag = (string ??= Account._noEntry).isEmpty ? Account._noEntry : string;
-  set setName(String? string) =>
-      _name = (string ??= Account._noEntry).isEmpty ? Account._noEntry : string;
-  set setInfo(String? string) =>
-      _info = (string ??= Account._noEntry).isEmpty ? Account._noEntry : string;
-  set setEmail(String? string) => _email =
-      (string ??= Account._noEntry).isEmpty ? Account._noEntry : string;
-  set setPassword(String? string) => _password =
-      (string ??= Account._noEntry).isEmpty ? Account._noEntry : string;
+  set setTag(String? string) => _tag = (string ??= Account._noEntry).isEmpty ? Account._noEntry : string;
+  set setName(String? string) => _name = (string ??= Account._noEntry).isEmpty ? Account._noEntry : string;
+  set setInfo(String? string) => _info = (string ??= Account._noEntry).isEmpty ? Account._noEntry : string;
+  set setEmail(String? string) => _email = (string ??= Account._noEntry).isEmpty ? Account._noEntry : string;
+  set setPassword(String? string) => _password = (string ??= Account._noEntry).isEmpty ? Account._noEntry : string;
 
   @override
   int compareTo(Account other) {

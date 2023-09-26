@@ -12,8 +12,7 @@ import 'package:passwordmanager/pages/account_display_page.dart';
 /// Hovewer, this widget also provides the option to copy the password of the stored account to the clipboard or delete the account.
 class ListElement extends StatelessWidget {
   // The _isSearchResult property states if an additional widget (the search result widget) needs to be popped in addition to the loading screen when saving.
-  const ListElement(
-      {Key? key, required Account account, bool isSearchResult = false})
+  const ListElement({Key? key, required Account account, bool isSearchResult = false})
       : _account = account,
         _isSearchResult = isSearchResult,
         super(key: key);
@@ -38,8 +37,7 @@ class ListElement extends StatelessWidget {
   /// Displays a snackbar if succeded.
   Future<void> _save(BuildContext context) async {
     final NavigatorState navigator = Navigator.of(context);
-    final ScaffoldMessengerState scaffoldMessenger =
-        ScaffoldMessenger.of(context);
+    final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
     final Color backgroundColor = Theme.of(context).colorScheme.primary;
     final LocalDatabase database = LocalDatabase();
 
@@ -97,7 +95,7 @@ class ListElement extends StatelessWidget {
   Future<void> _copyClicked(BuildContext context) async {
     await ClipboardTimer.timed(text: _account.password, duration: const Duration(seconds: 30));
 
-    if(!context.mounted) return;
+    if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         duration: const Duration(seconds: 2),
@@ -131,7 +129,7 @@ class ListElement extends StatelessWidget {
         if (context.read<Settings>().isAutoSaving) {
           await _save(context);
         } else {
-          if(_isSearchResult) Navigator.pop(context);
+          if (_isSearchResult) Navigator.pop(context);
           database.notifyListeners();
         }
       },
@@ -147,9 +145,7 @@ class ListElement extends StatelessWidget {
           style: ButtonStyle(
             overlayColor: MaterialStateProperty.resolveWith<Color?>(
               (Set<MaterialState> states) {
-                return states.contains(MaterialState.hovered)
-                    ? Colors.blue
-                    : null;
+                return states.contains(MaterialState.hovered) ? Colors.blue : null;
               },
             ),
             shape: MaterialStateProperty.all<RoundedRectangleBorder>(
@@ -157,8 +153,7 @@ class ListElement extends StatelessWidget {
                 borderRadius: BorderRadius.circular(5.0),
               ),
             ),
-            backgroundColor: MaterialStateProperty.all<Color>(
-                Theme.of(context).primaryColor),
+            backgroundColor: MaterialStateProperty.all<Color>(Theme.of(context).primaryColor),
           ),
           child: Stack(
             children: [
@@ -175,13 +170,14 @@ class ListElement extends StatelessWidget {
                         ),
                       ),
                     ),
-                    if(isHovered) Expanded(
-                      child: Text(
-                        isHovered ? _mailPreview() ?? '' : '',
-                        style: Theme.of(context).textTheme.displaySmall,
-                        textAlign: TextAlign.center,
+                    if (isHovered)
+                      Expanded(
+                        child: Text(
+                          isHovered ? _mailPreview() ?? '' : '',
+                          style: Theme.of(context).textTheme.displaySmall,
+                          textAlign: TextAlign.center,
+                        ),
                       ),
-                    ),
                     Expanded(child: Container()),
                   ],
                 ),

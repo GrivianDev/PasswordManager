@@ -40,9 +40,7 @@ class Application extends StatelessWidget {
         return MaterialApp(
             debugShowCheckedModeBanner: false,
             title: 'Ethercrypt',
-            themeMode: context.watch<Settings>().isLightMode
-                ? ThemeMode.light
-                : ThemeMode.dark,
+            themeMode: context.watch<Settings>().isLightMode ? ThemeMode.light : ThemeMode.dark,
             theme: AppThemeData.lightTheme,
             darkTheme: AppThemeData.darkTheme,
             home: const SplashScreen());

@@ -47,7 +47,7 @@ final class FirebaseConnector {
   /// created for authentication. In addition a reference to the core collection is stored.
   static Future<void> init({bool deactivate = false}) async {
     deactivated = deactivate;
-    if(!deactivated) {
+    if (!deactivated) {
       _auth = FirebaseAuth(KeyStore.apiKey, VolatileStore());
       _firestore = Firestore(KeyStore.projectId, authenticator: TokenAuthenticator.from(_auth)?.authenticate);
       _storage = _firestore.collection('ethercrypt-storage');
@@ -60,15 +60,15 @@ final class FirebaseConnector {
   /// * Internet connection is missing
   Future<void> login() async {
     try {
-      if(!isLoggedIn) await _auth.signIn('ethercrypt@access.de', KeyStore.accessCode);
-    } catch(e) {
+      if (!isLoggedIn) await _auth.signIn('ethercrypt@access.de', KeyStore.accessCode);
+    } catch (e) {
       throw Exception('Could not access cloud storage');
     }
   }
 
   /// Logs out the app if it was logged in.
   void logout() {
-    if(isLoggedIn) {
+    if (isLoggedIn) {
       _auth.signOut();
       _id = '';
     }
@@ -83,7 +83,7 @@ final class FirebaseConnector {
       await login();
       final List<Document> docs = await _storage.where('name', isEqualTo: name).get();
       return docs.isNotEmpty;
-    } catch(e) {
+    } catch (e) {
       throw Exception('Could not test if document exists');
     }
   }
@@ -98,15 +98,15 @@ final class FirebaseConnector {
     try {
       await login();
       final List<Document> docs = await _storage.where('name', isEqualTo: name).get();
-      if(docs.isEmpty) return false;
-      if(docs.elementAt(0).map['hash'] == Hashing.asString(Hashing.sha256DoubledHash(utf8.encode(password)))) {
+      if (docs.isEmpty) return false;
+      if (docs.elementAt(0).map['hash'] == Hashing.asString(Hashing.sha256DoubledHash(utf8.encode(password)))) {
         _name = name;
         _id = docs.elementAt(0).id;
         return true;
       } else {
         return false;
       }
-    } catch(e) {
+    } catch (e) {
       throw Exception('Could not verify password');
     }
   }
@@ -125,7 +125,7 @@ final class FirebaseConnector {
       });
       _name = name;
       _id = doc.id;
-    } catch(e) {
+    } catch (e) {
       throw Exception('Could not add new document');
     }
   }
@@ -139,7 +139,7 @@ final class FirebaseConnector {
       await login();
       final Document doc = await _storage.document(_id).get();
       return doc.map['data'];
-    } catch(e) {
+    } catch (e) {
       throw Exception('Could not access data');
     }
   }
@@ -154,7 +154,7 @@ final class FirebaseConnector {
       await _storage.document(_id).update({
         'data': newData,
       });
-    } catch(e) {
+    } catch (e) {
       throw Exception('Could not edit document');
     }
   }
@@ -168,7 +168,7 @@ final class FirebaseConnector {
       await login();
       await _storage.document(_id).delete();
       _id = '';
-    } catch(e) {
+    } catch (e) {
       _id = '';
       throw Exception('Could not delete document');
     }
