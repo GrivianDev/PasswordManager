@@ -14,8 +14,8 @@ final class AESEncryption implements Encryption {
   @override
   String encrypt({required String plainText, required String password}) {
     Uint8List hash = Hashing.sha256Hash(utf8.encode(password));
-    Encrypter crypt = Encrypter(AES(Key(hash)));
-    Encrypted encrypted = crypt.encrypt(plainText, iv: IV.fromLength(16));
+    Encrypter crypt = Encrypter(AES(Key(hash), mode: AESMode.sic, padding: null));
+    Encrypted encrypted = crypt.encrypt(plainText, iv: IV.allZerosOfLength(16));
     return encrypted.base64;
   }
 
@@ -25,8 +25,8 @@ final class AESEncryption implements Encryption {
   @override
   String decrypt({required String encryptedText, required String password}) {
     Uint8List hash = Hashing.sha256Hash(utf8.encode(password));
-    Encrypter crypt = Encrypter(AES(Key(hash)));
-    String decrypted = crypt.decrypt64(encryptedText, iv: IV.fromLength(16));
+    Encrypter crypt = Encrypter(AES(Key(hash), mode: AESMode.sic, padding: null));
+    String decrypted = crypt.decrypt64(encryptedText, iv: IV.allZerosOfLength(16));
     return decrypted;
   }
 }

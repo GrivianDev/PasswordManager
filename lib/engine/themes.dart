@@ -7,7 +7,11 @@ class AppThemeData {
     primaryColor: const Color.fromRGBO(46, 50, 51, 1),
     highlightColor: Colors.white,
     scaffoldBackgroundColor: const Color.fromRGBO(46, 50, 51, 1),
-    //dialogBackgroundColor: const Color.fromRGBO(77, 83, 84, 1).withOpacity(1),
+    cardColor: const Color.fromRGBO(77, 83, 84, 1),
+    listTileTheme: const ListTileThemeData(
+      tileColor: Color.fromRGBO(77, 83, 84, 1),
+      selectedTileColor: Color.fromRGBO(77, 83, 84, 1),
+    ),
     appBarTheme: const AppBarTheme(
       elevation: 0.0,
       backgroundColor: Color.fromRGBO(46, 50, 51, 1),
@@ -52,6 +56,7 @@ class AppThemeData {
     ),
     colorScheme: const ColorScheme.dark(
       primary: Colors.blue,
+      surfaceTint: Colors.transparent,
       background: Color.fromRGBO(77, 83, 84, 1),
     ),
     textSelectionTheme: const TextSelectionThemeData(
@@ -125,6 +130,11 @@ class AppThemeData {
     primaryColor: Colors.grey,
     highlightColor: Colors.grey,
     scaffoldBackgroundColor: Colors.grey,
+    cardColor: Colors.white,
+    listTileTheme: const ListTileThemeData(
+      tileColor: Colors.white,
+      selectedTileColor: Colors.white,
+    ),
     appBarTheme: const AppBarTheme(
       elevation: 0.0,
       backgroundColor: Colors.grey,
@@ -136,6 +146,11 @@ class AppThemeData {
         fontWeight: FontWeight.w400,
         color: Colors.black87,
         overflow: TextOverflow.ellipsis,
+      ),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ButtonStyle(
+        backgroundColor: MaterialStateProperty.all<Color>(const Color.fromRGBO(2, 10, 161, 1)),
       ),
     ),
     textButtonTheme: TextButtonThemeData(
@@ -164,6 +179,7 @@ class AppThemeData {
     ),
     colorScheme: const ColorScheme.light(
       primary: Color.fromRGBO(2, 10, 161, 1),
+      surfaceTint: Colors.transparent,
       background: Colors.white,
     ),
     textSelectionTheme: const TextSelectionThemeData(
@@ -229,6 +245,7 @@ class AppThemeData {
     ),
     checkboxTheme: CheckboxThemeData(
       fillColor: MaterialStateProperty.all<Color>(const Color.fromRGBO(2, 10, 161, 1)),
+      checkColor: MaterialStateProperty.all<Color>(Colors.white),
     ),
   );
 }
