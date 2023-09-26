@@ -127,9 +127,9 @@ class AppThemeData {
   );
 
   static final ThemeData lightTheme = ThemeData(
-    primaryColor: Colors.grey,
-    highlightColor: Colors.grey,
-    scaffoldBackgroundColor: Colors.grey,
+    primaryColor: const Color.fromRGBO(225, 225, 225, 1),
+    highlightColor: const Color.fromRGBO(225, 225, 225, 1),
+    scaffoldBackgroundColor: const Color.fromRGBO(225, 225, 225, 1),
     cardColor: Colors.white,
     listTileTheme: const ListTileThemeData(
       tileColor: Colors.white,
@@ -137,7 +137,7 @@ class AppThemeData {
     ),
     appBarTheme: const AppBarTheme(
       elevation: 0.0,
-      backgroundColor: Colors.grey,
+      backgroundColor: Color.fromRGBO(225, 225, 225, 1),
       iconTheme: IconThemeData(
         color: Colors.black,
       ),
@@ -150,7 +150,7 @@ class AppThemeData {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all<Color>(const Color.fromRGBO(2, 10, 161, 1)),
+        backgroundColor: MaterialStateProperty.all<Color>(const Color.fromRGBO(20, 75, 200, 1)),
       ),
     ),
     textButtonTheme: TextButtonThemeData(
@@ -163,27 +163,27 @@ class AppThemeData {
             overflow: TextOverflow.ellipsis,
           ),
         ),
-        iconColor: MaterialStateProperty.all<Color>(const Color.fromRGBO(2, 10, 161, 1)),
+        iconColor: MaterialStateProperty.all<Color>(const Color.fromRGBO(20, 75, 200, 1)),
       ),
     ),
     expansionTileTheme: const ExpansionTileThemeData(
-      backgroundColor: Colors.grey,
+      backgroundColor: Color.fromRGBO(225, 225, 225, 1),
       collapsedBackgroundColor: Colors.white,
-      textColor: Color.fromRGBO(2, 10, 161, 1),
+      textColor: Color.fromRGBO(20, 75, 200, 1),
       childrenPadding: EdgeInsets.all(10.0),
-      iconColor: Color.fromRGBO(2, 10, 161, 1),
+      iconColor: Color.fromRGBO(20, 75, 200, 1),
       collapsedIconColor: Colors.black,
     ),
     drawerTheme: const DrawerThemeData(
       backgroundColor: Colors.white,
     ),
     colorScheme: const ColorScheme.light(
-      primary: Color.fromRGBO(2, 10, 161, 1),
+      primary: Color.fromRGBO(20, 75, 200, 1),
       surfaceTint: Colors.transparent,
       background: Colors.white,
     ),
     textSelectionTheme: const TextSelectionThemeData(
-      cursorColor: Color.fromRGBO(2, 10, 161, 1),
+      cursorColor: Color.fromRGBO(20, 75, 200, 1),
     ),
     textTheme: const TextTheme(
       headlineLarge: TextStyle(
@@ -230,21 +230,21 @@ class AppThemeData {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(25.0),
-        borderSide: const BorderSide(width: 2, color: Color.fromRGBO(2, 10, 161, 1)),
+        borderSide: const BorderSide(width: 2, color: Color.fromRGBO(20, 75, 200, 1)),
       ),
     ),
     switchTheme: SwitchThemeData(
-      thumbColor: MaterialStateProperty.all<Color>(const Color.fromRGBO(2, 10, 161, 1)),
+      thumbColor: MaterialStateProperty.all<Color>(const Color.fromRGBO(20, 75, 200, 1)),
       trackColor: MaterialStateProperty.all<Color>(Colors.black),
     ),
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
-      backgroundColor: Color.fromRGBO(2, 10, 161, 1),
+      backgroundColor: Color.fromRGBO(20, 75, 200, 1),
     ),
     iconTheme: const IconThemeData(
       color: Colors.black,
     ),
     checkboxTheme: CheckboxThemeData(
-      fillColor: MaterialStateProperty.all<Color>(const Color.fromRGBO(2, 10, 161, 1)),
+      fillColor: MaterialStateProperty.all<Color>(const Color.fromRGBO(20, 75, 200, 1)),
       checkColor: MaterialStateProperty.all<Color>(Colors.white),
     ),
   );
