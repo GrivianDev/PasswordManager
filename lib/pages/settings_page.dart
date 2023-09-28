@@ -40,7 +40,7 @@ class SettingsPage extends StatelessWidget {
                 ),
               ],
             ),
-            const Divider(color: Colors.grey),
+            const Divider(),
             Row(
               children: [
                 // This watches the isAutoSaving property because it is not rebuild otherwise.
@@ -56,7 +56,7 @@ class SettingsPage extends StatelessWidget {
                 ),
               ],
             ),
-            const Divider(color: Colors.grey),
+            const Divider(),
             Text(
               'Password generation:',
               style: Theme.of(context).textTheme.displayLarge,

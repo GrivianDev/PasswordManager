@@ -3,7 +3,7 @@ description: A simple passwordmanager
 
 publish_to: 'none'
 
-version: 1.3.0+1
+version: 1.3.1+1
 
 environment:
   sdk: '>=3.1.0-67.0.dev <4.0.0'

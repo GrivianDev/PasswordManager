@@ -142,7 +142,7 @@ class NavBar extends StatelessWidget {
             'Options',
             style: Theme.of(context).textTheme.displayLarge,
           ),
-          const Divider(color: Colors.grey),
+          const Divider(),
           TextButton(
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute(
@@ -168,7 +168,7 @@ class NavBar extends StatelessWidget {
             ),
           ),
           if (Settings.isWindows && context.read<Settings>().isOnlineModeEnabled) ...[
-            const Divider(color: Colors.grey),
+            const Divider(),
             TextButton(
               onPressed: () => _storeBackup(context),
               child: const Padding(
@@ -191,7 +191,7 @@ class NavBar extends StatelessWidget {
             ),
           ],
           if (!context.read<Settings>().isOnlineModeEnabled) ...[
-            const Divider(color: Colors.grey),
+            const Divider(),
             TextButton(
               onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const UploadPage())),
               child: const Padding(
@@ -214,7 +214,7 @@ class NavBar extends StatelessWidget {
             ),
           ],
           if (context.read<Settings>().isOnlineModeEnabled) ...[
-            const Divider(color: Colors.grey),
+            const Divider(),
             TextButton(
               onPressed: () async => _deleteStorage(context),
               child: const Padding(
@@ -243,7 +243,7 @@ class NavBar extends StatelessWidget {
               ),
             ),
           ],
-          const Divider(color: Colors.grey),
+          const Divider(),
           Padding(
             padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
             child: IconButton(

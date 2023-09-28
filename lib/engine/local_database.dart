@@ -31,9 +31,9 @@ final class LocalDatabase extends ChangeNotifier {
     List<Account> accounts = List.empty(growable: true);
     RegExp regex = RegExp('\\$c([^\\$c]+\\$c){5}');
     Iterable<Match> matches = regex.allMatches(string);
-    for(Match match in matches) {
+    for (Match match in matches) {
       List<String>? parts = match.group(0)?.split(c);
-      if(parts != null) {
+      if (parts != null) {
         parts.retainWhere((element) => element.isNotEmpty);
         accounts.add(Account(tag: parts[0], name: parts[1], info: parts[2], email: parts[3], password: parts[4]));
       }
@@ -49,14 +49,14 @@ final class LocalDatabase extends ChangeNotifier {
     const String chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
     Random rand = Random.secure();
     StringBuffer buffer = StringBuffer();
-    for(int i = 0; i < accounts.length; i++) {
+    for (int i = 0; i < accounts.length; i++) {
       int length = rand.nextInt(8) + 1;
-      for(int j = 0; j < length; j++) {
+      for (int j = 0; j < length; j++) {
         buffer.write(String.fromCharCode(chars.codeUnitAt(rand.nextInt(chars.length))));
       }
       buffer.write(accounts.elementAt(i).toString());
     }
-    for(int j = 0; j < 8; j++) {
+    for (int j = 0; j < 8; j++) {
       buffer.write(String.fromCharCode(chars.codeUnitAt(rand.nextInt(chars.length))));
     }
 
@@ -67,8 +67,8 @@ final class LocalDatabase extends ChangeNotifier {
   LocalDatabase._create()
       : _accounts = List.empty(growable: true),
         _tagsUsed = SplayTreeSet.from(
-          [],
-          (a, b) => a.toLowerCase().compareTo(b.toLowerCase()),
+          const Iterable<String>.empty(),
+          (a, b) => a.compareTo(b),
         );
 
   /// Standard constructor. However this always returns the same reference since this
@@ -87,7 +87,9 @@ final class LocalDatabase extends ChangeNotifier {
   Uint8List? get doubleHash => _password != null ? Hashing.sha256DoubledHash(utf8.encode(_password!)) : null;
 
   /// Returns the encrypted cipher of currently stored accounts. Uses the encryption provided through [EncryptionProvider.encryption].
-  String? get cipher => _password != null ? EncryptionProvider.encryption.encrypt(plainText: LocalDatabase.generateStringFromAccounts(_accounts), password: _password!) : null;
+  String? get cipher => _password != null
+      ? EncryptionProvider.encryption.encrypt(plainText: LocalDatabase.generateStringFromAccounts(_accounts), password: _password!)
+      : null;
 
   /// Before calling the [load] or [save] function this method MUST be called to provide
   /// the source File and the password to use for encryption and decryption.
@@ -100,9 +102,10 @@ final class LocalDatabase extends ChangeNotifier {
   /// And exception is thrown if either the [_source] or [_password] property is null. The encryption method is provided through
   /// the [EncryptionProvider] class.
   Future<void> load() async {
-    if(_source != null && _password != null) {
-      if(_source!.isValid) {
-        List<Account> list = LocalDatabase.getAccountsFromString(EncryptionProvider.encryption.decrypt(encryptedText: await _source!.load(), password: _password!));
+    if (_source != null && _password != null) {
+      if (_source!.isValid) {
+        List<Account> list =
+            LocalDatabase.getAccountsFromString(EncryptionProvider.encryption.decrypt(encryptedText: await _source!.load(), password: _password!));
         _addAllAccounts(list);
       }
     } else {
@@ -114,7 +117,7 @@ final class LocalDatabase extends ChangeNotifier {
   /// And exception is thrown if either the [_source] or [_password] property is null. The encryption method is provided through
   /// the [EncryptionProvider] class.
   Future<void> save() async {
-    if(_source != null && _password != null) {
+    if (_source != null && _password != null) {
       await _source!.saveChanges(cipher!);
     } else {
       throw Exception("Tried to save data without a provided source or password");
@@ -125,15 +128,15 @@ final class LocalDatabase extends ChangeNotifier {
   /// after each new append call.
   /// * A call to this method notifies all listeners.
   void _addAllAccounts(List<Account> accounts) {
-    for(Account acc in accounts) {
+    for (Account acc in accounts) {
       if (_accounts.length < LocalDatabase.maxCapacity) {
         _accounts.add(acc);
         _tagsUsed.add(acc.tag);
-        _accounts.sort((a, b) => a.compareTo(b));
       } else {
         throw Exception("Maximum amount of accounts reached");
       }
     }
+    _accounts.sort();
     notifyListeners();
   }
 
@@ -145,8 +148,8 @@ final class LocalDatabase extends ChangeNotifier {
     if (_accounts.length < LocalDatabase.maxCapacity) {
       _accounts.add(acc);
       _tagsUsed.add(acc.tag);
-      _accounts.sort((a, b) => a.compareTo(b));
-      if(notify) notifyListeners();
+      _accounts.sort();
+      if (notify) notifyListeners();
     } else {
       throw Exception("Maximum amount of accounts reached");
     }
@@ -156,30 +159,29 @@ final class LocalDatabase extends ChangeNotifier {
   /// and tags that point to no accounts are removed properly.
   /// * A call to this method notifies all listeners.
   void callEditOf(String oldTag, Account acc, {bool notify = true}) {
-    _accounts.sort((a, b) => a.compareTo(b));
+    _accounts.sort();
     _tagsUsed.add(acc.tag);
     if (!_accounts.any((element) => element.tag == oldTag)) {
       _tagsUsed.remove(oldTag);
     }
-    if(notify) notifyListeners();
+    if (notify) notifyListeners();
   }
 
   /// Method to remove the given [Account] from the database. If the old tag is not used by
   /// other accounts then this property will be removed from the database.
   /// * A call to this method notifies all listeners if [Account] was removed.
   void removeAccount(Account acc, {bool notify = true}) {
-    if (_accounts.remove(acc)) {
-      if (!_accounts.any((element) => element.tag == acc.tag)) {
-        _tagsUsed.remove(acc.tag);
-      }
-      if(notify) notifyListeners();
+    _accounts.removeWhere((element) => element.id == acc.id);
+    if (!_accounts.any((element) => element.tag == acc.tag)) {
+      _tagsUsed.remove(acc.tag);
     }
+    if (notify) notifyListeners();
   }
 
   /// Returns all [Account] references that have this particular tag.
   List<Account> getAccountsWithTag(String tag) {
     List<Account> list = _accounts.where((element) => element.tag == tag).toList();
-    list.sort((a, b) => a.compareTo(b));
+    list.sort();
     return list;
   }
 
@@ -189,9 +191,9 @@ final class LocalDatabase extends ChangeNotifier {
   void clear({bool notify = true}) {
     _accounts.clear();
     _tagsUsed.clear();
-    if(_source != null) _source?.invalidate();
+    if (_source != null) _source!.invalidate();
     _source = null;
     _password = null;
-    if(notify) notifyListeners();
+    if (notify) notifyListeners();
   }
 }

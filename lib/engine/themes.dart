@@ -8,6 +8,9 @@ class AppThemeData {
     highlightColor: Colors.white,
     scaffoldBackgroundColor: const Color.fromRGBO(46, 50, 51, 1),
     cardColor: const Color.fromRGBO(77, 83, 84, 1),
+    dividerTheme: const DividerThemeData(
+      color: Colors.grey,
+    ),
     listTileTheme: const ListTileThemeData(
       tileColor: Color.fromRGBO(77, 83, 84, 1),
       selectedTileColor: Color.fromRGBO(77, 83, 84, 1),
@@ -131,6 +134,9 @@ class AppThemeData {
     highlightColor: const Color.fromRGBO(225, 225, 225, 1),
     scaffoldBackgroundColor: const Color.fromRGBO(225, 225, 225, 1),
     cardColor: Colors.white,
+    dividerTheme: const DividerThemeData(
+      color: Colors.grey,
+    ),
     listTileTheme: const ListTileThemeData(
       tileColor: Colors.white,
       selectedTileColor: Colors.white,

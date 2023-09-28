@@ -15,8 +15,9 @@ import 'package:passwordmanager/pages/other/notifications.dart';
 /// * An [AccountListView] to display all accounts in a scrollable way.
 /// * Button for saving changes (Only on windows).
 /// * Button for adding a new [Account] (Only on windows).
+
 class ManagePage extends StatelessWidget {
-  const ManagePage({super.key, required this.title});
+  const ManagePage({Key? key, required this.title}) : super(key: key);
 
   final String title;
 
@@ -24,36 +25,21 @@ class ManagePage extends StatelessWidget {
   void _search(BuildContext context, String string) {
     if (string.isEmpty) return;
     string = string.toLowerCase();
-    List<Account> list = LocalDatabase()
-        .accounts
-        .where((element) =>
-            element.name.toLowerCase().contains(string) |
-            element.tag.toLowerCase().contains(string) |
-            element.info.toLowerCase().contains(string) |
-            element.email.toLowerCase().contains(string) |
-            element.password.toLowerCase().contains(string))
-        .toList();
+    final Iterable<Account> matches = LocalDatabase().accounts.where((element) =>
+        element.name.toLowerCase().contains(string) | element.info.toLowerCase().contains(string) | element.email.toLowerCase().contains(string));
 
-    List<Widget> listElements = List.empty(growable: true);
-    for (Account acc in list) {
-      listElements.add(
-        ListElement(
-          account: acc,
-          isSearchResult: true,
-        ),
-      );
-    }
+    Iterable<Widget> listElements = matches.map((acc) => ListElement(account: acc, isSearchResult: true));
 
-    int count = listElements.length;
+    final int count = listElements.length;
     if (listElements.isEmpty) {
-      listElements.add(
+      listElements = [
         const Center(
           child: Icon(
             Icons.no_accounts,
             size: 50.0,
           ),
         ),
-      );
+      ];
     }
 
     Notify.dialog(
@@ -64,7 +50,44 @@ class ManagePage extends StatelessWidget {
         width: double.maxFinite,
         child: ListView(
           shrinkWrap: true,
-          children: listElements,
+          children: listElements.toList(),
+        ),
+      ),
+    );
+  }
+
+  /// Case insensetive search for tags. A widget is displayed with the found accounts.
+  void _searchTag(BuildContext context, String string) {
+    if (string.isEmpty) return;
+    final LocalDatabase database = LocalDatabase();
+    final Iterable<Account> matches = database.tags
+        .where((element) => element.contains(string))
+        .map((element) => database.getAccountsWithTag(element))
+        .expand((element) => element);
+
+    Iterable<Widget> listElements = matches.map((acc) => ListElement(account: acc, isSearchResult: true));
+
+    final int count = listElements.length;
+    if (listElements.isEmpty) {
+      listElements = [
+        const Center(
+          child: Icon(
+            Icons.no_accounts,
+            size: 50.0,
+          ),
+        ),
+      ];
+    }
+
+    Notify.dialog(
+      context: context,
+      type: NotificationType.notification,
+      title: '$count result(s) with tag "$string":',
+      content: SizedBox(
+        width: double.maxFinite,
+        child: ListView(
+          shrinkWrap: true,
+          children: listElements.toList(),
         ),
       ),
     );
@@ -83,6 +106,7 @@ class ManagePage extends StatelessWidget {
       await LocalDatabase().save();
     } catch (e) {
       navigator.pop();
+      if (!context.mounted) return;
       Notify.dialog(
         context: context,
         type: NotificationType.error,
@@ -127,7 +151,7 @@ class ManagePage extends StatelessWidget {
   Future<void> _showDetails(BuildContext context) async {
     final LocalDatabase database = LocalDatabase();
     final Settings settings = context.read<Settings>();
-    final Source? source = LocalDatabase().source;
+    final Source? source = database.source;
 
     await Notify.dialog(
       context: context,
@@ -142,8 +166,8 @@ class ManagePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async => false,
+    return PopScope(
+      canPop: false,
       child: Scaffold(
         endDrawer: const NavBar(),
         appBar: AppBar(
@@ -204,16 +228,9 @@ class ManagePage extends StatelessWidget {
                     child: Row(
                       children: [
                         Expanded(
-                          child: TextField(
-                            autofocus: false,
-                            decoration: const InputDecoration(
-                              prefixIcon: Padding(
-                                padding: EdgeInsets.only(left: 5.0),
-                                child: Icon(Icons.search),
-                              ),
-                              hintText: 'Search',
-                            ),
-                            onSubmitted: (string) => _search(context, string),
+                          child: _CustomAutocomplete(
+                            onSwitchTrueFunction: _searchTag,
+                            onSwitchFalseFunction: _search,
                           ),
                         ),
                         if (Settings.isWindows || context.read<Settings>().isOnlineModeEnabled)
@@ -260,6 +277,149 @@ class ManagePage extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Small container for storing the name and tag of an account inside the [_CustomAutocomplete] widget or just the tag.
+/// Necessary for the switch between normal and tag search.
+class _TwoValueContainer<T> {
+  final T first;
+  final T second;
+
+  _TwoValueContainer(this.first, this.second);
+}
+
+class _CustomAutocomplete extends StatefulWidget {
+  const _CustomAutocomplete({
+    Key? key,
+    required this.onSwitchTrueFunction,
+    required this.onSwitchFalseFunction,
+  }) : super(key: key);
+
+  final void Function(BuildContext context, String key) onSwitchTrueFunction;
+  final void Function(BuildContext context, String key) onSwitchFalseFunction;
+
+  @override
+  State<_CustomAutocomplete> createState() => _CustomAutocompleteState();
+}
+
+/// Customized Autocomplete Textfield that supports searching for a specific [Account] or for an general tag.
+/// Allows switching between both modes.
+class _CustomAutocompleteState extends State<_CustomAutocomplete> {
+  bool _active = false;
+  String? _searchingWithQuery;
+  Iterable<_TwoValueContainer<String>> _lastOptions = [];
+
+  void _execute(BuildContext context, String string) {
+    if (_active) {
+      widget.onSwitchTrueFunction(context, string);
+    } else {
+      widget.onSwitchFalseFunction(context, string);
+    }
+  }
+
+  Future<Iterable<_TwoValueContainer<String>>> _search(String value) async {
+    final LocalDatabase database = LocalDatabase();
+    final searchValue = value.toLowerCase();
+    if (!_active) {
+      return database.accounts
+          .where((element) =>
+              element.name.toLowerCase().contains(searchValue) |
+              element.info.toLowerCase().contains(searchValue) |
+              element.email.toLowerCase().contains(searchValue))
+          .take(10)
+          .map((e) => _TwoValueContainer(e.name, e.tag));
+    }
+    return database.tags.where((e) => e.contains(searchValue)).take(10).map((e) => _TwoValueContainer(e, ''));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Autocomplete<_TwoValueContainer<String>>(
+      optionsBuilder: (TextEditingValue textEditingValue) async {
+        _searchingWithQuery = textEditingValue.text;
+        if (textEditingValue.text.isEmpty) return const Iterable<_TwoValueContainer<String>>.empty();
+
+        final Iterable<_TwoValueContainer<String>> options = await _search(textEditingValue.text);
+        if(_searchingWithQuery != textEditingValue.text) {
+          return _lastOptions; // throw away result if newer query is running
+        }
+        _lastOptions = options;
+        return options;
+      },
+      displayStringForOption: (e) => e.first,
+      onSelected: (e) => _execute(context, e.first),
+      optionsViewBuilder: (context, onSelected, options) => Align(
+        alignment: Alignment.topLeft,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 10.0, right: 40, bottom: 215),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20.0),
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black38,
+                  spreadRadius: 3,
+                  blurRadius: 3,
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20.0),
+              child: Material(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) => ListTile(
+                    tileColor: Theme.of(context).primaryColor,
+                    leading: Icon(_active ? Icons.sell : Icons.person),
+                    title: Text(
+                      options.elementAt(index).first,
+                      style: Theme.of(context).textTheme.displayMedium,
+                    ),
+                    subtitle: !_active
+                        ? Text(
+                            options.elementAt(index).second,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              overflow: TextOverflow.ellipsis,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          )
+                        : null,
+                    onTap: () => onSelected(options.elementAt(index)),
+                  ),
+                  itemCount: options.length,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+      fieldViewBuilder: (context, controller, focusNode, onEditingComplete) => TextField(
+        controller: controller,
+        focusNode: focusNode,
+        autofocus: false,
+        decoration: InputDecoration(
+          prefixIcon: const Padding(
+            padding: EdgeInsets.only(left: 5.0),
+            child: Icon(Icons.search),
+          ),
+          suffixIcon: Padding(
+            padding: const EdgeInsets.only(right: 5.0),
+            child: IconButton(
+              tooltip: 'Toggle tag search',
+              onPressed: () => setState(() {
+                _active = !_active;
+                controller.clear();
+              }),
+              icon: Icon(_active ? Icons.sell : Icons.sell_outlined),
+            ),
+          ),
+          hintText: _active ? 'Search tag' : 'Search',
+        ),
+        onSubmitted: (string) => _execute(context, string),
       ),
     );
   }

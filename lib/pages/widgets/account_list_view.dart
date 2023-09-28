@@ -17,7 +17,7 @@ class AccountListView extends StatelessWidget {
         ? [
             Row(
               children: [
-                const Expanded(child: Divider(thickness: 1.5, color: Colors.grey)),
+                const Expanded(child: Divider(thickness: 1.5)),
                 Expanded(
                   child: Text(
                     tag,
@@ -25,7 +25,7 @@ class AccountListView extends StatelessWidget {
                     style: Theme.of(context).textTheme.displayMedium,
                   ),
                 ),
-                const Expanded(child: Divider(thickness: 1.5, color: Colors.grey)),
+                const Expanded(child: Divider(thickness: 1.5)),
               ],
             ),
           ]

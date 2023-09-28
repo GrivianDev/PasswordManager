@@ -6,6 +6,9 @@ import 'package:passwordmanager/engine/local_database.dart';
 final class Account implements Comparable<Account> {
   static const String _noEntry = 'none';
 
+  static int _idCounter = 0;
+  final int id;
+
   late String _tag;
 
   late String _name;
@@ -13,7 +16,7 @@ final class Account implements Comparable<Account> {
   late String _email;
   late String _password;
 
-  Account({String? tag, String? name, String? info, String? email, String? password}) {
+  Account({String? tag, String? name, String? info, String? email, String? password}) : id = ++_idCounter {
     setTag = tag;
     setName = name;
     setInfo = info;
@@ -35,7 +38,7 @@ final class Account implements Comparable<Account> {
 
   @override
   int compareTo(Account other) {
-    return name.toLowerCase().compareTo(other.name.toLowerCase());
+    return name.compareTo(other.name);
   }
 
   /// Returns a format that can be easily read from a string with a RegEx.

@@ -56,7 +56,7 @@ class HelpPage extends StatelessWidget {
                 ),
               ],
             ),
-            Divider(color: Colors.grey),
+            Divider(),
             HelpTile(
               title: 'Modes explained',
               children: [
@@ -97,7 +97,7 @@ class HelpPage extends StatelessWidget {
                 ),
               ],
             ),
-            Divider(color: Colors.grey),
+            Divider(),
             HelpTile(
               title: 'Security',
               children: [
@@ -144,23 +144,26 @@ class HelpTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(10.0),
-      child: ExpansionTile(
-        title: Text(
-          title,
-          style: TextStyle(
-            fontSize: Theme.of(context).textTheme.displayMedium!.fontSize,
-            overflow: Theme.of(context).textTheme.displayMedium!.overflow,
-          ),
-        ),
-        expandedAlignment: Alignment.centerLeft,
-        children: [
-          RichText(
-            text: TextSpan(
-              style: Theme.of(context).textTheme.bodySmall,
-              children: children,
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          title: Text(
+            title,
+            style: TextStyle(
+              fontSize: Theme.of(context).textTheme.displayMedium!.fontSize,
+              overflow: Theme.of(context).textTheme.displayMedium!.overflow,
             ),
           ),
-        ],
+          expandedAlignment: Alignment.centerLeft,
+          children: [
+            RichText(
+              text: TextSpan(
+                style: Theme.of(context).textTheme.bodySmall,
+                children: children,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

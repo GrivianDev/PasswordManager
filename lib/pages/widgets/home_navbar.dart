@@ -44,7 +44,7 @@ class HomeNavBar extends StatelessWidget {
             'Options',
             style: Theme.of(context).textTheme.displayLarge,
           ),
-          const Divider(color: Colors.grey),
+          const Divider(),
           TextButton(
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute(
@@ -69,7 +69,7 @@ class HomeNavBar extends StatelessWidget {
               ),
             ),
           ),
-          const Divider(color: Colors.grey),
+          const Divider(),
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
