@@ -47,7 +47,7 @@ class ListElement extends StatelessWidget {
     } catch (e) {
       navigator.pop();
       if (_isSearchResult) navigator.pop();
-      if(!context.mounted) return;
+      if (!context.mounted) return;
       Notify.dialog(
         context: context,
         type: NotificationType.error,

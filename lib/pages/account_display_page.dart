@@ -53,9 +53,9 @@ class AccountDisplay extends StatelessWidget {
             builder: (context, database, child) => Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                SelectableDisplay(description: 'Tag:', text: _account.tag),
-                SelectableDisplay(description: 'Info:', text: _account.info),
-                SelectableDisplay(description: 'E-mail:', text: _account.email),
+                _SelectableDisplay(description: 'Tag:', text: _account.tag),
+                _SelectableDisplay(description: 'Info:', text: _account.info),
+                _SelectableDisplay(description: 'E-mail:', text: _account.email),
                 Padding(
                   padding: const EdgeInsets.only(left: 15, right: 15.0, top: 25.0),
                   child: Column(
@@ -97,8 +97,8 @@ class AccountDisplay extends StatelessWidget {
   }
 }
 
-class SelectableDisplay extends StatelessWidget {
-  const SelectableDisplay({Key? key, required String text, required this.description})
+class _SelectableDisplay extends StatelessWidget {
+  const _SelectableDisplay({Key? key, required String text, required this.description})
       : _text = text,
         super(key: key);
 
