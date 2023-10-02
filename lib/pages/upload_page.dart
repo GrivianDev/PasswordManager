@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:passwordmanager/engine/persistance.dart';
 import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/cloud_connector.dart';
 import 'package:passwordmanager/engine/local_database.dart';
@@ -23,6 +24,7 @@ class _UploadPageState extends State<UploadPage> {
     final NavigatorState navigator = Navigator.of(context);
     final FirebaseConnector connector = context.read<FirebaseConnector>();
     final LocalDatabase database = LocalDatabase();
+    final Settings settings = context.read<Settings>();
 
     Notify.showLoading(context: context);
     try {
@@ -36,6 +38,8 @@ class _UploadPageState extends State<UploadPage> {
         hash: database.doubleHash!,
         data: database.cipher!,
       );
+      await settings.setLastOpenedCloudDoc(_nameController.text);
+
       navigator.pop();
       connector.logout();
       if (!context.mounted) return;

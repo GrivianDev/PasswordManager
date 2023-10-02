@@ -21,13 +21,36 @@ class NavBar extends StatelessWidget {
 
   /// Exits the [ManagePage] and completly wipes the database by calling [LocalDatabase.clear].
   void _exit(BuildContext context) {
-    LocalDatabase().clear();
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(
-        builder: (context) => const HomePage(title: 'Home'),
-      ),
-      (route) => false,
-    );
+    final LocalDatabase database = LocalDatabase();
+
+    if (database.source!.hasUnsavedChanges) {
+      Notify.dialog(
+        context: context,
+        type: NotificationType.confirmDialog,
+        title: 'Unsaved changes!',
+        content: Text(
+          'Do you really want to quit without saving? Unsaved changes will be lost.',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+        onConfirm: () {
+          database.clear();
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: (context) => const HomePage(title: 'Home'),
+            ),
+            (route) => false,
+          );
+        },
+      );
+    } else {
+      database.clear();
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (context) => const HomePage(title: 'Home'),
+        ),
+        (route) => false,
+      );
+    }
   }
 
   /// Forever deletes current storage from firebase cloud and wipes database by calling [LocalDatabase.clear].
@@ -67,7 +90,6 @@ class NavBar extends StatelessWidget {
         final FirebaseConnector connector = context.read<FirebaseConnector>();
 
         try {
-          navigator.pop();
           Notify.showLoading(context: context);
           await connector.deleteDocument();
           LocalDatabase().clear();
@@ -78,6 +100,7 @@ class NavBar extends StatelessWidget {
             (route) => false,
           );
         } catch (e) {
+          navigator.pop();
           navigator.pop();
           navigator.pop();
         }

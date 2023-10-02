@@ -129,6 +129,7 @@ class ListElement extends StatelessWidget {
         if (context.read<Settings>().isAutoSaving) {
           await _save(context);
         } else {
+          database.source?.claimHasUnsavedChanges();
           if (_isSearchResult) Navigator.pop(context);
           database.notifyListeners();
         }

@@ -16,7 +16,7 @@ class Settings extends ChangeNotifier {
   static const _keyLastOpenedPath = 'ethercrypt.path';
   static const _keyAutoSaving = 'ethercrypt.saving';
   static const _keyOnlineMode = 'ethercrypt.online';
-  static const _keyLastOpenedCloudDoc = 'ethercrypt.cloud_docname';
+  static const _keyLastOpenedCloudDocs = 'ethercrypt.cloud_docnames';
   static const _keyPwGenUseLetters = 'ethercrypt.use_letters';
   static const _keyPwGenUseNumbers = 'ethercrypt.use_numbers';
   static const _keyPwGenUseSpecialChars = 'ethercrypt.use_special_chars';
@@ -26,87 +26,156 @@ class Settings extends ChangeNotifier {
 
   /// Change the current theme mode and save it.
   /// * A call to this method notifies all listeners.
-  Future<void> setLightMode(bool enabled) async {
-    await _instance.setBool(_keyLightMode, enabled);
+  Future<bool> setLightMode(bool enabled) async {
+    final bool success = await _instance.setBool(_keyLightMode, enabled);
     notifyListeners();
+    return success;
   }
 
   /// Returns if light mode is active. Default is true.
-  bool get isLightMode => _instance.getBool(_keyLightMode) ?? true;
+  bool get isLightMode {
+    try {
+      return _instance.getBool(_keyLightMode) ?? true;
+    } catch (e) {
+      return true;
+    }
+  }
 
   /// Change the current theme mode and save it.
   /// * A call to this method notifies all listeners.
-  Future<void> setLastOpenedPath(String path) async {
-    await _instance.setString(_keyLastOpenedPath, path);
+  Future<bool> setLastOpenedPath(String path) async {
+    final bool success = await _instance.setString(_keyLastOpenedPath, path);
     notifyListeners();
+    return success;
   }
 
   /// Returns the last opened path or an empty String if no path was stored.
-  String get lastOpenedPath => _instance.getString(_keyLastOpenedPath) ?? '';
+  String get lastOpenedPath {
+    try {
+      return _instance.getString(_keyLastOpenedPath) ?? '';
+    } catch (e) {
+      return '';
+    }
+  }
 
   /// Set if autosaving is active and save it.
   /// * A call to this method notifies all listeners.
-  Future<void> setAutoSaving(bool enabled) async {
-    await _instance.setBool(_keyAutoSaving, enabled);
+  Future<bool> setAutoSaving(bool enabled) async {
+    final bool success = await _instance.setBool(_keyAutoSaving, enabled);
     notifyListeners();
+    return success;
   }
 
   /// Returns if autosaving is active. Default is false.
-  bool get isAutoSaving => _instance.getBool(_keyAutoSaving) ?? false;
+  bool get isAutoSaving {
+    try {
+      return _instance.getBool(_keyAutoSaving) ?? false;
+    } catch (e) {
+      return false;
+    }
+  }
 
   /// Set if onlinemode is active and save it.
   /// * A call to this method notifies all listeners.
-  Future<void> setOnlineMode(bool enabled) async {
-    await _instance.setBool(_keyOnlineMode, enabled);
+  Future<bool> setOnlineMode(bool enabled) async {
+    final bool success = await _instance.setBool(_keyOnlineMode, enabled);
     notifyListeners();
+    return success;
   }
 
   /// Returns if the onlinemode is enabled. Default is false.
-  bool get isOnlineModeEnabled => _instance.getBool(_keyOnlineMode) ?? false;
+  bool get isOnlineModeEnabled {
+    try {
+      return _instance.getBool(_keyOnlineMode) ?? false;
+    } catch (e) {
+      return false;
+    }
+  }
 
   /// Set the name of the last opened cloud storage and save it.
   /// * A call to this method notifies all listeners.
-  Future<void> setLastOpenedCloudDoc(String name) async {
-    await _instance.setString(_keyLastOpenedCloudDoc, name);
+  Future<bool> setLastOpenedCloudDoc(String name) async {
+    final List<String> list = lastOpenedCloudDocs;
+    if (list.contains(name)) list.remove(name);
+    list.insert(0, name);
+    while (list.length > 3) {
+      list.removeLast();
+    }
+    final bool success = await _instance.setStringList(_keyLastOpenedCloudDocs, list);
     notifyListeners();
+    return success;
+  }
+
+  /// Remove the name of the last opened cloud storage and save it.
+  /// * A call to this method notifies all listeners.
+  Future<bool> removeLastOpenedCloudDocEntry(String name) async {
+    final List<String> list = lastOpenedCloudDocs;
+    list.remove(name);
+    final bool success = await _instance.setStringList(_keyLastOpenedCloudDocs, list);
+    notifyListeners();
+    return success;
   }
 
   /// Returns the name of the last opened cloud storage or an empty string if nothing was stored.
-  String get lastOpenedCloudDoc => _instance.getString(_keyLastOpenedCloudDoc) ?? '';
+  List<String> get lastOpenedCloudDocs {
+    try {
+      return _instance.getStringList(_keyLastOpenedCloudDocs) ?? List<String>.empty(growable: true);
+    } catch (e) {
+      return List<String>.empty(growable: true);
+    }
+  }
 
   /// Set if the password generation should use letters.
   /// * A call to this method notifies all listeners.
   Future<bool> setUseLetters(bool enabled) async {
-    if(!(enabled || useNumbersEnabled || useSpecialCharsEnabled)) return false;
+    if (!(enabled || useNumbersEnabled || useSpecialCharsEnabled)) return false;
     final bool success = await _instance.setBool(_keyPwGenUseLetters, enabled);
     notifyListeners();
     return success;
   }
 
   /// Returns if the password generation should use letters.
-  bool get useLettersEnabled => _instance.getBool(_keyPwGenUseLetters) ?? true;
+  bool get useLettersEnabled {
+    try {
+      return _instance.getBool(_keyPwGenUseLetters) ?? true;
+    } catch (e) {
+      return true;
+    }
+  }
 
   /// Set if the password generation should use numbers.
   /// * A call to this method notifies all listeners.
   Future<bool> setUseNumbers(bool enabled) async {
-    if(!(enabled || useLettersEnabled || useSpecialCharsEnabled)) return false;
+    if (!(enabled || useLettersEnabled || useSpecialCharsEnabled)) return false;
     final bool success = await _instance.setBool(_keyPwGenUseNumbers, enabled);
     notifyListeners();
     return success;
   }
 
   /// Returns if the password generation should use numbers.
-  bool get useNumbersEnabled => _instance.getBool(_keyPwGenUseNumbers) ?? true;
+  bool get useNumbersEnabled {
+    try {
+      return _instance.getBool(_keyPwGenUseNumbers) ?? true;
+    } catch (e) {
+      return true;
+    }
+}
 
   /// Set if the password generation should use special characters.
   /// * A call to this method notifies all listeners.
   Future<bool> setUseSpecialChars(bool enabled) async {
-    if(!(enabled || useLettersEnabled || useNumbersEnabled)) return false;
+    if (!(enabled || useLettersEnabled || useNumbersEnabled)) return false;
     final bool success = await _instance.setBool(_keyPwGenUseSpecialChars, enabled);
     notifyListeners();
     return success;
   }
 
   /// Returns if the password generation should use special chars.
-  bool get useSpecialCharsEnabled => _instance.getBool(_keyPwGenUseSpecialChars) ?? true;
+  bool get useSpecialCharsEnabled {
+    try {
+      return _instance.getBool(_keyPwGenUseSpecialChars) ?? true;
+    } catch (e) {
+      return true;
+    }
+  }
 }

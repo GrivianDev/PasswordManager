@@ -312,7 +312,7 @@ class _CustomAutocompleteState extends State<_CustomAutocomplete> {
   String? _searchingWithQuery;
   Iterable<_TwoValueContainer<String>> _lastOptions = [];
 
-  void _execute(BuildContext context, String string) {
+  void _execute(String string) {
     if (_active) {
       widget.onSwitchTrueFunction(context, string);
     } else {
@@ -320,7 +320,8 @@ class _CustomAutocompleteState extends State<_CustomAutocomplete> {
     }
   }
 
-  Future<Iterable<_TwoValueContainer<String>>> _search(String value) async {
+  /// Asynchronous and case insensetive search for options to display
+  Future<Iterable<_TwoValueContainer<String>>> _searchForOptions(String value) async {
     final LocalDatabase database = LocalDatabase();
     final searchValue = value.toLowerCase();
     if (!_active) {
@@ -332,7 +333,7 @@ class _CustomAutocompleteState extends State<_CustomAutocomplete> {
           .take(10)
           .map((e) => _TwoValueContainer(e.name, e.tag));
     }
-    return database.tags.where((e) => e.contains(searchValue)).take(10).map((e) => _TwoValueContainer(e, ''));
+    return database.tags.where((e) => e.toLowerCase().contains(searchValue)).take(10).map((e) => _TwoValueContainer(e, ''));
   }
 
   @override
@@ -342,7 +343,7 @@ class _CustomAutocompleteState extends State<_CustomAutocomplete> {
         _searchingWithQuery = textEditingValue.text;
         if (textEditingValue.text.isEmpty) return const Iterable<_TwoValueContainer<String>>.empty();
 
-        final Iterable<_TwoValueContainer<String>> options = await _search(textEditingValue.text);
+        final Iterable<_TwoValueContainer<String>> options = await _searchForOptions(textEditingValue.text);
         if(_searchingWithQuery != textEditingValue.text) {
           return _lastOptions; // throw away result if newer query is running
         }
@@ -350,7 +351,7 @@ class _CustomAutocompleteState extends State<_CustomAutocomplete> {
         return options;
       },
       displayStringForOption: (e) => e.first,
-      onSelected: (e) => _execute(context, e.first),
+      onSelected: (e) => _execute(e.first),
       optionsViewBuilder: (context, onSelected, options) => Align(
         alignment: Alignment.topLeft,
         child: Padding(
@@ -419,7 +420,7 @@ class _CustomAutocompleteState extends State<_CustomAutocomplete> {
           ),
           hintText: _active ? 'Search tag' : 'Search',
         ),
-        onSubmitted: (string) => _execute(context, string),
+        onSubmitted: (string) => _execute(string),
       ),
     );
   }

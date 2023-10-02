@@ -38,7 +38,7 @@ final class Account implements Comparable<Account> {
 
   @override
   int compareTo(Account other) {
-    return name.compareTo(other.name);
+    return name.toLowerCase().compareTo(other.name.toLowerCase());
   }
 
   /// Returns a format that can be easily read from a string with a RegEx.

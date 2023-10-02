@@ -149,6 +149,7 @@ final class LocalDatabase extends ChangeNotifier {
       _accounts.add(acc);
       _tagsUsed.add(acc.tag);
       _accounts.sort();
+      source?.claimHasUnsavedChanges();
       if (notify) notifyListeners();
     } else {
       throw Exception("Maximum amount of accounts reached");
@@ -164,6 +165,7 @@ final class LocalDatabase extends ChangeNotifier {
     if (!_accounts.any((element) => element.tag == oldTag)) {
       _tagsUsed.remove(oldTag);
     }
+    source?.claimHasUnsavedChanges();
     if (notify) notifyListeners();
   }
 
@@ -175,6 +177,7 @@ final class LocalDatabase extends ChangeNotifier {
     if (!_accounts.any((element) => element.tag == acc.tag)) {
       _tagsUsed.remove(acc.tag);
     }
+    source?.claimHasUnsavedChanges();
     if (notify) notifyListeners();
   }
 

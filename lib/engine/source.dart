@@ -9,6 +9,8 @@ final class Source {
   final File? _sourceFile;
   final FirebaseConnector? _connector;
 
+  bool _unsavedChanges = false;
+
   /// Default constructor that requires exactly one valid source. Exceptions are thrown otherwise.
   Source({File? sourceFile, FirebaseConnector? connector}) : _sourceFile = sourceFile, _connector = connector {
     if(_sourceFile == null && _connector == null) throw Exception('Source object needs at least one valid source');
@@ -20,6 +22,10 @@ final class Source {
   bool get isValid => _sourceFile != null ? _sourceFile!.existsSync() : _connector!.isLoggedIn;
 
   void invalidate() => _connector != null ? _connector!.invalidate() : {};
+
+  bool get hasUnsavedChanges => _unsavedChanges;
+
+  void claimHasUnsavedChanges() => _unsavedChanges = true;
 
   /// Asynchronous method to load data from given file or firebase cloud.
   Future<String> load() async {
@@ -35,5 +41,6 @@ final class Source {
       if(_sourceFile!.existsSync()) await _sourceFile?.create(recursive: true);
       _sourceFile!.writeAsString(cipherText, encoding: utf8);
     }
+    _unsavedChanges = false;
   }
 }

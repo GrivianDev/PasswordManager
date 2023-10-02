@@ -1,3 +1,4 @@
+import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:passwordmanager/engine/cloud_connector.dart';
@@ -9,7 +10,7 @@ import 'package:passwordmanager/pages/other/notifications.dart';
 import 'package:passwordmanager/engine/safety.dart';
 
 /// Page that is used to access firebase cloud via the [FirebaseConnector]. Can verify your access
-/// to a certain storage or create a new storage.
+/// to a certain storage or create a new storage. Caches recently entered storage names.
 class CloudAccessPage extends StatefulWidget {
   const CloudAccessPage({Key? key, required this.login}) : super(key: key);
 
@@ -23,6 +24,7 @@ class CloudAccessPage extends StatefulWidget {
 class _CloudAccessPageState extends State<CloudAccessPage> {
   late bool _isObscured;
   late bool _canSubmit;
+  late List<String> _suggestions;
   late TextEditingController _nameController;
   late TextEditingController _pwController;
 
@@ -84,6 +86,7 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
         );
       }
     } catch (e) {
+      database.clear(notify: false);
       if (!context.mounted) return;
       navigator.pop();
       Notify.dialog(
@@ -151,12 +154,23 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
     );
   }
 
+  /// Callback workaround because calling setState in the initState method breaks flutter
+  void _checkCanSubmitCallback() {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        _canSubmit = _nameController.text.isNotEmpty && _pwController.text.isNotEmpty;
+      });
+    });
+  }
+
   @override
   void initState() {
     _isObscured = true;
     _canSubmit = false;
-    _nameController = TextEditingController(text: widget.login ? context.read<Settings>().lastOpenedCloudDoc : '');
+    _suggestions = context.read<Settings>().lastOpenedCloudDocs;
+    _nameController = TextEditingController();
     _pwController = TextEditingController();
+    _nameController.addListener(_checkCanSubmitCallback);
     super.initState();
   }
 
@@ -164,6 +178,7 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
   void dispose() {
     _nameController.dispose();
     _pwController.dispose();
+    _nameController.removeListener(_checkCanSubmitCallback);
     super.dispose();
   }
 
@@ -192,21 +207,79 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
                   padding: const EdgeInsets.all(25.0),
                   child: Column(
                     children: [
-                      TextField(
-                        maxLength: 32,
-                        autofocus: (context.read<Settings>().lastOpenedCloudDoc.isEmpty && widget.login) || !widget.login,
-                        controller: _nameController,
-                        decoration: const InputDecoration(
-                          labelText: 'Storage name',
+                      if (widget.login && _suggestions.isNotEmpty) ...[
+                        DropdownMenu<String>(
+                          enableSearch: true,
+                          requestFocusOnTap: true,
+                          width: MediaQuery.of(context).size.width - 50,
+                          dropdownMenuEntries: _suggestions
+                              .map(
+                                (e) => DropdownMenuEntry(
+                                  value: e,
+                                  label: e,
+                                  labelWidget: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                                    child: Row(
+                                      children: [
+                                        const Padding(
+                                          padding: EdgeInsets.only(right: 5.0),
+                                          child: Icon(Icons.history),
+                                        ),
+                                        Expanded(child: Text(e)),
+                                        IconButton(
+                                          onPressed: () async {
+                                            await context.read<Settings>().removeLastOpenedCloudDocEntry(e);
+                                            setState(() {
+                                              _suggestions.remove(e);
+                                            });
+                                          },
+                                          icon: const Icon(Icons.close),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  style: ButtonStyle(
+                                    textStyle: MaterialStateProperty.all<TextStyle?>(Theme.of(context).textTheme.displaySmall),
+                                    backgroundColor: MaterialStateProperty.all<Color?>(Theme.of(context).primaryColor),
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                          initialSelection: _suggestions.first,
+                          controller: _nameController,
+                          menuStyle: MenuStyle(
+                            elevation: MaterialStateProperty.all<double?>(5),
+                            shape: MaterialStateProperty.all<OutlinedBorder>(RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0))),
+                          ),
+                          label: const Text(
+                            'Storage name',
+                            style: TextStyle(overflow: TextOverflow.ellipsis),
+                          ),
                         ),
-                        onChanged: (string) => setState(() {
-                          _canSubmit = _nameController.text.isNotEmpty && _pwController.text.isNotEmpty;
-                        }),
-                      ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 10.0),
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: _ListeningText(
+                              controller: _nameController,
+                              buildText: (string) => '${string.length}/32',
+                            ),
+                          ),
+                        ),
+                      ],
+                      if (!widget.login || _suggestions.isEmpty)
+                        TextField(
+                          controller: _nameController,
+                          maxLength: 32,
+                          autofocus: true,
+                          decoration: const InputDecoration(
+                            labelText: 'Storage name',
+                          ),
+                        ),
                       TextField(
                         obscureText: _isObscured,
                         maxLength: 32,
-                        autofocus: context.read<Settings>().lastOpenedCloudDoc.isNotEmpty && widget.login,
+                        autofocus: _suggestions.isNotEmpty && widget.login,
                         controller: _pwController,
                         decoration: InputDecoration(
                           labelText: 'Password',
@@ -259,6 +332,57 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Small widget for having a text display that listens to changes of a TextEditingController.
+class _ListeningText extends StatefulWidget {
+  const _ListeningText({Key? key, required TextEditingController controller, required String Function(String) buildText})
+      : _buildText = buildText,
+        _controller = controller,
+        super(key: key);
+
+  final TextEditingController _controller;
+  final String Function(String) _buildText;
+
+  @override
+  State<_ListeningText> createState() => _ListeningTextState();
+}
+
+class _ListeningTextState extends State<_ListeningText> {
+  late String _old = '';
+
+  void _update() {
+    setState(() {
+      if (widget._controller.text.length > 32) {
+        widget._controller.text = _old;
+      } else {
+        _old = widget._controller.text;
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    widget._controller.addListener(_update);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    widget._controller.removeListener(_update);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8.0),
+      child: Text(
+        widget._buildText(widget._controller.text),
+        style: Theme.of(context).textTheme.bodySmall,
       ),
     );
   }

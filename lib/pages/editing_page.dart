@@ -37,6 +37,7 @@ class _EditingPageState extends State<EditingPage> {
     final NavigatorState navigator = Navigator.of(context);
     final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
     final Color backgroundColor = Theme.of(context).colorScheme.primary;
+    final LocalDatabase database = LocalDatabase();
 
     bool success = _confirmChanges();
     if (success && context.read<Settings>().isAutoSaving) {
@@ -44,6 +45,7 @@ class _EditingPageState extends State<EditingPage> {
         Notify.showLoading(context: context);
         await context.read<LocalDatabase>().save();
       } catch (e) {
+        if(!context.mounted) return;
         navigator.pop();
         Notify.dialog(
           context: context,
@@ -83,6 +85,8 @@ class _EditingPageState extends State<EditingPage> {
           ),
         ),
       );
+    } else {
+      database.source?.claimHasUnsavedChanges();
     }
     if (success) navigator.pop();
   }

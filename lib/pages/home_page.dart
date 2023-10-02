@@ -266,6 +266,7 @@ class OfflinePage extends StatelessWidget {
         );
       }
     } catch (e) {
+      database.clear(notify: false);
       if (!context.mounted) return;
       Notify.dialog(
         context: context,
@@ -346,6 +347,7 @@ class OfflinePage extends StatelessWidget {
         );
       }
     } catch (e) {
+      database.clear(notify: false);
       if (!context.mounted) return;
       Notify.dialog(
         context: context,
@@ -406,6 +408,8 @@ class OfflinePage extends StatelessWidget {
         ),
       );
     } catch (e) {
+      database.clear(notify: false);
+      if(!context.mounted) return;
       Notify.dialog(
         context: context,
         type: NotificationType.error,
