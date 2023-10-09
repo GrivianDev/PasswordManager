@@ -301,7 +301,7 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
                         onChanged: (string) => setState(() {
                           _canSubmit = _nameController.text.isNotEmpty && _pwController.text.isNotEmpty;
                         }),
-                        onSubmitted: (string) => _canSubmit ? _submit : null,
+                        onSubmitted: (string) => _canSubmit ? _submit() : null,
                       ),
                       if (!widget.login) _buildPasswordStrengthIndictator(context),
                       const Spacer(),
@@ -310,7 +310,7 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
                         child: Padding(
                           padding: const EdgeInsets.only(top: 50.0),
                           child: TextButton(
-                            onPressed: _canSubmit ? _submit : null,
+                            onPressed: () => _canSubmit ? _submit() : null,
                             child: Padding(
                               padding: const EdgeInsets.all(20.0),
                               child: Text(

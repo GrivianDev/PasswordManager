@@ -84,7 +84,7 @@ class NavBar extends StatelessWidget {
           ],
         ),
       ),
-      beforeReturn: controller.dispose,
+      beforeReturn: () => controller.dispose(),
       onConfirm: () async {
         if (controller.text != 'DELETE') return;
         controller.dispose();
