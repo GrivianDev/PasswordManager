@@ -26,49 +26,90 @@ final class Notify {
   /// Can display a few standard dialogs while still considering the current appdesign. The [type] property defines wich standard
   /// template should be displayed. See [NotificationType] for further info. If the dialog is a confirm or delete dialog, then
   /// a function can be provided in [onConfirm].
-  static Future<void> dialog(
-      {required BuildContext context, required NotificationType type, String? title, Widget? content, void Function()? onConfirm}) {
+  static Future<void> dialog({
+    required BuildContext context,
+    required NotificationType type,
+    String? title,
+    Widget? content,
+    void Function()? beforeReturn,
+    void Function()? onConfirm,
+  }) {
     return showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: title != null
-            ? Text(
-                title,
-                style: TextStyle(
-                  fontWeight: Theme.of(context).textTheme.headlineLarge!.fontWeight,
-                  fontSize: Theme.of(context).textTheme.headlineLarge!.fontSize,
-                  color: type == NotificationType.error ? Colors.red : Theme.of(context).textTheme.headlineLarge!.color,
-                  overflow: TextOverflow.clip,
-                ),
-              )
-            : null,
+      builder: (context) => _CustomDialog(
+        type: type,
+        title: title,
         content: content,
-        actionsAlignment:
-            (type == NotificationType.confirmDialog || type == NotificationType.deleteDialog) ? MainAxisAlignment.end : MainAxisAlignment.center,
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Text(
-                (type == NotificationType.confirmDialog || type == NotificationType.deleteDialog) ? 'Cancel' : 'Return',
-                style: TextStyle(
-                  fontSize: Theme.of(context).textTheme.displaySmall?.fontSize,
+        beforeReturn: beforeReturn,
+        onConfirm: onConfirm,
+      ),
+    );
+  }
+}
+
+class _CustomDialog extends StatelessWidget {
+  const _CustomDialog({Key? key, required this.type, this.title, this.content, this.beforeReturn, this.onConfirm}) : super(key: key);
+
+  final NotificationType type;
+  final String? title;
+  final Widget? content;
+  final void Function()? beforeReturn;
+  final void Function()? onConfirm;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        GestureDetector(
+          onTap: () {
+            if(beforeReturn != null) beforeReturn!();
+            Navigator.pop(context);
+          },
+          child: Container(
+            color: Colors.transparent,
+          ),
+        ),
+        AlertDialog(
+          title: title != null
+              ? Text(
+                  title!,
+                  style: TextStyle(
+                    fontWeight: Theme.of(context).textTheme.headlineLarge!.fontWeight,
+                    fontSize: Theme.of(context).textTheme.headlineLarge!.fontSize,
+                    color: type == NotificationType.error ? Colors.red : Theme.of(context).textTheme.headlineLarge!.color,
+                    overflow: TextOverflow.clip,
+                  ),
+                )
+              : null,
+          content: content,
+          actionsAlignment:
+              (type == NotificationType.confirmDialog || type == NotificationType.deleteDialog) ? MainAxisAlignment.end : MainAxisAlignment.center,
+          actions: [
+            TextButton(
+              onPressed: () {
+                if(beforeReturn != null) beforeReturn!();
+                Navigator.pop(context);
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 10.0),
+                child: Text(
+                  (type == NotificationType.confirmDialog || type == NotificationType.deleteDialog) ? 'Cancel' : 'Return',
+                  style: TextStyle(
+                    fontSize: Theme.of(context).textTheme.displaySmall?.fontSize,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ),
             ),
-          ),
-          if (type == NotificationType.confirmDialog || type == NotificationType.deleteDialog)
-            Padding(
-              padding: const EdgeInsets.only(left: 15.0),
-              child: ElevatedButton(
+            if (type == NotificationType.confirmDialog || type == NotificationType.deleteDialog)
+              ElevatedButton(
                 onPressed: onConfirm,
                 style: ButtonStyle(
                   backgroundColor:
                       MaterialStateProperty.all<Color>(type == NotificationType.confirmDialog ? Theme.of(context).colorScheme.primary : Colors.red),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.all(10.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 10.0),
                   child: Text(
                     type == NotificationType.confirmDialog ? "Confirm" : "DELETE",
                     style: TextStyle(
@@ -79,9 +120,9 @@ final class Notify {
                   ),
                 ),
               ),
-            ),
-        ],
-      ),
+          ],
+        ),
+      ],
     );
   }
 }

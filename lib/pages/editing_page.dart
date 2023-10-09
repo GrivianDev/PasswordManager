@@ -204,7 +204,7 @@ class _EditingPageState extends State<EditingPage> {
                             })
                           : null,
                     ),
-                    const SizedBox(height: 25),
+                    const SizedBox(height: 10),
                     TextField(
                       controller: _tagController,
                       maxLength: 50,
@@ -217,7 +217,7 @@ class _EditingPageState extends State<EditingPage> {
                             })
                           : null,
                     ),
-                    const SizedBox(height: 25),
+                    const SizedBox(height: 10),
                     TextField(
                       maxLength: 250,
                       controller: _infoController,
@@ -231,7 +231,7 @@ class _EditingPageState extends State<EditingPage> {
                             })
                           : null,
                     ),
-                    const SizedBox(height: 25),
+                    const SizedBox(height: 10),
                     TextField(
                       maxLength: 50,
                       controller: _emailController,
@@ -244,7 +244,7 @@ class _EditingPageState extends State<EditingPage> {
                             })
                           : null,
                     ),
-                    const SizedBox(height: 25),
+                    const SizedBox(height: 10),
                     TextField(
                       maxLength: 50,
                       controller: _pwController,
@@ -269,7 +269,7 @@ class _EditingPageState extends State<EditingPage> {
                             })
                           : null,
                     ),
-                    const SizedBox(height: 25),
+                    const SizedBox(height: 10),
                     const Spacer(),
                     Align(
                       alignment: Alignment.centerRight,

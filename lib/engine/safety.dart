@@ -81,18 +81,20 @@ final class Guardian {
   static Timer? _timer;
 
   /// Call this method at the beginning of the important action and catch the possible Exception.
-  static void failIfAccessDenied() {
+  static Future<void> failIfAccessDenied(Future<void> Function() func) async {
     if(_remainingTries <= 0) {
       throw Exception("Too many failed attempts. Try again in a few seconds.");
     }
+    await func();
   }
 
-  /// Call this method if the important action fails in a security relevant case.
+  /// Call this method if the important action fails in a security relevant case. Provide an optional message that is thrown as Exception.
   /// Too many calls will start a timer that will cause a call to [failIfAccessDenied] to throw an Exception.
-  static void callAccessFailed() {
+  static void callAccessFailed(String? message) {
     if(--_remainingTries <= 0) {
       _cooldownMultiplier++;
       _timer = Timer(Duration(seconds: _cooldownMultiplier * _cooldown), () => _remainingTries = _maxTries);
     }
+    if(message != null) throw Exception(message);
   }
 }

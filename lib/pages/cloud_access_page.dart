@@ -42,29 +42,28 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
     try {
       if (widget.login) {
         // Login logic ---------------------------
-        Guardian.failIfAccessDenied();
-
-        final bool exists = await connector.docExists(_nameController.text);
-        if (!exists) {
-          throw Exception('Storage with the name "${_nameController.text}" does not exist');
-        }
-        final bool verify = await connector.verifyPassword(
-          name: _nameController.text,
-          password: _pwController.text,
-        );
-        if (!verify) {
-          Guardian.callAccessFailed();
-          throw Exception('Wrong password');
-        }
-        database.setSource(Source(connector: connector), _pwController.text);
-        await database.load();
-        await settings.setLastOpenedCloudDoc(_nameController.text);
-        navigator.pop();
-        navigator.push(
-          MaterialPageRoute(
-            builder: (context) => const ManagePage(title: 'Your accounts'),
-          ),
-        );
+        await Guardian.failIfAccessDenied(() async {
+          final bool exists = await connector.docExists(_nameController.text);
+          if (!exists) {
+            throw Exception('Storage with the name "${_nameController.text}" does not exist');
+          }
+          final bool verify = await connector.verifyPassword(
+            name: _nameController.text,
+            password: _pwController.text,
+          );
+          if (!verify) {
+            Guardian.callAccessFailed('Wrong password');
+          }
+          database.setSource(Source(connector: connector), _pwController.text);
+          await database.load();
+          await settings.setLastOpenedCloudDoc(_nameController.text);
+          navigator.pop();
+          navigator.push(
+            MaterialPageRoute(
+              builder: (context) => const ManagePage(title: 'Your accounts'),
+            ),
+          );
+        });
       } else {
         // Create logic ---------------------------
         final bool exists = await connector.docExists(_nameController.text);
@@ -302,7 +301,7 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
                         onChanged: (string) => setState(() {
                           _canSubmit = _nameController.text.isNotEmpty && _pwController.text.isNotEmpty;
                         }),
-                        onSubmitted: (string) => _canSubmit ? _submit() : null,
+                        onSubmitted: (string) => _canSubmit ? _submit : null,
                       ),
                       if (!widget.login) _buildPasswordStrengthIndictator(context),
                       const Spacer(),
@@ -311,7 +310,7 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
                         child: Padding(
                           padding: const EdgeInsets.only(top: 50.0),
                           child: TextButton(
-                            onPressed: () => _canSubmit ? _submit() : null,
+                            onPressed: _canSubmit ? _submit : null,
                             child: Padding(
                               padding: const EdgeInsets.all(20.0),
                               child: Text(

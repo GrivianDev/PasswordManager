@@ -104,6 +104,7 @@ class AppThemeData {
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
+      contentPadding: const EdgeInsets.all(15),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(25.0),
         borderSide: const BorderSide(width: 2, color: Colors.grey),
@@ -230,6 +231,7 @@ class AppThemeData {
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
+      contentPadding: const EdgeInsets.all(15),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(25.0),
         borderSide: BorderSide(width: 2, color: Colors.grey.shade900),

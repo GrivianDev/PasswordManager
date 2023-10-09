@@ -76,8 +76,8 @@ class HomePage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(top: 5.0),
               child: TextButton(
-                onPressed: () => {
-                  Navigator.of(context).pop(),
+                onPressed: () {
+                  Navigator.of(context).pop();
                   showLicensePage(
                     context: context,
                     applicationName: 'Ethercrypt',
@@ -85,7 +85,7 @@ class HomePage extends StatelessWidget {
                       padding: EdgeInsets.only(top: 10.0),
                       child: Icon(Icons.shield_outlined),
                     ),
-                  ),
+                  );
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -109,13 +109,13 @@ class HomePage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(top: 5.0, bottom: 25),
               child: TextButton(
-                onPressed: () => {
-                  Navigator.of(context).pop(),
+                onPressed: () {
+                  Navigator.of(context).pop();
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => const HelpPage(),
                     ),
-                  ),
+                  );
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -168,7 +168,7 @@ class HomePage extends StatelessWidget {
             child: Builder(
               builder: (context) => IconButton(
                 icon: const Icon(Icons.more_vert),
-                onPressed: () => Scaffold.of(context).openEndDrawer(),
+                onPressed: Scaffold.of(context).openEndDrawer,
               ),
             ),
           ),
@@ -231,40 +231,39 @@ class OfflinePage extends StatelessWidget {
 
     try {
       if (!file.existsSync()) throw Exception('File does not exist');
-      Guardian.failIfAccessDenied();
-
-      String? pw = await navigator.push(
-        MaterialPageRoute(
-          builder: (context) => PasswordGetterPage(
-            path: context.read<Settings>().lastOpenedPath,
-            title: 'Enter password',
-          ),
-        ),
-      );
-
-      if (pw == null) return;
-      database.setSource(Source(sourceFile: file), pw);
-
-      try {
-        if (!context.mounted) return;
-        Notify.showLoading(context: context);
-        await database.load();
-      } catch (e) {
-        navigator.pop();
-        Guardian.callAccessFailed();
-        throw Exception('Error during decryption');
-      }
-      navigator.pop();
-
-      if (database.accounts.isEmpty && file.lengthSync() > 0) {
-        throw Exception('Found no relevant data in file');
-      } else {
-        navigator.push(
+      await Guardian.failIfAccessDenied(() async {
+        String? pw = await navigator.push(
           MaterialPageRoute(
-            builder: (context) => const ManagePage(title: 'Your accounts'),
+            builder: (context) => PasswordGetterPage(
+              path: context.read<Settings>().lastOpenedPath,
+              title: 'Enter password',
+            ),
           ),
         );
-      }
+
+        if (pw == null) return;
+        database.setSource(Source(sourceFile: file), pw);
+
+        try {
+          if (!context.mounted) return;
+          Notify.showLoading(context: context);
+          await database.load();
+        } catch (e) {
+          navigator.pop();
+          Guardian.callAccessFailed('Error during decryption');
+        }
+        navigator.pop();
+
+        if (database.accounts.isEmpty && file.lengthSync() > 0) {
+          Guardian.callAccessFailed('Found no relevant data in file');
+        } else {
+          navigator.push(
+            MaterialPageRoute(
+              builder: (context) => const ManagePage(title: 'Your accounts'),
+            ),
+          );
+        }
+      });
     } catch (e) {
       database.clear(notify: false);
       if (!context.mounted) return;
@@ -294,58 +293,57 @@ class OfflinePage extends StatelessWidget {
     if (!Settings.isWindows) await FilePicker.platform.clearTemporaryFiles();
 
     try {
-      Guardian.failIfAccessDenied();
+      await Guardian.failIfAccessDenied(() async {
+        FilePickerResult? result = await FilePicker.platform.pickFiles(
+          lockParentWindow: true,
+          dialogTitle: 'Select your save file',
+          type: FileType.any,
+          allowCompression: false,
+          //allowedExtensions: ['x'],
+          allowMultiple: false,
+        );
 
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        lockParentWindow: true,
-        dialogTitle: 'Select your save file',
-        type: FileType.any,
-        allowCompression: false,
-        //allowedExtensions: ['x'],
-        allowMultiple: false,
-      );
+        if (result == null) return;
 
-      if (result == null) return;
+        final File file = File(result.files.single.path ?? '');
 
-      final File file = File(result.files.single.path ?? '');
+        if (!file.path.endsWith('.x')) {
+          throw Exception('File extension is not supported');
+        }
 
-      if (!file.path.endsWith('.x')) {
-        throw Exception('File extension is not supported');
-      }
-
-      String? pw = await navigator.push(
-        MaterialPageRoute(
-          builder: (context) => PasswordGetterPage(
-            path: file.path,
-            title: 'Enter password',
-          ),
-        ),
-      );
-
-      if (pw == null || !file.existsSync()) return;
-      database.setSource(Source(sourceFile: file), pw);
-
-      try {
-        if (!context.mounted) return;
-        Notify.showLoading(context: context);
-        await database.load();
-      } catch (e) {
-        navigator.pop();
-        Guardian.callAccessFailed();
-        throw Exception('Error during decryption');
-      }
-      navigator.pop();
-
-      if (database.accounts.isEmpty && file.lengthSync() > 0) {
-        throw Exception('Found no relevant data in file');
-      } else {
-        settings.setLastOpenedPath(file.path);
-        navigator.push(
+        String? pw = await navigator.push(
           MaterialPageRoute(
-            builder: (context) => const ManagePage(title: 'Your accounts'),
+            builder: (context) => PasswordGetterPage(
+              path: file.path,
+              title: 'Enter password',
+            ),
           ),
         );
-      }
+
+        if (pw == null || !file.existsSync()) return;
+        database.setSource(Source(sourceFile: file), pw);
+
+        try {
+          if (!context.mounted) return;
+          Notify.showLoading(context: context);
+          await database.load();
+        } catch (e) {
+          navigator.pop();
+          Guardian.callAccessFailed('Error during decryption');
+        }
+        navigator.pop();
+
+        if (database.accounts.isEmpty && file.lengthSync() > 0) {
+          Guardian.callAccessFailed('Found no relevant data in file');
+        } else {
+          settings.setLastOpenedPath(file.path);
+          navigator.push(
+            MaterialPageRoute(
+              builder: (context) => const ManagePage(title: 'Your accounts'),
+            ),
+          );
+        }
+      });
     } catch (e) {
       database.clear(notify: false);
       if (!context.mounted) return;

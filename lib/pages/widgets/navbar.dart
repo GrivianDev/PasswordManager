@@ -84,8 +84,10 @@ class NavBar extends StatelessWidget {
           ],
         ),
       ),
+      beforeReturn: controller.dispose,
       onConfirm: () async {
         if (controller.text != 'DELETE') return;
+        controller.dispose();
         final NavigatorState navigator = Navigator.of(context);
         final FirebaseConnector connector = context.read<FirebaseConnector>();
 
@@ -106,7 +108,6 @@ class NavBar extends StatelessWidget {
         }
       },
     );
-    controller.dispose();
   }
 
   /// Saves a backup of the currently loaded accounts into the selected file.
