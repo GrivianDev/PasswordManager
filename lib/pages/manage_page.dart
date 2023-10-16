@@ -10,7 +10,7 @@ import 'package:passwordmanager/pages/widgets/navbar.dart';
 import 'package:passwordmanager/pages/editing_page.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 
-/// The main core page of this project. The widget provides four main fuctionalites:
+/// The main core page of this project. The widget provides four main functionalities:
 /// * A Searchbar to search for specific [Account] instances that contain the keyword.
 /// * An [AccountListView] to display all accounts in a scrollable way.
 /// * Button for saving changes (Only on windows).
@@ -21,7 +21,7 @@ class ManagePage extends StatelessWidget {
 
   final String title;
 
-  /// Case insensetive search for accounts. A widget is displayed with the found accounts.
+  /// Case insensitive search for accounts. A widget is displayed with the found accounts.
   void _search(BuildContext context, String string) {
     if (string.isEmpty) return;
     string = string.toLowerCase();
@@ -56,7 +56,7 @@ class ManagePage extends StatelessWidget {
     );
   }
 
-  /// Case insensetive search for tags. A widget is displayed with the found accounts.
+  /// Case insensitive search for tags. A widget is displayed with the found accounts.
   void _searchTag(BuildContext context, String string) {
     if (string.isEmpty) return;
     final LocalDatabase database = LocalDatabase();
@@ -320,7 +320,7 @@ class _CustomAutocompleteState extends State<_CustomAutocomplete> {
     }
   }
 
-  /// Asynchronous and case insensetive search for options to display
+  /// Asynchronous and case insensitive search for options to display
   Future<Iterable<_TwoValueContainer<String>>> _searchForOptions(String value) async {
     final LocalDatabase database = LocalDatabase();
     final searchValue = value.toLowerCase();
