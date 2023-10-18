@@ -145,9 +145,7 @@ class ListElement extends StatelessWidget {
         builder: (isHovered) => ElevatedButton(
           style: ButtonStyle(
             overlayColor: MaterialStateProperty.resolveWith<Color?>(
-              (Set<MaterialState> states) {
-                return states.contains(MaterialState.hovered) ? Colors.blue : null;
-              },
+              (Set<MaterialState> states) => states.contains(MaterialState.hovered) ? Colors.blue : null,
             ),
             shape: MaterialStateProperty.all<RoundedRectangleBorder>(
               RoundedRectangleBorder(
@@ -193,14 +191,13 @@ class ListElement extends StatelessWidget {
                       color: Theme.of(context).iconTheme.color,
                     ),
                   ),
-                  if (Settings.isWindows || context.read<Settings>().isOnlineModeEnabled)
-                    IconButton(
-                      onPressed: () async => _deleteClicked(context),
-                      icon: const Icon(
-                        Icons.delete_outline,
-                        color: Colors.red,
-                      ),
+                  IconButton(
+                    onPressed: () async => _deleteClicked(context),
+                    icon: const Icon(
+                      Icons.delete_outline,
+                      color: Colors.red,
                     ),
+                  ),
                 ],
               ),
             ],

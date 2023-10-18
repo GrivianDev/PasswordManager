@@ -70,19 +70,8 @@ class HelpPage extends StatelessWidget {
                 TextSpan(
                   text: ' allows users to choose a local file for secure data storage, making it ideal for keeping information safe without needing '
                       'an internet connection. Nonetheless, there are certain limitations to consider: this mode lacks the ability to synchronize data '
-                      'between devices. Additionally, this mode ',
-                ),
-                TextSpan(
-                  text: 'does not',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    decoration: TextDecoration.underline,
-                  ),
-                ),
-                TextSpan(
-                  text:
-                      ' support editing and creating files on your mobile device. To access your information this way, you must connect your mobile device to your desktop '
-                      'and manually transfer the file. Alternatively, you can opt to select your file from Google Drive on your mobile device as an alternative solution.\n\n',
+                      'between devices. For exchanging files, you must connect your mobile device to your desktop and manually transfer the file. '
+                      'Alternatively, you can opt to select your file from Google Drive on your mobile device as an alternative solution.\n\n',
                 ),
                 TextSpan(
                   text: 'Online mode',

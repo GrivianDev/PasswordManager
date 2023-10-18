@@ -60,7 +60,7 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
           navigator.pop();
           navigator.push(
             MaterialPageRoute(
-              builder: (context) => const ManagePage(title: 'Your accounts'),
+              builder: (context) => const ManagePage(),
             ),
           );
         });
@@ -80,7 +80,7 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
         navigator.pop();
         navigator.push(
           MaterialPageRoute(
-            builder: (context) => const ManagePage(title: 'Your accounts'),
+            builder: (context) => const ManagePage(),
           ),
         );
       }

@@ -93,7 +93,7 @@ class _EditingPageState extends State<EditingPage> {
 
   /// Returns true if and only if all criteria is met. Uses the [_isInvalidInput] method to verify:
   /// * [LocalDataBase] does allow a new account when trying to add another.
-  /// * Input contain no dissallowed characters.
+  /// * Input contains no dissallowed characters.
   bool _confirmChanges() {
     final LocalDatabase dataBase = LocalDatabase();
     bool valid = !_isInvalidInput();

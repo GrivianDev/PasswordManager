@@ -25,7 +25,7 @@ final class Notify {
 
   /// Can display a few standard dialogs while still considering the current appdesign. The [type] property defines wich standard
   /// template should be displayed. See [NotificationType] for further info. If the dialog is a confirm or delete dialog, then
-  /// a function can be provided in [onConfirm].
+  /// a function can be provided in [onConfirm]. [beforeReturn] is called before the user exits the dialog in any way.
   static Future<void> dialog({
     required BuildContext context,
     required NotificationType type,
@@ -62,7 +62,7 @@ class _CustomDialog extends StatelessWidget {
       children: [
         GestureDetector(
           onTap: () {
-            if(beforeReturn != null) beforeReturn!();
+            if (beforeReturn != null) beforeReturn!();
             Navigator.pop(context);
           },
           child: Container(
@@ -87,7 +87,7 @@ class _CustomDialog extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () {
-                if(beforeReturn != null) beforeReturn!();
+                if (beforeReturn != null) beforeReturn!();
                 Navigator.pop(context);
               },
               child: Padding(

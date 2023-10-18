@@ -1,7 +1,110 @@
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:passwordmanager/pages/widgets/file_element.dart';
+import 'package:passwordmanager/pages/other/notifications.dart';
+import 'package:passwordmanager/engine/reference.dart';
 
-class MobileFileSelectionPage extends StatelessWidget {
-  const MobileFileSelectionPage({Key? key}) : super(key: key);
+/// Page that displays all available .x files in the apps directory on mobile.
+/// Also allows selection of externa files.
+class MobileFileSelectionPage extends StatefulWidget {
+  const MobileFileSelectionPage({Key? key, required Directory dir})
+      : _dir = dir,
+        super(key: key);
+
+  final Directory _dir;
+
+  @override
+  State<MobileFileSelectionPage> createState() => _MobileFileSelectionPageState();
+}
+
+class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
+  late Future<List<Reference<File>>> _fileList;
+
+  /// Future for intern futurebuilder
+  Future<List<Reference<File>>> _receiveFuture() async {
+    final List<FileSystemEntity> list = await widget._dir.list().toList();
+    return list.whereType<File>().where((e) => e.path.endsWith('.x')).map((e) => Reference<File>(value: e)).toList();
+  }
+
+  /// Tries to select a save file by using the platform specific filepicker.
+  /// Files are cached and copied into a permanent directory afterwards. Clears cache after.
+  /// If file was already present then a dialog is shown to determine if method should overwrite said file.
+  /// Cases an error is thrown:
+  /// * The file extension is NOT ".x"
+  /// * An unknown error occured
+  Future<void> _mobileFileSelection() async {
+    final NavigatorState navigator = Navigator.of(context);
+
+    try {
+      // Mobile version always returns the cached version of picked file
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        lockParentWindow: true,
+        dialogTitle: 'Select your save file',
+        type: FileType.any,
+        allowCompression: false,
+        //allowedExtensions: ['x'],
+        allowMultiple: false,
+      );
+
+      if (result == null) return;
+
+      final File cacheFile = File(result.files.single.path ?? '');
+      final File file = File('${widget._dir.path}${Platform.pathSeparator}${cacheFile.path.split(Platform.pathSeparator).last}');
+
+      if (!cacheFile.path.endsWith('.x')) {
+        throw Exception('File extension is not supported');
+      }
+
+      if (file.existsSync()) {
+        bool? allow;
+        if (!context.mounted) return;
+        await Notify.dialog(
+            context: context,
+            type: NotificationType.confirmDialog,
+            title: 'File already exists',
+            content: Text(
+              'Allow overwriting of current file?',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            onConfirm: () {
+              allow = true;
+              Navigator.of(context).pop();
+            });
+        if (!(allow ?? false)) return;
+      }
+
+      if (!context.mounted) return;
+      Notify.showLoading(context: context);
+      try {
+        await cacheFile.copy(file.path);
+        await FilePicker.platform.clearTemporaryFiles();
+      } catch (e) {
+        //precaution
+      }
+
+      navigator.pop();
+      navigator.pop(file);
+    } catch (e) {
+      await FilePicker.platform.clearTemporaryFiles();
+      if (!context.mounted) return;
+      Notify.dialog(
+        context: context,
+        type: NotificationType.error,
+        title: 'Error occured!',
+        content: Text(
+          e.toString(),
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+      );
+    }
+  }
+
+  @override
+  void initState() {
+    _fileList = _receiveFuture();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +123,71 @@ class MobileFileSelectionPage extends StatelessWidget {
           ),
           color: Theme.of(context).colorScheme.background,
         ),
-        child: SingleChildScrollView(
-          child: Column(),
+        child: Padding(
+          padding: const EdgeInsets.all(25.0),
+          child: Column(
+            children: [
+              Text(
+                '...${Platform.pathSeparator}${widget._dir.path.split(Platform.pathSeparator).last}',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              FutureBuilder<List<Reference<File>>>(
+                future: _fileList,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.done) {
+                    return Expanded(
+                      child: ListView(
+                        children: snapshot.data!
+                            .map(
+                              (e) => FileWidget(
+                                reference: e,
+                                onClicked: (e) => Navigator.of(context).pop(e),
+                                onDelete: () => setState(() {
+                                  _fileList = _receiveFuture();
+                                }),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                    );
+                  } else if (snapshot.hasError) {
+                    return Expanded(
+                      child: Center(
+                        child: Text(
+                          'Error while loading files!',
+                          style: TextStyle(
+                            fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize,
+                            overflow: Theme.of(context).textTheme.bodyMedium?.overflow,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ),
+                    );
+                  } else {
+                    return const Expanded(
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
+                  }
+                },
+              ),
+              SizedBox(
+                height: 60.0,
+                width: MediaQuery.of(context).size.width,
+                child: Align(
+                  alignment: Alignment.bottomRight,
+                  child: TextButton(
+                    onPressed: () => _mobileFileSelection(),
+                    child: const Padding(
+                      padding: EdgeInsets.all(10.0),
+                      child: Text('Select other'),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

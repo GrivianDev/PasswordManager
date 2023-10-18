@@ -17,9 +17,7 @@ import 'package:passwordmanager/pages/other/notifications.dart';
 /// * Button for adding a new [Account] (Only on windows).
 
 class ManagePage extends StatelessWidget {
-  const ManagePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
+  const ManagePage({Key? key}) : super(key: key);
 
   /// Case insensitive search for accounts. A widget is displayed with the found accounts.
   void _search(BuildContext context, String string) {
@@ -185,30 +183,28 @@ class ManagePage extends StatelessWidget {
               child: Builder(
                 builder: (context) => IconButton(
                   icon: const Icon(Icons.more_vert),
-                  onPressed: Scaffold.of(context).openEndDrawer,
+                  onPressed: () => Scaffold.of(context).openEndDrawer(),
                 ),
               ),
             ),
           ],
-          title: Text(title),
+          title: const Text('Your accounts'),
         ),
-        floatingActionButton: Settings.isWindows || context.read<Settings>().isOnlineModeEnabled
-            ? FloatingActionButton(
-                backgroundColor: Colors.green,
-                child: const Icon(
-                  Icons.add,
-                  color: Colors.white,
-                ),
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const EditingPage(
-                      title: 'Create account',
-                    ),
-                  ),
-                ),
-              )
-            : null,
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: Colors.green,
+          child: const Icon(
+            Icons.add,
+            color: Colors.white,
+          ),
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const EditingPage(
+                title: 'Create account',
+              ),
+            ),
+          ),
+        ),
         body: Container(
           decoration: BoxDecoration(
             borderRadius: const BorderRadius.only(
@@ -233,38 +229,36 @@ class ManagePage extends StatelessWidget {
                             onSwitchFalseFunction: _search,
                           ),
                         ),
-                        if (Settings.isWindows || context.read<Settings>().isOnlineModeEnabled)
-                          Consumer<Settings>(
-                            builder: (context, settings, child) => settings.isAutoSaving
-                                ? Container()
-                                : Padding(
-                                    padding: const EdgeInsets.only(left: 15.0),
-                                    child: ElevatedButton(
-                                      onPressed: () => _save(context),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(12.0),
-                                        child: Row(
-                                          children: [
-                                            Padding(
-                                              padding: const EdgeInsets.only(right: 10.0),
-                                              child: Icon(
-                                                context.read<Settings>().isOnlineModeEnabled ? Icons.sync : Icons.save,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                            Text(
-                                              'Save',
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: Theme.of(context).textTheme.displaySmall?.fontSize,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
+                        Consumer<Settings>(
+                          builder: (context, settings, child) => settings.isAutoSaving
+                              ? Container()
+                              : Padding(
+                            padding: const EdgeInsets.only(left: 15.0),
+                            child: ElevatedButton(
+                              onPressed: () => _save(context),
+                              child: Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: Row(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(right: 10.0),
+                                      child: Icon(
+                                        context.read<Settings>().isOnlineModeEnabled ? Icons.sync : Icons.save,
                                       ),
                                     ),
-                                  ),
+                                    Text(
+                                      'Save',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: Theme.of(context).textTheme.displaySmall?.fontSize,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
+                        ),
                       ],
                     ),
                   ),

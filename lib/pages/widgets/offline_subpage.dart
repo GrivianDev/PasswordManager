@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:passwordmanager/pages/mobile_file_selection_page.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:passwordmanager/engine/local_database.dart';
@@ -54,7 +56,7 @@ class OfflinePage extends StatelessWidget {
         } else {
           navigator.push(
             MaterialPageRoute(
-              builder: (context) => const ManagePage(title: 'Your accounts'),
+              builder: (context) => const ManagePage(),
             ),
           );
         }
@@ -85,22 +87,29 @@ class OfflinePage extends StatelessWidget {
     final LocalDatabase database = LocalDatabase();
     final Settings settings = context.read<Settings>();
 
-    if (!Settings.isWindows) await FilePicker.platform.clearTemporaryFiles();
-
     try {
       await Guardian.failIfAccessDenied(() async {
-        FilePickerResult? result = await FilePicker.platform.pickFiles(
-          lockParentWindow: true,
-          dialogTitle: 'Select your save file',
-          type: FileType.any,
-          allowCompression: false,
-          //allowedExtensions: ['x'],
-          allowMultiple: false,
-        );
+        File? file;
+        if (Settings.isWindows) {
+          FilePickerResult? result = await FilePicker.platform.pickFiles(
+            lockParentWindow: true,
+            dialogTitle: 'Select your save file',
+            type: FileType.any,
+            allowCompression: false,
+            //allowedExtensions: ['x'],
+            allowMultiple: false,
+          );
 
-        if (result == null) return;
+          if (result != null) {
+            file = File(result.files.single.path ?? '');
+          }
+        } else {
+          final Directory? dir = await getExternalStorageDirectory();
+          if(dir == null) throw Exception('Could not receive storage directory');
+          file = await navigator.push(MaterialPageRoute(builder: (context) => MobileFileSelectionPage(dir: dir)));
+        }
 
-        final File file = File(result.files.single.path ?? '');
+        if (file == null) return;
 
         if (!file.path.endsWith('.x')) {
           throw Exception('File extension is not supported');
@@ -109,7 +118,7 @@ class OfflinePage extends StatelessWidget {
         String? pw = await navigator.push(
           MaterialPageRoute(
             builder: (context) => PasswordGetterPage(
-              path: file.path,
+              path: file?.path,
               title: 'Enter password',
             ),
           ),
@@ -134,7 +143,7 @@ class OfflinePage extends StatelessWidget {
           settings.setLastOpenedPath(file.path);
           navigator.push(
             MaterialPageRoute(
-              builder: (context) => const ManagePage(title: 'Your accounts'),
+              builder: (context) => const ManagePage(),
             ),
           );
         }
@@ -165,10 +174,17 @@ class OfflinePage extends StatelessWidget {
     final Settings settings = context.read<Settings>();
 
     try {
-      String? path = await FilePicker.platform.getDirectoryPath(
-        dialogTitle: 'Select directory for save file',
-        lockParentWindow: true,
-      );
+      String? path;
+      if (Settings.isWindows) {
+        path = await FilePicker.platform.getDirectoryPath(
+          dialogTitle: 'Select directory for save file',
+          lockParentWindow: true,
+        );
+      } else {
+        final Directory? dir = await getExternalStorageDirectory();
+        if(dir == null) throw Exception('Could not receive storage directory');
+        path = dir.path;
+      }
 
       if (path == null) return;
 
@@ -197,12 +213,12 @@ class OfflinePage extends StatelessWidget {
       settings.setLastOpenedPath(file.path);
       navigator.push(
         MaterialPageRoute(
-          builder: (context) => const ManagePage(title: 'Your accounts'),
+          builder: (context) => const ManagePage(),
         ),
       );
     } catch (e) {
       database.clear(notify: false);
-      if(!context.mounted) return;
+      if (!context.mounted) return;
       Notify.dialog(
         context: context,
         type: NotificationType.error,
@@ -230,20 +246,12 @@ class OfflinePage extends StatelessWidget {
             ),
             const SizedBox(height: 15.0),
             ElevatedButton(
-              style: ButtonStyle(
-                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25.0),
-                  ),
-                ),
-              ),
               onPressed: () => _selectFile(context),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 2.5),
+              child: const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 25.0, vertical: 2.5),
                 child: Icon(
-                  Settings.isWindows ? Icons.search : Icons.remove_red_eye,
+                  Icons.search,
                   size: 40,
-                  color: Colors.white,
                 ),
               ),
             ),
@@ -251,40 +259,38 @@ class OfflinePage extends StatelessWidget {
         ),
         const Spacer(),
         const SizedBox(height: 35),
-        if (Settings.isWindows) ...[
-          Consumer<Settings>(
-            builder: (context, settings, child) => settings.lastOpenedPath.isNotEmpty
-                ? TextButton(
-              onPressed: () => _openLast(context),
-              child: Text(
-                'Open last: ${settings.lastOpenedPath}',
-                style: TextStyle(
-                  overflow: Theme.of(context).textTheme.bodySmall!.overflow,
-                ),
-              ),
-            )
-                : Container(),
-          ),
-          const Spacer(),
-          const SizedBox(height: 35),
-          Column(
-            children: [
-              Text(
-                'No save file?',
-                style: Theme.of(context).textTheme.displayMedium,
-              ),
-              TextButton(
-                onPressed: () => _createFile(context),
-                child: const Padding(
-                  padding: EdgeInsets.all(10.0),
+        Consumer<Settings>(
+          builder: (context, settings, child) => settings.lastOpenedPath.isNotEmpty
+              ? TextButton(
+                  onPressed: () => _openLast(context),
                   child: Text(
-                    'Create a new one',
+                    'Open last: ${settings.lastOpenedPath}',
+                    style: TextStyle(
+                      overflow: Theme.of(context).textTheme.bodySmall!.overflow,
+                    ),
                   ),
+                )
+              : Container(),
+        ),
+        const Spacer(),
+        const SizedBox(height: 35),
+        Column(
+          children: [
+            Text(
+              'No save file?',
+              style: Theme.of(context).textTheme.displayMedium,
+            ),
+            TextButton(
+              onPressed: () => _createFile(context),
+              child: const Padding(
+                padding: EdgeInsets.all(10.0),
+                child: Text(
+                  'Create a new one',
                 ),
               ),
-            ],
-          ),
-        ],
+            ),
+          ],
+        ),
       ],
     );
   }

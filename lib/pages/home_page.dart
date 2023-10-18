@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:passwordmanager/pages/help_page.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -8,13 +7,14 @@ import 'package:passwordmanager/engine/persistance.dart';
 import 'package:passwordmanager/pages/widgets/home_navbar.dart';
 import 'package:passwordmanager/pages/widgets/offline_subpage.dart';
 import 'package:passwordmanager/pages/widgets/online_subpage.dart';
+import 'package:passwordmanager/pages/help_page.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 
 /// The entry point of the application where cloud or offline mode can be swapped between.
 /// Can display the current version information and provides options for:
 /// * Offline: Searching a save file
-/// * Offline: Reopening the last save file (only on Windows)
-/// * Offline: Creating a new save file (only on Windows)
+/// * Offline: Reopening the last save file
+/// * Offline: Creating a new save file
 /// * Online: Access storage data
 /// * Online: Create new storage
 class HomePage extends StatelessWidget {
@@ -162,7 +162,7 @@ class HomePage extends StatelessWidget {
             child: Builder(
               builder: (context) => IconButton(
                 icon: const Icon(Icons.more_vert),
-                onPressed: Scaffold.of(context).openEndDrawer,
+                onPressed: () => Scaffold.of(context).openEndDrawer(),
               ),
             ),
           ),

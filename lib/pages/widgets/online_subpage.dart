@@ -26,20 +26,12 @@ class OnlinePage extends StatelessWidget {
             ),
             const SizedBox(height: 15.0),
             ElevatedButton(
-              style: ButtonStyle(
-                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25.0),
-                  ),
-                ),
-              ),
               onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const CloudAccessPage(login: true))),
               child: const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 25.0, vertical: 2.5),
                 child: Icon(
                   Icons.login,
                   size: 40,
-                  color: Colors.white,
                 ),
               ),
             ),

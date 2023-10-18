@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:passwordmanager/pages/home_page.dart';
@@ -110,19 +111,30 @@ class NavBar extends StatelessWidget {
     );
   }
 
-  /// Saves a backup of the currently loaded accounts into the selected file.
+  /// Saves a backup of the currently loaded accounts into the selected file or the designated directory on mobile.
   /// Allows overwriting files.
   Future<void> _storeBackup(BuildContext context) async {
     final NavigatorState navigator = Navigator.of(context);
 
     try {
-      String? path = await FilePicker.platform.saveFile(
-        lockParentWindow: true,
-        fileName: 'backup.x',
-        dialogTitle: 'Save your data',
-        type: FileType.custom,
-        allowedExtensions: ['x'],
-      );
+      String? path;
+      if(Settings.isWindows) {
+        path = await FilePicker.platform.saveFile(
+          lockParentWindow: true,
+          fileName: 'backup.x',
+          dialogTitle: 'Save your data',
+          type: FileType.custom,
+          allowedExtensions: ['x'],
+        );
+      } else {
+        final Directory? dir = await getExternalStorageDirectory();
+        if(dir == null) throw Exception('Could not receive storage directory');
+        path = '${dir.path}${Platform.pathSeparator}${LocalDatabase().source?.name}-backup';
+        if(!path.endsWith('.x')) {
+          path += '.x';
+        }
+      }
+
       if (path == null) return;
 
       navigator.pop();
@@ -130,8 +142,19 @@ class NavBar extends StatelessWidget {
       if (!file.path.endsWith('.x')) {
         throw Exception('File extension is not supported');
       }
-      await file.create(recursive: true);
-      await file.writeAsString(LocalDatabase().cipher!);
+
+      if (!context.mounted) return;
+      Notify.showLoading(context: context);
+      bool? error;
+      try {
+        await file.create(recursive: true);
+        await file.writeAsString(LocalDatabase().cipher!);
+      } catch(e) {
+        error = true;
+      }
+      navigator.pop();
+      if(error ?? false) throw Exception('Could not save backup');
+
       if (!context.mounted) return;
       Notify.dialog(
         context: context,
@@ -191,7 +214,7 @@ class NavBar extends StatelessWidget {
               ),
             ),
           ),
-          if (Settings.isWindows && context.read<Settings>().isOnlineModeEnabled) ...[
+          if (context.read<Settings>().isOnlineModeEnabled) ...[
             const Divider(),
             TextButton(
               onPressed: () => _storeBackup(context),

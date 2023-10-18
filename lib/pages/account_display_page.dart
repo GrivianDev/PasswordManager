@@ -1,13 +1,12 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:passwordmanager/engine/persistance.dart';
 import 'package:passwordmanager/pages/widgets/hoverbuilder.dart';
 import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/local_database.dart';
 import 'package:passwordmanager/engine/implementation/account.dart';
 import 'package:passwordmanager/pages/editing_page.dart';
 
-/// Simple widget for displaying all data of an [Accout]. Can navigate to the [EditPage] for editing the displayed account (Only on windows).
+/// Simple widget for displaying all data of an [Account]. Can navigate to the [EditPage] for editing the displayed account (Only on windows).
 class AccountDisplay extends StatelessWidget {
   const AccountDisplay({Key? key, required Account account, bool accessedThroughSearch = false})
       : _account = account,
@@ -23,23 +22,21 @@ class AccountDisplay extends StatelessWidget {
           builder: (context, database, child) => Text(_account.name),
         ),
       ),
-      floatingActionButton: Settings.isWindows || context.read<Settings>().isOnlineModeEnabled
-          ? FloatingActionButton(
-              child: const Icon(
-                Icons.edit,
-                color: Colors.white,
-              ),
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => EditingPage(
-                    title: 'Edit account',
-                    account: _account,
-                  ),
-                ),
-              ),
-            )
-          : null,
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(
+          Icons.edit,
+          color: Colors.white,
+        ),
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => EditingPage(
+              title: 'Edit account',
+              account: _account,
+            ),
+          ),
+        ),
+      ),
       body: Container(
         margin: const EdgeInsets.only(left: 15.0, right: 15.0, bottom: 15),
         decoration: BoxDecoration(
