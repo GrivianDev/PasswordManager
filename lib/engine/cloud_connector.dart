@@ -130,7 +130,7 @@ final class FirebaseConnector {
     }
   }
 
-  /// Returns the encrypted data stored at the "data" key in the cloud. Indentifies document via [_id] property.
+  /// Returns the encrypted data stored at the "data" key in the cloud. Identifies document via [_id] property.
   /// Cases this method throws exceptions:
   /// * Permission is denied
   /// * Internet connection is missing
@@ -144,7 +144,7 @@ final class FirebaseConnector {
     }
   }
 
-  /// Overwrites the "data" property in the firebase cloud. Indentifies document via [_id] property.
+  /// Overwrites the "data" property in the firebase cloud. Identifies document via [_id] property.
   /// Cases this method throws exceptions:
   /// * Permission is denied
   /// * Internet connection is missing
@@ -159,7 +159,7 @@ final class FirebaseConnector {
     }
   }
 
-  /// Deletes the currently active storage. Indentifies document via [_id] property.
+  /// Deletes the currently active storage. Identifies document via [_id] property.
   /// Cases this method throws exceptions:
   /// * Permission is denied
   /// * Internet connection is missing

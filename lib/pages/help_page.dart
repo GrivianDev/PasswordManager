@@ -106,7 +106,7 @@ class HelpPage extends StatelessWidget {
                       'storage. The hash itself is useless for decrypting the stored data.\n\n',
                 ),
                 TextSpan(
-                  text: 'Not conviced?\n',
+                  text: 'Not convinced?\n',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 TextSpan(

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:passwordmanager/engine/persistance.dart';
+import 'package:passwordmanager/engine/persistence.dart';
 import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/cloud_connector.dart';
 import 'package:passwordmanager/engine/local_database.dart';
@@ -18,7 +18,7 @@ class _UploadPageState extends State<UploadPage> {
   late bool _canSubmit;
   late TextEditingController _nameController;
 
-  /// Asynchronous method wich tries to loginto the cloud anbd create a storage with the given name.
+  /// Asynchronous method which tries to log into the cloud and create a storage with the given name.
   /// This might fail if permission is denied or there is no internet connection.
   Future<void> _upload(BuildContext context) async {
     final NavigatorState navigator = Navigator.of(context);
@@ -60,7 +60,7 @@ class _UploadPageState extends State<UploadPage> {
       Notify.dialog(
         context: context,
         type: NotificationType.error,
-        title: 'Error occured!',
+        title: 'Error occurred!',
         content: Text(
           e.toString(),
           style: Theme.of(context).textTheme.bodySmall,

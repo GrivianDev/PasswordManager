@@ -3,7 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:passwordmanager/engine/persistance.dart';
+import 'package:passwordmanager/engine/persistence.dart';
 import 'package:passwordmanager/pages/widgets/home_navbar.dart';
 import 'package:passwordmanager/pages/widgets/offline_subpage.dart';
 import 'package:passwordmanager/pages/widgets/online_subpage.dart';

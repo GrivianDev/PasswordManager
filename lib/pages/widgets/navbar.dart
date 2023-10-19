@@ -8,7 +8,7 @@ import 'package:passwordmanager/pages/settings_page.dart';
 import 'package:passwordmanager/pages/upload_page.dart';
 import 'package:passwordmanager/pages/manage_page.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
-import 'package:passwordmanager/engine/persistance.dart';
+import 'package:passwordmanager/engine/persistence.dart';
 import 'package:passwordmanager/engine/cloud_connector.dart';
 import 'package:passwordmanager/engine/local_database.dart';
 
@@ -170,7 +170,7 @@ class NavBar extends StatelessWidget {
       Notify.dialog(
         context: context,
         type: NotificationType.error,
-        title: 'Error occured!',
+        title: 'Error occurred!',
         content: Text(
           e.toString(),
           style: Theme.of(context).textTheme.bodySmall,

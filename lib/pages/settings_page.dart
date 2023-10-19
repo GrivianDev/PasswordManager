@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:passwordmanager/engine/persistance.dart';
+import 'package:passwordmanager/engine/persistence.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -26,7 +26,7 @@ class SettingsPage extends StatelessWidget {
           children: <Widget>[
             Row(
               children: [
-                // This doesnt need to actively watch the settings property because a theme change will trigger an automatic rebuild
+                // This doesn't need to actively watch the settings property because a theme change will trigger an automatic rebuild
                 // since the MaterialApp is already watching the theme.
                 Switch.adaptive(
                   value: context.read<Settings>().isLightMode,

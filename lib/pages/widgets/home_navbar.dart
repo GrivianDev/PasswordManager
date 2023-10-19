@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/cloud_connector.dart';
-import 'package:passwordmanager/engine/persistance.dart';
+import 'package:passwordmanager/engine/persistence.dart';
 import 'package:passwordmanager/pages/settings_page.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 

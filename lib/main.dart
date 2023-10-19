@@ -4,9 +4,9 @@ import 'package:passwordmanager/engine/cloud_connector.dart';
 import 'package:passwordmanager/pages/widgets/splash.dart';
 import 'package:passwordmanager/engine/local_database.dart';
 import 'package:passwordmanager/engine/themes.dart';
-import 'package:passwordmanager/engine/persistance.dart';
+import 'package:passwordmanager/engine/persistence.dart';
 
-/// The main function. It firstly ensures that Flutter Widgetbindings and the [Settings] class is initialized.
+/// The main function. It firstly ensures that Flutter Widget bindings and the [Settings] class is initialized.
 /// Only then the Application is executed.
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

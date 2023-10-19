@@ -4,7 +4,7 @@ import 'package:passwordmanager/pages/widgets/hoverbuilder.dart';
 import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/implementation/account.dart';
 import 'package:passwordmanager/engine/local_database.dart';
-import 'package:passwordmanager/engine/persistance.dart';
+import 'package:passwordmanager/engine/persistence.dart';
 import 'package:passwordmanager/pages//other/notifications.dart';
 import 'package:passwordmanager/pages/account_display_page.dart';
 

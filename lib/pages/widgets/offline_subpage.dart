@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:passwordmanager/engine/local_database.dart';
 import 'package:passwordmanager/engine/safety.dart';
-import 'package:passwordmanager/engine/persistance.dart';
+import 'package:passwordmanager/engine/persistence.dart';
 import 'package:passwordmanager/engine/source.dart';
 import 'package:passwordmanager/pages/password_getter_page.dart';
 import 'package:passwordmanager/pages/manage_page.dart';
@@ -67,7 +67,7 @@ class OfflinePage extends StatelessWidget {
       Notify.dialog(
         context: context,
         type: NotificationType.error,
-        title: 'Error occured!',
+        title: 'Error occurred!',
         content: Text(
           e.toString(),
           style: Theme.of(context).textTheme.bodySmall,
@@ -81,7 +81,7 @@ class OfflinePage extends StatelessWidget {
   /// * The file extension is NOT ".x"
   /// * The file could not be correctly decrypted / wrong password
   /// * Everything worked but there was not at least one account loaded in the [LocalDatabase]
-  /// * An unknown error occured
+  /// * An unknown error occurred
   Future<void> _selectFile(BuildContext context) async {
     final NavigatorState navigator = Navigator.of(context);
     final LocalDatabase database = LocalDatabase();
@@ -154,7 +154,7 @@ class OfflinePage extends StatelessWidget {
       Notify.dialog(
         context: context,
         type: NotificationType.error,
-        title: 'Error occured!',
+        title: 'Error occurred!',
         content: Text(
           e.toString(),
           style: Theme.of(context).textTheme.bodySmall,
@@ -166,8 +166,8 @@ class OfflinePage extends StatelessWidget {
   /// Creates a save file in the selected directory.
   /// Note: the file itself is only created once the [LocalDatabase] saves for the first time.
   /// Cases an error is thrown:
-  /// * An unknown error occured
-  /// * Special case (nothing happens): The autogeneration did not find a file that did not already exist before.
+  /// * An unknown error occurred
+  /// * Special case (nothing happens): The autogenerate did not find a file that did not already exist before.
   Future<void> _createFile(BuildContext context) async {
     final NavigatorState navigator = Navigator.of(context);
     final LocalDatabase database = LocalDatabase();

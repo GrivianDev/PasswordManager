@@ -6,7 +6,7 @@ import 'package:passwordmanager/pages/other/notifications.dart';
 import 'package:passwordmanager/engine/reference.dart';
 
 /// Page that displays all available .x files in the apps directory on mobile.
-/// Also allows selection of externa files.
+/// Also allows selection of external files.
 class MobileFileSelectionPage extends StatefulWidget {
   const MobileFileSelectionPage({Key? key, required Directory dir})
       : _dir = dir,
@@ -32,7 +32,7 @@ class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
   /// If file was already present then a dialog is shown to determine if method should overwrite said file.
   /// Cases an error is thrown:
   /// * The file extension is NOT ".x"
-  /// * An unknown error occured
+  /// * An unknown error occurred
   Future<void> _mobileFileSelection() async {
     final NavigatorState navigator = Navigator.of(context);
 
@@ -91,7 +91,7 @@ class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
       Notify.dialog(
         context: context,
         type: NotificationType.error,
-        title: 'Error occured!',
+        title: 'Error occurred!',
         content: Text(
           e.toString(),
           style: Theme.of(context).textTheme.bodySmall,

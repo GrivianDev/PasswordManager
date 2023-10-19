@@ -39,7 +39,7 @@ class _FileWidgetState extends State<FileWidget> {
       Notify.dialog(
         context: context,
         type: NotificationType.error,
-        title: 'Error occured!',
+        title: 'Error occurred!',
         content: Text(
           'Could not rename file',
           style: Theme.of(context).textTheme.bodySmall,

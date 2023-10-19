@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 final class ClipboardTimer {
   static Timer? _timer;
 
-  /// Copys given string to the clipboard but removes the content after the given duration.
+  /// Copy given string to the clipboard but removes the content after the given duration.
   /// Timer is cancelled if method is called while previous timer did not run out.
   static Future<void> timed({required String text, required Duration duration}) async {
     if(_timer != null && _timer!.isActive) _timer!.cancel();

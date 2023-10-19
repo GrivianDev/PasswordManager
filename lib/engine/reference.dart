@@ -1,4 +1,4 @@
-/// Small generic container class that is useful for updating values across multiple objects that dont know
+/// Small generic container class that is useful for updating values across multiple objects that don't know
 /// each other. Example use case is reassigning File objects.
 class Reference<T> {
   T _t;

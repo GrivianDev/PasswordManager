@@ -24,7 +24,7 @@ class _HoverBuilderState extends State<HoverBuilder> {
       onExit: (PointerExitEvent event) => setState(() {
         _isHovered = false;
       }),
-      child: widget.builder(_isHovered), //On _isHovered property dependend child widget
+      child: widget.builder(_isHovered), //On _isHovered property dependent child widget
     );
   }
 }

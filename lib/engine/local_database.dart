@@ -9,7 +9,7 @@ import 'package:passwordmanager/engine/source.dart';
 import 'package:passwordmanager/engine/implementation/hashing.dart';
 
 /// LocalDatabase is the core class of this project. This object exists only once
-/// stored in the [_instance] property as Singelton. The [LocalDatabase] constructor just returns this reference.
+/// stored in the [_instance] property as Singleton. The [LocalDatabase] constructor just returns this reference.
 /// In addition this class extends the [ChangeNotifier]. Outside calls with [addAccount], [callEditOf], [removeAccount] or [clear] notify all listeners.
 /// Uses a [Source] to determine if cloud or local file should be used for saving changes.
 final class LocalDatabase extends ChangeNotifier {
@@ -41,7 +41,7 @@ final class LocalDatabase extends ChangeNotifier {
     return accounts;
   }
 
-  /// Static method to gernerate a String based on the given [accounts] list.
+  /// Static method to generate a String based on the given [accounts] list.
   /// Accounts are put in the String between randomly generated substrings.
   /// This causes the text to be never the same for each encryption process.
   /// Returned string is never empty.
@@ -63,7 +63,7 @@ final class LocalDatabase extends ChangeNotifier {
     return buffer.toString();
   }
 
-  /// Private constructor for initialising this singelton.
+  /// Private constructor for initialising this singleton.
   LocalDatabase._create()
       : _accounts = List.empty(growable: true),
         _tagsUsed = SplayTreeSet.from(
@@ -72,7 +72,7 @@ final class LocalDatabase extends ChangeNotifier {
         );
 
   /// Standard constructor. However this always returns the same reference since this
-  /// class is implemented as singelton.
+  /// class is implemented as singleton.
   factory LocalDatabase() => _instance;
 
   /// Returns all currently stored [Account] references as unmodifiable List.
@@ -188,7 +188,7 @@ final class LocalDatabase extends ChangeNotifier {
     return list;
   }
 
-  /// Completly wipes all data from the database. In addition the [_source] and [_password] property
+  /// Completely wipes all data from the database. In addition the [_source] and [_password] property
   /// will be set to null.
   /// * A call to this method notifies all listeners.
   void clear({bool notify = true}) {

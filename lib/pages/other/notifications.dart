@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Enum defining wich type of dialog preset should be used by the [Notify.dialog] method.
+/// Enum defining which type of dialog preset should be used by the [Notify.dialog] method.
 enum NotificationType {
   error,
   notification,
@@ -11,7 +11,7 @@ enum NotificationType {
 /// Class that uses a standard template for all notifications. The [dialog] method can be used
 /// to show dialogs in an easy and short way.
 final class Notify {
-  /// Lays a non dissmissable loading widget above the current page.
+  /// Lays a non dismissible loading widget above the current page.
   /// Needs to be popped manually in the following code.
   static void showLoading({required BuildContext context}) {
     showDialog(
@@ -23,7 +23,7 @@ final class Notify {
     );
   }
 
-  /// Can display a few standard dialogs while still considering the current appdesign. The [type] property defines wich standard
+  /// Can display a few standard dialogs while still considering the current app-design. The [type] property defines which standard
   /// template should be displayed. See [NotificationType] for further info. If the dialog is a confirm or delete dialog, then
   /// a function can be provided in [onConfirm]. [beforeReturn] is called before the user exits the dialog in any way.
   static Future<void> dialog({

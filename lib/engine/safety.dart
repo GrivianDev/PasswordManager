@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
-import 'package:passwordmanager/engine/persistance.dart';
+import 'package:passwordmanager/engine/persistence.dart';
 
 /// Class providing two methods: [SafetyAnalyser.rateSafety], [SafetyAnalyser.generateSavePassword].
-/// Used for determening if a password is considered save or generate strong passwords.
+/// Used for determining if a password is considered save or generate strong passwords.
 final class SafetyAnalyser {
   static const String alphabet = 'abcdefghijklmnopqrstuvwxyz';
   static const String uAlphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -72,7 +72,7 @@ final class SafetyAnalyser {
 }
 
 /// Small class that acts as a kind of security guard for important actions.
-/// Implements an increasing cooldown for important actions that failed too often.
+/// Implements an increasing cool down for important actions that failed too often.
 final class Guardian {
   static const int _cooldown = 15;
   static const int _maxTries = 3;
