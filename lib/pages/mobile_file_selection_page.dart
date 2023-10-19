@@ -136,18 +136,16 @@ class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.done) {
                     return Expanded(
-                      child: ListView(
-                        children: snapshot.data!
-                            .map(
-                              (e) => FileWidget(
-                                reference: e,
-                                onClicked: (e) => Navigator.of(context).pop(e),
-                                onDelete: () => setState(() {
-                                  _fileList = _receiveFuture();
-                                }),
-                              ),
-                            )
-                            .toList(),
+                      child: ListView.separated(
+                        itemCount: snapshot.data!.length,
+                        itemBuilder: (context, index) => FileWidget(
+                          reference: snapshot.data!.elementAt(index),
+                          onClicked: (e) => Navigator.of(context).pop(e),
+                          onDelete: () => setState(() {
+                            _fileList = _receiveFuture();
+                          }),
+                        ),
+                        separatorBuilder: (context, index) => const SizedBox(height: 15.0),
                       ),
                     );
                   } else if (snapshot.hasError) {

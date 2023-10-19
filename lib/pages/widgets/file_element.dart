@@ -31,8 +31,18 @@ class _FileWidgetState extends State<FileWidget> {
       if (newName.trim().isNotEmpty && newName != widget._name) {
         final int lastSeperator = widget.reference.value.path.lastIndexOf(Platform.pathSeparator);
         final String relativePath = widget.reference.value.path.substring(0, lastSeperator + 1);
-        if(File('$relativePath$newName.x').existsSync()) throw Exception();
+        if (File('$relativePath$newName.x').existsSync()) throw Exception();
         widget.reference.assign = await widget.reference.value.rename('$relativePath$newName.x');
+
+        setState(() {
+          renaming = false;
+          widget._name = newName;
+        });
+      } else {
+        setState(() {
+          renaming = false;
+          renameController.text = widget._name;
+        });
       }
     } catch (e) {
       if (!context.mounted) return;
@@ -46,10 +56,6 @@ class _FileWidgetState extends State<FileWidget> {
         ),
       );
     }
-    setState(() {
-      renaming = false;
-      widget._name = newName;
-    });
   }
 
   /// After user allows deletion file is deleted and [onDelete] callback is executed.
@@ -92,54 +98,60 @@ class _FileWidgetState extends State<FileWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(10.0),
-      child: HoverBuilder(
-        builder: (hovered) => Container(
-          color: hovered && !renaming ? Colors.blue :  Colors.transparent,
-          child: ListTile(
-            onTap: () => !renaming ? widget.onClicked(widget.reference.value) : null,
-            leading: const Icon(
-              Icons.file_open_outlined,
-              size: 40.0,
-            ),
-            title: !renaming
-                ? Text(
-              widget.reference.value.path.split(Platform.pathSeparator).last,
-              style: Theme.of(context).textTheme.displayMedium,
-            )
-                : TextField(
-              controller: renameController,
-              autofocus: true,
-              onSubmitted: (value) => _rename(value),
-            ),
-            subtitle: Text(
-              '${widget.reference.value.lengthSync()} bytes',
-              style: Theme.of(context).textTheme.displaySmall,
-            ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if(!renaming) IconButton(
-                  onPressed: () => setState(() {
-                    renaming = !renaming;
-                  }),
-                  icon: const Icon(
-                    Icons.edit,
-                    size: 30.0,
-                  ),
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).primaryColor,
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      child: ListTile(
+        onTap: () => !renaming ? widget.onClicked(widget.reference.value) : null,
+        leading: const Icon(
+          Icons.file_open_outlined,
+          size: 40.0,
+        ),
+        title: !renaming
+            ? Text(
+                widget.reference.value.path.split(Platform.pathSeparator).last,
+                style: Theme.of(context).textTheme.displayMedium,
+              )
+            : TextField(
+                controller: renameController,
+                autofocus: true,
+                onSubmitted: (value) => _rename(value),
+                decoration: const InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(horizontal: 15.0),
                 ),
-                IconButton(
-                  onPressed: () => !renaming ? _deleteFileClicked() : null,
-                  icon: const Icon(
-                    Icons.delete_outline,
-                    color: Colors.red,
-                    size: 35.0,
-                  ),
+                onTapOutside: (value) => setState(() {
+                  renaming = false;
+                  renameController.text = widget._name;
+                }),
+              ),
+        subtitle: Text(
+          '${widget.reference.value.lengthSync()} bytes',
+          style: Theme.of(context).textTheme.displaySmall,
+        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (!renaming)
+              IconButton(
+                onPressed: () => setState(() {
+                  renaming = true;
+                }),
+                icon: const Icon(
+                  Icons.edit,
+                  size: 30.0,
                 ),
-              ],
+              ),
+            IconButton(
+              onPressed: () => !renaming ? _deleteFileClicked() : null,
+              icon: const Icon(
+                Icons.delete_outline,
+                color: Colors.red,
+                size: 35.0,
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
