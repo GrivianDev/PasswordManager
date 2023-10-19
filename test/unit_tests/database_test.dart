@@ -91,6 +91,9 @@ void main() {
       database.addListener(notificationAdd);
       database.addAccount(account);
       expect(notifiedOnAdd, true);
+      notifiedOnAdd = false;
+      database.addAccount(account);
+      expect(notifiedOnAdd, false);
       database.removeListener(notificationAdd);
 
       database.addListener(notificationEdit);
