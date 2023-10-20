@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'dart:math';
-import 'package:flutter/cupertino.dart';
-import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/persistence.dart';
 
 /// Class providing two methods: [SafetyAnalyser.rateSafety], [SafetyAnalyser.generateSavePassword].
@@ -60,8 +58,7 @@ final class SafetyAnalyser {
   }
 
   /// Generates a random password consisting of [20-32] characters.
-  String generateSavePassword(BuildContext context) {
-    final Settings settings = context.read<Settings>();
+  String generateSavePassword(Settings settings) {
     String chars = (settings.useLettersEnabled || settings.useNumbersEnabled || settings.useSpecialCharsEnabled) ? '' : alphabet + uAlphabet;
     if(settings.useLettersEnabled) chars += alphabet + uAlphabet;
     if(settings.useNumbersEnabled) chars += numbers;
@@ -82,7 +79,7 @@ final class Guardian {
 
   /// Call this method at the beginning of the important action and catch the possible Exception.
   static Future<void> failIfAccessDenied(Future<void> Function() func) async {
-    if(_remainingTries <= 0) {
+    if(_timer != null && _timer!.isActive) {
       throw Exception("Too many failed attempts. Try again in a few seconds.");
     }
     await func();

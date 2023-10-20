@@ -137,7 +137,7 @@ final class LocalDatabase extends ChangeNotifier {
       }
     }
     _accounts.sort();
-    notifyListeners();
+    notifyAll();
   }
 
   /// Method to add a new [Account] to the database. The intern List will sort accounts and tags alphabetically.
@@ -150,7 +150,7 @@ final class LocalDatabase extends ChangeNotifier {
       _tagsUsed.add(acc.tag);
       _accounts.sort();
       source?.claimHasUnsavedChanges();
-      if (notify) notifyListeners();
+      if (notify) notifyAll();
     } else {
       throw Exception("Maximum amount of accounts reached");
     }
@@ -166,7 +166,7 @@ final class LocalDatabase extends ChangeNotifier {
       _tagsUsed.remove(oldTag);
     }
     source?.claimHasUnsavedChanges();
-    if (notify) notifyListeners();
+    if (notify) notifyAll();
   }
 
   /// Method to remove the given [Account] from the database. If the old tag is not used by
@@ -178,7 +178,7 @@ final class LocalDatabase extends ChangeNotifier {
       _tagsUsed.remove(acc.tag);
     }
     source?.claimHasUnsavedChanges();
-    if (notify) notifyListeners();
+    if (notify) notifyAll();
   }
 
   /// Returns all [Account] references that have this particular tag.
@@ -197,6 +197,11 @@ final class LocalDatabase extends ChangeNotifier {
     if (_source != null) _source!.invalidate();
     _source = null;
     _password = null;
-    if (notify) notifyListeners();
+    if (notify) notifyAll();
+  }
+
+  /// Just notifies all listeners
+  void notifyAll() {
+    notifyListeners();
   }
 }

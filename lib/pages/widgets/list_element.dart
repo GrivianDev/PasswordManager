@@ -57,10 +57,10 @@ class ListElement extends StatelessWidget {
           style: Theme.of(context).textTheme.bodySmall,
         ),
       );
-      database.notifyListeners();
+      database.notifyAll();
       return;
     }
-    database.notifyListeners();
+    database.notifyAll();
     navigator.pop();
     if (_isSearchResult) navigator.pop();
 
@@ -131,7 +131,7 @@ class ListElement extends StatelessWidget {
         } else {
           database.source?.claimHasUnsavedChanges();
           if (_isSearchResult) Navigator.pop(context);
-          database.notifyListeners();
+          database.notifyAll();
         }
       },
     );

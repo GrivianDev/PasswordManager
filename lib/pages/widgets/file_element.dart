@@ -1,18 +1,13 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
-import 'package:passwordmanager/pages/widgets/hoverbuilder.dart';
 import 'package:passwordmanager/engine/reference.dart';
 
 /// Widget that represents a local file. Allows deletion and renaming of file.
 class FileWidget extends StatefulWidget {
-  FileWidget({Key? key, required this.reference, required this.onClicked, required this.onDelete}) : super(key: key) {
-    String wholeName = reference.value.path.split(Platform.pathSeparator).last;
-    _name = wholeName.substring(0, wholeName.lastIndexOf('.'));
-  }
+  const FileWidget({Key? key, required this.reference, required this.onClicked, required this.onDelete}) : super(key: key);
 
   final Reference<File> reference;
-  late String _name;
   final void Function(File) onClicked;
   final void Function() onDelete;
 
@@ -23,12 +18,13 @@ class FileWidget extends StatefulWidget {
 class _FileWidgetState extends State<FileWidget> {
   late bool renaming;
   late TextEditingController renameController;
+  late String _currentName;
 
   /// Asynchronous method to rename the file. Does nothing if provided name is empty or only consists of whitespaces.
   /// Purposefully fails if file with new name already exists.
   Future<void> _rename(String newName) async {
     try {
-      if (newName.trim().isNotEmpty && newName != widget._name) {
+      if (newName.trim().isNotEmpty && newName != _currentName) {
         final int lastSeperator = widget.reference.value.path.lastIndexOf(Platform.pathSeparator);
         final String relativePath = widget.reference.value.path.substring(0, lastSeperator + 1);
         if (File('$relativePath$newName.x').existsSync()) throw Exception();
@@ -36,12 +32,12 @@ class _FileWidgetState extends State<FileWidget> {
 
         setState(() {
           renaming = false;
-          widget._name = newName;
+          _currentName = newName;
         });
       } else {
         setState(() {
           renaming = false;
-          renameController.text = widget._name;
+          renameController.text = _currentName;
         });
       }
     } catch (e) {
@@ -86,7 +82,9 @@ class _FileWidgetState extends State<FileWidget> {
   @override
   void initState() {
     renaming = false;
-    renameController = TextEditingController(text: widget._name);
+    final String wholeName = widget.reference.value.path.split(Platform.pathSeparator).last;
+    _currentName = wholeName.substring(0, wholeName.lastIndexOf('.'));
+    renameController = TextEditingController(text: _currentName);
     super.initState();
   }
 
@@ -114,17 +112,20 @@ class _FileWidgetState extends State<FileWidget> {
                 widget.reference.value.path.split(Platform.pathSeparator).last,
                 style: Theme.of(context).textTheme.displayMedium,
               )
-            : TextField(
-                controller: renameController,
-                autofocus: true,
-                onSubmitted: (value) => _rename(value),
-                decoration: const InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(horizontal: 15.0),
+            : Padding(
+                padding: const EdgeInsets.only(bottom: 5.0),
+                child: TextField(
+                  controller: renameController,
+                  autofocus: true,
+                  onSubmitted: (value) => _rename(value),
+                  decoration: const InputDecoration(
+                    contentPadding: EdgeInsets.symmetric(horizontal: 15.0),
+                  ),
+                  onTapOutside: (value) => setState(() {
+                    renaming = false;
+                    renameController.text = _currentName;
+                  }),
                 ),
-                onTapOutside: (value) => setState(() {
-                  renaming = false;
-                  renameController.text = widget._name;
-                }),
               ),
         subtitle: Text(
           '${widget.reference.value.lengthSync()} bytes',

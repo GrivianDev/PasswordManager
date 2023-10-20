@@ -254,7 +254,7 @@ class _EditingPageState extends State<EditingPage> {
                           padding: const EdgeInsets.only(right: 5.0),
                           child: IconButton(
                             onPressed: () => {
-                              _pwController.text = SafetyAnalyser().generateSavePassword(context),
+                              _pwController.text = SafetyAnalyser().generateSavePassword(context.read<Settings>()),
                               setState(() {
                                 _changes = true;
                               }),
