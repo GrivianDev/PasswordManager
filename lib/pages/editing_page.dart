@@ -194,7 +194,7 @@ class _EditingPageState extends State<EditingPage> {
                   children: [
                     TextField(
                       controller: _nameController,
-                      maxLength: 50,
+                      maxLength: 100,
                       decoration: const InputDecoration(
                         labelText: 'Name',
                       ),
@@ -207,7 +207,7 @@ class _EditingPageState extends State<EditingPage> {
                     const SizedBox(height: 10),
                     TextField(
                       controller: _tagController,
-                      maxLength: 50,
+                      maxLength: 100,
                       decoration: const InputDecoration(
                         labelText: 'Tag',
                       ),
@@ -219,7 +219,7 @@ class _EditingPageState extends State<EditingPage> {
                     ),
                     const SizedBox(height: 10),
                     TextField(
-                      maxLength: 250,
+                      maxLength: 600,
                       controller: _infoController,
                       maxLines: 10,
                       decoration: const InputDecoration(
@@ -233,7 +233,7 @@ class _EditingPageState extends State<EditingPage> {
                     ),
                     const SizedBox(height: 10),
                     TextField(
-                      maxLength: 50,
+                      maxLength: 100,
                       controller: _emailController,
                       decoration: const InputDecoration(
                         labelText: 'Email',
@@ -246,18 +246,18 @@ class _EditingPageState extends State<EditingPage> {
                     ),
                     const SizedBox(height: 10),
                     TextField(
-                      maxLength: 50,
+                      maxLength: 100,
                       controller: _pwController,
                       decoration: InputDecoration(
                         labelText: 'Password',
                         suffixIcon: Padding(
                           padding: const EdgeInsets.only(right: 5.0),
                           child: IconButton(
-                            onPressed: () => {
-                              _pwController.text = SafetyAnalyser().generateSavePassword(context.read<Settings>()),
+                            onPressed: () {
+                              _pwController.text = SafetyAnalyser().generateSavePassword(context.read<Settings>());
                               setState(() {
                                 _changes = true;
-                              }),
+                              });
                             },
                             icon: const Icon(Icons.refresh),
                           ),

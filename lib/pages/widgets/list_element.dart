@@ -177,7 +177,7 @@ class ListElement extends StatelessWidget {
                           textAlign: TextAlign.center,
                         ),
                       ),
-                    Expanded(child: Container()),
+                    const Spacer(),
                   ],
                 ),
               ),
@@ -192,7 +192,7 @@ class ListElement extends StatelessWidget {
                     ),
                   ),
                   IconButton(
-                    onPressed: () async => _deleteClicked(context),
+                    onPressed: () => _deleteClicked(context),
                     icon: const Icon(
                       Icons.delete_outline,
                       color: Colors.red,

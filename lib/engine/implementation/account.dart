@@ -30,11 +30,13 @@ final class Account implements Comparable<Account> {
   String get email => _email;
   String get password => _password;
 
-  set setTag(String? string) => _tag = (string ??= Account._noEntry).isEmpty ? Account._noEntry : string;
-  set setName(String? string) => _name = (string ??= Account._noEntry).isEmpty ? Account._noEntry : string;
-  set setInfo(String? string) => _info = (string ??= Account._noEntry).isEmpty ? Account._noEntry : string;
-  set setEmail(String? string) => _email = (string ??= Account._noEntry).isEmpty ? Account._noEntry : string;
-  set setPassword(String? string) => _password = (string ??= Account._noEntry).isEmpty ? Account._noEntry : string;
+  set setTag(String? string) => _tag = _nullSaveValue(string);
+  set setName(String? string) => _name = _nullSaveValue(string);
+  set setInfo(String? string) => _info = _nullSaveValue(string);
+  set setEmail(String? string) => _email = _nullSaveValue(string);
+  set setPassword(String? string) => _password = _nullSaveValue(string);
+
+  String _nullSaveValue(String? string) => (string ??= Account._noEntry).isEmpty ? Account._noEntry : string;
 
   @override
   int compareTo(Account other) {

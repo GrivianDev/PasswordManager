@@ -261,7 +261,7 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
                             alignment: Alignment.centerRight,
                             child: _ListeningText(
                               controller: _nameController,
-                              buildText: (string) => '${string.length}/32',
+                              buildText: (string) => '${string.length}/128',
                             ),
                           ),
                         ),
@@ -269,7 +269,7 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
                       if (!widget.login || _suggestions.isEmpty)
                         TextField(
                           controller: _nameController,
-                          maxLength: 32,
+                          maxLength: 128,
                           autofocus: true,
                           decoration: const InputDecoration(
                             labelText: 'Storage name',
@@ -277,7 +277,7 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
                         ),
                       TextField(
                         obscureText: _isObscured,
-                        maxLength: 32,
+                        maxLength: 128,
                         autofocus: _suggestions.isNotEmpty && widget.login,
                         controller: _pwController,
                         decoration: InputDecoration(
@@ -355,7 +355,7 @@ class _ListeningTextState extends State<_ListeningText> {
 
   void _update() {
     setState(() {
-      if (widget._controller.text.length > 32) {
+      if (widget._controller.text.length > 128) {
         widget._controller.text = _old;
       } else {
         _old = widget._controller.text;

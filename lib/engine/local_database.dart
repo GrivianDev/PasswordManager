@@ -50,13 +50,13 @@ final class LocalDatabase extends ChangeNotifier {
     Random rand = Random.secure();
     StringBuffer buffer = StringBuffer();
     for (int i = 0; i < accounts.length; i++) {
-      int length = rand.nextInt(8) + 1;
+      int length = rand.nextInt(10) + 1;
       for (int j = 0; j < length; j++) {
         buffer.write(String.fromCharCode(chars.codeUnitAt(rand.nextInt(chars.length))));
       }
       buffer.write(accounts.elementAt(i).toString());
     }
-    for (int j = 0; j < 8; j++) {
+    for (int j = 0; j < 10; j++) {
       buffer.write(String.fromCharCode(chars.codeUnitAt(rand.nextInt(chars.length))));
     }
 
@@ -146,11 +146,13 @@ final class LocalDatabase extends ChangeNotifier {
   /// * A call to this method notifies all listeners if [Account] was added.
   void addAccount(Account acc, {bool notify = true}) {
     if (_accounts.length < LocalDatabase.maxCapacity) {
-      _accounts.add(acc);
-      _tagsUsed.add(acc.tag);
-      _accounts.sort();
-      source?.claimHasUnsavedChanges();
-      if (notify) notifyAll();
+      if(!_accounts.any((element) => element.id == acc.id)) {
+        _accounts.add(acc);
+        _tagsUsed.add(acc.tag);
+        _accounts.sort();
+        source?.claimHasUnsavedChanges();
+        if (notify) notifyAll();
+      }
     } else {
       throw Exception("Maximum amount of accounts reached");
     }
@@ -160,25 +162,29 @@ final class LocalDatabase extends ChangeNotifier {
   /// and tags that point to no accounts are removed properly.
   /// * A call to this method notifies all listeners.
   void callEditOf(String oldTag, Account acc, {bool notify = true}) {
-    _accounts.sort();
-    _tagsUsed.add(acc.tag);
-    if (!_accounts.any((element) => element.tag == oldTag)) {
-      _tagsUsed.remove(oldTag);
+    if(_accounts.any((element) => element.id == acc.id)) {
+      _accounts.sort();
+      _tagsUsed.add(acc.tag);
+      if (!_accounts.any((element) => element.tag == oldTag)) {
+        _tagsUsed.remove(oldTag);
+      }
+      source?.claimHasUnsavedChanges();
+      if (notify) notifyAll();
     }
-    source?.claimHasUnsavedChanges();
-    if (notify) notifyAll();
   }
 
   /// Method to remove the given [Account] from the database. If the old tag is not used by
   /// other accounts then this property will be removed from the database.
   /// * A call to this method notifies all listeners if [Account] was removed.
   void removeAccount(Account acc, {bool notify = true}) {
-    _accounts.removeWhere((element) => element.id == acc.id);
-    if (!_accounts.any((element) => element.tag == acc.tag)) {
-      _tagsUsed.remove(acc.tag);
+    if(_accounts.any((element) => element.id == acc.id)) {
+      _accounts.removeWhere((element) => element.id == acc.id);
+      if (!_accounts.any((element) => element.tag == acc.tag)) {
+        _tagsUsed.remove(acc.tag);
+      }
+      source?.claimHasUnsavedChanges();
+      if (notify) notifyAll();
     }
-    source?.claimHasUnsavedChanges();
-    if (notify) notifyAll();
   }
 
   /// Returns all [Account] references that have this particular tag.

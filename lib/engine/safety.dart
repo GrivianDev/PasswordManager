@@ -64,7 +64,7 @@ final class SafetyAnalyser {
     if(settings.useNumbersEnabled) chars += numbers;
     if(settings.useSpecialCharsEnabled) chars += specialChars;
     final Random rand = Random.secure();
-    return String.fromCharCodes(Iterable<int>.generate(rand.nextInt(12) + 20, (_) => chars.codeUnitAt(rand.nextInt(chars.length))));
+    return String.fromCharCodes(Iterable<int>.generate(rand.nextInt(13) + 20, (_) => chars.codeUnitAt(rand.nextInt(chars.length))));
   }
 }
 

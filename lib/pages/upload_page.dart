@@ -108,7 +108,7 @@ class _UploadPageState extends State<UploadPage> {
                   child: Column(
                     children: [
                       TextField(
-                        maxLength: 32,
+                        maxLength: 128,
                         controller: _nameController,
                         autofocus: true,
                         decoration: const InputDecoration(
