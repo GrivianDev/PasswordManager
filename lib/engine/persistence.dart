@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// This class must be initialised through the [init] call before use.
 /// Extends ChangeNotifier and here calling any setter notifies all listeners.
 /// Stores the data through SharedPreferences.
-/// Implemented that at least one of the properties use letters/numbers/special chars has to be set to true at al times.
+/// Implemented that at least one of the properties use letters/numbers/special chars has to be set to true at all times.
 class Settings extends ChangeNotifier {
   static late final SharedPreferences _instance;
 

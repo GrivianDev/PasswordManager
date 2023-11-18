@@ -39,27 +39,23 @@ class OfflinePage extends StatelessWidget {
         );
 
         if (pw == null) return;
-        database.setSource(Source(sourceFile: file), pw);
+        database.setSource(Source(sourceFile: file));
 
         try {
           if (!context.mounted) return;
           Notify.showLoading(context: context);
-          await database.load();
+          await database.load(password: pw);
         } catch (e) {
           navigator.pop();
           Guardian.callAccessFailed('Error during decryption');
         }
         navigator.pop();
 
-        if (database.accounts.isEmpty && file.lengthSync() > 0) {
-          Guardian.callAccessFailed('Found no relevant data in file');
-        } else {
-          navigator.push(
-            MaterialPageRoute(
-              builder: (context) => const ManagePage(),
-            ),
-          );
-        }
+        navigator.push(
+          MaterialPageRoute(
+            builder: (context) => const ManagePage(),
+          ),
+        );
       });
     } catch (e) {
       database.clear(notify: false);
@@ -101,7 +97,7 @@ class OfflinePage extends StatelessWidget {
           );
 
           if (result != null) {
-            file = File(result.files.single.path ?? '');
+            file = File(result.files.single.path!);
           }
         } else {
           final Directory? dir = await getExternalStorageDirectory();
@@ -125,28 +121,23 @@ class OfflinePage extends StatelessWidget {
         );
 
         if (pw == null || !file.existsSync()) return;
-        database.setSource(Source(sourceFile: file), pw);
+        database.setSource(Source(sourceFile: file));
 
         try {
           if (!context.mounted) return;
           Notify.showLoading(context: context);
-          await database.load();
+          await database.load(password: pw);
         } catch (e) {
           navigator.pop();
           Guardian.callAccessFailed('Error during decryption');
         }
-        navigator.pop();
 
-        if (database.accounts.isEmpty && file.lengthSync() > 0) {
-          Guardian.callAccessFailed('Found no relevant data in file');
-        } else {
-          settings.setLastOpenedPath(file.path);
-          navigator.push(
-            MaterialPageRoute(
-              builder: (context) => const ManagePage(),
-            ),
-          );
-        }
+        settings.setLastOpenedPath(file.path);
+        navigator.push(
+          MaterialPageRoute(
+            builder: (context) => const ManagePage(),
+          ),
+        );
       });
     } catch (e) {
       database.clear(notify: false);
@@ -208,7 +199,8 @@ class OfflinePage extends StatelessWidget {
       );
 
       if (pw == null) return;
-      database.setSource(Source(sourceFile: file), pw);
+      database.setSource(Source(sourceFile: file));
+      await database.source!.initialiseNewSource(password: pw);
 
       settings.setLastOpenedPath(file.path);
       navigator.push(
@@ -222,7 +214,11 @@ class OfflinePage extends StatelessWidget {
       Notify.dialog(
         context: context,
         type: NotificationType.error,
-        title: 'Unknown error',
+        title: 'Error occurred!',
+        content: Text(
+          e.toString(),
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
       );
     }
   }

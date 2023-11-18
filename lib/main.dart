@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/cloud_connector.dart';
 import 'package:passwordmanager/pages/widgets/splash.dart';
 import 'package:passwordmanager/engine/local_database.dart';
-import 'package:passwordmanager/engine/themes.dart';
+import 'package:passwordmanager/engine/other/themes.dart';
 import 'package:passwordmanager/engine/persistence.dart';
 
 /// The main function. It firstly ensures that Flutter Widget bindings and the [Settings] class is initialized.

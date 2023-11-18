@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:passwordmanager/pages/widgets/hoverbuilder.dart';
 import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/local_database.dart';
-import 'package:passwordmanager/engine/implementation/account.dart';
+import 'package:passwordmanager/engine/account.dart';
 import 'package:passwordmanager/pages/editing_page.dart';
 
 /// Simple widget for displaying all data of an [Account]. Can navigate to the [EditPage] for editing the displayed account (Only on windows).

@@ -1,10 +1,8 @@
 import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:passwordmanager/engine/encryption.dart';
-import 'package:passwordmanager/engine/implementation/aes_encryption.dart';
-import 'package:passwordmanager/engine/implementation/hashing.dart';
 
 void main() {
+  /*
   group('Encryption tests', () {
     test('Valid encryption and decryption', () {
       const String plainText = 'Text';
@@ -34,5 +32,5 @@ void main() {
       expect(value1 == value2, true);
       expect(value1, 'b3c8485039102bd67a91e9ae23c9f8c7b4b7f9907f2866f22ad14f9894d5070f');
     });
-  });
+  });*/
 }

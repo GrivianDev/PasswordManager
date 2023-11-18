@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:passwordmanager/engine/implementation/account.dart';
+import 'package:passwordmanager/engine/account.dart';
 import 'package:passwordmanager/engine/local_database.dart';
 import 'package:passwordmanager/engine/persistence.dart';
 import 'package:passwordmanager/engine/safety.dart';

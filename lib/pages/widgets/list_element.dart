@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:passwordmanager/engine/clipboard_timer.dart';
+import 'package:passwordmanager/engine/other/clipboard_timer.dart';
 import 'package:passwordmanager/pages/widgets/hoverbuilder.dart';
 import 'package:provider/provider.dart';
-import 'package:passwordmanager/engine/implementation/account.dart';
+import 'package:passwordmanager/engine/account.dart';
 import 'package:passwordmanager/engine/local_database.dart';
 import 'package:passwordmanager/engine/persistence.dart';
 import 'package:passwordmanager/pages//other/notifications.dart';

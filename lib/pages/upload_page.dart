@@ -35,8 +35,7 @@ class _UploadPageState extends State<UploadPage> {
       }
       await connector.createDocument(
         name: _nameController.text,
-        hash: database.doubleHash!,
-        data: database.cipher!,
+        data: await database.formattedData,
       );
       await settings.setLastOpenedCloudDoc(_nameController.text);
 

@@ -1,12 +1,8 @@
-import 'dart:collection';
-import 'dart:convert';
 import 'dart:math';
-import 'dart:typed_data';
-import 'package:flutter/cupertino.dart';
-import 'package:passwordmanager/engine/encryption.dart';
-import 'package:passwordmanager/engine/implementation/account.dart';
+import 'dart:collection';
+import 'package:flutter/foundation.dart';
+import 'package:passwordmanager/engine/account.dart';
 import 'package:passwordmanager/engine/source.dart';
-import 'package:passwordmanager/engine/implementation/hashing.dart';
 
 /// LocalDatabase is the core class of this project. This object exists only once
 /// stored in the [_instance] property as Singleton. The [LocalDatabase] constructor just returns this reference.
@@ -18,49 +14,55 @@ final class LocalDatabase extends ChangeNotifier {
   static const String disallowedCharacter = '\u0407';
 
   Source? _source;
-  String? _password;
 
   final List<Account> _accounts;
   final Set<String> _tagsUsed;
 
   /// Static method to analyse a probably freshly decrypted [string] with a [RegExp].
   /// Returns a List of [Account] instances that were found in the text.
-  static List<Account> getAccountsFromString(String string) {
-    const String c = LocalDatabase.disallowedCharacter;
+  static Future<List<Account>> getAccountsFromString(String string) async {
+    List<Account> foundAccounts = await compute((message) {
+      const String c = LocalDatabase.disallowedCharacter;
 
-    List<Account> accounts = List.empty(growable: true);
-    RegExp regex = RegExp('\\$c([^\\$c]+\\$c){5}');
-    Iterable<Match> matches = regex.allMatches(string);
-    for (Match match in matches) {
-      List<String>? parts = match.group(0)?.split(c);
-      if (parts != null) {
-        parts.retainWhere((element) => element.isNotEmpty);
-        accounts.add(Account(tag: parts[0], name: parts[1], info: parts[2], email: parts[3], password: parts[4]));
+      List<Account> accounts = List.empty(growable: true);
+      RegExp regex = RegExp('\\$c([^\\$c]+\\$c){5}');
+      Iterable<Match> matches = regex.allMatches(string);
+      for (Match match in matches) {
+        List<String>? parts = match.group(0)?.split(c);
+        if (parts != null) {
+          parts.retainWhere((element) => element.isNotEmpty);
+          accounts.add(Account(tag: parts[0], name: parts[1], info: parts[2], email: parts[3], password: parts[4]));
+        }
       }
-    }
-    return accounts;
+      return accounts;
+    }, string);
+
+    return foundAccounts;
   }
 
   /// Static method to generate a String based on the given [accounts] list.
   /// Accounts are put in the String between randomly generated substrings.
   /// This causes the text to be never the same for each encryption process.
   /// Returned string is never empty.
-  static String generateStringFromAccounts(List<Account> accounts) {
-    const String chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
-    Random rand = Random.secure();
-    StringBuffer buffer = StringBuffer();
-    for (int i = 0; i < accounts.length; i++) {
-      int length = rand.nextInt(10) + 1;
-      for (int j = 0; j < length; j++) {
+  static Future<String> generateStringFromAccounts(List<Account> accounts) async {
+    final String string = await compute((message) {
+      const String chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+      Random rand = Random.secure();
+      StringBuffer buffer = StringBuffer();
+      for (Account acc in accounts) {
+        int length = rand.nextInt(10) + 1;
+        for (int j = 0; j < length; j++) {
+          buffer.write(String.fromCharCode(chars.codeUnitAt(rand.nextInt(chars.length))));
+        }
+        buffer.write(acc.toString());
+      }
+      for (int j = 0; j < 10; j++) {
         buffer.write(String.fromCharCode(chars.codeUnitAt(rand.nextInt(chars.length))));
       }
-      buffer.write(accounts.elementAt(i).toString());
-    }
-    for (int j = 0; j < 10; j++) {
-      buffer.write(String.fromCharCode(chars.codeUnitAt(rand.nextInt(chars.length))));
-    }
+      return buffer.toString();
+    }, accounts);
 
-    return buffer.toString();
+    return string;
   }
 
   /// Private constructor for initialising this singleton.
@@ -83,44 +85,39 @@ final class LocalDatabase extends ChangeNotifier {
 
   Source? get source => _source;
 
-  /// Returns the double hashed password by calling [Hashing.sha256DoubledHash] or null if [_password] was null.
-  Uint8List? get doubleHash => _password != null ? Hashing.sha256DoubledHash(utf8.encode(_password!)) : null;
-
-  /// Returns the encrypted cipher of currently stored accounts. Uses the encryption provided through [EncryptionProvider.encryption].
-  String? get cipher => _password != null
-      ? EncryptionProvider.encryption.encrypt(plainText: LocalDatabase.generateStringFromAccounts(_accounts), password: _password!)
-      : null;
+  Future<String> get formattedData async {
+    if(_source == null) return 'Source empty';
+    return await _source!.getFormattedData(await LocalDatabase.generateStringFromAccounts(accounts));
+  }
 
   /// Before calling the [load] or [save] function this method MUST be called to provide
-  /// the source File and the password to use for encryption and decryption.
-  void setSource(Source source, String password) {
+  /// the source File or cloud data to use for encryption and decryption.
+  void setSource(Source source) {
     _source = source;
-    _password = password;
   }
 
   /// Asynchronous method to load [Account] references from the source provided through the [setSource] method.
-  /// And exception is thrown if either the [_source] or [_password] property is null. The encryption method is provided through
-  /// the [EncryptionProvider] class.
-  Future<void> load() async {
-    if (_source != null && _password != null) {
+  /// And exception is thrown if the [_source] property is null.
+  Future<void> load({required String password}) async {
+    if (_source != null) {
       if (_source!.isValid) {
-        List<Account> list =
-            LocalDatabase.getAccountsFromString(EncryptionProvider.encryption.decrypt(encryptedText: await _source!.load(), password: _password!));
+        _accounts.clear();
+        _tagsUsed.clear();
+        final List<Account> list = await LocalDatabase.getAccountsFromString(await _source!.loadData(password: password));
         _addAllAccounts(list);
       }
     } else {
-      throw Exception("Tried to load data without a provided source or password");
+      throw Exception("Tried to load data without a provided source");
     }
   }
 
   /// Asynchronous method to save all stored [Account] references to the source provided through the [setSource] method.
-  /// And exception is thrown if either the [_source] or [_password] property is null. The encryption method is provided through
-  /// the [EncryptionProvider] class.
+  /// And exception is thrown if the [_source] property is null.
   Future<void> save() async {
-    if (_source != null && _password != null) {
-      await _source!.saveChanges(cipher!);
+    if (_source != null) {
+      await _source!.saveData(await LocalDatabase.generateStringFromAccounts(_accounts));
     } else {
-      throw Exception("Tried to save data without a provided source or password");
+      throw Exception("Tried to save data without a provided source");
     }
   }
 
@@ -147,7 +144,7 @@ final class LocalDatabase extends ChangeNotifier {
   /// * A call to this method notifies all listeners if [Account] was added.
   void addAccount(Account acc, {bool notify = true}) {
     if (_accounts.length < LocalDatabase.maxCapacity) {
-      if(!_accounts.any((element) => element.id == acc.id)) {
+      if (!_accounts.any((element) => element.id == acc.id)) {
         _accounts.add(acc);
         _tagsUsed.add(acc.tag);
         _accounts.sort();
@@ -163,7 +160,7 @@ final class LocalDatabase extends ChangeNotifier {
   /// and tags that point to no accounts are removed properly.
   /// * A call to this method notifies all listeners.
   void callEditOf(String oldTag, Account acc, {bool notify = true}) {
-    if(_accounts.any((element) => element.id == acc.id)) {
+    if (_accounts.any((element) => element.id == acc.id)) {
       _accounts.sort();
       _tagsUsed.add(acc.tag);
       if (!_accounts.any((element) => element.tag == oldTag)) {
@@ -178,7 +175,7 @@ final class LocalDatabase extends ChangeNotifier {
   /// other accounts then this property will be removed from the database.
   /// * A call to this method notifies all listeners if [Account] was removed.
   void removeAccount(Account acc, {bool notify = true}) {
-    if(_accounts.any((element) => element.id == acc.id)) {
+    if (_accounts.any((element) => element.id == acc.id)) {
       _accounts.removeWhere((element) => element.id == acc.id);
       if (!_accounts.any((element) => element.tag == acc.tag)) {
         _tagsUsed.remove(acc.tag);
@@ -203,7 +200,6 @@ final class LocalDatabase extends ChangeNotifier {
     _tagsUsed.clear();
     if (_source != null) _source!.invalidate();
     _source = null;
-    _password = null;
     if (notify) notifyAll();
   }
 

@@ -12,8 +12,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  encrypt: ^5.0.1
-  crypto: ^3.0.3
+  pointycastle: ^3.7.3
   path_provider: ^2.1.1
   shared_preferences: ^2.1.1
   file_picker: ^5.2.11

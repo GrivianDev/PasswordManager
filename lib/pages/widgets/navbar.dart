@@ -145,15 +145,15 @@ class NavBar extends StatelessWidget {
 
       if (!context.mounted) return;
       Notify.showLoading(context: context);
-      bool? error;
+      bool error = false;
       try {
         await file.create(recursive: true);
-        await file.writeAsString(LocalDatabase().cipher!);
+        await file.writeAsString(await LocalDatabase().formattedData);
       } catch(e) {
         error = true;
       }
       navigator.pop();
-      if(error ?? false) throw Exception('Could not save backup');
+      if(error) throw Exception('Could not save backup');
 
       if (!context.mounted) return;
       Notify.dialog(

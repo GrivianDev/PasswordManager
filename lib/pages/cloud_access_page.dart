@@ -44,18 +44,17 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
         // Login logic ---------------------------
         await Guardian.failIfAccessDenied(() async {
           final bool exists = await connector.docExists(_nameController.text);
+
           if (!exists) {
             throw Exception('Storage with the name "${_nameController.text}" does not exist');
           }
-          final bool verify = await connector.verifyPassword(
-            name: _nameController.text,
-            password: _pwController.text,
-          );
-          if (!verify) {
+          await connector.setActiveDocument(_nameController.text);
+          database.setSource(Source(connector: connector));
+          try {
+            await database.load(password: _pwController.text);
+          } catch(e) {
             Guardian.callAccessFailed('Wrong password');
           }
-          database.setSource(Source(connector: connector), _pwController.text);
-          await database.load();
           await settings.setLastOpenedCloudDoc(_nameController.text);
           navigator.pop();
           navigator.push(
@@ -70,12 +69,9 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
         if (exists) {
           throw Exception('Storage with the name "${_nameController.text}" already exists');
         }
-        database.setSource(Source(connector: connector), _pwController.text);
-        await connector.createDocument(
-          name: _nameController.text,
-          hash: database.doubleHash!,
-          data: database.cipher!,
-        );
+        await connector.setActiveDocument(_nameController.text);
+        database.setSource(Source(connector: connector));
+        await database.source!.initialiseNewSource(password: _pwController.text, cloudDocName: _nameController.text);
         await settings.setLastOpenedCloudDoc(_nameController.text);
         navigator.pop();
         navigator.push(

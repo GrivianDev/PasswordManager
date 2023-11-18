@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/local_database.dart';
 import 'package:passwordmanager/engine/persistence.dart';
 import 'package:passwordmanager/engine/source.dart';
-import 'package:passwordmanager/engine/implementation/account.dart';
+import 'package:passwordmanager/engine/account.dart';
 import 'package:passwordmanager/pages/widgets/list_element.dart';
 import 'package:passwordmanager/pages/widgets/account_list_view.dart';
 import 'package:passwordmanager/pages/widgets/navbar.dart';
