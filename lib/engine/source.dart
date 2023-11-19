@@ -2,6 +2,9 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/foundation.dart' as foundation;
 import 'package:passwordmanager/engine/cloud_connector.dart';
+import 'package:passwordmanager/engine/cryptography/implementation/aes_encryption.dart';
+import 'package:passwordmanager/engine/cryptography/implementation/legacy_aes_decrypter.dart';
+import 'package:passwordmanager/engine/cryptography/service.dart';
 import 'package:passwordmanager/engine/data_interpreter.dart';
 import 'package:passwordmanager/engine/cryptography/datatypes.dart';
 
@@ -38,7 +41,7 @@ final class Source {
   Future<String> loadData({required String password, bool legacyMode = false}) async {
     final String formattedData = _connector != null ? await _connector!.getData() : await _sourceFile!.readAsString(encoding: utf8);
     final InterpretionResult result = await foundation.compute((message) {
-      final DataFormatInterpreter dataFormatInterpreter = DataFormatInterpreter();
+      final DataFormatInterpreter dataFormatInterpreter = DataFormatInterpreter(legacyMode ? LegacyAES256Decrypter() : AES256());
       if(message[2] as bool) {
         return dataFormatInterpreter.legacyInterpretDataWithPassword(message[0] as String, message[1] as String);
       } else {
@@ -51,8 +54,8 @@ final class Source {
 
   Future<void> initialiseNewSource({required String password, String? cloudDocName}) async {
     final InterpretionResult result = await foundation.compute((message) {
-      final Key key = Key.createSecure(message[0], DataFormatInterpreter.desiredKeyLength);
-      final DataFormatInterpreter dataFormatInterpreter = DataFormatInterpreter();
+      final Key key = CryptograhicService.createAES256Key(password: message[0]);
+      final DataFormatInterpreter dataFormatInterpreter = DataFormatInterpreter(AES256());
       return dataFormatInterpreter.createFormattedDataWithKey('', key);
     }, [password]);
     _key = result.key;
@@ -81,7 +84,7 @@ final class Source {
 
   Future<String> getFormattedData(String data) async {
     final InterpretionResult result = await foundation.compute((message) {
-      final DataFormatInterpreter dataFormatInterpreter = DataFormatInterpreter();
+      final DataFormatInterpreter dataFormatInterpreter = DataFormatInterpreter(AES256());
       return dataFormatInterpreter.createFormattedDataWithKey(message[0] as String, message[1] as Key);
     }, [data, _key]);
     return result.data;

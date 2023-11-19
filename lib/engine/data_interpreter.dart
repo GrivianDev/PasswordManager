@@ -1,25 +1,27 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:passwordmanager/engine/cryptography/base16_codec.dart';
+import 'package:passwordmanager/engine/cryptography/encryption.dart';
 import 'package:passwordmanager/engine/cryptography/service.dart';
 import 'package:passwordmanager/engine/cryptography/datatypes.dart';
-import 'package:passwordmanager/engine/cryptography/encryption.dart';
 
 class DataFormatInterpreter {
-  static const int desiredBlockLength = 16;
-  static const int desiredKeyLength = 32;
+  final Encryption _encryption;
 
-  final _saltIdentifier = 'Salt=';
-  final _hMacIdentifier = 'HMac=';
-  final _ivIdentifier = 'IV=';
-  final _dataIdentifier = 'Data=';
-  final _delimiter = ';';
+  final String _saltIdentifier = 'Salt=';
+  final String _hMacIdentifier = 'HMac=';
+  final String _ivIdentifier = 'IV=';
+  final String _dataIdentifier = 'Data=';
+  final String _delimiter = ';';
+
+  const DataFormatInterpreter(Encryption encryption) : _encryption = encryption;
 
   InterpretionResult legacyInterpretDataWithPassword(String data, String password) {
+    if(data.contains(_delimiter)) throw Exception('Data is not in legacy format');
     final Key legacyKey = Key(CryptograhicService.sha256(utf8.encode(password)), null);
     final Key key = CryptograhicService.createAES256Key(password: password);
 
-    final Uint8List presumedData = EncryptionProvider.encryption.decrypt(cipher: base64.decode(data), key: legacyKey, iv: IV.allZero(DataFormatInterpreter.desiredBlockLength));
+    final Uint8List presumedData = _encryption.decrypt(cipher: base64.decode(data), key: legacyKey, iv: IV.allZero(_encryption.blockLength));
 
     return InterpretionResult(key, utf8.decode(presumedData, allowMalformed: true));
   }
@@ -34,7 +36,7 @@ class DataFormatInterpreter {
 
     final Key key = CryptograhicService.recreateAES256Key(password: password, salt: base16.decode(salt));
 
-    final Uint8List presumedData = EncryptionProvider.encryption.decrypt(cipher: base64.decode(cipher), key: key, iv: IV(base16.decode(iv)));
+    final Uint8List presumedData = _encryption.decrypt(cipher: base64.decode(cipher), key: key, iv: IV(base16.decode(iv)));
 
     final String testHMac = base16.encode(CryptograhicService.verificationCodeFrom(key, presumedData));
 
@@ -45,10 +47,10 @@ class DataFormatInterpreter {
   }
 
   InterpretionResult createFormattedDataWithKey(String data, Key key) {
-    final Uint8List rawData = CryptograhicService.expand(utf8.encode(data), desiredBlockLength);
+    final Uint8List rawData = CryptograhicService.expand(utf8.encode(data), _encryption.blockLength);
     final Uint8List newHMac = CryptograhicService.verificationCodeFrom(key, rawData);
-    final IV iv = IV.fromLength(desiredBlockLength);
-    final Uint8List cipher = EncryptionProvider.encryption.encrypt(data: rawData, key: key, iv: iv);
+    final IV iv = IV.fromLength(_encryption.blockLength);
+    final Uint8List cipher = _encryption.encrypt(data: rawData, key: key, iv: iv);
 
     StringBuffer buffer = StringBuffer();
     buffer.write('$_saltIdentifier${base16.encode(key.salt!)}$_delimiter');
@@ -61,8 +63,10 @@ class DataFormatInterpreter {
 
   String? _getProperty(String identifier, String data) {
     int start = data.indexOf(identifier);
+    if(start == -1) return null;
     start += identifier.length;
     int end = data.indexOf(_delimiter, start);
+    if(end == -1) return null;
     return data.substring(start, end);
   }
 }

@@ -131,6 +131,7 @@ class OfflinePage extends StatelessWidget {
           navigator.pop();
           Guardian.callAccessFailed('Error during decryption');
         }
+        navigator.pop();
 
         settings.setLastOpenedPath(file.path);
         navigator.push(
@@ -200,7 +201,16 @@ class OfflinePage extends StatelessWidget {
 
       if (pw == null) return;
       database.setSource(Source(sourceFile: file));
-      await database.source!.initialiseNewSource(password: pw);
+
+      try {
+        if (!context.mounted) return;
+        Notify.showLoading(context: context);
+        await database.source!.initialiseNewSource(password: pw);
+      } catch(e) {
+        navigator.pop();
+        throw Exception('Could not initialise new file');
+      }
+      navigator.pop();
 
       settings.setLastOpenedPath(file.path);
       navigator.push(
