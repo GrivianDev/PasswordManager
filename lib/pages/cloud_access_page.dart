@@ -51,7 +51,7 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
           await connector.setActiveDocument(_nameController.text);
           database.setSource(Source(connector: connector));
           try {
-            await database.load(password: _pwController.text);
+            await database.load(password: _pwController.text, legacyMode: settings.useLegacyAccessEnabled);
           } catch(e) {
             Guardian.callAccessFailed('Wrong password');
           }

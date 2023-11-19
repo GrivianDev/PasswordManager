@@ -103,6 +103,21 @@ class SettingsPage extends StatelessWidget {
                 ),
               ],
             ),
+            const Divider(),
+            Row(
+              children: [
+                Checkbox.adaptive(
+                  value: context.watch<Settings>().useLegacyAccessEnabled,
+                  onChanged: (value) => context.read<Settings>().setUseLegacyAccess(value ?? false),
+                ),
+                Flexible(
+                  child: Text(
+                    'Use legacy access (Pre 2.0.0)',
+                    style: Theme.of(context).textTheme.displayMedium,
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),

@@ -20,6 +20,7 @@ class Settings extends ChangeNotifier {
   static const _keyPwGenUseLetters = 'ethercrypt.use_letters';
   static const _keyPwGenUseNumbers = 'ethercrypt.use_numbers';
   static const _keyPwGenUseSpecialChars = 'ethercrypt.use_special_chars';
+  static const _keyUseLegacyAccess = 'ethercrypt.legacy_access';
 
   /// Initialises the class by setting the [_instance] property.
   static Future<void> init() async => _instance = await SharedPreferences.getInstance();
@@ -176,6 +177,23 @@ class Settings extends ChangeNotifier {
       return _instance.getBool(_keyPwGenUseSpecialChars) ?? true;
     } catch (e) {
       return true;
+    }
+  }
+
+  /// Set if accessing operations should happen via unsave legacy mode.
+  /// * A call to this method notifies all listeners.
+  Future<bool> setUseLegacyAccess(bool enabled) async {
+    final bool success = await _instance.setBool(_keyUseLegacyAccess, enabled);
+    notifyListeners();
+    return success;
+  }
+
+  /// Returns if accessing operations should happen via unsave legacy mode.
+  bool get useLegacyAccessEnabled {
+    try {
+      return _instance.getBool(_keyUseLegacyAccess) ?? false;
+    } catch (e) {
+      return false;
     }
   }
 }

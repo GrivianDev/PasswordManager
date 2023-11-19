@@ -98,12 +98,12 @@ final class LocalDatabase extends ChangeNotifier {
 
   /// Asynchronous method to load [Account] references from the source provided through the [setSource] method.
   /// And exception is thrown if the [_source] property is null.
-  Future<void> load({required String password}) async {
+  Future<void> load({required String password, bool legacyMode = false}) async {
     if (_source != null) {
       if (_source!.isValid) {
         _accounts.clear();
         _tagsUsed.clear();
-        final List<Account> list = await LocalDatabase.getAccountsFromString(await _source!.loadData(password: password));
+        final List<Account> list = await LocalDatabase.getAccountsFromString(await _source!.loadData(password: password, legacyMode: legacyMode));
         _addAllAccounts(list);
       }
     } else {
