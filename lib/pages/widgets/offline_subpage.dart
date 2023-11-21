@@ -48,7 +48,7 @@ class OfflinePage extends StatelessWidget {
           await database.load(password: pw, legacyMode: settings.useLegacyAccessEnabled);
         } catch (e) {
           navigator.pop();
-          Guardian.callAccessFailed('Error during decryption');
+          Guardian.callAccessFailed('Wrong password');
         }
         navigator.pop();
 
@@ -130,7 +130,7 @@ class OfflinePage extends StatelessWidget {
           await database.load(password: pw, legacyMode: settings.useLegacyAccessEnabled);
         } catch (e) {
           navigator.pop();
-          Guardian.callAccessFailed('Error during decryption');
+          Guardian.callAccessFailed('Wrong password');
         }
         navigator.pop();
 
@@ -272,6 +272,7 @@ class OfflinePage extends StatelessWidget {
                   onPressed: () => _openLast(context),
                   child: Text(
                     'Open last: ${settings.lastOpenedPath}',
+                    textAlign: TextAlign.center,
                     style: TextStyle(
                       overflow: Theme.of(context).textTheme.bodySmall!.overflow,
                     ),

@@ -38,6 +38,7 @@ class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
 
     try {
       // Mobile version always returns the cached version of picked file
+      Notify.showLoading(context: context);
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         lockParentWindow: true,
         dialogTitle: 'Select your save file',
@@ -75,7 +76,6 @@ class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
       }
 
       if (!context.mounted) return;
-      Notify.showLoading(context: context);
       try {
         await cacheFile.copy(file.path);
         await FilePicker.platform.clearTemporaryFiles();
@@ -87,6 +87,7 @@ class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
       navigator.pop(file);
     } catch (e) {
       await FilePicker.platform.clearTemporaryFiles();
+      navigator.pop();
       if (!context.mounted) return;
       Notify.dialog(
         context: context,

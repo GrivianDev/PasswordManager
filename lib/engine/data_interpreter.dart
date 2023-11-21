@@ -21,7 +21,9 @@ class DataFormatInterpreter {
     final Key legacyKey = Key(CryptograhicService.sha256(utf8.encode(password)), null);
     final Key key = CryptograhicService.createAES256Key(password: password);
 
-    final Uint8List presumedData = _encryption.decrypt(cipher: base64.decode(data), key: legacyKey, iv: IV.allZero(_encryption.blockLength));
+    final Uint8List cipher = CryptograhicService.expand(base64.decode(data), _encryption.blockLength);
+
+    final Uint8List presumedData = _encryption.decrypt(cipher: cipher, key: legacyKey, iv: IV.allZero(_encryption.blockLength));
 
     return InterpretionResult(key, utf8.decode(presumedData, allowMalformed: true));
   }

@@ -113,6 +113,7 @@ class _PasswordGetterPageState extends State<PasswordGetterPage> {
                     children: [
                       Text(
                         widget.path ?? '',
+                        textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                       const SizedBox(
