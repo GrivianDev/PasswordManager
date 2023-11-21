@@ -92,8 +92,8 @@ class HelpPage extends StatelessWidget {
               children: [
                 TextSpan(
                   text:
-                      'The encryption technique used is AES-256, whereby the cryptographic key is generated through hashing the provided UTF-8 encoded password '
-                      'with the SHA-256 algorithm. Regarding the the cloud storage, access is exclusively permitted to this application through strict security rules.\n\n',
+                      'The encryption method employed is AES-256 CBC, where the cryptographic key is derived using PBKDF2 as the key derivation function, supplied with the UTF-8 encoded password. '
+                      'Initilisation vectors and salts are randomly generated for each encryption. Regarding the the cloud storage, access is exclusively permitted to this application through strict security rules.\n\n',
                 ),
                 TextSpan(
                   text: 'Is my data safe in the cloud storage?\n',
@@ -101,9 +101,9 @@ class HelpPage extends StatelessWidget {
                 ),
                 TextSpan(
                   text:
-                      'Certainly! The only elements stored include the chosen storage name, the encrypted data, and the additionally hashed value of '
-                      'the cryptographic key employed in the encryption process. The hash value serves exclusively to authenticate access to this '
-                      'storage. The hash itself is useless for decrypting the stored data.\n\n',
+                      'Certainly! Stored within are only the key components: the chosen storage name, encrypted data, HMAC verification code, salt, and the initialization vector (IV) used in encryption. '
+                      'Notably, the IV and salt, while not secret themselves, add complexity to deter brute force attacks and uilization of precomputed tables. '
+                      'The HMAC acts as a verification, confirming successful decryption—an operation efficiently managed only by the rightful owner of the secret password.\n\n',
                 ),
                 TextSpan(
                   text: 'Not convinced?\n',
