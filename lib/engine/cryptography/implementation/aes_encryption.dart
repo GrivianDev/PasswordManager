@@ -5,11 +5,12 @@ import 'package:pointycastle/block/modes/cbc.dart';
 import 'package:passwordmanager/engine/cryptography/datatypes.dart';
 import 'package:passwordmanager/engine/cryptography/encryption.dart';
 
-/// An implementation of the AES 256 bit encryption algorithm.
+/// An implementation of the AES 256 bit CBC encryption algorithm.
 /// Overrides the [encrypt] and [decrypt] method of the [Encryption] interface.
 final class AES256 implements Encryption {
 
-  /// Plain data is encrypted using a 256 bit key.
+  /// Plain data is encrypted using a 256 bit key. Requires an iv of length 16 and key of length 32.
+  /// Additionally, the datas length must be a multiple of 16.
   @override
   Uint8List encrypt({required Uint8List data, required Key key, required IV iv}) {
     if(key.length != keyLength) throw Exception('Expected key length for AES-256 is 32 bytes but got ${key.length} bytes');
@@ -27,7 +28,8 @@ final class AES256 implements Encryption {
     return cipher;
   }
 
-  /// Plain data is decrypted using a 256 bit key.
+  /// Plain data is decrypted using a 256 bit key. Requires an iv of length 16 and key of length 32.
+  /// Additionally, the datas length must be a multiple of 16.
   @override
   Uint8List decrypt({required Uint8List cipher, required Key key, required IV iv}) {
     if(key.length != keyLength) throw Exception('Expected key length for AES-256 is 32 bytes but got ${key.length} bytes');

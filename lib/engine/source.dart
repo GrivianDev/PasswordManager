@@ -10,7 +10,7 @@ import 'package:passwordmanager/engine/cryptography/datatypes.dart';
 
 /// Source object that models a dynamic source for the [LocalDatabase]. Supports
 /// synchronisation between local files or firebase cloud via the [FirebaseConnector] class.
-/// The exact source can be set in the constructor.
+/// The exact source can be set in the constructor. Uses the [DataFormatInterpreter] to extract data from a file or cloud storage.
 final class Source {
   final File? _sourceFile;
   final FirebaseConnector? _connector;
@@ -52,6 +52,8 @@ final class Source {
     return result.data;
   }
 
+  /// Write a random encrypted value to that source. That way an initial verifcation code is set.
+  /// If creating a cloud storage then the [cloudDocName] parameter must be set.
   Future<void> initialiseNewSource({required String password, String? cloudDocName}) async {
     final InterpretionResult result = await foundation.compute((message) {
       final Key key = CryptograhicService.createAES256Key(password: message[0]);
@@ -82,6 +84,7 @@ final class Source {
     _unsavedChanges = false;
   }
 
+  /// Creates a formatted data string that can be persistet.
   Future<String> getFormattedData(String data) async {
     final InterpretionResult result = await foundation.compute((message) {
       final DataFormatInterpreter dataFormatInterpreter = DataFormatInterpreter(AES256());

@@ -85,10 +85,11 @@ final class FirebaseConnector {
     }
   }
 
-  /// Checks if there is a storage present inside the cloud with the specified name. Return true if it exists, false otherwise.
+  /// Set the active document for manipulation.
   /// Cases this method throws exceptions:
   /// * Permission is denied
   /// * Internet connection is missing
+  /// * Document does not exist
   Future<void> setActiveDocument(String name) async {
     try {
       await login();

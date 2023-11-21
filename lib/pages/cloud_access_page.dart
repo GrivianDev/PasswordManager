@@ -82,8 +82,8 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
       }
     } catch (e) {
       database.clear(notify: false);
-      if (!context.mounted) return;
       navigator.pop();
+      if (!context.mounted) return;
       Notify.dialog(
         context: context,
         type: NotificationType.error,

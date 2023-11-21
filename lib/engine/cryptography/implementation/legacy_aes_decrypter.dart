@@ -4,8 +4,11 @@ import 'package:passwordmanager/engine/cryptography/datatypes.dart';
 import 'package:passwordmanager/engine/cryptography/encryption.dart';
 import 'package:pointycastle/block/modes/sic.dart';
 
+/// AES-256 SIC/CTR implementation of just the [Encryption.decrypt] method.
+/// Considerably more unsave with reaccuring ivs and than CBC.
 class LegacyAES256Decrypter implements Encryption {
 
+  @Deprecated('Use AES256 class instead for encryption')
   @override
   Uint8List encrypt({required Uint8List data, required Key key, required IV iv}) {
     throw UnsupportedError('Do not encrypt via this method');

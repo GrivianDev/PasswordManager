@@ -7,6 +7,8 @@ String base16Encode(final Uint8List input) => base16.encode(input);
 
 Uint8List base16Decode(final String encoded) => base16.decode(encoded);
 
+/// Codec for creating a string representation of bytes in hex format
+/// or reinterpreting the string value.
 class Base16Codec extends Codec<Uint8List, String>{
   const Base16Codec();
 
