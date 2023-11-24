@@ -5,50 +5,75 @@ import 'package:passwordmanager/engine/local_database.dart';
 import 'package:passwordmanager/pages/widgets/list_element.dart';
 
 /// The ListView displaying all [Account] instances based on the tag and order in the alphabet.
-/// "Relativly" expensive because changes need to call the [_buildTagTile] everytime the database adds,
+/// "Relativly" expensive because changes need to call the [_buildTiles] everytime the database adds,
 /// edits or removes accounts.
 class AccountListView extends StatelessWidget {
   //Needs to be not const. Otherwise [_builTagTile] will not be called as needed.
-  AccountListView({Key? key}) : super(key: key);
+  AccountListView({Key? key, this.searchTag, this.searchQuery}) : super(key: key);
+  String? searchTag;
+  String? searchQuery;
 
-  List<Widget> _buildTagTile(BuildContext context, String tag) {
-    List<Account> accountsOfTag = context.read<LocalDatabase>().getAccountsWithTag(tag);
-    List<Widget> children = List.of(accountsOfTag.isNotEmpty
-        ? [
-            Row(
-              children: [
-                const Expanded(child: Divider(thickness: 1.5)),
-                Expanded(
-                  child: Text(
-                    tag,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.displayMedium,
-                  ),
-                ),
-                const Expanded(child: Divider(thickness: 1.5)),
-              ],
-            ),
-          ]
-        : []);
-    for (Account acc in accountsOfTag) {
-      children.add(ListElement(account: acc));
+  /// Builds Widget tiles based on search cirteria.
+  List<Widget> _buildTiles(BuildContext context) {
+    if (searchQuery == null && searchTag == null) {
+      searchQuery = '';
     }
-    return children;
+
+    final LocalDatabase database = LocalDatabase();
+    final Iterable<String> tags = searchQuery != null ? database.tags : database.tags.where((element) => element.contains(searchTag!));
+    final List<Widget> result = [];
+
+    for (String tag in tags) {
+      List<Account> accounts = database.getAccountsWithTag(tag);
+      if (searchQuery != null) {
+        if (searchQuery!.isNotEmpty) {
+          accounts = accounts
+              .where((element) =>
+                  element.name.toLowerCase().contains(searchQuery!) |
+                  element.info.toLowerCase().contains(searchQuery!) |
+                  element.email.toLowerCase().contains(searchQuery!))
+              .toList();
+        }
+      }
+
+      if (accounts.isNotEmpty) {
+        result.add(
+          Row(children: [
+            const Expanded(child: Divider(thickness: 1.5)),
+            Expanded(
+              child: Text(
+                tag,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.displayMedium,
+              ),
+            ),
+            const Expanded(child: Divider(thickness: 1.5)),
+          ]),
+        );
+        result.addAll(accounts.map((acc) => ListElement(account: acc)));
+      }
+    }
+
+    if (result.isEmpty) {
+      return [
+        const Center(
+          child: Icon(
+            Icons.no_accounts,
+            size: 50.0,
+          ),
+        ),
+      ];
+    }
+
+    return result;
   }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<LocalDatabase>(
-      builder: (context, database, child) => ListView.builder(
-        itemCount: database.tags.length,
-        itemBuilder: (context, index) => ListView(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          children: _buildTagTile(
-            context,
-            database.tags.elementAt(index),
-          ),
-        ),
+      builder: (context, database, child) => ListView(
+        shrinkWrap: true,
+        children: _buildTiles(context),
       ),
     );
   }

@@ -4,7 +4,6 @@ import 'package:passwordmanager/engine/local_database.dart';
 import 'package:passwordmanager/engine/persistence.dart';
 import 'package:passwordmanager/engine/source.dart';
 import 'package:passwordmanager/engine/account.dart';
-import 'package:passwordmanager/pages/widgets/list_element.dart';
 import 'package:passwordmanager/pages/widgets/account_list_view.dart';
 import 'package:passwordmanager/pages/widgets/navbar.dart';
 import 'package:passwordmanager/pages/editing_page.dart';
@@ -15,80 +14,31 @@ import 'package:passwordmanager/pages/other/notifications.dart';
 /// * An [AccountListView] to display all accounts in a scrollable way.
 /// * Button for saving changes (Only on windows).
 /// * Button for adding a new [Account] (Only on windows).
-
-class ManagePage extends StatelessWidget {
+class ManagePage extends StatefulWidget {
   const ManagePage({Key? key}) : super(key: key);
+
+  @override
+  State<ManagePage> createState() => _ManagePageState();
+}
+
+class _ManagePageState extends State<ManagePage> {
+  String? searchQuery;
+  String? tagQuery;
 
   /// Case insensitive search for accounts. A widget is displayed with the found accounts.
   void _search(BuildContext context, String string) {
-    if (string.isEmpty) return;
-    string = string.toLowerCase();
-    final Iterable<Account> matches = LocalDatabase().accounts.where((element) =>
-        element.name.toLowerCase().contains(string) | element.info.toLowerCase().contains(string) | element.email.toLowerCase().contains(string));
-
-    Iterable<Widget> listElements = matches.map((acc) => ListElement(account: acc, isSearchResult: true));
-
-    final int count = listElements.length;
-    if (listElements.isEmpty) {
-      listElements = [
-        const Center(
-          child: Icon(
-            Icons.no_accounts,
-            size: 50.0,
-          ),
-        ),
-      ];
-    }
-
-    Notify.dialog(
-      context: context,
-      type: NotificationType.notification,
-      title: '$count result(s) for "$string":',
-      content: SizedBox(
-        width: double.maxFinite,
-        child: ListView(
-          shrinkWrap: true,
-          children: listElements.toList(),
-        ),
-      ),
-    );
+    setState(() {
+      searchQuery = string.isNotEmpty ? string.toLowerCase() : null;
+      tagQuery = null;
+    });
   }
 
   /// Case insensitive search for tags. A widget is displayed with the found accounts.
   void _searchTag(BuildContext context, String string) {
-    if (string.isEmpty) return;
-    final LocalDatabase database = LocalDatabase();
-    final Iterable<Account> matches = database.tags
-        .where((element) => element.contains(string))
-        .map((element) => database.getAccountsWithTag(element))
-        .expand((element) => element);
-
-    Iterable<Widget> listElements = matches.map((acc) => ListElement(account: acc, isSearchResult: true));
-
-    final int count = listElements.length;
-    if (listElements.isEmpty) {
-      listElements = [
-        const Center(
-          child: Icon(
-            Icons.no_accounts,
-            size: 50.0,
-          ),
-        ),
-      ];
-    }
-
-    Notify.dialog(
-      context: context,
-      type: NotificationType.notification,
-      title: '$count result(s) with tag "$string":',
-      content: SizedBox(
-        width: double.maxFinite,
-        child: ListView(
-          shrinkWrap: true,
-          children: listElements.toList(),
-        ),
-      ),
-    );
+    setState(() {
+      tagQuery = string.isNotEmpty ? string : null;
+      searchQuery = null;
+    });
   }
 
   /// Asynchronous method to save the fact that changes happened.
@@ -181,10 +131,11 @@ class ManagePage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(right: 20.0),
               child: Builder(
-                builder: (context) => IconButton(
-                  icon: const Icon(Icons.more_vert),
-                  onPressed: () => Scaffold.of(context).openEndDrawer(),
-                ),
+                builder: (context) =>
+                    IconButton(
+                      icon: const Icon(Icons.more_vert),
+                      onPressed: () => Scaffold.of(context).openEndDrawer(),
+                    ),
               ),
             ),
           ],
@@ -196,14 +147,16 @@ class ManagePage extends StatelessWidget {
             Icons.add,
             color: Colors.white,
           ),
-          onPressed: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const EditingPage(
-                title: 'Create account',
+          onPressed: () =>
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                  const EditingPage(
+                    title: 'Create account',
+                  ),
+                ),
               ),
-            ),
-          ),
         ),
         body: Container(
           decoration: BoxDecoration(
@@ -211,7 +164,10 @@ class ManagePage extends StatelessWidget {
               topLeft: Radius.circular(20.0),
               topRight: Radius.circular(20.0),
             ),
-            color: Theme.of(context).colorScheme.background,
+            color: Theme
+                .of(context)
+                .colorScheme
+                .background,
           ),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 85.0),
@@ -230,7 +186,8 @@ class ManagePage extends StatelessWidget {
                           ),
                         ),
                         Consumer<Settings>(
-                          builder: (context, settings, child) => settings.isAutoSaving
+                          builder: (context, settings, child) =>
+                          settings.isAutoSaving
                               ? Container()
                               : Padding(
                             padding: const EdgeInsets.only(left: 15.0),
@@ -243,14 +200,20 @@ class ManagePage extends StatelessWidget {
                                     Padding(
                                       padding: const EdgeInsets.only(right: 10.0),
                                       child: Icon(
-                                        context.read<Settings>().isOnlineModeEnabled ? Icons.sync : Icons.save,
+                                        context
+                                            .read<Settings>()
+                                            .isOnlineModeEnabled ? Icons.sync : Icons.save,
                                       ),
                                     ),
                                     Text(
                                       'Save',
                                       style: TextStyle(
                                         color: Colors.white,
-                                        fontSize: Theme.of(context).textTheme.displaySmall?.fontSize,
+                                        fontSize: Theme
+                                            .of(context)
+                                            .textTheme
+                                            .displaySmall
+                                            ?.fontSize,
                                       ),
                                     ),
                                   ],
@@ -265,7 +228,7 @@ class ManagePage extends StatelessWidget {
                 ),
                 Expanded(
                   flex: 4,
-                  child: AccountListView(),
+                  child: AccountListView(searchQuery: searchQuery, searchTag: tagQuery),
                 ),
               ],
             ),
@@ -408,13 +371,14 @@ class _CustomAutocompleteState extends State<_CustomAutocomplete> {
               onPressed: () => setState(() {
                 _active = !_active;
                 controller.clear();
+                _execute('');
               }),
               icon: Icon(_active ? Icons.sell : Icons.sell_outlined),
             ),
           ),
           hintText: _active ? 'Search tag' : 'Search',
         ),
-        onSubmitted: (string) => _execute(string),
+        onChanged: (string) => _execute(string),
       ),
     );
   }

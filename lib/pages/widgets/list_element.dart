@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/other/clipboard_timer.dart';
 import 'package:passwordmanager/pages/widgets/hoverbuilder.dart';
-import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/account.dart';
 import 'package:passwordmanager/engine/local_database.dart';
 import 'package:passwordmanager/engine/persistence.dart';
@@ -12,13 +12,11 @@ import 'package:passwordmanager/pages/account_display_page.dart';
 /// Hovewer, this widget also provides the option to copy the password of the stored account to the clipboard or delete the account.
 class ListElement extends StatelessWidget {
   // The _isSearchResult property states if an additional widget (the search result widget) needs to be popped in addition to the loading screen when saving.
-  const ListElement({Key? key, required Account account, bool isSearchResult = false})
+  const ListElement({Key? key, required Account account})
       : _account = account,
-        _isSearchResult = isSearchResult,
         super(key: key);
 
   final Account _account;
-  final bool _isSearchResult;
 
   /// Returns a preview of the email in the following format: testing@example.com => t...g@example.com, but only
   /// if there was a valid email fomatting criteria.
@@ -46,7 +44,6 @@ class ListElement extends StatelessWidget {
       await database.save();
     } catch (e) {
       navigator.pop();
-      if (_isSearchResult) navigator.pop();
       if (!context.mounted) return;
       Notify.dialog(
         context: context,
@@ -62,7 +59,6 @@ class ListElement extends StatelessWidget {
     }
     database.notifyAll();
     navigator.pop();
-    if (_isSearchResult) navigator.pop();
 
     scaffoldMessenger.showSnackBar(
       SnackBar(
@@ -130,7 +126,6 @@ class ListElement extends StatelessWidget {
           await _save(context);
         } else {
           database.source?.claimHasUnsavedChanges();
-          if (_isSearchResult) Navigator.pop(context);
           database.notifyAll();
         }
       },
@@ -203,7 +198,6 @@ class ListElement extends StatelessWidget {
             ],
           ),
           onPressed: () {
-            if (_isSearchResult) Navigator.pop(context);
             Navigator.push(
               context,
               MaterialPageRoute(

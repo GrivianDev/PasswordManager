@@ -69,9 +69,9 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
         if (exists) {
           throw Exception('Storage with the name "${_nameController.text}" already exists');
         }
-        await connector.setActiveDocument(_nameController.text);
         database.setSource(Source(connector: connector));
         await database.source!.initialiseNewSource(password: _pwController.text, cloudDocName: _nameController.text);
+        await connector.setActiveDocument(_nameController.text);
         await settings.setLastOpenedCloudDoc(_nameController.text);
         navigator.pop();
         navigator.push(
