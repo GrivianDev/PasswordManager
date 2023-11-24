@@ -8,7 +8,7 @@ import 'package:passwordmanager/pages/widgets/list_element.dart';
 /// "Relativly" expensive because changes need to call the [_buildTiles] everytime the database adds,
 /// edits or removes accounts.
 class AccountListView extends StatelessWidget {
-  //Needs to be not const. Otherwise [_builTagTile] will not be called as needed.
+  //Needs to be not const. Otherwise [_buildTiles] will not be called as needed.
   AccountListView({Key? key, this.searchTag, this.searchQuery}) : super(key: key);
   String? searchTag;
   String? searchQuery;
