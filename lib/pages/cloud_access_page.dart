@@ -93,7 +93,6 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
           style: Theme.of(context).textTheme.bodySmall,
         ),
       );
-      database.clear(notify: false);
     }
   }
 

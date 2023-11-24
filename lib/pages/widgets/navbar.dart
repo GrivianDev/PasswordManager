@@ -137,7 +137,6 @@ class NavBar extends StatelessWidget {
 
       if (path == null) return;
 
-      navigator.pop();
       File file = File(path);
       if (!file.path.endsWith('.x')) {
         throw Exception('File extension is not supported');
@@ -156,7 +155,7 @@ class NavBar extends StatelessWidget {
       if(error) throw Exception('Could not save backup');
 
       if (!context.mounted) return;
-      Notify.dialog(
+      await Notify.dialog(
         context: context,
         type: NotificationType.notification,
         title: 'Successfully saved backup',
@@ -165,9 +164,10 @@ class NavBar extends StatelessWidget {
           style: Theme.of(context).textTheme.bodySmall,
         ),
       );
+      navigator.pop();
     } catch (e) {
       if (!context.mounted) return;
-      Notify.dialog(
+      await Notify.dialog(
         context: context,
         type: NotificationType.error,
         title: 'Error occurred!',
@@ -176,6 +176,7 @@ class NavBar extends StatelessWidget {
           style: Theme.of(context).textTheme.bodySmall,
         ),
       );
+      navigator.pop();
     }
   }
 
