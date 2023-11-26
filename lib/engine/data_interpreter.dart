@@ -27,7 +27,7 @@ class DataFormatInterpreter {
     final Key legacyKey = Key(CryptograhicService.sha256(utf8.encode(password)));
     final Key key = CryptograhicService.createAES256Key(password: password);
 
-    final Uint8List cipher = CryptograhicService.expand(base64.decode(data), _encryption.blockLength);
+    final Uint8List cipher = CryptograhicService.expand(base64.decode(data), _encryption.blockLength, max: 0x00);
 
     final Uint8List presumedData = _encryption.decrypt(cipher: cipher, key: legacyKey, iv: IV.allZero(_encryption.blockLength));
 
@@ -58,7 +58,7 @@ class DataFormatInterpreter {
 
   /// Fits given data in simple format. Values that are formatted are the cipher, hmac, iv and salt values.
   InterpretionResult createFormattedDataWithKey(String data, Key key) {
-    final Uint8List rawData = CryptograhicService.expand(utf8.encode(data), _encryption.blockLength);
+    final Uint8List rawData = CryptograhicService.expand(utf8.encode(data), _encryption.blockLength, min: 8, max: 8);
     final Uint8List newHMac = CryptograhicService.verificationCodeFrom(key, rawData);
     final IV iv = IV.fromLength(_encryption.blockLength);
     final Uint8List cipher = _encryption.encrypt(data: rawData, key: key, iv: iv);

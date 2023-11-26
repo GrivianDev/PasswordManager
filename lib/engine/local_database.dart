@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:collection';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:passwordmanager/engine/account.dart';
 import 'package:passwordmanager/engine/source.dart';
 
@@ -24,13 +25,14 @@ final class LocalDatabase extends ChangeNotifier {
     List<Account> foundAccounts = await compute((message) {
       const String c = LocalDatabase.disallowedCharacter;
 
-      List<Account> accounts = List.empty(growable: true);
+      List<Account> accounts = [];
       RegExp regex = RegExp('\\$c([^\\$c]+\\$c){5}');
       Iterable<Match> matches = regex.allMatches(string);
       for (Match match in matches) {
         List<String>? parts = match.group(0)?.split(c);
         if (parts != null) {
           parts.retainWhere((element) => element.isNotEmpty);
+          print('Found: $parts');
           accounts.add(Account(tag: parts[0], name: parts[1], info: parts[2], email: parts[3], password: parts[4]));
         }
       }
