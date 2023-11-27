@@ -28,7 +28,7 @@ class Key {
 
   /// Creates a secure key of provided length based on the input passphrase. Might take a moment for generation.
   factory Key.createSecure(String passphrase, int length) {
-    final Uint8List salt = CryptograhicService.randomBytes(length);
+    final Uint8List salt = CryptographicService.randomBytes(length);
 
     final Uint8List key = _generateKey(passphrase, salt, length);
     return Key(key, salt);
@@ -53,7 +53,7 @@ class IV {
   factory IV.allZero(int length) => IV(Uint8List.fromList(List.filled(length, 0)));
 
   /// A randomly generated iv,
-  factory IV.fromLength(int length) => IV(CryptograhicService.randomBytes(length));
+  factory IV.fromLength(int length) => IV(CryptographicService.randomBytes(length));
 
   int get length => bytes.length;
 }

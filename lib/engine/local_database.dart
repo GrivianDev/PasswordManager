@@ -32,7 +32,6 @@ final class LocalDatabase extends ChangeNotifier {
         List<String>? parts = match.group(0)?.split(c);
         if (parts != null) {
           parts.retainWhere((element) => element.isNotEmpty);
-          print('Found: $parts');
           accounts.add(Account(tag: parts[0], name: parts[1], info: parts[2], email: parts[3], password: parts[4]));
         }
       }

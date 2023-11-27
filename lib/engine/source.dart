@@ -52,11 +52,11 @@ final class Source {
     return result.data;
   }
 
-  /// Write a random encrypted value to that source. That way an initial verifcation code is set.
+  /// Write a random encrypted value to that source. That way an initial verification code is set.
   /// If creating a cloud storage then the [cloudDocName] parameter must be set.
   Future<void> initialiseNewSource({required String password, String? cloudDocName}) async {
     final InterpretionResult result = await foundation.compute((message) {
-      final Key key = CryptograhicService.createAES256Key(password: message[0]);
+      final Key key = CryptographicService.createAES256Key(password: message[0]);
       final DataFormatInterpreter dataFormatInterpreter = DataFormatInterpreter(AES256());
       return dataFormatInterpreter.createFormattedDataWithKey('', key);
     }, [password]);
@@ -84,7 +84,7 @@ final class Source {
     _unsavedChanges = false;
   }
 
-  /// Creates a formatted data string that can be persistet.
+  /// Creates a formatted data string that can be persisted.
   Future<String> getFormattedData(String data) async {
     final InterpretionResult result = await foundation.compute((message) {
       final DataFormatInterpreter dataFormatInterpreter = DataFormatInterpreter(AES256());

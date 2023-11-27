@@ -19,15 +19,15 @@ class DataFormatInterpreter {
   /// Constructor defining the encryption algorithm used for this instance.
   const DataFormatInterpreter(Encryption encryption) : _encryption = encryption;
 
-  /// Method for interpreting data before the 2.0.0 update, in order to maintain some backwards compatability.
+  /// Method for interpreting data before the 2.0.0 update, in order to maintain some backwards compatibility.
   /// Does not return the unsave key. Instead returns the safer version.
   /// Note: No create formatted data method is available for legacy mode since it is considerably more unsave.
   InterpretionResult legacyInterpretDataWithPassword(String data, String password) {
     if(data.contains(_delimiter)) throw Exception('Data is not in legacy format');
-    final Key legacyKey = Key(CryptograhicService.sha256(utf8.encode(password)));
-    final Key key = CryptograhicService.createAES256Key(password: password);
+    final Key legacyKey = Key(CryptographicService.sha256(utf8.encode(password)));
+    final Key key = CryptographicService.createAES256Key(password: password);
 
-    final Uint8List cipher = CryptograhicService.expand(base64.decode(data), _encryption.blockLength, max: 0x00);
+    final Uint8List cipher = CryptographicService.expand(base64.decode(data), _encryption.blockLength, max: 0x00);
 
     final Uint8List presumedData = _encryption.decrypt(cipher: cipher, key: legacyKey, iv: IV.allZero(_encryption.blockLength));
 
@@ -44,11 +44,11 @@ class DataFormatInterpreter {
 
     if(salt == null || hmac == null || iv == null || cipher == null) throw Exception('Missing propertys');
 
-    final Key key = CryptograhicService.recreateAES256Key(password: password, salt: base16.decode(salt));
+    final Key key = CryptographicService.recreateAES256Key(password: password, salt: base16.decode(salt));
 
     final Uint8List presumedData = _encryption.decrypt(cipher: base64.decode(cipher), key: key, iv: IV(base16.decode(iv)));
 
-    final String testHMac = base16.encode(CryptograhicService.verificationCodeFrom(key, presumedData));
+    final String testHMac = base16.encode(CryptographicService.verificationCodeFrom(key, presumedData));
 
     if(hmac == testHMac) {
       return InterpretionResult(key, utf8.decode(presumedData, allowMalformed: true));
@@ -58,8 +58,8 @@ class DataFormatInterpreter {
 
   /// Fits given data in simple format. Values that are formatted are the cipher, hmac, iv and salt values.
   InterpretionResult createFormattedDataWithKey(String data, Key key) {
-    final Uint8List rawData = CryptograhicService.expand(utf8.encode(data), _encryption.blockLength, min: 8, max: 8);
-    final Uint8List newHMac = CryptograhicService.verificationCodeFrom(key, rawData);
+    final Uint8List rawData = CryptographicService.expandWithValues(utf8.encode(data), _encryption.blockLength, 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890'.codeUnits);
+    final Uint8List newHMac = CryptographicService.verificationCodeFrom(key, rawData);
     final IV iv = IV.fromLength(_encryption.blockLength);
     final Uint8List cipher = _encryption.encrypt(data: rawData, key: key, iv: iv);
 
