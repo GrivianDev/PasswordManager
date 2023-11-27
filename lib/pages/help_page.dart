@@ -102,7 +102,7 @@ class HelpPage extends StatelessWidget {
                 TextSpan(
                   text:
                       'Certainly! Stored within are only the key components: the chosen storage name, encrypted data, HMAC verification code, salt, and the initialization vector (IV) used in encryption. '
-                      'Notably, the IV and salt, while not secret themselves, add complexity to deter brute force attacks and uilization of precomputed tables. '
+                      'Notably, the IV and salt, while not secret themselves, add complexity to deter brute force attacks and utilization of precomputed tables. '
                       'The HMAC acts as a verification, confirming successful decryption—an operation efficiently managed only by the rightful owner of the secret password.\n\n',
                 ),
                 TextSpan(

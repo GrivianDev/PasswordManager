@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/account.dart';
 import 'package:passwordmanager/engine/local_database.dart';
 import 'package:passwordmanager/pages/widgets/list_element.dart';
@@ -8,13 +7,14 @@ import 'package:passwordmanager/pages/widgets/list_element.dart';
 /// "Relativly" expensive because changes need to call the [_buildTiles] everytime the database adds,
 /// edits or removes accounts.
 class AccountListView extends StatelessWidget {
-  //Needs to be not const. Otherwise [_buildTiles] will not be called as needed.
-  AccountListView({Key? key, this.searchTag, this.searchQuery}) : super(key: key);
-  String? searchTag;
-  String? searchQuery;
+  const AccountListView({Key? key, this.searchTag, this.searchQuery}) : super(key: key);
+  final String? searchTag;
+  final String? searchQuery;
 
   /// Builds Widget tiles based on search cirteria.
   List<Widget> _buildTiles(BuildContext context) {
+    String? searchTag = this.searchTag;
+    String? searchQuery = this.searchQuery;
     if (searchQuery == null && searchTag == null) {
       searchQuery = '';
     }
@@ -26,12 +26,12 @@ class AccountListView extends StatelessWidget {
     for (String tag in tags) {
       List<Account> accounts = database.getAccountsWithTag(tag);
       if (searchQuery != null) {
-        if (searchQuery!.isNotEmpty) {
+        if (searchQuery.isNotEmpty) {
           accounts = accounts
               .where((element) =>
                   element.name.toLowerCase().contains(searchQuery!) |
-                  element.info.toLowerCase().contains(searchQuery!) |
-                  element.email.toLowerCase().contains(searchQuery!))
+                  element.info.toLowerCase().contains(searchQuery) |
+                  element.email.toLowerCase().contains(searchQuery))
               .toList();
         }
       }
@@ -70,11 +70,9 @@ class AccountListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<LocalDatabase>(
-      builder: (context, database, child) => ListView(
-        shrinkWrap: true,
-        children: _buildTiles(context),
-      ),
+    return ListView(
+      shrinkWrap: true,
+      children: _buildTiles(context),
     );
   }
 }

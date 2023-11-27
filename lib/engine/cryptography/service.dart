@@ -20,13 +20,15 @@ final class CryptographicService {
     }
   }
 
+  /// Appends randomly chosen bytes from given list to the initial list to match a multiple of the provided block size.
+  /// Useful for some cryptographic algorithms which need a specific block length as input.
   static Uint8List expandWithValues(Uint8List data, int blocksize, List<int> values) {
     final Random random = Random.secure();
     if(data.isEmpty) {
-      return Uint8List.fromList(List.generate(blocksize, (index) => values[random.nextInt(values.length)]));
+      return Uint8List.fromList(List.generate(blocksize, (index) => values[random.nextInt(values.length)] & 0xff));
     } else {
       final int diff = (blocksize - (data.length % blocksize)) % blocksize;
-      final Uint8List filler = Uint8List.fromList(List.generate(diff, (index) => values[random.nextInt(values.length)]));
+      final Uint8List filler = Uint8List.fromList(List.generate(diff, (index) => values[random.nextInt(values.length)] & 0xff));
       return Uint8List.fromList([...data, ...filler]);
     }
   }

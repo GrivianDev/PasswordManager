@@ -228,7 +228,9 @@ class _ManagePageState extends State<ManagePage> {
                 ),
                 Expanded(
                   flex: 4,
-                  child: AccountListView(searchQuery: searchQuery, searchTag: tagQuery),
+                  child: Consumer<LocalDatabase>(
+                    builder: (context, database, child) => AccountListView(searchQuery: searchQuery, searchTag: tagQuery),
+                  ),
                 ),
               ],
             ),
