@@ -48,7 +48,10 @@ class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
         allowMultiple: false,
       );
 
-      if (result == null) return;
+      if (result == null) {
+        navigator.pop();
+        return;
+      }
 
       final File cacheFile = File(result.files.single.path ?? '');
       final File file = File('${widget._dir.path}${Platform.pathSeparator}${cacheFile.path.split(Platform.pathSeparator).last}');

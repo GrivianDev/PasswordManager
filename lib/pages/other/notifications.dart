@@ -13,12 +13,15 @@ enum NotificationType {
 final class Notify {
   /// Lays a non dismissible loading widget above the current page.
   /// Needs to be popped manually in the following code.
-  static void showLoading({required BuildContext context}) {
-    showDialog(
+  static Future<void> showLoading({required BuildContext context}) async {
+    await showDialog(
       barrierDismissible: false,
       context: context,
-      builder: (context) => const Center(
-        child: CircularProgressIndicator(),
+      builder: (context) => const PopScope(
+        canPop: false,
+        child: Center(
+          child: CircularProgressIndicator(),
+        ),
       ),
     );
   }
