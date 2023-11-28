@@ -57,7 +57,7 @@ class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
         throw Exception('File extension is not supported');
       }
 
-      if (file.existsSync()) {
+      if (await file.exists()) {
         bool? allow;
         if (!context.mounted) return;
         await Notify.dialog(
