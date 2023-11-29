@@ -57,10 +57,11 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
           }
           await settings.setLastOpenedCloudDoc(_nameController.text);
           navigator.pop();
-          navigator.push(
+          navigator.pushAndRemoveUntil(
             MaterialPageRoute(
               builder: (context) => const ManagePage(),
             ),
+            (route) => false,
           );
         });
       } else {
@@ -74,10 +75,11 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
         await connector.setActiveDocument(_nameController.text);
         await settings.setLastOpenedCloudDoc(_nameController.text);
         navigator.pop();
-        navigator.push(
+        navigator.pushAndRemoveUntil(
           MaterialPageRoute(
             builder: (context) => const ManagePage(),
           ),
+          (route) => false,
         );
       }
     } catch (e) {

@@ -52,10 +52,11 @@ class OfflinePage extends StatelessWidget {
         }
         navigator.pop();
 
-        navigator.push(
+        navigator.pushAndRemoveUntil(
           MaterialPageRoute(
             builder: (context) => const ManagePage(),
           ),
+          (route) => false,
         );
       });
     } catch (e) {
@@ -135,10 +136,11 @@ class OfflinePage extends StatelessWidget {
         navigator.pop();
 
         settings.setLastOpenedPath(file.path);
-        navigator.push(
+        navigator.pushAndRemoveUntil(
           MaterialPageRoute(
             builder: (context) => const ManagePage(),
           ),
+          (route) => false,
         );
       });
     } catch (e) {
@@ -214,10 +216,11 @@ class OfflinePage extends StatelessWidget {
       navigator.pop();
 
       settings.setLastOpenedPath(file.path);
-      navigator.push(
+      navigator.pushAndRemoveUntil(
         MaterialPageRoute(
           builder: (context) => const ManagePage(),
         ),
+        (route) => false,
       );
     } catch (e) {
       database.clear(notify: false);
