@@ -5,6 +5,8 @@ import 'package:pointycastle/api.dart';
 import 'package:pointycastle/macs/hmac.dart';
 
 class TOTPSecret {
+  static const List<String> allowedAlgorithms = ['SHA-1', 'SHA-256', 'SHA-512'];
+
   String issuer;
   String accountName;
   String secret; // base32 encoded
@@ -19,7 +21,47 @@ class TOTPSecret {
     this.algorithm = 'SHA-1',
     this.period = 30,
     this.digits = 6
-  });
+  }) {
+    if (!TOTPSecret.allowedAlgorithms.contains(algorithm)) {
+      throw ArgumentError(
+          'Unsupported algorithm: $algorithm. Must be one of: ${TOTPSecret.allowedAlgorithms.join(', ')}.');
+    }
+  }
+
+  factory TOTPSecret.fromUri(String uriString) {
+    final uri = Uri.parse(uriString);
+
+    if (uri.scheme != 'otpauth' || uri.host != 'totp') {
+      throw const FormatException('Invalid URI: must start with otpauth://totp/');
+    }
+
+    // Extract label: expected to be issuer:accountName
+    final label = uri.pathSegments.isNotEmpty ? uri.pathSegments[0] : '';
+    final decodedLabel = Uri.decodeComponent(label);
+    final parts = decodedLabel.split(':');
+
+    if (parts.length != 2) {
+      throw const FormatException('Invalid label format: expected issuer:accountName');
+    }
+
+    final issuerFromLabel = parts[0];
+    final accountName = parts[1];
+
+    final query = uri.queryParameters;
+    final secret = query['secret'];
+    if (secret == null) {
+      throw const FormatException('Missing "secret" in URI query');
+    }
+
+    return TOTPSecret(
+      issuer: query['issuer'] ?? issuerFromLabel,
+      accountName: accountName,
+      secret: secret,
+      algorithm: query['algorithm'] ?? 'SHA-1',
+      digits: int.tryParse(query['digits'] ?? '6') ?? 6,
+      period: int.tryParse(query['period'] ?? '30') ?? 30
+    );
+  }
 
   factory TOTPSecret.fromJson(Map<String, dynamic> json) {
     return TOTPSecret(
@@ -61,6 +103,28 @@ class TOTPSecret {
       'period': period,
       'digits': digits
     };
+  }
+
+  String getAuthUrl() {
+    final String encodedIssuer = Uri.encodeComponent(issuer);
+    final String encodedAccount = Uri.encodeComponent(accountName);
+
+    final String normalizedAlgorithm = algorithm.toUpperCase().replaceAll('-', '');
+
+    final uri = Uri(
+      scheme: 'otpauth',
+      host: 'totp',
+      path: '$encodedIssuer:$encodedAccount',
+      queryParameters: {
+        'secret': secret,
+        'issuer': issuer,
+        'algorithm': normalizedAlgorithm,
+        'digits': digits.toString(),
+        'period': period.toString(),
+      },
+    );
+
+    return uri.toString();
   }
 
   /// Returns a format that is human readable.
