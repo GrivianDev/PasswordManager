@@ -53,11 +53,28 @@ class TOTPSecret {
       throw const FormatException('Missing "secret" in URI query');
     }
 
+    /// Helper to map api specific string to flutter like equivalent
+    String mapAlgorithm(String? alg) {
+      switch (alg?.toUpperCase()) {
+        case 'SHA1':
+        case 'SHA-1':
+          return 'SHA1';
+        case 'SHA256':
+        case 'SHA-256':
+          return 'SHA256';
+        case 'SHA512':
+        case 'SHA-512':
+          return 'SHA512';
+        default:
+          return 'SHA1'; // default
+      }
+    }
+
     return TOTPSecret(
       issuer: query['issuer'] ?? issuerFromLabel,
       accountName: accountName,
       secret: secret,
-      algorithm: query['algorithm'] ?? 'SHA-1',
+      algorithm: mapAlgorithm(query['algorithm']),
       digits: int.tryParse(query['digits'] ?? '6') ?? 6,
       period: int.tryParse(query['period'] ?? '30') ?? 30
     );
@@ -109,6 +126,7 @@ class TOTPSecret {
     final String encodedIssuer = Uri.encodeComponent(issuer);
     final String encodedAccount = Uri.encodeComponent(accountName);
 
+    // APIs expect SHA1, SHA256 or SHA512 instead of the flutter like SHA-1, ...
     final String normalizedAlgorithm = algorithm.toUpperCase().replaceAll('-', '');
 
     final uri = Uri(
