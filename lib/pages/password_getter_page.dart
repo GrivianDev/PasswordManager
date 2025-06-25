@@ -18,16 +18,16 @@ class PasswordGetterPage extends StatefulWidget {
 class _PasswordGetterPageState extends State<PasswordGetterPage> {
   late bool _isObscured;
   late bool _canSubmit;
+  late double _rating;
   late TextEditingController _pwController;
 
   /// Building method for a small indicator on how strong the users password is.
   Column _buildPasswordStrengthIndictator(BuildContext context) {
-    final double rating = SafetyAnalyser().rateSafety(password: _pwController.text);
     String text = 'Weak';
-    if (rating > 0.5) {
+    if (_rating > 0.5) {
       text = 'Decent';
     }
-    if (rating > 0.85) {
+    if (_rating > 0.85) {
       text = 'Strong';
     }
     return Column(
@@ -45,11 +45,18 @@ class _PasswordGetterPageState extends State<PasswordGetterPage> {
               SizedBox(
                 width: 120.0,
                 height: 20.0,
-                child: LinearProgressIndicator(
-                  color: Theme.of(context).colorScheme.primary,
-                  backgroundColor: Theme.of(context).primaryColor,
-                  value: rating,
-                  borderRadius: BorderRadius.circular(10.0),
+                child: TweenAnimationBuilder<double>(
+                  tween: Tween<double>(begin: 0.0, end: _rating),
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  builder: (context, value, child) {
+                    return LinearProgressIndicator(
+                      value: value,
+                      color: Theme.of(context).colorScheme.primary,
+                      backgroundColor: Theme.of(context).primaryColor,
+                      borderRadius: BorderRadius.circular(10.0),
+                    );
+                  },
                 ),
               ),
               Flexible(
@@ -76,6 +83,7 @@ class _PasswordGetterPageState extends State<PasswordGetterPage> {
   void initState() {
     _isObscured = true;
     _canSubmit = false;
+    _rating = 0.0;
     _pwController = TextEditingController();
     super.initState();
   }
@@ -142,9 +150,13 @@ class _PasswordGetterPageState extends State<PasswordGetterPage> {
                             ),
                           ),
                         ),
-                        onChanged: (string) => setState(() {
-                          _canSubmit = _pwController.text.isNotEmpty;
-                        }),
+                        onChanged: (string) {
+                          final double newRating = SafetyAnalyser().rateSafety(password: _pwController.text);
+                          setState(() {
+                            _canSubmit = _pwController.text.isNotEmpty;
+                            _rating = newRating;
+                          });
+                        },
                         onSubmitted: (string) => _canSubmit ? Navigator.pop(context, string) : null,
                       ),
                       if (widget.showIndicator) _buildPasswordStrengthIndictator(context),
