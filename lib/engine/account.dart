@@ -1,52 +1,59 @@
-import 'package:passwordmanager/engine/local_database.dart';
+import 'package:passwordmanager/engine/two_factor_token.dart';
 
 /// Core class that holds information about an account.
 /// Implements the [Comparable] interface. The natural order of
 /// instances is the lowercase alphabetical order.
 final class Account implements Comparable<Account> {
-  static const String _noEntry = 'none';
-
   static int _idCounter = 0;
   final int id;
 
-  late String _tag;
+  String tag; // Required for sorting
+  String? name;
+  String? info;
+  String? email;
+  String? password;
+  TOTPSecret? twoFactorSecret;
 
-  late String _name;
-  late String _info;
-  late String _email;
-  late String _password;
+  Account({required this.tag,
+      this.name,
+      this.info,
+      this.email,
+      this.password,
+      this.twoFactorSecret
+  }) : id = ++_idCounter;
 
-  Account({String? tag, String? name, String? info, String? email, String? password}) : id = ++_idCounter {
-    setTag = tag;
-    setName = name;
-    setInfo = info;
-    setEmail = email;
-    setPassword = password;
+  factory Account.fromJson(Map<String, dynamic> json) {
+    return Account(
+      tag: json['tag'] as String,
+      name: json['name'] as String?,
+      info: json['info'] as String?,
+      email: json['email'] as String?,
+      password: json['password'] as String?,
+      twoFactorSecret: json['twoFactorSecret'] != null
+          ? TOTPSecret.fromJson(json['twoFactorSecret'])
+          : null,
+    );
   }
-
-  String get tag => _tag;
-  String get name => _name;
-  String get info => _info;
-  String get email => _email;
-  String get password => _password;
-
-  set setTag(String? string) => _tag = _nullSaveValue(string);
-  set setName(String? string) => _name = _nullSaveValue(string);
-  set setInfo(String? string) => _info = _nullSaveValue(string);
-  set setEmail(String? string) => _email = _nullSaveValue(string);
-  set setPassword(String? string) => _password = _nullSaveValue(string);
-
-  String _nullSaveValue(String? string) => (string ??= Account._noEntry).isEmpty ? Account._noEntry : string;
 
   @override
   int compareTo(Account other) {
-    return name.toLowerCase().compareTo(other.name.toLowerCase());
+    return tag.toLowerCase().compareTo(other.tag.toLowerCase());
   }
 
-  /// Returns a format that can be easily read from a string with a RegEx.
+  Map<String, dynamic> toJson() {
+    return {
+      'tag': tag,
+      'name': name,
+      'info': info,
+      'email': email,
+      'password': password,
+      'twoFactorSecret': twoFactorSecret?.toJson()
+    };
+  }
+
+  /// Returns a format that is human readable.
   @override
   String toString() {
-    const String c = LocalDatabase.disallowedCharacter;
-    return '$c$tag$c$name$c$info$c$email$c$password$c';
+    return 'Account(tag=$tag, name=$name, info=$info, email=$email, password=$password), twoFactorSecret=$twoFactorSecret';
   }
 }
