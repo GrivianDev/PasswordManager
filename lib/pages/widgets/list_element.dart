@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:passwordmanager/engine/other/clipboard_timer.dart';
 import 'package:passwordmanager/pages/widgets/hoverbuilder.dart';
 import 'package:passwordmanager/engine/account.dart';
 import 'package:passwordmanager/engine/local_database.dart';
@@ -21,12 +21,12 @@ class ListElement extends StatelessWidget {
   /// Returns a preview of the email in the following format: testing@example.com => t...g@example.com, but only
   /// if there was a valid email fomatting criteria.
   String? _mailPreview() {
-    if (_account.email.contains('@')) {
-      String show = String.fromCharCode(_account.email.codeUnitAt(0));
+    if (_account.email?.contains('@') == true) {
+      String show = String.fromCharCode(_account.email!.codeUnitAt(0));
       show = '$show...';
-      int remainsIndex = _account.email.indexOf('@') - 1;
+      int remainsIndex = _account.email!.indexOf('@') - 1;
       if (remainsIndex < 0) return null;
-      return '$show${_account.email.substring(remainsIndex)}';
+      return '$show${_account.email!.substring(remainsIndex)}';
     }
     return null;
   }
@@ -87,9 +87,9 @@ class ListElement extends StatelessWidget {
     );
   }
 
-  /// Copies password for 30 seconds to the clipboard and clears it afterwards.
+  /// Copies password to the clipboard.
   Future<void> _copyClicked(BuildContext context) async {
-    await ClipboardTimer.timed(text: _account.password, duration: const Duration(seconds: 30));
+    await Clipboard.setData(ClipboardData(text: _account.password!));
 
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -159,7 +159,7 @@ class ListElement extends StatelessWidget {
                       child: Padding(
                         padding: EdgeInsets.only(top: Settings.isWindows ? 0.0 : 5.0),
                         child: Text(
-                          _account.name,
+                          _account.name ?? '<no-name>',
                           style: Theme.of(context).textTheme.displaySmall,
                         ),
                       ),

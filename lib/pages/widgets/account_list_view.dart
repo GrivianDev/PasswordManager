@@ -14,7 +14,7 @@ class AccountListView extends StatelessWidget {
   /// Builds Widget tiles based on search cirteria.
   List<Widget> _buildTiles(BuildContext context) {
     String? searchTag = this.searchTag;
-    String? searchQuery = this.searchQuery;
+    String? searchQuery = this.searchQuery?.toLowerCase();
     if (searchQuery == null && searchTag == null) {
       searchQuery = '';
     }
@@ -25,15 +25,13 @@ class AccountListView extends StatelessWidget {
 
     for (String tag in tags) {
       List<Account> accounts = database.getAccountsWithTag(tag);
-      if (searchQuery != null) {
-        if (searchQuery.isNotEmpty) {
-          accounts = accounts
-              .where((element) =>
-                  element.name.toLowerCase().contains(searchQuery!) |
-                  element.info.toLowerCase().contains(searchQuery) |
-                  element.email.toLowerCase().contains(searchQuery))
-              .toList();
-        }
+      if (searchQuery?.isNotEmpty == true) {
+        accounts = accounts
+            .where((element) =>
+                (element.name?.toLowerCase().contains(searchQuery!) ?? false) ||
+                (element.info?.toLowerCase().contains(searchQuery!) ?? false) ||
+                (element.email?.toLowerCase().contains(searchQuery!) ?? false))
+            .toList();
       }
 
       if (accounts.isNotEmpty) {

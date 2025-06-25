@@ -19,7 +19,7 @@ class AccountDisplay extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Consumer<LocalDatabase>(
-          builder: (context, database, child) => Text(_account.name),
+          builder: (context, database, child) => Text(_account.name ?? '<no-name>'),
         ),
       ),
       floatingActionButton: FloatingActionButton(
@@ -51,8 +51,8 @@ class AccountDisplay extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _SelectableDisplay(description: 'Tag:', text: _account.tag),
-                _SelectableDisplay(description: 'Info:', text: _account.info),
-                _SelectableDisplay(description: 'E-mail:', text: _account.email),
+                _SelectableDisplay(description: 'Info:', text: _account.info ?? ''),
+                _SelectableDisplay(description: 'E-mail:', text: _account.email ?? ''),
                 Padding(
                   padding: const EdgeInsets.only(left: 15, right: 15.0, top: 25.0),
                   child: Column(
@@ -67,7 +67,7 @@ class AccountDisplay extends StatelessWidget {
                         child: HoverBuilder(
                           builder: (isHovered) => isHovered
                               ? SelectableText(
-                                  _account.password,
+                                  _account.password ?? '',
                                   style: Theme.of(context).textTheme.bodySmall,
                                 )
                               : ImageFiltered(
@@ -76,7 +76,7 @@ class AccountDisplay extends StatelessWidget {
                                     sigmaY: 6.0,
                                   ),
                                   child: SelectableText(
-                                    _account.password,
+                                    _account.password ?? '',
                                     style: Theme.of(context).textTheme.bodySmall,
                                   ),
                                 ),

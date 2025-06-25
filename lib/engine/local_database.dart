@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 import 'dart:collection';
 import 'package:flutter/foundation.dart';
@@ -21,23 +22,43 @@ final class LocalDatabase extends ChangeNotifier {
   /// Static method to analyse a probably freshly decrypted [string] with a [RegExp].
   /// Returns a List of [Account] instances that were found in the text.
   static Future<List<Account>> getAccountsFromString(String string) async {
-    List<List<String>> foundAccounts = await compute((message) {
-      const String c = LocalDatabase.disallowedCharacter;
+    // List<List<String>> foundAccounts = await compute((message) {
+    //   const String c = LocalDatabase.disallowedCharacter;
+    //
+    //   List<List<String>> accounts = [];
+    //   RegExp regex = RegExp('\\$c([^\\$c]+\\$c){5}');
+    //   Iterable<Match> matches = regex.allMatches(string);
+    //   for (Match match in matches) {
+    //     List<String>? parts = match.group(0)?.split(c);
+    //     if (parts != null) {
+    //       parts.retainWhere((element) => element.isNotEmpty);
+    //       accounts.add(parts);
+    //     }
+    //   }
+    //   return accounts;
+    // }, string);
+    //
+    // return foundAccounts.map((parts) => Account(tag: parts[0], name: parts[1], info: parts[2], email: parts[3], password: parts[4])).toList();
 
-      List<List<String>> accounts = [];
-      RegExp regex = RegExp('\\$c([^\\$c]+\\$c){5}');
-      Iterable<Match> matches = regex.allMatches(string);
-      for (Match match in matches) {
-        List<String>? parts = match.group(0)?.split(c);
-        if (parts != null) {
-          parts.retainWhere((element) => element.isNotEmpty);
-          accounts.add(parts);
-        }
-      }
-      return accounts;
-    }, string);
+    final start = string.indexOf('{');
+    final end = string.lastIndexOf('}');
 
-    return foundAccounts.map((parts) => Account(tag: parts[0], name: parts[1], info: parts[2], email: parts[3], password: parts[4])).toList();
+    if (start == -1 || end == -1 || start > end) {
+      throw const FormatException('No valid JSON object found in input');
+    }
+
+    final jsonStr = string.substring(start, end + 1);
+
+    final Map<String, dynamic> decoded = jsonDecode(jsonStr);
+    final accountsJson = decoded['accounts'];
+
+    if (accountsJson is! List) {
+      throw const FormatException('Expected "accounts" to be a List');
+    }
+
+    return accountsJson
+        .map((e) => Account.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 
   /// Static method to generate a String based on the given [accounts] list.
@@ -49,19 +70,19 @@ final class LocalDatabase extends ChangeNotifier {
       const String chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
       Random rand = Random.secure();
       StringBuffer buffer = StringBuffer();
-      for (Account acc in accounts) {
-        int length = rand.nextInt(10) + 1;
-        for (int j = 0; j < length; j++) {
-          buffer.write(String.fromCharCode(chars.codeUnitAt(rand.nextInt(chars.length))));
-        }
-        buffer.write(acc.toString());
+      int length = rand.nextInt(10) + 1;
+      for (int j = 0; j < length; j++) {
+        buffer.write(String.fromCharCode(chars.codeUnitAt(rand.nextInt(chars.length))));
       }
-      for (int j = 0; j < 10; j++) {
+      buffer.write(jsonEncode({
+        "accounts": accounts.map((a) => a.toJson()).toList()
+      }));
+      length = rand.nextInt(10) + 1;
+      for (int j = 0; j < length; j++) {
         buffer.write(String.fromCharCode(chars.codeUnitAt(rand.nextInt(chars.length))));
       }
       return buffer.toString();
     }, accounts);
-
     return string;
   }
 

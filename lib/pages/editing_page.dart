@@ -96,31 +96,25 @@ class _EditingPageState extends State<EditingPage> {
   /// * Input contains no dissallowed characters.
   bool _confirmChanges() {
     final LocalDatabase dataBase = LocalDatabase();
-    bool valid = !_isInvalidInput();
     try {
-      if (valid) {
-        if (widget._account == null) {
-          dataBase.addAccount(
-            Account(
-              name: _nameController.text,
-              tag: _tagController.text,
-              info: _infoController.text,
-              email: _emailController.text,
-              password: _pwController.text,
-            ),
-          );
-        } else {
-          String oldTag = widget._account!.tag;
-          widget._account?.setName = _nameController.text;
-          widget._account?.setTag = _tagController.text;
-          widget._account?.setInfo = _infoController.text;
-          widget._account?.setEmail = _emailController.text;
-          widget._account?.setPassword = _pwController.text;
-          dataBase.callEditOf(oldTag, widget._account!);
-        }
+      if (widget._account == null) {
+        dataBase.addAccount(
+          Account(
+            name: _nameController.text.isEmpty ? null : _nameController.text,
+            tag: _tagController.text.isEmpty ? '<no-tag>' : _tagController.text,
+            info: _infoController.text.isEmpty ? null : _infoController.text,
+            email: _emailController.text.isEmpty ? null : _emailController.text,
+            password: _pwController.text.isEmpty ? null : _pwController.text,
+          ),
+        );
       } else {
-        throw Exception(
-            'Consider using a different character instead of ${LocalDatabase.disallowedCharacter}.\nThis chracter is used for formatting so try to avoid it.');
+        String oldTag = widget._account!.tag;
+        widget._account?.name = _nameController.text.isEmpty ? null : _nameController.text;
+        widget._account?.tag = _tagController.text.isEmpty ? '<no-tag>' : _tagController.text;
+        widget._account?.info = _infoController.text.isEmpty ? null : _infoController.text;
+        widget._account?.email = _emailController.text.isEmpty ? null : _emailController.text;
+        widget._account?.password = _pwController.text.isEmpty ? null : _pwController.text;
+        dataBase.callEditOf(oldTag, widget._account!);
       }
     } catch (e) {
       Notify.dialog(
@@ -135,17 +129,6 @@ class _EditingPageState extends State<EditingPage> {
       return false;
     }
     return true;
-  }
-
-  bool _isInvalidInput() {
-    if (_nameController.text.contains(LocalDatabase.disallowedCharacter) ||
-        _tagController.text.contains(LocalDatabase.disallowedCharacter) ||
-        _infoController.text.contains(LocalDatabase.disallowedCharacter) ||
-        _emailController.text.contains(LocalDatabase.disallowedCharacter) ||
-        _pwController.text.contains(LocalDatabase.disallowedCharacter)) {
-      return true;
-    }
-    return false;
   }
 
   @override

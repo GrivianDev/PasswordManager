@@ -286,11 +286,11 @@ class _CustomAutocompleteState extends State<_CustomAutocomplete> {
     if (!_active) {
       return database.accounts
           .where((element) =>
-              element.name.toLowerCase().contains(searchValue) |
-              element.info.toLowerCase().contains(searchValue) |
-              element.email.toLowerCase().contains(searchValue))
+              (element.name?.toLowerCase().contains(searchValue) ?? false) ||
+              (element.info?.toLowerCase().contains(searchValue) ?? false) ||
+              (element.email?.toLowerCase().contains(searchValue) ?? false))
           .take(10)
-          .map((e) => _TwoValueContainer(e.name, e.tag));
+          .map((e) => _TwoValueContainer(e.name ?? '<no-name>', e.tag));
     }
     return database.tags.where((e) => e.toLowerCase().contains(searchValue)).take(10).map((e) => _TwoValueContainer(e, ''));
   }
