@@ -41,14 +41,19 @@ final class Account implements Comparable<Account> {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'tag': tag,
-      'name': name,
-      'info': info,
-      'email': email,
-      'password': password,
-      'twoFactorSecret': twoFactorSecret?.toJson()
-    };
+    final Map<String, dynamic> data = {};
+
+    void add(String key, dynamic value) {
+      if (value != null) data[key] = value;
+    }
+
+    add('tag', tag);
+    add('name', name);
+    add('info', info);
+    add('email', email);
+    add('password', password);
+    add('twoFactorSecret', twoFactorSecret?.toJson());
+    return data;
   }
 
   /// Returns a format that is human readable.
