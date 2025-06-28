@@ -7,6 +7,7 @@ import 'package:passwordmanager/engine/cryptography/implementation/legacy_aes_de
 import 'package:passwordmanager/engine/cryptography/service.dart';
 import 'package:passwordmanager/engine/data_interpreter.dart';
 import 'package:passwordmanager/engine/cryptography/datatypes.dart';
+import 'package:passwordmanager/engine/local_database.dart';
 
 /// Source object that models a dynamic source for the [LocalDatabase]. Supports
 /// synchronisation between local files or firebase cloud via the [FirebaseConnector] class.
@@ -55,11 +56,13 @@ final class Source {
   /// Write a random encrypted value to that source. That way an initial verification code is set.
   /// If creating a cloud storage then the [cloudDocName] parameter must be set.
   Future<void> initialiseNewSource({required String password, String? cloudDocName}) async {
-    final InterpretionResult result = await foundation.compute((message) {
+    String initialEmptyAccountString = await LocalDatabase.generateStringFromAccounts([]);
+
+    final InterpretionResult result = await foundation.compute((message) async {
       final Key key = CryptographicService.createAES256Key(password: message[0]);
       final DataFormatInterpreter dataFormatInterpreter = DataFormatInterpreter(AES256());
-      return dataFormatInterpreter.createFormattedDataWithKey('', key);
-    }, [password]);
+      return dataFormatInterpreter.createFormattedDataWithKey(message[1], key);
+    }, [password, initialEmptyAccountString]);
     _key = result.key;
 
     if(_connector != null) {
