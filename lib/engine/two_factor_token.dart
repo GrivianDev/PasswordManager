@@ -25,8 +25,7 @@ class TOTPSecret {
       this.period = TOTPSecret.defaultPeriod,
       this.digits = TOTPSecret.defaultDigit}) {
     if (!TOTPSecret.allowedAlgorithms.contains(algorithm)) {
-      throw ArgumentError(
-          'Unsupported algorithm: $algorithm. Must be one of: ${TOTPSecret.allowedAlgorithms.join(', ')}.');
+      throw ArgumentError('Unsupported algorithm: $algorithm. Must be one of: ${TOTPSecret.allowedAlgorithms.join(', ')}.');
     }
     if (period < 0 || digits < 0) {
       throw ArgumentError('Unsupported negative values for period or digit.');
@@ -37,8 +36,7 @@ class TOTPSecret {
     final uri = Uri.parse(uriString);
 
     if (uri.scheme != 'otpauth' || uri.host != 'totp') {
-      throw const FormatException(
-          'Invalid URI: must start with otpauth://totp/');
+      throw const FormatException('Invalid URI: must start with otpauth://totp/');
     }
 
     // Extract label: expected to be issuer:accountName
@@ -47,8 +45,7 @@ class TOTPSecret {
     final parts = decodedLabel.split(':');
 
     if (parts.length != 2) {
-      throw const FormatException(
-          'Invalid label format: expected issuer:accountName');
+      throw const FormatException('Invalid label format: expected issuer:accountName');
     }
 
     final issuerFromLabel = parts[0];
@@ -79,12 +76,8 @@ class TOTPSecret {
         accountName: accountName,
         secret: secret,
         algorithm: mapAlgorithm(query['algorithm']),
-        period: int.tryParse(
-                query['period'] ?? TOTPSecret.defaultPeriod.toString()) ??
-            TOTPSecret.defaultPeriod,
-        digits: int.tryParse(
-                query['digits'] ?? TOTPSecret.defaultDigit.toString()) ??
-            TOTPSecret.defaultDigit);
+        period: int.tryParse(query['period'] ?? TOTPSecret.defaultPeriod.toString()) ?? TOTPSecret.defaultPeriod,
+        digits: int.tryParse(query['digits'] ?? TOTPSecret.defaultDigit.toString()) ?? TOTPSecret.defaultDigit);
   }
 
   factory TOTPSecret.fromJson(Map<String, dynamic> json) {
@@ -105,8 +98,7 @@ class TOTPSecret {
     final Uint8List decodedSecret = base32.decode(secret);
     final ByteData timeBytes = ByteData(8)..setInt64(0, counter, Endian.big);
 
-    final HMac hmac = HMac(Digest(algorithm), 64)
-      ..init(KeyParameter(decodedSecret));
+    final HMac hmac = HMac(Digest(algorithm), 64)..init(KeyParameter(decodedSecret));
     final Uint8List hash = hmac.process(timeBytes.buffer.asUint8List());
 
     final int offset = hash.last & 0xf;
@@ -135,8 +127,7 @@ class TOTPSecret {
     final String encodedAccount = Uri.encodeComponent(accountName);
 
     // APIs expect SHA1, SHA256 or SHA512 instead of the flutter like SHA-1, ...
-    final String normalizedAlgorithm =
-        algorithm.toUpperCase().replaceAll('-', '');
+    final String normalizedAlgorithm = algorithm.toUpperCase().replaceAll('-', '');
 
     final uri = Uri(
       scheme: 'otpauth',
