@@ -20,6 +20,7 @@ class AppThemeData {
       backgroundColor: Color.fromRGBO(46, 50, 51, 1),
       iconTheme: IconThemeData(
         color: Colors.white,
+        size: 25.0,
       ),
       titleTextStyle: TextStyle(
         fontSize: 25.0,
@@ -28,29 +29,47 @@ class AppThemeData {
         overflow: TextOverflow.ellipsis,
       ),
     ),
+    snackBarTheme: SnackBarThemeData(
+      backgroundColor: Colors.blue,
+      contentTextStyle: TextStyle(
+        color: Colors.white,
+        fontSize: 14,
+      )
+    ),
+    dialogTheme: DialogThemeData(
+      backgroundColor: Color.fromRGBO(77, 83, 84, 1),
+    ),
+    iconButtonTheme: IconButtonThemeData(
+      style: ButtonStyle(
+        iconSize: WidgetStatePropertyAll<double?>(20.0),
+      ),
+    ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
-        iconColor: MaterialStateProperty.all<Color>(Colors.white),
-        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+        iconSize: WidgetStatePropertyAll<double?>(20.0),
+        foregroundColor: const WidgetStatePropertyAll<Color>(Colors.white),
+        backgroundColor: const WidgetStatePropertyAll<Color>(Colors.blue),
+        iconColor: const WidgetStatePropertyAll<Color>(Colors.white),
+        shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(25.0),
           ),
         ),
       ),
     ),
-    textButtonTheme: TextButtonThemeData(
+    textButtonTheme: const TextButtonThemeData(
       style: ButtonStyle(
-        textStyle: MaterialStateProperty.all<TextStyle>(
-          const TextStyle(
+        iconSize: WidgetStatePropertyAll<double?>(20.0),
+        textStyle: WidgetStatePropertyAll<TextStyle>(
+          TextStyle(
             fontSize: 20.0,
             fontWeight: FontWeight.w500,
             color: Colors.white,
             overflow: TextOverflow.ellipsis,
           ),
         ),
-        foregroundColor: MaterialStateProperty.all<Color>(Colors.blue),
-        iconColor: MaterialStateProperty.all<Color>(Colors.blue),
+        foregroundColor: WidgetStatePropertyAll<Color>(Colors.blue),
+        iconColor: WidgetStatePropertyAll<Color>(Colors.blue),
       ),
     ),
     expansionTileTheme: const ExpansionTileThemeData(
@@ -121,9 +140,9 @@ class AppThemeData {
         borderSide: const BorderSide(width: 2, color: Colors.blue),
       ),
     ),
-    switchTheme: SwitchThemeData(
-      thumbColor: MaterialStateProperty.all<Color>(Colors.blue),
-      trackColor: MaterialStateProperty.all<Color>(Colors.blueGrey),
+    switchTheme: const SwitchThemeData(
+      thumbColor: WidgetStatePropertyAll<Color>(Colors.blue),
+      trackColor: WidgetStatePropertyAll<Color>(Colors.blueGrey),
     ),
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
       backgroundColor: Colors.blue,
@@ -131,9 +150,9 @@ class AppThemeData {
     iconTheme: const IconThemeData(
       color: Colors.white,
     ),
-    checkboxTheme: CheckboxThemeData(
-      fillColor: MaterialStateProperty.all<Color>(Colors.blue),
-      checkColor: MaterialStateProperty.all<Color>(Colors.white),
+    checkboxTheme: const CheckboxThemeData(
+      fillColor: WidgetStatePropertyAll<Color>(Colors.blue),
+      checkColor: WidgetStatePropertyAll<Color>(Colors.white),
     ),
   );
 
@@ -154,6 +173,7 @@ class AppThemeData {
       backgroundColor: Color.fromRGBO(225, 225, 225, 1),
       iconTheme: IconThemeData(
         color: Colors.black,
+        size: 25.0,
       ),
       titleTextStyle: TextStyle(
         fontSize: 25.0,
@@ -162,29 +182,47 @@ class AppThemeData {
         overflow: TextOverflow.ellipsis,
       ),
     ),
+    snackBarTheme: SnackBarThemeData(
+        backgroundColor: Color.fromRGBO(20, 75, 200, 1),
+        contentTextStyle: TextStyle(
+          color: Colors.white,
+          fontSize: 14,
+        ),
+    ),
+    dialogTheme: DialogThemeData(
+      backgroundColor: Colors.white,
+    ),
+    iconButtonTheme: IconButtonThemeData(
+      style: ButtonStyle(
+        iconSize: WidgetStatePropertyAll<double?>(20.0),
+      ),
+    ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all<Color>(const Color.fromRGBO(20, 75, 200, 1)),
-        iconColor: MaterialStateProperty.all<Color>(Colors.white),
-        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+        iconSize: WidgetStatePropertyAll<double?>(20.0),
+        foregroundColor: const WidgetStatePropertyAll<Color>(Colors.white),
+        backgroundColor: const WidgetStatePropertyAll<Color>(Color.fromRGBO(20, 75, 200, 1)),
+        iconColor: const WidgetStatePropertyAll<Color>(Colors.white),
+        shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(25.0),
           ),
         ),
       ),
     ),
-    textButtonTheme: TextButtonThemeData(
+    textButtonTheme: const TextButtonThemeData(
       style: ButtonStyle(
-        textStyle: MaterialStateProperty.all<TextStyle>(
-          const TextStyle(
+        iconSize: WidgetStatePropertyAll<double?>(20.0),
+        textStyle: WidgetStatePropertyAll<TextStyle>(
+          TextStyle(
             fontSize: 20.0,
             fontWeight: FontWeight.w500,
             color: Colors.black,
             overflow: TextOverflow.ellipsis,
           ),
         ),
-        foregroundColor: MaterialStateProperty.all<Color>(const Color.fromRGBO(20, 75, 200, 1)),
-        iconColor: MaterialStateProperty.all<Color>(const Color.fromRGBO(20, 75, 200, 1)),
+        foregroundColor: WidgetStatePropertyAll<Color>(Color.fromRGBO(20, 75, 200, 1)),
+        iconColor: WidgetStatePropertyAll<Color>(Color.fromRGBO(20, 75, 200, 1)),
       ),
     ),
     expansionTileTheme: const ExpansionTileThemeData(
@@ -255,9 +293,9 @@ class AppThemeData {
         borderSide: const BorderSide(width: 2, color: Color.fromRGBO(20, 75, 200, 1)),
       ),
     ),
-    switchTheme: SwitchThemeData(
-      thumbColor: MaterialStateProperty.all<Color>(const Color.fromRGBO(20, 75, 200, 1)),
-      trackColor: MaterialStateProperty.all<Color>(Colors.black),
+    switchTheme: const SwitchThemeData(
+      thumbColor: WidgetStatePropertyAll<Color>(Color.fromRGBO(20, 75, 200, 1)),
+      trackColor: WidgetStatePropertyAll<Color>(Colors.black),
     ),
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
       backgroundColor: Color.fromRGBO(20, 75, 200, 1),
@@ -265,9 +303,9 @@ class AppThemeData {
     iconTheme: const IconThemeData(
       color: Colors.black,
     ),
-    checkboxTheme: CheckboxThemeData(
-      fillColor: MaterialStateProperty.all<Color>(const Color.fromRGBO(20, 75, 200, 1)),
-      checkColor: MaterialStateProperty.all<Color>(Colors.white),
+    checkboxTheme: const CheckboxThemeData(
+      fillColor: WidgetStatePropertyAll<Color>(Color.fromRGBO(20, 75, 200, 1)),
+      checkColor: WidgetStatePropertyAll<Color>(Colors.white),
     ),
   );
 }

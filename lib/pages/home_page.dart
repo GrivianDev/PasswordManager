@@ -18,7 +18,7 @@ import 'package:passwordmanager/pages/other/notifications.dart';
 /// * Online: Access storage data
 /// * Online: Create new storage
 class HomePage extends StatelessWidget {
-  const HomePage({Key? key, required this.title}) : super(key: key);
+  const HomePage({super.key, required this.title});
 
   final String title;
 

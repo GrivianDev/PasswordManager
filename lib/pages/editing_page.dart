@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:passwordmanager/pages/widgets/default_page_body.dart';
 import 'package:provider/provider.dart';
-import 'package:passwordmanager/engine/account.dart';
 import 'package:passwordmanager/engine/local_database.dart';
 import 'package:passwordmanager/engine/persistence.dart';
 import 'package:passwordmanager/engine/safety.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
+import 'package:passwordmanager/engine/account.dart';
 
 /// A Stateful widget that provides the option to edit account templates.
 /// Note: The EditingPage is used for creating AND editing [Account] instances despite it beeing named "EditingPage".
 class EditingPage extends StatefulWidget {
-  const EditingPage({Key? key, required this.title, Account? account})
-      : _account = account,
-        super(key: key);
+  const EditingPage({super.key, required this.title, Account? account}) : _account = account;
 
   final String title;
   final Account? _account;
@@ -45,7 +44,7 @@ class _EditingPageState extends State<EditingPage> {
         Notify.showLoading(context: context);
         await context.read<LocalDatabase>().save();
       } catch (e) {
-        if(!context.mounted) return;
+        if (!context.mounted) return;
         navigator.pop();
         Notify.dialog(
           context: context,
@@ -158,129 +157,110 @@ class _EditingPageState extends State<EditingPage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(20.0),
-            topRight: Radius.circular(20.0),
-          ),
-          color: Theme.of(context).colorScheme.background,
-        ),
-        child: LayoutBuilder(
-          builder: (context, constraints) => SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: constraints.maxHeight),
-              child: IntrinsicHeight(
-                  child: Padding(
-                padding: const EdgeInsets.all(25.0),
-                child: Column(
-                  children: [
-                    TextField(
-                      controller: _nameController,
-                      maxLength: 100,
-                      decoration: const InputDecoration(
-                        labelText: 'Name',
-                      ),
-                      onChanged: (string) => !_changes
-                          ? setState(() {
-                              _changes = true;
-                            })
-                          : null,
-                    ),
-                    const SizedBox(height: 10),
-                    TextField(
-                      controller: _tagController,
-                      maxLength: 100,
-                      decoration: const InputDecoration(
-                        labelText: 'Tag',
-                      ),
-                      onChanged: (string) => !_changes
-                          ? setState(() {
-                              _changes = true;
-                            })
-                          : null,
-                    ),
-                    const SizedBox(height: 10),
-                    TextField(
-                      maxLength: 600,
-                      controller: _infoController,
-                      maxLines: 10,
-                      decoration: const InputDecoration(
-                        labelText: 'Info',
-                      ),
-                      onChanged: (string) => !_changes
-                          ? setState(() {
-                              _changes = true;
-                            })
-                          : null,
-                    ),
-                    const SizedBox(height: 10),
-                    TextField(
-                      maxLength: 100,
-                      controller: _emailController,
-                      decoration: const InputDecoration(
-                        labelText: 'Email',
-                      ),
-                      onChanged: (string) => !_changes
-                          ? setState(() {
-                              _changes = true;
-                            })
-                          : null,
-                    ),
-                    const SizedBox(height: 10),
-                    TextField(
-                      maxLength: 100,
-                      controller: _pwController,
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        suffixIcon: Padding(
-                          padding: const EdgeInsets.only(right: 5.0),
-                          child: IconButton(
-                            onPressed: () {
-                              _pwController.text = SafetyAnalyser().generateSavePassword(context.read<Settings>());
-                              setState(() {
-                                _changes = true;
-                              });
-                            },
-                            icon: const Icon(Icons.refresh),
-                          ),
-                        ),
-                      ),
-                      onChanged: (string) => !_changes
-                          ? setState(() {
-                              _changes = true;
-                            })
-                          : null,
-                    ),
-                    const SizedBox(height: 10),
-                    const Spacer(),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: ElevatedButton(
-                        style: ButtonStyle(
-                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25.0),
-                            ),
-                          ),
-                          backgroundColor: MaterialStateProperty.all<Color>(_changes ? Theme.of(context).colorScheme.primary : Colors.blueGrey),
-                        ),
-                        onPressed: _changes ? _save : null,
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 25.0, vertical: 5.0),
-                          child: Icon(
-                            Icons.check,
-                            size: 40,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              )),
+      body: DefaultPageBody(
+        child: Column(
+          children: [
+            TextField(
+              controller: _nameController,
+              maxLength: 100,
+              decoration: const InputDecoration(
+                labelText: 'Name',
+              ),
+              onChanged: (string) => !_changes
+                  ? setState(() {
+                      _changes = true;
+                    })
+                  : null,
             ),
-          ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: _tagController,
+              maxLength: 100,
+              decoration: const InputDecoration(
+                labelText: 'Tag',
+              ),
+              onChanged: (string) => !_changes
+                  ? setState(() {
+                      _changes = true;
+                    })
+                  : null,
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              maxLength: 600,
+              controller: _infoController,
+              maxLines: 10,
+              decoration: const InputDecoration(
+                labelText: 'Info',
+              ),
+              onChanged: (string) => !_changes
+                  ? setState(() {
+                      _changes = true;
+                    })
+                  : null,
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              maxLength: 100,
+              controller: _emailController,
+              decoration: const InputDecoration(
+                labelText: 'Email',
+              ),
+              onChanged: (string) => !_changes
+                  ? setState(() {
+                      _changes = true;
+                    })
+                  : null,
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              maxLength: 100,
+              controller: _pwController,
+              decoration: InputDecoration(
+                labelText: 'Password',
+                suffixIcon: Padding(
+                  padding: const EdgeInsets.only(right: 5.0),
+                  child: IconButton(
+                    onPressed: () {
+                      _pwController.text = SafetyAnalyser().generateSavePassword(context.read<Settings>());
+                      setState(() {
+                        _changes = true;
+                      });
+                    },
+                    icon: const Icon(Icons.refresh),
+                  ),
+                ),
+              ),
+              onChanged: (string) => !_changes
+                  ? setState(() {
+                      _changes = true;
+                    })
+                  : null,
+            ),
+            const SizedBox(height: 10),
+            Align(
+              alignment: Alignment.centerRight,
+              child: ElevatedButton(
+                style: ButtonStyle(
+                  shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25.0),
+                    ),
+                  ),
+                  backgroundColor: WidgetStatePropertyAll<Color>(_changes ? Theme.of(context).colorScheme.primary : Colors.blueGrey),
+                ),
+                onPressed: _changes ? _save : null,
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 25.0, vertical: 5.0),
+                  child: Icon(
+                    Icons.check,
+                    size: 40,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

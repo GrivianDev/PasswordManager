@@ -51,7 +51,7 @@ final class Notify {
 }
 
 class _CustomDialog extends StatelessWidget {
-  const _CustomDialog({Key? key, required this.type, this.title, this.content, this.beforeReturn, this.onConfirm}) : super(key: key);
+  const _CustomDialog({super.key, required this.type, this.title, this.content, this.beforeReturn, this.onConfirm});
 
   final NotificationType type;
   final String? title;
@@ -109,7 +109,7 @@ class _CustomDialog extends StatelessWidget {
                 onPressed: onConfirm,
                 style: ButtonStyle(
                   backgroundColor:
-                      MaterialStateProperty.all<Color>(type == NotificationType.confirmDialog ? Theme.of(context).colorScheme.primary : Colors.red),
+                      WidgetStatePropertyAll<Color>(type == NotificationType.confirmDialog ? Theme.of(context).colorScheme.primary : Colors.red),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 10.0),

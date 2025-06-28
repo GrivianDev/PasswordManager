@@ -5,7 +5,7 @@ import 'package:passwordmanager/engine/reference.dart';
 
 /// Widget that represents a local file. Allows deletion and renaming of file.
 class FileWidget extends StatefulWidget {
-  const FileWidget({Key? key, required this.reference, required this.onClicked, required this.onDelete}) : super(key: key);
+  const FileWidget({super.key, required this.reference, required this.onClicked, required this.onDelete});
 
   final Reference<File> reference;
   final void Function(File) onClicked;

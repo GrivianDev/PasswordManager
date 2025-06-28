@@ -12,9 +12,7 @@ import 'package:passwordmanager/pages/account_display_page.dart';
 /// Hovewer, this widget also provides the option to copy the password of the stored account to the clipboard or delete the account.
 class ListElement extends StatelessWidget {
   // The _isSearchResult property states if an additional widget (the search result widget) needs to be popped in addition to the loading screen when saving.
-  const ListElement({Key? key, required Account account})
-      : _account = account,
-        super(key: key);
+  const ListElement({super.key, required Account account}) : _account = account;
 
   final Account _account;
 
@@ -36,7 +34,6 @@ class ListElement extends StatelessWidget {
   Future<void> _save(BuildContext context) async {
     final NavigatorState navigator = Navigator.of(context);
     final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
-    final Color backgroundColor = Theme.of(context).colorScheme.primary;
     final LocalDatabase database = LocalDatabase();
 
     try {
@@ -63,16 +60,9 @@ class ListElement extends StatelessWidget {
     scaffoldMessenger.showSnackBar(
       SnackBar(
         duration: const Duration(milliseconds: 1500),
-        backgroundColor: backgroundColor,
         content: const Row(
           children: [
-            Text(
-              'Saved changes',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 13,
-              ),
-            ),
+            Text('Saved changes'),
             Padding(
               padding: EdgeInsets.only(left: 5.0),
               child: Icon(
@@ -96,13 +86,7 @@ class ListElement extends StatelessWidget {
       SnackBar(
         duration: const Duration(seconds: 2),
         backgroundColor: Theme.of(context).colorScheme.primary,
-        content: Text(
-          'Copied password of "${_account.name}" to clipboard',
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 13,
-          ),
-        ),
+        content: Text('Copied password of "${_account.name}" to clipboard'),
       ),
     );
   }
@@ -142,12 +126,12 @@ class ListElement extends StatelessWidget {
             overlayColor: MaterialStateProperty.resolveWith<Color?>(
               (Set<MaterialState> states) => states.contains(MaterialState.hovered) ? Colors.blue : null,
             ),
-            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+            shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
               RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10.0),
               ),
             ),
-            backgroundColor: MaterialStateProperty.all<Color>(Theme.of(context).primaryColor),
+            backgroundColor: WidgetStatePropertyAll<Color>(Theme.of(context).primaryColor),
           ),
           child: Stack(
             children: [

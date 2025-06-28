@@ -4,7 +4,7 @@ import 'package:passwordmanager/engine/safety.dart';
 /// Widget that provides a password upon being popped. The user is asked to type in a password that
 /// the is used to encrypt data.
 class PasswordGetterPage extends StatefulWidget {
-  const PasswordGetterPage({Key? key, required this.path, required this.title, this.showIndicator = false}) : super(key: key);
+  const PasswordGetterPage({super.key, required this.path, required this.title, this.showIndicator = false});
 
   final String title;
   final String? path;

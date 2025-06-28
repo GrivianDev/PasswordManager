@@ -14,7 +14,7 @@ import 'package:passwordmanager/pages/manage_page.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 
 class OfflinePage extends StatelessWidget {
-  const OfflinePage({Key? key}) : super(key: key);
+  const OfflinePage({super.key});
 
   /// Tries to open the last save file through the [Settings.lastOpenedPath] property.
   /// Cases an error is thrown:
@@ -93,7 +93,6 @@ class OfflinePage extends StatelessWidget {
             lockParentWindow: true,
             dialogTitle: 'Select your save file',
             type: FileType.any,
-            allowCompression: false,
             //allowedExtensions: ['x'],
             allowMultiple: false,
           );
@@ -103,7 +102,7 @@ class OfflinePage extends StatelessWidget {
           }
         } else {
           final Directory? dir = await getExternalStorageDirectory();
-          if(dir == null) throw Exception('Could not receive storage directory');
+          if (dir == null) throw Exception('Could not receive storage directory');
           file = await navigator.push(MaterialPageRoute(builder: (context) => MobileFileSelectionPage(dir: dir)));
         }
 
@@ -177,7 +176,7 @@ class OfflinePage extends StatelessWidget {
         );
       } else {
         final Directory? dir = await getExternalStorageDirectory();
-        if(dir == null) throw Exception('Could not receive storage directory');
+        if (dir == null) throw Exception('Could not receive storage directory');
         path = dir.path;
       }
 
@@ -209,7 +208,7 @@ class OfflinePage extends StatelessWidget {
         if (!context.mounted) return;
         Notify.showLoading(context: context);
         await database.source!.initialiseNewSource(password: pw);
-      } catch(e) {
+      } catch (e) {
         navigator.pop();
         throw Exception('Could not initialise new file');
       }

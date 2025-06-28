@@ -7,7 +7,7 @@ import 'package:passwordmanager/pages/other/notifications.dart';
 
 /// Simplified navigation bar for the [HomePage]. The only options are to change the current theme and go online.
 class HomeNavBar extends StatelessWidget {
-  const HomeNavBar({Key? key}) : super(key: key);
+  const HomeNavBar({super.key});
 
   /// Logs in the app into the firebase cloud or does the logout logic.
   Future<void> _changeOnlineMode(BuildContext context, bool enabled) async {

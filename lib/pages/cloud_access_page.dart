@@ -12,7 +12,7 @@ import 'package:passwordmanager/engine/safety.dart';
 /// Page that is used to access firebase cloud via the [FirebaseConnector]. Can verify your access
 /// to a certain storage or create a new storage. Caches recently entered storage names.
 class CloudAccessPage extends StatefulWidget {
-  const CloudAccessPage({Key? key, required this.login}) : super(key: key);
+  const CloudAccessPage({super.key, required this.login});
 
   final bool login;
 
@@ -235,8 +235,8 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
                                     ),
                                   ),
                                   style: ButtonStyle(
-                                    textStyle: MaterialStateProperty.all<TextStyle?>(Theme.of(context).textTheme.displaySmall),
-                                    backgroundColor: MaterialStateProperty.all<Color?>(Theme.of(context).primaryColor),
+                                    textStyle: WidgetStatePropertyAll<TextStyle?>(Theme.of(context).textTheme.displaySmall),
+                                    backgroundColor: WidgetStatePropertyAll<Color?>(Theme.of(context).primaryColor),
                                   ),
                                 ),
                               )
@@ -244,8 +244,8 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
                           initialSelection: _suggestions.first,
                           controller: _nameController,
                           menuStyle: MenuStyle(
-                            elevation: MaterialStateProperty.all<double?>(5),
-                            shape: MaterialStateProperty.all<OutlinedBorder>(RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0))),
+                            elevation: WidgetStatePropertyAll<double?>(5),
+                            shape: WidgetStatePropertyAll<OutlinedBorder>(RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0))),
                           ),
                           label: const Text(
                             'Storage name',

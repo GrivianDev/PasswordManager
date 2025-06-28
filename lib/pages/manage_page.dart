@@ -15,7 +15,7 @@ import 'package:passwordmanager/pages/other/notifications.dart';
 /// * Button for saving changes (Only on windows).
 /// * Button for adding a new [Account] (Only on windows).
 class ManagePage extends StatefulWidget {
-  const ManagePage({Key? key}) : super(key: key);
+  const ManagePage({super.key});
 
   @override
   State<ManagePage> createState() => _ManagePageState();
@@ -47,7 +47,6 @@ class _ManagePageState extends State<ManagePage> {
   Future<void> _save(BuildContext context) async {
     final NavigatorState navigator = Navigator.of(context);
     final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
-    final Color backgroundColor = Theme.of(context).colorScheme.primary;
 
     try {
       Notify.showLoading(context: context);
@@ -71,16 +70,9 @@ class _ManagePageState extends State<ManagePage> {
     scaffoldMessenger.showSnackBar(
       SnackBar(
         duration: const Duration(milliseconds: 1500),
-        backgroundColor: backgroundColor,
         content: const Row(
           children: [
-            Text(
-              'Saved changes',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 13,
-              ),
-            ),
+            Text('Saved changes'),
             Padding(
               padding: EdgeInsets.only(left: 5.0),
               child: Icon(
@@ -131,11 +123,10 @@ class _ManagePageState extends State<ManagePage> {
             Padding(
               padding: const EdgeInsets.only(right: 20.0),
               child: Builder(
-                builder: (context) =>
-                    IconButton(
-                      icon: const Icon(Icons.more_vert),
-                      onPressed: () => Scaffold.of(context).openEndDrawer(),
-                    ),
+                builder: (context) => IconButton(
+                  icon: const Icon(Icons.more_vert),
+                  onPressed: () => Scaffold.of(context).openEndDrawer(),
+                ),
               ),
             ),
           ],
@@ -147,16 +138,14 @@ class _ManagePageState extends State<ManagePage> {
             Icons.add,
             color: Colors.white,
           ),
-          onPressed: () =>
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                  const EditingPage(
-                    title: 'Create account',
-                  ),
-                ),
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const EditingPage(
+                title: 'Create account',
               ),
+            ),
+          ),
         ),
         body: Container(
           decoration: BoxDecoration(
@@ -164,10 +153,7 @@ class _ManagePageState extends State<ManagePage> {
               topLeft: Radius.circular(20.0),
               topRight: Radius.circular(20.0),
             ),
-            color: Theme
-                .of(context)
-                .colorScheme
-                .background,
+            color: Theme.of(context).colorScheme.background,
           ),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 85.0),
@@ -186,41 +172,34 @@ class _ManagePageState extends State<ManagePage> {
                           ),
                         ),
                         Consumer<Settings>(
-                          builder: (context, settings, child) =>
-                          settings.isAutoSaving
+                          builder: (context, settings, child) => settings.isAutoSaving
                               ? Container()
                               : Padding(
-                            padding: const EdgeInsets.only(left: 15.0),
-                            child: ElevatedButton(
-                              onPressed: () => _save(context),
-                              child: Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: Row(
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(right: 10.0),
-                                      child: Icon(
-                                        context
-                                            .read<Settings>()
-                                            .isOnlineModeEnabled ? Icons.sync : Icons.save,
+                                  padding: const EdgeInsets.only(left: 15.0),
+                                  child: ElevatedButton(
+                                    onPressed: () => _save(context),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(12.0),
+                                      child: Row(
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.only(right: 10.0),
+                                            child: Icon(
+                                              context.read<Settings>().isOnlineModeEnabled ? Icons.sync : Icons.save,
+                                            ),
+                                          ),
+                                          Text(
+                                            'Save',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: Theme.of(context).textTheme.displaySmall?.fontSize,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    Text(
-                                      'Save',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: Theme
-                                            .of(context)
-                                            .textTheme
-                                            .displaySmall
-                                            ?.fontSize,
-                                      ),
-                                    ),
-                                  ],
+                                  ),
                                 ),
-                              ),
-                            ),
-                          ),
                         ),
                       ],
                     ),
@@ -252,10 +231,10 @@ class _TwoValueContainer<T> {
 
 class _CustomAutocomplete extends StatefulWidget {
   const _CustomAutocomplete({
-    Key? key,
+    super.key,
     required this.onSwitchTrueFunction,
     required this.onSwitchFalseFunction,
-  }) : super(key: key);
+  });
 
   final void Function(BuildContext context, String key) onSwitchTrueFunction;
   final void Function(BuildContext context, String key) onSwitchFalseFunction;
@@ -303,7 +282,7 @@ class _CustomAutocompleteState extends State<_CustomAutocomplete> {
         if (textEditingValue.text.isEmpty) return const Iterable<_TwoValueContainer<String>>.empty();
 
         final Iterable<_TwoValueContainer<String>> options = await _searchForOptions(textEditingValue.text);
-        if(_searchingWithQuery != textEditingValue.text) {
+        if (_searchingWithQuery != textEditingValue.text) {
           return _lastOptions; // throw away result if newer query is running
         }
         _lastOptions = options;

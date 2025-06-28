@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:passwordmanager/pages/widgets/default_page_body.dart';
 import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/persistence.dart';
 
 class SettingsPage extends StatelessWidget {
-  const SettingsPage({Key? key}) : super(key: key);
+  const SettingsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -13,17 +14,10 @@ class SettingsPage extends StatelessWidget {
           'Settings',
         ),
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(20.0),
-            topRight: Radius.circular(20.0),
-          ),
-          color: Theme.of(context).colorScheme.background,
-        ),
-        child: ListView(
-          padding: const EdgeInsets.all(20.0),
-          children: <Widget>[
+      body: DefaultPageBody(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             Row(
               children: [
                 // This doesn't need to actively watch the settings property because a theme change will trigger an automatic rebuild

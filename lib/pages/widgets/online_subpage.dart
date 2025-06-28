@@ -5,7 +5,7 @@ import 'package:passwordmanager/engine/persistence.dart';
 import 'package:passwordmanager/pages/cloud_access_page.dart';
 
 class OnlinePage extends StatelessWidget {
-  const OnlinePage({Key? key}) : super(key: key);
+  const OnlinePage({super.key});
 
   @override
   Widget build(BuildContext context) {

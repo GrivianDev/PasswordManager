@@ -6,7 +6,7 @@ import 'package:passwordmanager/pages/home_page.dart';
 
 /// Little animated Splashcreen that navigates to the [HomePage] automaticly after a few seconds.
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key}) : super(key: key);
+  const SplashScreen({super.key});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();

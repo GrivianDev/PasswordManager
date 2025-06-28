@@ -18,7 +18,7 @@ import 'package:passwordmanager/engine/local_database.dart';
 /// Additional option in offlinemode is to upload current data.
 /// Onlinemode also allows backup saves and deletion of cloud storage.
 class NavBar extends StatelessWidget {
-  const NavBar({Key? key}) : super(key: key);
+  const NavBar({super.key});
 
   /// Exits the [ManagePage] and completly wipes the database by calling [LocalDatabase.clear].
   void _exit(BuildContext context) {
