@@ -50,6 +50,12 @@ class AppThemeData {
         foregroundColor: const WidgetStatePropertyAll<Color>(Colors.white),
         backgroundColor: const WidgetStatePropertyAll<Color>(Colors.blue),
         iconColor: const WidgetStatePropertyAll<Color>(Colors.white),
+        overlayColor: WidgetStateProperty.resolveWith((Set<WidgetState> states) {
+          if (states.contains(WidgetState.pressed)) {
+            return Colors.blue.withAlpha(125);
+          }
+          return Colors.white.withAlpha(50);
+        }),
         shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(25.0),
@@ -203,6 +209,12 @@ class AppThemeData {
         foregroundColor: const WidgetStatePropertyAll<Color>(Colors.white),
         backgroundColor: const WidgetStatePropertyAll<Color>(Color.fromRGBO(20, 75, 200, 1)),
         iconColor: const WidgetStatePropertyAll<Color>(Colors.white),
+        overlayColor: WidgetStateProperty.resolveWith((Set<WidgetState> states) {
+          if (states.contains(WidgetState.pressed)) {
+            return Color.fromRGBO(20, 75, 200, 0.5);
+          }
+          return Colors.white.withAlpha(50);
+        }),
         shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(25.0),
