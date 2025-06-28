@@ -8,9 +8,7 @@ import 'package:passwordmanager/engine/reference.dart';
 /// Page that displays all available .x files in the apps directory on mobile.
 /// Also allows selection of external files.
 class MobileFileSelectionPage extends StatefulWidget {
-  const MobileFileSelectionPage({Key? key, required Directory dir})
-      : _dir = dir,
-        super(key: key);
+  const MobileFileSelectionPage({super.key, required Directory dir}) : _dir = dir;
 
   final Directory _dir;
 
@@ -43,7 +41,6 @@ class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
         lockParentWindow: true,
         dialogTitle: 'Select your save file',
         type: FileType.any,
-        allowCompression: false,
         //allowedExtensions: ['x'],
         allowMultiple: false,
       );
@@ -139,19 +136,36 @@ class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
                 future: _fileList,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.done) {
-                    return Expanded(
-                      child: ListView.separated(
-                        itemCount: snapshot.data!.length,
-                        itemBuilder: (context, index) => FileWidget(
-                          reference: snapshot.data!.elementAt(index),
-                          onClicked: (e) => Navigator.of(context).pop(e),
-                          onDelete: () => setState(() {
-                            _fileList = _receiveFuture();
-                          }),
+                    if (snapshot.data!.isEmpty) {
+                      return Expanded(
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.find_in_page_outlined,
+                                size: 50.0,
+                              ),
+                              Text('Seems like there are no files yet...', style: TextStyle(color: Colors.grey),)
+                            ],
+                          ),
                         ),
-                        separatorBuilder: (context, index) => const SizedBox(height: 15.0),
-                      ),
-                    );
+                      );
+                    } else {
+                      return Expanded(
+                        child: ListView.separated(
+                          itemCount: snapshot.data!.length,
+                          itemBuilder: (context, index) => FileWidget(
+                            reference: snapshot.data!.elementAt(index),
+                            onClicked: (e) => Navigator.of(context).pop(e),
+                            onDelete: () => setState(() {
+                              _fileList = _receiveFuture();
+                            }),
+                          ),
+                          separatorBuilder: (context, index) => const SizedBox(height: 15.0),
+                        ),
+                      );
+                    }
                   } else if (snapshot.hasError) {
                     return Expanded(
                       child: Center(
