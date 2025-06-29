@@ -7,7 +7,8 @@ import 'package:passwordmanager/engine/local_database.dart';
 import 'package:passwordmanager/engine/account.dart';
 import 'package:passwordmanager/pages/editing_page.dart';
 
-/// Simple widget for displaying all data of an [Account]. Can navigate to the [EditPage] for editing the displayed account (Only on windows).
+/// Simple widget for displaying all data of an [Account]. Can navigate to the [EditPage] for editing
+/// the displayed account or to [TwoFactorManagePage] to add / edit the 2FA setup.
 class AccountDisplay extends StatelessWidget {
   const AccountDisplay({super.key, required Account account, bool accessedThroughSearch = false}) : _account = account;
 
@@ -111,10 +112,12 @@ class AccountDisplay extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(_account.twoFactorSecret == null ? Icons.add_moderator_outlined : Icons.remove_red_eye),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 5.0),
-                            child: Text(
-                              _account.twoFactorSecret == null ? 'Add 2FA' : 'Show 2FA',
+                          Flexible(
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 10.0),
+                              child: Text(
+                                _account.twoFactorSecret == null ? 'Add 2FA' : 'Show 2FA',
+                              ),
                             ),
                           ),
                         ],

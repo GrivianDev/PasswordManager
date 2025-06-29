@@ -60,7 +60,7 @@ class TwoFactorManagePage extends StatelessWidget {
     );
   }
 
-  /// Displays a dialog to avoid accidentally deleting accounts. If autosaving is active
+  /// Displays a dialog to avoid accidentally deleting 2FA info. If autosaving is active
   /// then the [_save] method is called.
   Future<void> _deleteClicked(BuildContext context) async {
     await Notify.dialog(

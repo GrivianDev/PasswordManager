@@ -17,7 +17,7 @@ class _TwoFactorDisplaySubpageState extends State<TwoFactorDisplaySubpage> with 
   late AnimationController _animController;
   late String _currentCode;
 
-  // Copies password to the clipboard.
+  // Copies 2FA code to the clipboard.
   Future<void> _copyClicked(BuildContext context) async {
     await Clipboard.setData(ClipboardData(text: _currentCode));
 

@@ -123,9 +123,6 @@ class ListElement extends StatelessWidget {
       child: HoverBuilder(
         builder: (isHovered) => ElevatedButton(
           style: ButtonStyle(
-            overlayColor: MaterialStateProperty.resolveWith<Color?>(
-              (Set<MaterialState> states) => states.contains(MaterialState.hovered) ? Colors.blue : null,
-            ),
             shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
               RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10.0),

@@ -42,7 +42,7 @@ class _EditingPageState extends State<EditingPage> {
     if (success && context.read<Settings>().isAutoSaving) {
       try {
         Notify.showLoading(context: context);
-        await context.read<LocalDatabase>().save();
+        await database.save();
       } catch (e) {
         if (!context.mounted) return;
         navigator.pop();
@@ -65,13 +65,7 @@ class _EditingPageState extends State<EditingPage> {
           backgroundColor: backgroundColor,
           content: const Row(
             children: [
-              Text(
-                'Saved changes',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 13,
-                ),
-              ),
+              Text('Saved changes'),
               Padding(
                 padding: EdgeInsets.only(left: 5.0),
                 child: Icon(
@@ -242,11 +236,6 @@ class _EditingPageState extends State<EditingPage> {
               alignment: Alignment.centerRight,
               child: ElevatedButton(
                 style: ButtonStyle(
-                  shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25.0),
-                    ),
-                  ),
                   backgroundColor: WidgetStatePropertyAll<Color>(_changes ? Theme.of(context).colorScheme.primary : Colors.blueGrey),
                 ),
                 onPressed: _changes ? _save : null,
@@ -255,7 +244,6 @@ class _EditingPageState extends State<EditingPage> {
                   child: Icon(
                     Icons.check,
                     size: 40,
-                    color: Colors.white,
                   ),
                 ),
               ),

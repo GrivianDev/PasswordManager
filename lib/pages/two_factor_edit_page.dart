@@ -20,8 +20,6 @@ class TwoFactorEditPage extends StatefulWidget {
 }
 
 class _TwoFactorEditPageState extends State<TwoFactorEditPage> {
-  bool _changes = false;
-
   late final TextEditingController _secretController;
   late final TextEditingController _issuerController;
   late final TextEditingController _accountNameController;
@@ -29,11 +27,56 @@ class _TwoFactorEditPageState extends State<TwoFactorEditPage> {
   late final TextEditingController _digitController;
 
   late String _selectedAlgorithm;
+  bool _changes = false;
 
-  Future<void> _save() async {
+  /// Asynchronous method to persist changes.
+  /// Displays a snackbar if succeeded.
+  Future<void> _save(BuildContext context) async {
     final NavigatorState navigator = Navigator.of(context);
     final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
-    final Color backgroundColor = Theme.of(context).colorScheme.primary;
+
+    try {
+      Notify.showLoading(context: context);
+      await LocalDatabase().save();
+    } catch (e) {
+      navigator.pop();
+      if (!context.mounted) return;
+      Notify.dialog(
+        context: context,
+        type: NotificationType.error,
+        title: 'Could not save changes!',
+        content: Text(
+          e.toString(),
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+      );
+      return;
+    }
+    navigator.pop();
+
+    scaffoldMessenger.showSnackBar(
+      SnackBar(
+        duration: const Duration(milliseconds: 1500),
+        content: const Row(
+          children: [
+            Text('Saved changes'),
+            Padding(
+              padding: EdgeInsets.only(left: 5.0),
+              child: Icon(
+                Icons.sync,
+                size: 15,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _confirmClicked() async {
+    final NavigatorState navigator = Navigator.of(context);
+    final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
     final LocalDatabase database = LocalDatabase();
 
     try {
@@ -59,50 +102,7 @@ class _TwoFactorEditPageState extends State<TwoFactorEditPage> {
     }
 
     if (context.read<Settings>().isAutoSaving) {
-      try {
-        Notify.showLoading(context: context);
-        await database.save();
-      } catch (e) {
-        if (!context.mounted) return;
-        navigator.pop();
-        Notify.dialog(
-          context: context,
-          type: NotificationType.error,
-          title: 'Could not save changes!',
-          content: Text(
-            e.toString(),
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-        );
-        return;
-      }
-      navigator.pop();
-
-      scaffoldMessenger.showSnackBar(
-        SnackBar(
-          duration: const Duration(milliseconds: 1500),
-          backgroundColor: backgroundColor,
-          content: const Row(
-            children: [
-              Text(
-                'Saved changes',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 13,
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(left: 5.0),
-                child: Icon(
-                  Icons.sync,
-                  size: 15,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
+      await _save(context);
     } else {
       database.source?.claimHasUnsavedChanges();
     }
@@ -114,7 +114,7 @@ class _TwoFactorEditPageState extends State<TwoFactorEditPage> {
   void initState() {
     super.initState();
     final TOTPSecret? secret = widget.account.twoFactorSecret;
-    _accountNameController = TextEditingController(text: secret != null ? secret.accountName : widget.account.name ?? 'unnamed');
+    _accountNameController = TextEditingController(text: secret?.accountName ?? widget.account.name ?? 'unnamed');
     _secretController = TextEditingController(text: secret != null ? Base32InputFormatter.formatBase32(secret.secret) : '');
     _issuerController = TextEditingController(text: secret?.issuer ?? 'unnamed');
     _periodController = TextEditingController(text: secret?.period.toString() ?? TOTPSecret.defaultPeriod.toString());
@@ -147,7 +147,7 @@ class _TwoFactorEditPageState extends State<TwoFactorEditPage> {
               decoration: const InputDecoration(
                 labelText: 'Setup Key (Secret)',
               ),
-              onSubmitted: (_) => _save(),
+              onSubmitted: (_) => _confirmClicked(),
               onChanged: (string) {
                 setState(() {
                   _changes = true;
@@ -270,7 +270,7 @@ class _TwoFactorEditPageState extends State<TwoFactorEditPage> {
                   _changes && _secretController.text.isNotEmpty ? Theme.of(context).colorScheme.primary : Colors.blueGrey,
                 ),
               ),
-              onPressed: _changes && _secretController.text.isNotEmpty ? _save : null,
+              onPressed: _changes && _secretController.text.isNotEmpty ? _confirmClicked : null,
               child: const Padding(
                 padding: EdgeInsets.symmetric(vertical: 5.0),
                 child: Icon(Icons.check, size: 40),

@@ -8,7 +8,7 @@ import 'package:passwordmanager/pages/other/notifications.dart';
 /// Widget that is displayed when a user wants to upload his data from a local file to the firebase cloud.
 /// Only needs a name because the password should already be defined through an active local manage session.
 class UploadPage extends StatefulWidget {
-  const UploadPage({Key? key}) : super(key: key);
+  const UploadPage({super.key});
 
   @override
   State<UploadPage> createState() => _UploadPageState();

@@ -188,13 +188,7 @@ class _ManagePageState extends State<ManagePage> {
                                               context.read<Settings>().isOnlineModeEnabled ? Icons.sync : Icons.save,
                                             ),
                                           ),
-                                          Text(
-                                            'Save',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: Theme.of(context).textTheme.displaySmall?.fontSize,
-                                            ),
-                                          ),
+                                          Text('Save'),
                                         ],
                                       ),
                                     ),

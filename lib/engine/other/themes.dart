@@ -34,7 +34,7 @@ class AppThemeData {
       contentTextStyle: TextStyle(
         color: Colors.white,
         fontSize: 14,
-      )
+      ),
     ),
     dialogTheme: DialogThemeData(
       backgroundColor: Color.fromRGBO(77, 83, 84, 1),
@@ -56,6 +56,14 @@ class AppThemeData {
           }
           return Colors.blue.shade400;
         }),
+        textStyle: WidgetStatePropertyAll<TextStyle>(
+          TextStyle(
+            fontSize: 16.0,
+            fontWeight: FontWeight.w400,
+            color: Colors.white,
+            overflow: TextOverflow.clip,
+          ),
+        ),
         shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(25.0),
@@ -189,11 +197,11 @@ class AppThemeData {
       ),
     ),
     snackBarTheme: SnackBarThemeData(
-        backgroundColor: Color.fromRGBO(20, 75, 200, 1),
-        contentTextStyle: TextStyle(
-          color: Colors.white,
-          fontSize: 14,
-        ),
+      backgroundColor: Color.fromRGBO(20, 75, 200, 1),
+      contentTextStyle: TextStyle(
+        color: Colors.white,
+        fontSize: 14,
+      ),
     ),
     dialogTheme: DialogThemeData(
       backgroundColor: Colors.white,
@@ -215,6 +223,14 @@ class AppThemeData {
           }
           return Color.fromRGBO(40, 95, 220, 1);
         }),
+        textStyle: WidgetStatePropertyAll<TextStyle>(
+          TextStyle(
+            fontSize: 16.0,
+            fontWeight: FontWeight.w400,
+            color: Colors.white,
+            overflow: TextOverflow.clip,
+          ),
+        ),
         shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(25.0),

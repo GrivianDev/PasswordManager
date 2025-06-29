@@ -3,6 +3,10 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:passwordmanager/pages/widgets/corner_border.dart';
 import 'package:passwordmanager/pages/widgets/default_page_body.dart';
 
+/// Page for the view for QR-Code scanning, will return to previous page once a QR-Code has been scanned.
+/// Handle the QR-Code via the onScan function.
+/// * Flashlight can be enabled
+/// * Camera can be switched
 class QrScannerPage extends StatefulWidget {
   const QrScannerPage({super.key, required this.onScan});
 
@@ -13,9 +17,9 @@ class QrScannerPage extends StatefulWidget {
 }
 
 class _QrScannerPageState extends State<QrScannerPage> {
+  late final MobileScannerController _controller;
   bool _hasScanned = false;
   bool _torchEnabled = false;
-  late MobileScannerController _controller;
 
   void _handleScan(BarcodeCapture capture) {
     if (_hasScanned) return;

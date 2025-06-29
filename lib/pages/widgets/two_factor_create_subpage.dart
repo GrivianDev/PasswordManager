@@ -31,16 +31,18 @@ class TwoFactorCreateSubpage extends StatelessWidget {
                   ),
                 ),
               ),
-              child: const Padding(
+              child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 25.0, vertical: 10.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.qr_code_scanner),
-                    Padding(
-                      padding: EdgeInsets.only(left: 5.0),
-                      child: Text('Scan QR-Code'),
+                    Flexible(
+                      child: Padding(
+                        padding: EdgeInsets.only(left: 10.0),
+                        child: Text('Scan QR-Code'),
+                      ),
                     ),
                   ],
                 ),
@@ -57,16 +59,18 @@ class TwoFactorCreateSubpage extends StatelessWidget {
                 ),
               ),
             ),
-            child: const Padding(
+            child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 25.0, vertical: 10.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(Icons.keyboard_alt_outlined),
-                  Padding(
-                    padding: EdgeInsets.only(left: 5.0),
-                    child: Text('Enter setup key'),
+                  Flexible(
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 10.0),
+                      child: Text('Enter setup key'),
+                    ),
                   ),
                 ],
               ),
