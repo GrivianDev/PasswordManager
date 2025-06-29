@@ -52,9 +52,9 @@ class AppThemeData {
         iconColor: const WidgetStatePropertyAll<Color>(Colors.white),
         overlayColor: WidgetStateProperty.resolveWith((Set<WidgetState> states) {
           if (states.contains(WidgetState.pressed)) {
-            return Colors.blue.withAlpha(125);
+            return Colors.blue.shade600;
           }
-          return Colors.white.withAlpha(50);
+          return Colors.blue.shade400;
         }),
         shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
           RoundedRectangleBorder(
@@ -211,9 +211,9 @@ class AppThemeData {
         iconColor: const WidgetStatePropertyAll<Color>(Colors.white),
         overlayColor: WidgetStateProperty.resolveWith((Set<WidgetState> states) {
           if (states.contains(WidgetState.pressed)) {
-            return Color.fromRGBO(20, 75, 200, 0.5);
+            return Color.fromRGBO(0, 55, 180, 1);
           }
-          return Colors.white.withAlpha(50);
+          return Color.fromRGBO(40, 95, 220, 1);
         }),
         shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
           RoundedRectangleBorder(
