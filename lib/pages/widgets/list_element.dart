@@ -99,7 +99,9 @@ class ListElement extends StatelessWidget {
       title: 'Are you sure?',
       type: NotificationType.deleteDialog,
       content: Text(
-        'Are you sure that you want to delete all information about your "${_account.name}" account?\nAction can not be undone!',
+        'Are you sure that you want to delete all information about your '
+        '${(_account.name?.isNotEmpty ?? false) ? '"${_account.name}"' : 'unnamed'} account?\n'
+        'Action can not be undone!',
         style: Theme.of(context).textTheme.bodySmall,
       ),
       onConfirm: () async {
