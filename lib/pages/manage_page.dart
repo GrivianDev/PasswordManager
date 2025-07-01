@@ -98,7 +98,7 @@ class _ManagePageState extends State<ManagePage> {
       type: NotificationType.notification,
       title: 'Details ${settings.isOnlineModeEnabled ? '(Cloud storage)' : '(Local file)'}',
       content: Text(
-        'Name: "${source?.name ?? 'none'}"\nAccounts: ${database.accounts.length}/${LocalDatabase.maxCapacity}\nTags: ${database.tags.length}',
+        'Name: "${source?.name ?? 'none'}\nStorage version: ${database.source?.accessorVersion ?? 'Not specified'}\nAccounts: ${database.accounts.length}/${LocalDatabase.maxCapacity}\nTags: ${database.tags.length}',
         style: Theme.of(context).textTheme.bodySmall,
       ),
     );

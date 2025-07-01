@@ -1,12 +1,9 @@
 import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/foundation.dart' as foundation;
+import 'package:passwordmanager/engine/accessors/accessor.dart';
+import 'package:passwordmanager/engine/accessors/accessor_registry.dart';
 import 'package:passwordmanager/engine/cloud_connector.dart';
-import 'package:passwordmanager/engine/cryptography/implementation/aes_encryption.dart';
-import 'package:passwordmanager/engine/cryptography/implementation/legacy_aes_decrypter.dart';
-import 'package:passwordmanager/engine/cryptography/service.dart';
-import 'package:passwordmanager/engine/data_interpreter.dart';
-import 'package:passwordmanager/engine/cryptography/datatypes.dart';
 import 'package:passwordmanager/engine/local_database.dart';
 
 /// Source object that models a dynamic source for the [LocalDatabase]. Supports
@@ -15,7 +12,8 @@ import 'package:passwordmanager/engine/local_database.dart';
 final class Source {
   final File? _sourceFile;
   final FirebaseConnector? _connector;
-  Key? _key;
+  late final LocalDatabase dbRef;
+  DataAccessor? _accessor;
 
   bool _unsavedChanges = false;
 
@@ -30,6 +28,8 @@ final class Source {
 
   String? get name => _sourceFile != null ? _sourceFile!.path.split(Platform.pathSeparator).last : _connector!.name ?? 'none';
 
+  String? get accessorVersion => _accessor?.version;
+
   bool get isValid => _sourceFile != null ? _sourceFile!.existsSync() : _connector!.isLoggedIn;
 
   void invalidate() => _connector != null ? _connector!.invalidate() : {};
@@ -39,60 +39,67 @@ final class Source {
   void claimHasUnsavedChanges() => _unsavedChanges = true;
 
   /// Asynchronous method to load data from given file or firebase cloud.
-  Future<String> loadData({required String password, bool legacyMode = false}) async {
+  Future<void> loadData({required String password}) async {
     final String formattedData = _connector != null ? await _connector!.getData() : await _sourceFile!.readAsString(encoding: utf8);
-    final InterpretionResult result = await foundation.compute((message) {
-      final DataFormatInterpreter dataFormatInterpreter = DataFormatInterpreter(legacyMode ? LegacyAES256Decrypter() : AES256());
-      if(message[2] as bool) {
-        return dataFormatInterpreter.legacyInterpretDataWithPassword(message[0] as String, message[1] as String);
-      } else {
-        return dataFormatInterpreter.interpretDataWithPassword(message[0] as String, message[1] as String);
-      }
-    }, [formattedData, password, legacyMode]);
-    _key = result.key;
-    return result.data;
+    final Map<String, String> properties = Source.readProperties(formattedData);
+    final String vaultVersion = properties['version'] ?? 'v0';
+    _accessor = DataAccessorRegistry.create(vaultVersion); // Choose correct accessor
+
+    await _accessor!.loadAndDecrypt(dbRef, properties, password);
   }
 
   /// Write a random encrypted value to that source. That way an initial verification code is set.
   /// If creating a cloud storage then the [cloudDocName] parameter must be set.
   Future<void> initialiseNewSource({required String password, String? cloudDocName}) async {
-    String initialEmptyAccountString = await LocalDatabase.generateStringFromAccounts([]);
-
-    final InterpretionResult result = await foundation.compute((message) async {
-      final Key key = CryptographicService.createAES256Key(password: message[0]);
-      final DataFormatInterpreter dataFormatInterpreter = DataFormatInterpreter(AES256());
-      return dataFormatInterpreter.createFormattedDataWithKey(message[1], key);
-    }, [password, initialEmptyAccountString]);
-    _key = result.key;
+    _accessor = DataAccessorRegistry.create(DataAccessorRegistry.latestVersion); // Auto create new ones with newest version
+    final String formattedData = await _accessor!.encryptAndFormat(dbRef, password);
 
     if(_connector != null) {
       if(cloudDocName == null) throw Exception('"cloudDocName" parameter must be not null when initialising a cloud storage');
-      await _connector!.createDocument(name: cloudDocName, data: result.data);
+      await _connector!.createDocument(name: cloudDocName, data: formattedData);
     }
     if(_sourceFile != null) {
       if (_sourceFile!.existsSync()) await _sourceFile?.create(recursive: true);
-      await _sourceFile!.writeAsString(result.data, encoding: utf8);
+      await _sourceFile!.writeAsString(formattedData, encoding: utf8);
     }
   }
 
   /// Asynchronous method to save changes to a local file or the firebase cloud.
-  Future<void> saveData(String plainData) async {
+  Future<void> saveData() async {
+    final String formattedData = await getFormattedData();
+
     if (_connector != null) {
-      await _connector!.editDocument(newData: await getFormattedData(plainData));
+      await _connector!.editDocument(newData: formattedData);
     }
     if (_sourceFile != null) {
       if (_sourceFile!.existsSync()) await _sourceFile?.create(recursive: true);
-      await _sourceFile!.writeAsString(await getFormattedData(plainData), encoding: utf8);
+      await _sourceFile!.writeAsString(formattedData, encoding: utf8);
     }
     _unsavedChanges = false;
   }
 
-  /// Creates a formatted data string that can be persisted.
-  Future<String> getFormattedData(String data) async {
-    final InterpretionResult result = await foundation.compute((message) {
-      final DataFormatInterpreter dataFormatInterpreter = DataFormatInterpreter(AES256());
-      return dataFormatInterpreter.createFormattedDataWithKey(message[0] as String, message[1] as Key);
-    }, [data, _key]);
-    return result.data;
+  Future<String> getFormattedData() async {
+    return await _accessor!.encryptAndFormat(dbRef);
+  }
+
+  static Map<String, String> readProperties(String content) {
+    Map<String, String> properties = {};
+
+    int start = 0;
+    int end = content.indexOf(';', start);
+    while (end != -1) {
+      final int equalSignIndex = content.indexOf('=', start);
+      final String key = content.substring(start, equalSignIndex);
+      final String value = content.substring(equalSignIndex + 1, end);
+      if (key.isEmpty || value.isEmpty) {
+        throw Exception('Error parsing parameters');
+      }
+      properties[key] = value;
+
+      start = end + 1;
+      end = content.indexOf(';', start);
+    }
+
+    return properties;
   }
 }

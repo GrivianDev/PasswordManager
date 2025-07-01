@@ -1,8 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:ntp/ntp.dart';
 import 'package:passwordmanager/engine/two_factor_token.dart';
 import 'package:passwordmanager/pages/widgets/default_page_body.dart';
+import 'package:provider/provider.dart';
+import 'package:passwordmanager/engine/persistence.dart';
+import 'package:passwordmanager/pages/other/notifications.dart';
 
 class TwoFactorDisplaySubpage extends StatefulWidget {
   const TwoFactorDisplaySubpage({super.key, required this.twoFactorSecret});
@@ -16,6 +20,42 @@ class TwoFactorDisplaySubpage extends StatefulWidget {
 class _TwoFactorDisplaySubpageState extends State<TwoFactorDisplaySubpage> with SingleTickerProviderStateMixin {
   late AnimationController _animController;
   late String _currentCode;
+  Duration? _ntpOffset;
+  bool _ntpLoaded = false;
+
+  /// Synced time with fetched ntp offset. Falls back to normal local device time.
+  DateTime _getSyncedTime() {
+    final now = DateTime.now().toUtc();
+    return _ntpOffset != null ? now.subtract(_ntpOffset!) : now;
+  }
+
+  /// Async getter and setup function for fetching time offset of local device.
+  Future<void> _initWithNtp() async {
+    final settings = context.read<Settings>();
+    if (settings.ntpOffset == null) {
+      DateTime localDate = DateTime.now().toUtc();
+      try {
+        DateTime ntpDate = await NTP.now(timeout: Duration(seconds: 5));
+        settings.ntpOffset = localDate.difference(ntpDate.toUtc());
+      } catch (_) {
+        settings.ntpOffset = null;
+      }
+    }
+
+    _ntpOffset = settings.ntpOffset;
+
+    final DateTime now = _getSyncedTime();
+    final double currentProgress = (now.millisecondsSinceEpoch % 30000) / 30000;
+
+    // Initialize and start animation
+    _currentCode = widget.twoFactorSecret.generateTOTPCode(timestamp: now);
+    _animController.value = currentProgress;
+    _animController.forward();
+
+    setState(() {
+      _ntpLoaded = true;
+    });
+  }
 
   // Copies 2FA code to the clipboard.
   Future<void> _copyClicked(BuildContext context) async {
@@ -33,6 +73,7 @@ class _TwoFactorDisplaySubpageState extends State<TwoFactorDisplaySubpage> with 
   @override
   void initState() {
     super.initState();
+
     _animController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 30),
@@ -43,19 +84,13 @@ class _TwoFactorDisplaySubpageState extends State<TwoFactorDisplaySubpage> with 
     _animController.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         // Update code and restart animation
-        _currentCode = widget.twoFactorSecret.generateTOTPCode();
+        final DateTime now = _getSyncedTime();
+        _currentCode = widget.twoFactorSecret.generateTOTPCode(timestamp: DateTime.now().toUtc());
         _animController.forward(from: 0.0);
       }
     });
 
-    // Get current progress
-    final DateTime now = DateTime.now().toUtc();
-    final double currentProgress = (now.millisecondsSinceEpoch % 30000) / 30000;
-
-    // Initialize and start animation
-    _currentCode = widget.twoFactorSecret.generateTOTPCode();
-    _animController.value = currentProgress;
-    _animController.forward();
+    _initWithNtp();
   }
 
   @override
@@ -66,6 +101,10 @@ class _TwoFactorDisplaySubpageState extends State<TwoFactorDisplaySubpage> with 
 
   @override
   Widget build(BuildContext context) {
+    if (!_ntpLoaded) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return DefaultPageBody(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -95,6 +134,20 @@ class _TwoFactorDisplaySubpageState extends State<TwoFactorDisplaySubpage> with 
           ),
           const SizedBox(height: 15.0),
           Text("${((1.0 - _animController.value) * 30).ceil()}s remaining"),
+          if (_ntpOffset == null) ...[
+            const SizedBox(height: 15.0),
+            IconButton(
+              icon: const Icon(Icons.warning_amber, color: Colors.deepOrange, size: 30),
+              onPressed: () => Notify.dialog(
+                context: context,
+                type: NotificationType.error,
+                title: 'Caution: Using local device time.',
+                content: const Text(
+                  'This app was not able to perform time synchronization. As fallback, local device time is used for 2FA code generation, which can be inaccurate.',
+                ),
+              ),
+            )
+          ]
         ],
       ),
     );

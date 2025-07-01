@@ -1,5 +1,3 @@
-import 'dart:convert';
-import 'dart:math';
 import 'dart:collection';
 import 'package:flutter/foundation.dart';
 import 'package:passwordmanager/engine/account.dart';
@@ -7,7 +5,7 @@ import 'package:passwordmanager/engine/source.dart';
 
 /// LocalDatabase is the core class of this project. This object exists only once
 /// stored in the [_instance] property as Singleton. The [LocalDatabase] constructor just returns this reference.
-/// In addition this class extends the [ChangeNotifier]. Outside calls with [addAccount], [callEditOf], [removeAccount] or [clear] notify all listeners.
+/// In addition this class extends the [ChangeNotifier]. Outside calls with [addAccount], [addAllAccounts], [callEditOf], [removeAccount] or [clear] notify all listeners.
 /// Uses a [Source] to determine if cloud or local file should be used for saving changes.
 final class LocalDatabase extends ChangeNotifier {
   static final LocalDatabase _instance = LocalDatabase._create();
@@ -18,73 +16,6 @@ final class LocalDatabase extends ChangeNotifier {
 
   final List<Account> _accounts;
   final Set<String> _tagsUsed;
-
-  /// Static method to analyse a probably freshly decrypted [string] with a [RegExp].
-  /// Returns a List of [Account] instances that were found in the text.
-  static Future<List<Account>> getAccountsFromString(String string) async {
-    // List<List<String>> foundAccounts = await compute((message) {
-    //   const String c = LocalDatabase.disallowedCharacter;
-    //
-    //   List<List<String>> accounts = [];
-    //   RegExp regex = RegExp('\\$c([^\\$c]+\\$c){5}');
-    //   Iterable<Match> matches = regex.allMatches(string);
-    //   for (Match match in matches) {
-    //     List<String>? parts = match.group(0)?.split(c);
-    //     if (parts != null) {
-    //       parts.retainWhere((element) => element.isNotEmpty);
-    //       accounts.add(parts);
-    //     }
-    //   }
-    //   return accounts;
-    // }, string);
-    //
-    // return foundAccounts.map((parts) => Account(tag: parts[0], name: parts[1], info: parts[2], email: parts[3], password: parts[4])).toList();
-
-    final start = string.indexOf('{');
-    final end = string.lastIndexOf('}');
-
-    if (start == -1 || end == -1 || start > end) {
-      throw const FormatException('No valid JSON object found in input');
-    }
-
-    final jsonStr = string.substring(start, end + 1);
-
-    final Map<String, dynamic> decoded = jsonDecode(jsonStr);
-    final accountsJson = decoded['accounts'];
-
-    if (accountsJson is! List) {
-      throw const FormatException('Expected "accounts" to be a List');
-    }
-
-    return accountsJson
-        .map((e) => Account.fromJson(e as Map<String, dynamic>))
-        .toList();
-  }
-
-  /// Static method to generate a String based on the given [accounts] list.
-  /// Accounts are put in the String between randomly generated substrings.
-  /// This causes the text to be never the same for each encryption process.
-  /// Returned string is never empty.
-  static Future<String> generateStringFromAccounts(List<Account> accounts) async {
-    final String string = await compute((message) {
-      const String chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
-      Random rand = Random.secure();
-      StringBuffer buffer = StringBuffer();
-      int length = rand.nextInt(10) + 1;
-      for (int j = 0; j < length; j++) {
-        buffer.write(String.fromCharCode(chars.codeUnitAt(rand.nextInt(chars.length))));
-      }
-      buffer.write(jsonEncode({
-        "accounts": accounts.map((a) => a.toJson()).toList()
-      }));
-      length = rand.nextInt(10) + 1;
-      for (int j = 0; j < length; j++) {
-        buffer.write(String.fromCharCode(chars.codeUnitAt(rand.nextInt(chars.length))));
-      }
-      return buffer.toString();
-    }, accounts);
-    return string;
-  }
 
   /// Private constructor for initialising this singleton.
   LocalDatabase._create()
@@ -107,25 +38,25 @@ final class LocalDatabase extends ChangeNotifier {
   Source? get source => _source;
 
   Future<String> get formattedData async {
-    if(_source == null) return 'Source empty';
-    return await _source!.getFormattedData(await LocalDatabase.generateStringFromAccounts(accounts));
+    if(_source == null) throw Exception("Called getter for formatted data but source is not set in database.");
+    return await _source!.getFormattedData();
   }
 
   /// Before calling the [load] or [save] function this method MUST be called to provide
   /// the source File or cloud data to use for encryption and decryption.
   void setSource(Source source) {
     _source = source;
+    _source!.dbRef = this;
   }
 
   /// Asynchronous method to load [Account] references from the source provided through the [setSource] method.
   /// And exception is thrown if the [_source] property is null.
-  Future<void> load({required String password, bool legacyMode = false}) async {
+  Future<void> load({required String password}) async {
     if (_source != null) {
       if (_source!.isValid) {
         _accounts.clear();
         _tagsUsed.clear();
-        final List<Account> list = await LocalDatabase.getAccountsFromString(await _source!.loadData(password: password, legacyMode: legacyMode));
-        _addAllAccounts(list);
+        await _source!.loadData(password: password);
       }
     } else {
       throw Exception("Tried to load data without a provided source");
@@ -136,7 +67,7 @@ final class LocalDatabase extends ChangeNotifier {
   /// And exception is thrown if the [_source] property is null.
   Future<void> save() async {
     if (_source != null) {
-      await _source!.saveData(await LocalDatabase.generateStringFromAccounts(_accounts));
+      await _source!.saveData();
     } else {
       throw Exception("Tried to save data without a provided source");
     }
@@ -145,7 +76,7 @@ final class LocalDatabase extends ChangeNotifier {
   /// Private method to add a larger quantity of [Account] objects without notifying all listeners
   /// after each new append call.
   /// * A call to this method notifies all listeners.
-  void _addAllAccounts(List<Account> accounts) {
+  void addAllAccounts(List<Account> accounts) {
     for (Account acc in accounts) {
       if (_accounts.length < LocalDatabase.maxCapacity) {
         _accounts.add(acc);

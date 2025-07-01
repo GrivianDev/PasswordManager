@@ -118,7 +118,7 @@ class NavBar extends StatelessWidget {
 
     try {
       String? path;
-      if(Settings.isWindows) {
+      if (Settings.isWindows) {
         path = await FilePicker.platform.saveFile(
           lockParentWindow: true,
           fileName: 'backup.x',
@@ -128,9 +128,9 @@ class NavBar extends StatelessWidget {
         );
       } else {
         final Directory? dir = await getExternalStorageDirectory();
-        if(dir == null) throw Exception('Could not receive storage directory');
+        if (dir == null) throw Exception('Could not receive storage directory');
         path = '${dir.path}${Platform.pathSeparator}${LocalDatabase().source?.name}-backup';
-        if(!path.endsWith('.x')) {
+        if (!path.endsWith('.x')) {
           path += '.x';
         }
       }
@@ -148,11 +148,11 @@ class NavBar extends StatelessWidget {
       try {
         await file.create(recursive: true);
         await file.writeAsString(await LocalDatabase().formattedData);
-      } catch(e) {
+      } catch (e) {
         error = true;
       }
       navigator.pop();
-      if(error) throw Exception('Could not save backup');
+      if (error) throw Exception('Could not save backup');
 
       if (!context.mounted) return;
       await Notify.dialog(

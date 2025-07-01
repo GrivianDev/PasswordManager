@@ -1,9 +1,5 @@
 import 'dart:math';
 import 'dart:typed_data';
-import 'package:pointycastle/api.dart';
-import 'package:pointycastle/macs/hmac.dart';
-import 'package:pointycastle/digests/sha256.dart';
-import 'package:passwordmanager/engine/cryptography/datatypes.dart';
 
 /// Cryptographic utility service class
 final class CryptographicService {
@@ -38,25 +34,5 @@ final class CryptographicService {
     if(min < 0x00 || max > 0xff || min > max) throw Exception('Not allowed random byte constraints');
     final Random random = Random.secure();
     return Uint8List.fromList(List.generate(length, (index) => random.nextInt(max+1-min) + min));
-  }
-
-  /// Creates a 32 bytes key based on the provided password. See [Key] class for details.
-  static Key createAES256Key({required String password}) => Key.createSecure(password, 32);
-
-  /// Recreates a 32 bytes key based on the provided password and salt. See [Key] class for details.
-  static Key recreateAES256Key({required String password, required Uint8List salt}) {
-    return Key.recreate(password, salt, 32);
-  }
-
-  /// Create a HMAC with SHA-256 code. Useful for verifying data integrity.
-  static Uint8List verificationCodeFrom(Key key, Uint8List data) {
-    final HMac hmac = HMac(SHA256Digest(), 64)..init(KeyParameter(key.bytes));
-    final Uint8List verificationCode = hmac.process(data);
-    return verificationCode;
-  }
-
-  /// Returns SHA-256 hash
-  static Uint8List sha256(Uint8List data) {
-    return SHA256Digest().process(data);
   }
 }

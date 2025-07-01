@@ -17,6 +17,7 @@ class SettingsPage extends StatelessWidget {
       body: DefaultPageBody(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 2,
           children: [
             Row(
               children: [
@@ -92,21 +93,6 @@ class SettingsPage extends StatelessWidget {
                 Flexible(
                   child: Text(
                     'Use special characters',
-                    style: Theme.of(context).textTheme.displayMedium,
-                  ),
-                ),
-              ],
-            ),
-            const Divider(),
-            Row(
-              children: [
-                Checkbox.adaptive(
-                  value: context.watch<Settings>().useLegacyAccessEnabled,
-                  onChanged: (value) => context.read<Settings>().setUseLegacyAccess(value ?? false),
-                ),
-                Flexible(
-                  child: Text(
-                    'Use legacy access (Pre 2.0.0)',
                     style: Theme.of(context).textTheme.displayMedium,
                   ),
                 ),

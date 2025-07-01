@@ -24,7 +24,6 @@ class OfflinePage extends StatelessWidget {
   Future<void> _openLast(BuildContext context) async {
     final NavigatorState navigator = Navigator.of(context);
     final LocalDatabase database = LocalDatabase();
-    final Settings settings = context.read<Settings>();
     final File file = File(context.read<Settings>().lastOpenedPath);
 
     try {
@@ -45,10 +44,10 @@ class OfflinePage extends StatelessWidget {
         try {
           if (!context.mounted) return;
           Notify.showLoading(context: context);
-          await database.load(password: pw, legacyMode: settings.useLegacyAccessEnabled);
+          await database.load(password: pw);
         } catch (e) {
           navigator.pop();
-          Guardian.callAccessFailed('Wrong password');
+          Guardian.callAccessFailed(e.toString());
         }
         navigator.pop();
 
@@ -127,10 +126,10 @@ class OfflinePage extends StatelessWidget {
         try {
           if (!context.mounted) return;
           Notify.showLoading(context: context);
-          await database.load(password: pw, legacyMode: settings.useLegacyAccessEnabled);
+          await database.load(password: pw);
         } catch (e) {
           navigator.pop();
-          Guardian.callAccessFailed('Wrong password');
+          Guardian.callAccessFailed(e.toString());
         }
         navigator.pop();
 
