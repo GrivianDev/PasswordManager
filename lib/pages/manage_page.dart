@@ -47,6 +47,7 @@ class _ManagePageState extends State<ManagePage> {
   Future<void> _save(BuildContext context) async {
     final NavigatorState navigator = Navigator.of(context);
     final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
+    final LocalDatabase database = LocalDatabase();
 
     try {
       Notify.showLoading(context: context);
@@ -63,8 +64,10 @@ class _ManagePageState extends State<ManagePage> {
           style: Theme.of(context).textTheme.bodySmall,
         ),
       );
+      database.notifyAll();
       return;
     }
+    database.notifyAll();
     navigator.pop();
 
     scaffoldMessenger.showSnackBar(
@@ -172,28 +175,51 @@ class _ManagePageState extends State<ManagePage> {
                           ),
                         ),
                         Consumer<Settings>(
-                          builder: (context, settings, child) => settings.isAutoSaving
-                              ? Container()
-                              : Padding(
-                                  padding: const EdgeInsets.only(left: 15.0),
-                                  child: ElevatedButton(
-                                    onPressed: () => _save(context),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(12.0),
-                                      child: Row(
+                          builder: (context, settings, child) {
+                            return settings.isAutoSaving
+                                ? Container()
+                                : Consumer<LocalDatabase>(
+                                    builder: (context, localDb, child) => Padding(
+                                      padding: const EdgeInsets.only(left: 15.0),
+                                      child: Stack(
+                                        clipBehavior: Clip.none,
                                         children: [
-                                          Padding(
-                                            padding: const EdgeInsets.only(right: 10.0),
-                                            child: Icon(
-                                              context.read<Settings>().isOnlineModeEnabled ? Icons.sync : Icons.save,
+                                          ElevatedButton(
+                                            onPressed: () => _save(context),
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(12.0),
+                                              child: Row(
+                                                children: [
+                                                  Padding(
+                                                    padding: const EdgeInsets.only(right: 10.0),
+                                                    child: Icon(
+                                                      settings.isOnlineModeEnabled ? Icons.sync : Icons.save,
+                                                    ),
+                                                  ),
+                                                  Text('Save'),
+                                                ],
+                                              ),
                                             ),
                                           ),
-                                          Text('Save'),
+                                          if (localDb.source?.hasUnsavedChanges == true)
+                                            Positioned(
+                                              right: -4,
+                                              top: -4,
+                                              child: Container(
+                                                width: 12,
+                                                height: 12,
+                                                decoration: BoxDecoration(
+                                                  color: Colors.red,
+                                                  shape: BoxShape.circle,
+                                                  border: Border.all(color: Colors.orange, width: 2),
+                                                ),
+                                              ),
+                                            ),
                                         ],
                                       ),
                                     ),
-                                  ),
-                                ),
+                                  );
+                          },
                         ),
                       ],
                     ),
