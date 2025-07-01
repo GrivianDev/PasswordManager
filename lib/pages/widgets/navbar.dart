@@ -11,6 +11,7 @@ import 'package:passwordmanager/pages/other/notifications.dart';
 import 'package:passwordmanager/engine/persistence.dart';
 import 'package:passwordmanager/engine/cloud_connector.dart';
 import 'package:passwordmanager/engine/local_database.dart';
+import 'package:passwordmanager/pages/password_getter_page.dart';
 
 /// Navbar that gives more options, in particular the option to activate and deactivate autosaving (Is not visible in mobile offlinemode).
 /// Also this widget is the only option to exit the [ManagePage]. External tries to exit the page for example
@@ -50,6 +51,25 @@ class NavBar extends StatelessWidget {
           builder: (context) => const HomePage(title: 'Home'),
         ),
         (route) => false,
+      );
+    }
+  }
+
+  Future<void> _changePassword(BuildContext context) async {
+    final NavigatorState navigator = Navigator.of(context);
+
+    try {
+      throw UnimplementedError();
+    } catch (e) {
+      if (!context.mounted) return;
+      await Notify.dialog(
+        context: context,
+        type: NotificationType.error,
+        title: 'Error occurred!',
+        content: Text(
+          e.toString(),
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
       );
     }
   }
@@ -198,7 +218,7 @@ class NavBar extends StatelessWidget {
               ),
             ),
             child: const Padding(
-              padding: EdgeInsets.symmetric(vertical: 6.0),
+              padding: EdgeInsets.symmetric(vertical: 5.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
@@ -220,7 +240,7 @@ class NavBar extends StatelessWidget {
             TextButton(
               onPressed: () => _storeBackup(context),
               child: const Padding(
-                padding: EdgeInsets.symmetric(vertical: 6.0),
+                padding: EdgeInsets.symmetric(vertical: 5.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
@@ -243,7 +263,7 @@ class NavBar extends StatelessWidget {
             TextButton(
               onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const UploadPage())),
               child: const Padding(
-                padding: EdgeInsets.symmetric(vertical: 6.0),
+                padding: EdgeInsets.symmetric(vertical: 5.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
@@ -261,12 +281,31 @@ class NavBar extends StatelessWidget {
               ),
             ),
           ],
+          const Divider(),
+          TextButton(
+            onPressed: () => _changePassword(context),
+            child: const Padding(
+              padding: EdgeInsets.symmetric(vertical: 5.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Icon(Icons.key_rounded),
+                  Flexible(
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 15.0),
+                      child: Text('Change password'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
           if (context.read<Settings>().isOnlineModeEnabled) ...[
             const Divider(),
             TextButton(
               onPressed: () async => _deleteStorage(context),
               child: const Padding(
-                padding: EdgeInsets.symmetric(vertical: 4.0),
+                padding: EdgeInsets.symmetric(vertical: 5.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [

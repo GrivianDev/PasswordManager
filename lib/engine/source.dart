@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:convert';
-import 'package:flutter/foundation.dart' as foundation;
 import 'package:passwordmanager/engine/accessors/accessor.dart';
 import 'package:passwordmanager/engine/accessors/accessor_registry.dart';
 import 'package:passwordmanager/engine/cloud_connector.dart';
