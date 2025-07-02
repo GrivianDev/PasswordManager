@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:passwordmanager/pages/two_factor_manage_page.dart';
 import 'package:passwordmanager/pages/widgets/hoverbuilder.dart';
+import 'package:passwordmanager/pages/widgets/password_field.dart';
 import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/local_database.dart';
 import 'package:passwordmanager/engine/account.dart';
@@ -50,45 +51,24 @@ class AccountDisplay extends StatelessWidget {
                   color: Theme.of(context).colorScheme.background,
                 ),
                 child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _SelectableDisplay(description: 'Tag:', text: _account.tag),
-                      _SelectableDisplay(description: 'Info:', text: _account.info ?? ''),
-                      _SelectableDisplay(description: 'E-mail:', text: _account.email ?? ''),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 15, right: 15.0, top: 25.0),
-                        child: Column(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      spacing: 20,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _SelectableDisplay(description: 'Tag:', text: _account.tag),
+                        _SelectableDisplay(description: 'Info:', text: _account.info ?? ''),
+                        _SelectableDisplay(description: 'E-mail:', text: _account.email ?? ''),
+                        Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                              child: Text('Password:', style: Theme.of(context).textTheme.displayMedium),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 10, right: 10.0, bottom: 25.0),
-                              child: HoverBuilder(
-                                builder: (isHovered) => isHovered
-                                    ? SelectableText(
-                                        _account.password ?? '',
-                                        style: Theme.of(context).textTheme.bodySmall,
-                                      )
-                                    : ImageFiltered(
-                                        imageFilter: ImageFilter.blur(
-                                          sigmaX: 6.0,
-                                          sigmaY: 6.0,
-                                        ),
-                                        child: SelectableText(
-                                          _account.password ?? '',
-                                          style: Theme.of(context).textTheme.bodySmall,
-                                        ),
-                                      ),
-                              ),
-                            ),
+                            Text('Password:', style: Theme.of(context).textTheme.displayMedium),
+                            PasswordField(password: _account.password),
                           ],
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -142,15 +122,12 @@ class _SelectableDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(25.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(description, style: Theme.of(context).textTheme.displayMedium),
-          SelectableText(_text, style: Theme.of(context).textTheme.bodySmall),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(description, style: Theme.of(context).textTheme.displayMedium),
+        SelectableText(_text, style: Theme.of(context).textTheme.bodySmall),
+      ],
     );
   }
 }
