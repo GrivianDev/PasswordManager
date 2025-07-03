@@ -21,7 +21,7 @@ class _PasswordFieldState extends State<PasswordField> {
         width: 6,
         height: 6,
         decoration: BoxDecoration(
-          color: Colors.black,
+          color: Theme.of(context).textTheme.bodyMedium?.color,
           shape: BoxShape.circle,
         ),
       ),

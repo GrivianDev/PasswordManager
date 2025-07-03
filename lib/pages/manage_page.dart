@@ -93,15 +93,14 @@ class _ManagePageState extends State<ManagePage> {
   /// Asynchronous method to display some info of the current file or storage.
   Future<void> _showDetails(BuildContext context) async {
     final LocalDatabase database = LocalDatabase();
-    final Settings settings = context.read<Settings>();
-    final Source? source = database.source;
+    final Source source = database.source!;
 
     await Notify.dialog(
       context: context,
       type: NotificationType.notification,
-      title: 'Details ${settings.isOnlineModeEnabled ? '(Cloud storage)' : '(Local file)'}',
+      title: 'Details ${source.usesFirestoreCloud ? '(Cloud storage)' : '(Local file)'}',
       content: Text(
-        'Name: "${source?.name ?? 'none'}\nStorage version: ${database.source?.accessorVersion ?? 'Not specified'}\nAccounts: ${database.accounts.length}/${LocalDatabase.maxCapacity}\nTags: ${database.tags.length}',
+        'Name: "${source.name}\nStorage version: ${source.accessorVersion ?? 'Not specified'}\nAccounts: ${database.accounts.length}/${LocalDatabase.maxCapacity}\nTags: ${database.tags.length}',
         style: Theme.of(context).textTheme.bodySmall,
       ),
     );
@@ -156,7 +155,7 @@ class _ManagePageState extends State<ManagePage> {
               topLeft: Radius.circular(20.0),
               topRight: Radius.circular(20.0),
             ),
-            color: Theme.of(context).colorScheme.background,
+            color: Theme.of(context).colorScheme.surface,
           ),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 85.0),
@@ -193,7 +192,7 @@ class _ManagePageState extends State<ManagePage> {
                                                   Padding(
                                                     padding: const EdgeInsets.only(right: 10.0),
                                                     child: Icon(
-                                                      settings.isOnlineModeEnabled ? Icons.sync : Icons.save,
+                                                      localDb.source?.usesFirestoreCloud == true ? Icons.sync : Icons.save,
                                                     ),
                                                   ),
                                                   Text('Save'),
@@ -251,7 +250,6 @@ class _TwoValueContainer<T> {
 
 class _CustomAutocomplete extends StatefulWidget {
   const _CustomAutocomplete({
-    super.key,
     required this.onSwitchTrueFunction,
     required this.onSwitchFalseFunction,
   });

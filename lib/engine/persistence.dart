@@ -15,8 +15,6 @@ class Settings extends ChangeNotifier {
   static const _keyLightMode = 'ethercrypt.mode';
   static const _keyLastOpenedPath = 'ethercrypt.path';
   static const _keyAutoSaving = 'ethercrypt.saving';
-  static const _keyOnlineMode = 'ethercrypt.online';
-  static const _keyLastOpenedCloudDocs = 'ethercrypt.cloud_docnames';
   static const _keyPwGenUseLetters = 'ethercrypt.use_letters';
   static const _keyPwGenUseNumbers = 'ethercrypt.use_numbers';
   static const _keyPwGenUseSpecialChars = 'ethercrypt.use_special_chars';
@@ -74,56 +72,6 @@ class Settings extends ChangeNotifier {
       return _instance.getBool(_keyAutoSaving) ?? false;
     } catch (e) {
       return false;
-    }
-  }
-
-  /// Set if onlinemode is active and save it.
-  /// * A call to this method notifies all listeners.
-  Future<bool> setOnlineMode(bool enabled) async {
-    final bool success = await _instance.setBool(_keyOnlineMode, enabled);
-    notifyListeners();
-    return success;
-  }
-
-  /// Returns if the onlinemode is enabled. Default is false.
-  bool get isOnlineModeEnabled {
-    try {
-      return _instance.getBool(_keyOnlineMode) ?? false;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  /// Set the name of the last opened cloud storage and save it.
-  /// * A call to this method notifies all listeners.
-  Future<bool> setLastOpenedCloudDoc(String name) async {
-    final List<String> list = lastOpenedCloudDocs;
-    if (list.contains(name)) list.remove(name);
-    list.insert(0, name);
-    while (list.length > 3) {
-      list.removeLast();
-    }
-    final bool success = await _instance.setStringList(_keyLastOpenedCloudDocs, list);
-    notifyListeners();
-    return success;
-  }
-
-  /// Remove the name of the last opened cloud storage and save it.
-  /// * A call to this method notifies all listeners.
-  Future<bool> removeLastOpenedCloudDocEntry(String name) async {
-    final List<String> list = lastOpenedCloudDocs;
-    list.remove(name);
-    final bool success = await _instance.setStringList(_keyLastOpenedCloudDocs, list);
-    notifyListeners();
-    return success;
-  }
-
-  /// Returns the name of the last opened cloud storage or an empty string if nothing was stored.
-  List<String> get lastOpenedCloudDocs {
-    try {
-      return _instance.getStringList(_keyLastOpenedCloudDocs) ?? List<String>.empty(growable: true);
-    } catch (e) {
-      return List<String>.empty(growable: true);
     }
   }
 

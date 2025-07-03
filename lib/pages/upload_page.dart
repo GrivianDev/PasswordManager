@@ -37,7 +37,6 @@ class _UploadPageState extends State<UploadPage> {
         name: _nameController.text,
         data: await database.formattedData,
       );
-      await settings.setLastOpenedCloudDoc(_nameController.text);
 
       navigator.pop();
       connector.logout();
@@ -95,7 +94,7 @@ class _UploadPageState extends State<UploadPage> {
             topLeft: Radius.circular(20.0),
             topRight: Radius.circular(20.0),
           ),
-          color: Theme.of(context).colorScheme.background,
+          color: Theme.of(context).colorScheme.surface,
         ),
         child: LayoutBuilder(
           builder: (context, constraints) => SingleChildScrollView(

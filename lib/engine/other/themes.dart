@@ -100,7 +100,7 @@ class AppThemeData {
     colorScheme: const ColorScheme.dark(
       primary: Colors.blue,
       surfaceTint: Colors.transparent,
-      background: Color.fromRGBO(77, 83, 84, 1),
+      surface: Color.fromRGBO(77, 83, 84, 1),
     ),
     textSelectionTheme: const TextSelectionThemeData(
       cursorColor: Colors.blue,
@@ -152,6 +152,20 @@ class AppThemeData {
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(25.0),
         borderSide: const BorderSide(width: 2, color: Colors.blue),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(25.0),
+        borderSide: const BorderSide(width: 2, color: Colors.grey),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(25.0),
+        borderSide: const BorderSide(width: 2, color: Colors.red),
+      ),
+      errorStyle: TextStyle(
+        fontSize: 16.0,
+        fontWeight: FontWeight.w800,
+        color: Colors.redAccent,
+        overflow: TextOverflow.clip,
       ),
     ),
     switchTheme: const SwitchThemeData(
@@ -267,7 +281,7 @@ class AppThemeData {
     colorScheme: const ColorScheme.light(
       primary: Color.fromRGBO(20, 75, 200, 1),
       surfaceTint: Colors.transparent,
-      background: Colors.white,
+      surface: Colors.white,
     ),
     textSelectionTheme: const TextSelectionThemeData(
       cursorColor: Color.fromRGBO(20, 75, 200, 1),
@@ -319,6 +333,20 @@ class AppThemeData {
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(25.0),
         borderSide: const BorderSide(width: 2, color: Color.fromRGBO(20, 75, 200, 1)),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(25.0),
+        borderSide: BorderSide(width: 2, color: Colors.grey.shade900),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(25.0),
+        borderSide: const BorderSide(width: 2, color: Colors.red),
+      ),
+      errorStyle: TextStyle(
+        fontSize: 16.0,
+        fontWeight: FontWeight.w800,
+        color: Colors.redAccent,
+        overflow: TextOverflow.clip,
       ),
     ),
     switchTheme: const SwitchThemeData(

@@ -11,7 +11,6 @@ import 'package:passwordmanager/pages/other/notifications.dart';
 import 'package:passwordmanager/engine/persistence.dart';
 import 'package:passwordmanager/engine/cloud_connector.dart';
 import 'package:passwordmanager/engine/local_database.dart';
-import 'package:passwordmanager/pages/password_getter_page.dart';
 
 /// Navbar that gives more options, in particular the option to activate and deactivate autosaving (Is not visible in mobile offlinemode).
 /// Also this widget is the only option to exit the [ManagePage]. External tries to exit the page for example
@@ -235,7 +234,7 @@ class NavBar extends StatelessWidget {
               ),
             ),
           ),
-          if (context.read<Settings>().isOnlineModeEnabled) ...[
+          if (context.read<LocalDatabase>().source?.usesFirestoreCloud == true) ...[
             const Divider(),
             TextButton(
               onPressed: () => _storeBackup(context),
@@ -258,7 +257,7 @@ class NavBar extends StatelessWidget {
               ),
             ),
           ],
-          if (!context.read<Settings>().isOnlineModeEnabled) ...[
+          if (context.read<LocalDatabase>().source?.usesLocalFile == true) ...[
             const Divider(),
             TextButton(
               onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const UploadPage())),
@@ -300,7 +299,7 @@ class NavBar extends StatelessWidget {
               ),
             ),
           ),
-          if (context.read<Settings>().isOnlineModeEnabled) ...[
+          if (context.read<LocalDatabase>().source?.usesFirestoreCloud == true) ...[
             const Divider(),
             TextButton(
               onPressed: () async => _deleteStorage(context),

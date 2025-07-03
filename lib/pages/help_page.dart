@@ -15,7 +15,7 @@ class HelpPage extends StatelessWidget {
             topLeft: Radius.circular(20.0),
             topRight: Radius.circular(20.0),
           ),
-          color: Theme.of(context).colorScheme.background,
+          color: Theme.of(context).colorScheme.surface,
         ),
         child: ListView(
           padding: const EdgeInsets.all(25.0),

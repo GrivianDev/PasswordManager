@@ -55,7 +55,7 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
           } catch(e) {
             Guardian.callAccessFailed(e.toString());
           }
-          await settings.setLastOpenedCloudDoc(_nameController.text);
+          // await settings.setLastOpenedCloudDoc(_nameController.text);
           navigator.pop();
           navigator.pushAndRemoveUntil(
             MaterialPageRoute(
@@ -73,7 +73,7 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
         database.setSource(Source(connector: connector));
         await database.source!.initialiseNewSource(password: _pwController.text, cloudDocName: _nameController.text);
         await connector.setActiveDocument(_nameController.text);
-        await settings.setLastOpenedCloudDoc(_nameController.text);
+        // await settings.setLastOpenedCloudDoc(_nameController.text);
         navigator.pop();
         navigator.pushAndRemoveUntil(
           MaterialPageRoute(
@@ -163,7 +163,7 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
   void initState() {
     _isObscured = true;
     _canSubmit = false;
-    _suggestions = context.read<Settings>().lastOpenedCloudDocs;
+    // _suggestions = context.read<Settings>().lastOpenedCloudDocs;
     _nameController = TextEditingController();
     _pwController = TextEditingController();
     _nameController.addListener(_checkCanSubmitCallback);
@@ -192,7 +192,7 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
             topLeft: Radius.circular(20.0),
             topRight: Radius.circular(20.0),
           ),
-          color: Theme.of(context).colorScheme.background,
+          color: Theme.of(context).colorScheme.surface,
         ),
         child: LayoutBuilder(
           builder: (context, constraints) => SingleChildScrollView(
@@ -224,7 +224,7 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
                                         Expanded(child: Text(e)),
                                         IconButton(
                                           onPressed: () async {
-                                            await context.read<Settings>().removeLastOpenedCloudDocEntry(e);
+                                            // await context.read<Settings>().removeLastOpenedCloudDocEntry(e);
                                             setState(() {
                                               _suggestions.remove(e);
                                             });
@@ -335,10 +335,9 @@ class _CloudAccessPageState extends State<CloudAccessPage> {
 
 /// Small widget for having a text display that listens to changes of a TextEditingController.
 class _ListeningText extends StatefulWidget {
-  const _ListeningText({Key? key, required TextEditingController controller, required String Function(String) buildText})
+  const _ListeningText({required TextEditingController controller, required String Function(String) buildText})
       : _buildText = buildText,
-        _controller = controller,
-        super(key: key);
+        _controller = controller;
 
   final TextEditingController _controller;
   final String Function(String) _buildText;

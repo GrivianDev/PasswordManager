@@ -108,7 +108,7 @@ class _PasswordGetterPageState extends State<PasswordGetterPage> {
             topLeft: Radius.circular(20.0),
             topRight: Radius.circular(20.0),
           ),
-          color: Theme.of(context).colorScheme.background,
+          color: Theme.of(context).colorScheme.surface,
         ),
         child: LayoutBuilder(
           builder: (context, constraints) => SingleChildScrollView(

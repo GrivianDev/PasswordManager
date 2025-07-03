@@ -1,147 +1,97 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:passwordmanager/engine/local_database.dart';
+import 'package:passwordmanager/engine/other/util.dart';
+import 'package:passwordmanager/engine/selection_result.dart';
+import 'package:passwordmanager/pages/manage_page.dart';
+import 'package:passwordmanager/pages/mobile_file_selection_page.dart';
+import 'package:passwordmanager/pages/other/reusable_things.dart';
+import 'package:passwordmanager/pages/password_getter_page.dart';
+import 'package:passwordmanager/pages/widgets/default_page_body.dart';
+import 'package:passwordmanager/pages/desktop_file_selection_page.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:passwordmanager/engine/persistence.dart';
 import 'package:passwordmanager/pages/widgets/home_navbar.dart';
-import 'package:passwordmanager/pages/widgets/offline_subpage.dart';
-import 'package:passwordmanager/pages/widgets/online_subpage.dart';
-import 'package:passwordmanager/pages/help_page.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
+import 'package:passwordmanager/engine/source.dart';
 
-/// The entry point of the application where cloud or offline mode can be swapped between.
+/// The entry point of the application.
 /// Can display the current version information and provides options for:
-/// * Offline: Searching a save file
-/// * Offline: Reopening the last save file
-/// * Offline: Creating a new save file
-/// * Online: Access storage data
-/// * Online: Create new storage
+/// * Offline: Locally select / create save files
+/// * Online: Online select of files
 class HomePage extends StatelessWidget {
   const HomePage({super.key, required this.title});
 
   final String title;
 
-  /// Displays the current app information such as the version number.
-  /// Additionally shows a link to the github repository.
-  Future<void> _displayInfo(BuildContext context) async {
-    final PackageInfo info = await PackageInfo.fromPlatform();
+  Future<void> _selectLocally(BuildContext context) async {
+    final NavigatorState navigator = Navigator.of(context);
+    final LocalDatabase database = LocalDatabase();
 
-    if (!context.mounted) return;
-    Notify.dialog(
-      context: context,
-      type: NotificationType.notification,
-      content: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SizedBox(
-              width: 560,
-              height: 80,
-              child: context.read<Settings>().isLightMode ? SvgPicture.asset('assets/lightLogo.svg') : SvgPicture.asset('assets/darkLogo.svg'),
-            ),
-            Text(
-              'Version: ${info.version}',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 25.0),
-              child: TextButton(
-                onPressed: () async => await launchUrl(Uri.parse('https://github.com/grievous110/PasswordManager/tree/main')),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.code),
-                    Flexible(
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 5.0),
-                        child: Text(
-                          'View code',
-                          style: TextStyle(
-                            fontSize: Theme.of(context).textTheme.displaySmall!.fontSize,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 5.0),
-              child: TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  showLicensePage(
-                    context: context,
-                    applicationName: 'Ethercrypt',
-                    applicationIcon: const Padding(
-                      padding: EdgeInsets.only(top: 10.0),
-                      child: Icon(Icons.shield_outlined),
-                    ),
-                  );
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.copyright),
-                    Flexible(
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 5.0),
-                        child: Text(
-                          'Licenses',
-                          style: TextStyle(
-                            fontSize: Theme.of(context).textTheme.displaySmall!.fontSize,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 5.0, bottom: 25),
-              child: TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const HelpPage(),
-                    ),
-                  );
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.help_outline),
-                    Flexible(
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 5.0),
-                        child: Text(
-                          'Help',
-                          style: TextStyle(
-                            fontSize: Theme.of(context).textTheme.displaySmall!.fontSize,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Text(
-              'created by:',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            Text(
-              'Joel Lutz',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ],
+    FileSelectionResult? fileResult;
+    try {
+      if (Settings.isWindows) {
+        fileResult = await navigator.push(
+          MaterialPageRoute(
+            builder: (contex) => DesktopFileSelectionPage(),
+          ),
+        );
+      } else {
+        final Directory? dir = await getExternalStorageDirectory();
+        if (dir == null) throw Exception('Could not receive storage directory');
+        fileResult = await navigator.push(
+          MaterialPageRoute(
+            builder: (contex) => MobileFileSelectionPage(dir: dir),
+          ),
+        );
+      }
+
+      if (fileResult == null) return;
+
+      String? pw = await navigator.push(
+        MaterialPageRoute(
+          builder: (contex) => PasswordGetterPage(
+            path: shortenPath(fileResult!.file.path),
+            title: 'Enter password for storage',
+            showIndicator: fileResult.isNewlyCreated,
+          ),
         ),
-      ),
-    );
+      );
+
+      if (pw == null) return;
+
+      try {
+        Notify.showLoading(context: context);
+        database.setSource(Source(sourceFile: fileResult.file));
+        if (fileResult.isNewlyCreated) {
+          await database.source!.initialiseNewSource(password: pw);
+        } else {
+          await database.load(password: pw);
+        }
+      } catch (e) {
+        navigator.pop();
+        rethrow;
+      }
+      navigator.pop();
+
+      navigator.push(
+        MaterialPageRoute(builder: (contex) => ManagePage()),
+      );
+    } catch (e) {
+      database.clear(notify: false);
+      if (!context.mounted) return;
+      Notify.dialog(
+        context: context,
+        type: NotificationType.error,
+        title: 'Error occurred!',
+        content: Text(
+          e.toString(),
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+      );
+    }
   }
 
   @override
@@ -154,7 +104,7 @@ class HomePage extends StatelessWidget {
             padding: const EdgeInsets.only(right: 20.0),
             child: IconButton(
               icon: const Icon(Icons.info_outline),
-              onPressed: () => _displayInfo(context),
+              onPressed: () => displayInfoDialog(context),
             ),
           ),
           Padding(
@@ -182,28 +132,49 @@ class HomePage extends StatelessWidget {
           ],
         ),
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(20.0),
-            topRight: Radius.circular(20.0),
-          ),
-          color: Theme.of(context).colorScheme.background,
-        ),
-        child: LayoutBuilder(
-          builder: (context, constraints) => SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: constraints.maxHeight),
-              child: IntrinsicHeight(
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 40.0),
-                  child: Consumer<Settings>(
-                    builder: (context, settings, child) => settings.isOnlineModeEnabled ? const OnlinePage() : const OfflinePage(),
-                  ),
+      body: DefaultPageBody(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          spacing: 20,
+          children: [
+            SizedBox(
+              width: 560,
+              height: 120,
+              child: context.read<Settings>().isLightMode ? SvgPicture.asset('assets/lightLogo.svg') : SvgPicture.asset('assets/darkLogo.svg'),
+            ),
+            Text(
+              'Access your encrypted save file:',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            Container(
+              constraints: BoxConstraints(maxWidth: 225),
+              child: ElevatedButton(
+                onPressed: () => _selectLocally(context),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Icon(Icons.search_rounded),
+                    const SizedBox(width: 10),
+                    Flexible(child: Text('Load from local file')),
+                  ],
                 ),
               ),
             ),
-          ),
+            Container(
+              constraints: BoxConstraints(maxWidth: 225),
+              child: ElevatedButton(
+                onPressed: () => {},
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Icon(Icons.cloud),
+                    const SizedBox(width: 10),
+                    Flexible(child: Text('Connect to cloud')),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

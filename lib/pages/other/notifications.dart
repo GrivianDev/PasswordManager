@@ -51,7 +51,7 @@ final class Notify {
 }
 
 class _CustomDialog extends StatelessWidget {
-  const _CustomDialog({super.key, required this.type, this.title, this.content, this.beforeReturn, this.onConfirm});
+  const _CustomDialog({required this.type, this.title, this.content, this.beforeReturn, this.onConfirm});
 
   final NotificationType type;
   final String? title;

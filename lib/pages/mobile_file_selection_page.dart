@@ -1,28 +1,30 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:passwordmanager/engine/selection_result.dart';
 import 'package:passwordmanager/pages/widgets/file_element.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
-import 'package:passwordmanager/engine/reference.dart';
+import 'package:passwordmanager/pages/other/reusable_things.dart';
+import 'package:path_provider/path_provider.dart';
 
 /// Page that displays all available .x files in the apps directory on mobile.
 /// Also allows selection of external files.
 class MobileFileSelectionPage extends StatefulWidget {
-  const MobileFileSelectionPage({super.key, required Directory dir}) : _dir = dir;
+  const MobileFileSelectionPage({super.key, required this.dir});
 
-  final Directory _dir;
+  final Directory dir;
 
   @override
   State<MobileFileSelectionPage> createState() => _MobileFileSelectionPageState();
 }
 
 class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
-  late Future<List<Reference<File>>> _fileList;
+  late Future<List<File>> _fileList;
 
   /// Future for intern futurebuilder
-  Future<List<Reference<File>>> _receiveFuture() async {
-    final List<FileSystemEntity> list = await widget._dir.list().toList();
-    return list.whereType<File>().where((e) => e.path.endsWith('.x')).map((e) => Reference<File>(value: e)).toList();
+  Future<List<File>> _receiveFuture() async {
+    final List<FileSystemEntity> list = await widget.dir.list().toList();
+    return list.whereType<File>().where((e) => e.statSync().type == FileSystemEntityType.file).where((e) => e.path.endsWith('.x')).toList();
   }
 
   /// Tries to select a save file by using the platform specific filepicker.
@@ -51,7 +53,7 @@ class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
       }
 
       final File cacheFile = File(result.files.single.path ?? '');
-      final File file = File('${widget._dir.path}${Platform.pathSeparator}${cacheFile.path.split(Platform.pathSeparator).last}');
+      final File file = File('${widget.dir.path}${Platform.pathSeparator}${cacheFile.path.split(Platform.pathSeparator).last}');
 
       if (!cacheFile.path.endsWith('.x')) {
         throw Exception('File extension is not supported');
@@ -59,7 +61,6 @@ class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
 
       if (await file.exists()) {
         bool? allow;
-        if (!context.mounted) return;
         await Notify.dialog(
             context: context,
             type: NotificationType.confirmDialog,
@@ -84,10 +85,48 @@ class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
       }
 
       navigator.pop();
-      navigator.pop(file);
+      navigator.pop(FileSelectionResult(file: file, isNewlyCreated: false));
     } catch (e) {
       await FilePicker.platform.clearTemporaryFiles();
       navigator.pop();
+      if (!context.mounted) return;
+      Notify.dialog(
+        context: context,
+        type: NotificationType.error,
+        title: 'Error occurred!',
+        content: Text(
+          e.toString(),
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+      );
+    }
+  }
+
+  /// Returns a new not existing save file in the selected directory.
+  /// Cases an error is thrown:
+  /// * An unknown error occurred
+  Future<void> _mobileCreateFile(BuildContext context) async {
+    final NavigatorState navigator = Navigator.of(context);
+
+    try {
+      String? path = (await getExternalStorageDirectory())?.path;
+
+      if (path == null) return;
+
+      // Get user file name wish
+      String? storageName = await getUserDefinedFilenameViaDialog(context, path);
+
+      if (storageName == null) return;
+
+      final File file = File('$path${Platform.pathSeparator}$storageName.x');
+
+      if (file.existsSync()) {
+        // Sanity check
+        throw Exception('This file already exists!');
+      }
+
+      navigator.pop(FileSelectionResult(file: file, isNewlyCreated: true));
+    } catch (e) {
       if (!context.mounted) return;
       Notify.dialog(
         context: context,
@@ -122,17 +161,17 @@ class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
             topLeft: Radius.circular(20.0),
             topRight: Radius.circular(20.0),
           ),
-          color: Theme.of(context).colorScheme.background,
+          color: Theme.of(context).colorScheme.surface,
         ),
         child: Padding(
           padding: const EdgeInsets.all(25.0),
           child: Column(
             children: [
               Text(
-                '...${Platform.pathSeparator}${widget._dir.path.split(Platform.pathSeparator).last}',
+                '...${Platform.pathSeparator}${widget.dir.path.split(Platform.pathSeparator).last}',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
-              FutureBuilder<List<Reference<File>>>(
+              FutureBuilder<List<File>>(
                 future: _fileList,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.done) {
@@ -146,7 +185,10 @@ class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
                                 Icons.find_in_page_outlined,
                                 size: 50.0,
                               ),
-                              Text('Seems like there are no files yet...', style: TextStyle(color: Colors.grey),)
+                              Text(
+                                'Seems like there are no files yet...',
+                                style: TextStyle(color: Colors.grey),
+                              )
                             ],
                           ),
                         ),
@@ -156,7 +198,7 @@ class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
                         child: ListView.separated(
                           itemCount: snapshot.data!.length,
                           itemBuilder: (context, index) => FileWidget(
-                            reference: snapshot.data!.elementAt(index),
+                            file: snapshot.data!.elementAt(index),
                             onClicked: (e) => Navigator.of(context).pop(e),
                             onDelete: () => setState(() {
                               _fileList = _receiveFuture();

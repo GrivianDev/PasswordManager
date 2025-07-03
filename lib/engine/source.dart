@@ -29,6 +29,10 @@ final class Source {
 
   String? get accessorVersion => _accessor?.version;
 
+  bool get usesLocalFile => _sourceFile != null;
+
+  bool get usesFirestoreCloud => _connector != null;
+
   bool get isValid => _sourceFile != null ? _sourceFile!.existsSync() : _connector!.isLoggedIn;
 
   void invalidate() => _connector != null ? _connector!.invalidate() : {};
@@ -39,7 +43,7 @@ final class Source {
 
   /// Asynchronous method to load data from given file or firebase cloud.
   Future<void> loadData({required String password}) async {
-    final String formattedData = _connector != null ? await _connector!.getData() : await _sourceFile!.readAsString(encoding: utf8);
+    final String formattedData = usesFirestoreCloud ? await _connector!.getData() : await _sourceFile!.readAsString(encoding: utf8);
     final Map<String, String> properties = Source.readProperties(formattedData);
     final String vaultVersion = properties['version'] ?? 'v0';
     _accessor = DataAccessorRegistry.create(vaultVersion); // Choose correct accessor
@@ -53,11 +57,11 @@ final class Source {
     _accessor = DataAccessorRegistry.create(DataAccessorRegistry.latestVersion); // Auto create new ones with newest version
     final String formattedData = await _accessor!.encryptAndFormat(dbRef, password);
 
-    if(_connector != null) {
+    if(usesFirestoreCloud) {
       if(cloudDocName == null) throw Exception('"cloudDocName" parameter must be not null when initialising a cloud storage');
       await _connector!.createDocument(name: cloudDocName, data: formattedData);
     }
-    if(_sourceFile != null) {
+    if(usesLocalFile) {
       if (_sourceFile!.existsSync()) await _sourceFile?.create(recursive: true);
       await _sourceFile!.writeAsString(formattedData, encoding: utf8);
     }
@@ -67,10 +71,10 @@ final class Source {
   Future<void> saveData() async {
     final String formattedData = await getFormattedData();
 
-    if (_connector != null) {
+    if (usesFirestoreCloud) {
       await _connector!.editDocument(newData: formattedData);
     }
-    if (_sourceFile != null) {
+    if (usesLocalFile) {
       if (_sourceFile!.existsSync()) await _sourceFile?.create(recursive: true);
       await _sourceFile!.writeAsString(formattedData, encoding: utf8);
     }

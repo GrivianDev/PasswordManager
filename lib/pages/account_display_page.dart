@@ -1,7 +1,5 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:passwordmanager/pages/two_factor_manage_page.dart';
-import 'package:passwordmanager/pages/widgets/hoverbuilder.dart';
 import 'package:passwordmanager/pages/widgets/password_field.dart';
 import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/local_database.dart';
@@ -48,7 +46,7 @@ class AccountDisplay extends StatelessWidget {
                   borderRadius: const BorderRadius.all(
                     Radius.circular(20.0),
                   ),
-                  color: Theme.of(context).colorScheme.background,
+                  color: Theme.of(context).colorScheme.surface,
                 ),
                 child: SingleChildScrollView(
                   child: Padding(
@@ -115,7 +113,7 @@ class AccountDisplay extends StatelessWidget {
 }
 
 class _SelectableDisplay extends StatelessWidget {
-  const _SelectableDisplay({super.key, required String text, required this.description}) : _text = text;
+  const _SelectableDisplay({required String text, required this.description}) : _text = text;
 
   final String description;
   final String _text;

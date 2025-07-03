@@ -11,7 +11,6 @@ import 'package:passwordmanager/engine/persistence.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Settings.init();
-  await FirebaseConnector.init();
   runApp(const Application());
 }
 
