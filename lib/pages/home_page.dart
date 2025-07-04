@@ -54,7 +54,7 @@ class HomePage extends StatelessWidget {
         MaterialPageRoute(
           builder: (contex) => PasswordGetterPage(
             path: shortenPath(fileResult!.file.path),
-            title: 'Enter password for storage',
+            title: '${fileResult.isNewlyCreated ? 'Creating new' : 'Enter password for'} storage',
             showIndicator: fileResult.isNewlyCreated,
           ),
         ),

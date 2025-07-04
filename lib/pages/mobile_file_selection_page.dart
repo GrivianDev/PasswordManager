@@ -199,7 +199,7 @@ class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
                           itemCount: snapshot.data!.length,
                           itemBuilder: (context, index) => FileWidget(
                             file: snapshot.data!.elementAt(index),
-                            onClicked: (e) => Navigator.of(context).pop(e),
+                            onClicked: (e) => Navigator.of(context).pop(FileSelectionResult(file: e, isNewlyCreated: false)),
                             onDelete: () => setState(() {
                               _fileList = _receiveFuture();
                             }),
@@ -240,6 +240,20 @@ class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
                     child: const Padding(
                       padding: EdgeInsets.all(10.0),
                       child: Text('Select other'),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 60.0,
+                width: MediaQuery.of(context).size.width,
+                child: Align(
+                  alignment: Alignment.bottomRight,
+                  child: TextButton(
+                    onPressed: () => _mobileCreateFile(context),
+                    child: const Padding(
+                      padding: EdgeInsets.all(10.0),
+                      child: Text('Create new'),
                     ),
                   ),
                 ),

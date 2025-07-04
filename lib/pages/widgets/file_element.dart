@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:passwordmanager/engine/other/util.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 
 /// Widget that represents a local file. Allows deletion and renaming of file.
@@ -62,7 +63,7 @@ class _FileWidgetState extends State<FileWidget> {
         type: NotificationType.deleteDialog,
         title: 'Are you sure?',
         content: Text(
-          'Are you sure that you want to delete "${_file.path}"?\nAction can not be undone!',
+          'Are you sure that you want to delete "${shortenPath(_file.path)}"?\nAction can not be undone!',
           style: Theme.of(context).textTheme.bodySmall,
         ),
         onConfirm: () {
