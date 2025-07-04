@@ -76,7 +76,7 @@ class NavBar extends StatelessWidget {
   /// Forever deletes current storage from firebase cloud and wipes database by calling [LocalDatabase.clear].
   /// Does nothing if deletion fails.
   Future<void> _deleteStorage(BuildContext context) async {
-    final TextEditingController controller = TextEditingController();
+    String input = '';
 
     await Notify.dialog(
       context: context,
@@ -94,7 +94,7 @@ class NavBar extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(top: 15.0),
               child: TextField(
-                controller: controller,
+                onChanged: (value) => input = value.trim(),
                 decoration: const InputDecoration(
                   constraints: BoxConstraints(maxWidth: 100, maxHeight: 60.0),
                   hintText: 'Enter "DELETE"',
@@ -104,10 +104,8 @@ class NavBar extends StatelessWidget {
           ],
         ),
       ),
-      beforeReturn: () => controller.dispose(),
       onConfirm: () async {
-        if (controller.text != 'DELETE') return;
-        controller.dispose();
+        if (input != 'DELETE') return;
         final NavigatorState navigator = Navigator.of(context);
         final FirebaseConnector connector = context.read<FirebaseConnector>();
 

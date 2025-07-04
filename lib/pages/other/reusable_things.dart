@@ -131,13 +131,13 @@ Future<void> displayInfoDialog(BuildContext context) async {
 }
 
 Future<String?> getUserDefinedFilenameViaDialog(BuildContext context, String path) async {
-  final TextEditingController controller = TextEditingController();
   String? storageName;
   String? errorText;
+  String currentInput = '';
 
   // Helper function for checking if file with name already exists
-  bool nameExists(String name) {
-    final File fileCheck = File('$path${Platform.pathSeparator}${controller.text}.x');
+  bool nameExists() {
+    final File fileCheck = File('$path${Platform.pathSeparator}$currentInput.x');
     return fileCheck.existsSync();
   }
 
@@ -159,13 +159,13 @@ Future<String?> getUserDefinedFilenameViaDialog(BuildContext context, String pat
               Padding(
                 padding: const EdgeInsets.only(top: 15.0),
                 child: TextField(
-                  controller: controller,
                   autofocus: true,
                   onChanged: (value) {
+                    currentInput = value.trim();
                     setState(() {
-                      if (value.trim().isEmpty) {
+                      if (currentInput.isEmpty) {
                         errorText = null;
-                      } else if (nameExists(value.trim())) {
+                      } else if (nameExists()) {
                         errorText = 'A file with this name already exists';
                       } else {
                         errorText = null;
@@ -184,12 +184,9 @@ Future<String?> getUserDefinedFilenameViaDialog(BuildContext context, String pat
         );
       },
     ),
-    beforeReturn: () => controller.dispose(),
     onConfirm: () {
-      final String input = controller.text.trim();
-      if (input.isNotEmpty && !nameExists(input)) {
-        storageName = input;
-        controller.dispose();
+      if (currentInput.isNotEmpty && !nameExists()) {
+        storageName = currentInput;
         Navigator.pop(context);
       }
     },
