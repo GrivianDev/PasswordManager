@@ -97,10 +97,6 @@ class _CustomDialog extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 10.0),
                 child: Text(
                   (type == NotificationType.confirmDialog || type == NotificationType.deleteDialog) ? 'Cancel' : 'Return',
-                  style: TextStyle(
-                    fontSize: Theme.of(context).textTheme.displaySmall?.fontSize,
-                    overflow: TextOverflow.ellipsis,
-                  ),
                 ),
               ),
             ),
@@ -108,18 +104,18 @@ class _CustomDialog extends StatelessWidget {
               ElevatedButton(
                 onPressed: onConfirm,
                 style: ButtonStyle(
-                  backgroundColor:
-                      WidgetStatePropertyAll<Color>(type == NotificationType.confirmDialog ? Theme.of(context).colorScheme.primary : Colors.red),
-                ),
+                    backgroundColor:
+                        WidgetStatePropertyAll<Color>(type == NotificationType.confirmDialog ? Theme.of(context).colorScheme.primary : Colors.red),
+                    overlayColor: WidgetStateProperty.resolveWith((Set<WidgetState> states) {
+                      if (states.contains(WidgetState.pressed)) {
+                        return Colors.red.shade600;
+                      }
+                      return Colors.red.shade400;
+                    })),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 10.0),
                   child: Text(
                     type == NotificationType.confirmDialog ? "Confirm" : "DELETE",
-                    style: TextStyle(
-                      fontSize: Theme.of(context).textTheme.displaySmall?.fontSize,
-                      overflow: TextOverflow.ellipsis,
-                      color: Colors.white,
-                    ),
                   ),
                 ),
               ),
