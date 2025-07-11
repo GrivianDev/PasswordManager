@@ -38,6 +38,18 @@ class AppThemeData {
     ),
     dialogTheme: DialogThemeData(
       backgroundColor: Color.fromRGBO(77, 83, 84, 1),
+      titleTextStyle: TextStyle(
+        fontSize: 25.0,
+        fontWeight: FontWeight.w400,
+        color: Colors.white,
+        overflow: TextOverflow.clip,
+      ),
+      contentTextStyle: TextStyle(
+        fontSize: 16.0,
+        fontWeight: FontWeight.w400,
+        color: Colors.white,
+        overflow: TextOverflow.clip,
+      ),
     ),
     iconButtonTheme: IconButtonThemeData(
       style: ButtonStyle(
@@ -219,6 +231,18 @@ class AppThemeData {
     ),
     dialogTheme: DialogThemeData(
       backgroundColor: Colors.white,
+      titleTextStyle: TextStyle(
+        fontSize: 25.0,
+        fontWeight: FontWeight.w400,
+        color: Colors.black87,
+        overflow: TextOverflow.clip,
+      ),
+      contentTextStyle: TextStyle(
+        fontSize: 16.0,
+        fontWeight: FontWeight.w400,
+        color: Colors.black87,
+        overflow: TextOverflow.clip,
+      ),
     ),
     iconButtonTheme: IconButtonThemeData(
       style: ButtonStyle(
