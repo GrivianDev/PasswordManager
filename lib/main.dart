@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:passwordmanager/engine/api/firebase/firebase.dart';
+import 'package:passwordmanager/engine/keys/access.dart';
 import 'package:provider/provider.dart';
-import 'package:passwordmanager/engine/cloud_connector.dart';
 import 'package:passwordmanager/pages/widgets/splash.dart';
-import 'package:passwordmanager/engine/local_database.dart';
+import 'package:passwordmanager/engine/db/local_database.dart';
 import 'package:passwordmanager/engine/other/themes.dart';
-import 'package:passwordmanager/engine/persistence.dart';
+import 'package:passwordmanager/engine/settings.dart';
 
 /// The main function. It firstly ensures that Flutter Widget bindings and the [Settings] class is initialized.
 /// Only then the Application is executed.
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Settings.init();
+  await Firestore.init(KeyStore.projectId, KeyStore.apiKey);
   runApp(const Application());
 }
 
@@ -30,9 +32,6 @@ class Application extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (context) => Settings(),
-        ),
-        Provider(
-          create: (context) => FirebaseConnector(),
         ),
       ],
       builder: (context, child) {

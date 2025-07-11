@@ -8,9 +8,8 @@ import 'package:passwordmanager/pages/settings_page.dart';
 import 'package:passwordmanager/pages/upload_page.dart';
 import 'package:passwordmanager/pages/manage_page.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
-import 'package:passwordmanager/engine/persistence.dart';
-import 'package:passwordmanager/engine/cloud_connector.dart';
-import 'package:passwordmanager/engine/local_database.dart';
+import 'package:passwordmanager/engine/settings.dart';
+import 'package:passwordmanager/engine/db/local_database.dart';
 
 /// Navbar that gives more options, in particular the option to activate and deactivate autosaving (Is not visible in mobile offlinemode).
 /// Also this widget is the only option to exit the [ManagePage]. External tries to exit the page for example
@@ -107,12 +106,12 @@ class NavBar extends StatelessWidget {
       onConfirm: () async {
         if (input != 'DELETE') return;
         final NavigatorState navigator = Navigator.of(context);
-        final FirebaseConnector connector = context.read<FirebaseConnector>();
+        final LocalDatabase database = LocalDatabase();
 
         try {
           Notify.showLoading(context: context);
-          await connector.deleteDocument();
-          LocalDatabase().clear();
+          await database.source?.deleteSource();
+          database.clear();
           navigator.pushAndRemoveUntil(
             MaterialPageRoute(
               builder: (context) => const HomePage(title: 'Home'),

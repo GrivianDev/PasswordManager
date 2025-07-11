@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:passwordmanager/engine/account.dart';
-import 'package:passwordmanager/engine/local_database.dart';
+import 'package:passwordmanager/engine/db/local_database.dart';
 import 'package:passwordmanager/pages/widgets/list_element.dart';
 
 /// The ListView displaying all [Account] instances based on the tag and order in the alphabet.

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:passwordmanager/engine/persistence.dart';
+import 'package:passwordmanager/engine/persistence/connector/firebase_connector.dart';
+import 'package:passwordmanager/engine/settings.dart';
 import 'package:provider/provider.dart';
-import 'package:passwordmanager/engine/cloud_connector.dart';
-import 'package:passwordmanager/engine/local_database.dart';
+import 'package:passwordmanager/engine/db/local_database.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
+
+import '../engine/api/firebase/firebase.dart';
+import 'firebase_login_page.dart';
 
 /// Widget that is displayed when a user wants to upload his data from a local file to the firebase cloud.
 /// Only needs a name because the password should already be defined through an active local manage session.
@@ -22,24 +25,25 @@ class _UploadPageState extends State<UploadPage> {
   /// This might fail if permission is denied or there is no internet connection.
   Future<void> _upload(BuildContext context) async {
     final NavigatorState navigator = Navigator.of(context);
-    final FirebaseConnector connector = context.read<FirebaseConnector>();
     final LocalDatabase database = LocalDatabase();
     final Settings settings = context.read<Settings>();
 
     Notify.showLoading(context: context);
     try {
-      await connector.login();
-      final bool exists = await connector.docExists(_nameController.text);
-      if (exists) {
-        throw Exception('Storage with the name "${_nameController.text}" already exists');
-      }
-      await connector.createDocument(
-        name: _nameController.text,
-        data: await database.formattedData,
+      await Firestore.instance.auth.loginWithRefreshToken();
+    } catch (e) {
+      await navigator.push(
+        MaterialPageRoute(builder: (context) => FirebaseLoginPage(loginMode: true)),
       );
+    }
+    navigator.pop();
+
+    Notify.showLoading(context: context);
+    try {
+    final FirebaseConnector connector = FirebaseConnector(cloudDocId: '', cloudDocName: _nameController.text);
+      await connector.create(await database.formattedData);
 
       navigator.pop();
-      connector.logout();
       if (!context.mounted) return;
       await Notify.dialog(
         context: context,
@@ -53,7 +57,6 @@ class _UploadPageState extends State<UploadPage> {
       navigator.pop();
     } catch (e) {
       navigator.pop();
-      connector.logout();
       if (!context.mounted) return;
       Notify.dialog(
         context: context,

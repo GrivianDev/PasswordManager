@@ -1,6 +1,6 @@
-import 'package:passwordmanager/engine/accessors/version/accessor_v0.dart';
-import 'package:passwordmanager/engine/accessors/version/accessor_v1.dart';
-import 'package:passwordmanager/engine/accessors/accessor.dart';
+import 'package:passwordmanager/engine/db/accessors/version/accessor_v0.dart';
+import 'package:passwordmanager/engine/db/accessors/version/accessor_v1.dart';
+import 'package:passwordmanager/engine/db/accessors/accessor.dart';
 
 class DataAccessorRegistry {
   static const String latestVersion = 'v1';

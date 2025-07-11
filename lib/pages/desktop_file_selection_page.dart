@@ -5,7 +5,7 @@ import 'package:passwordmanager/engine/selection_result.dart';
 import 'package:passwordmanager/pages/widgets/default_page_body.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:passwordmanager/engine/persistence.dart';
+import 'package:passwordmanager/engine/settings.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 
 import 'other/reusable_things.dart';

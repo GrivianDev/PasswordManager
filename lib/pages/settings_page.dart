@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:passwordmanager/pages/widgets/default_page_body.dart';
 import 'package:provider/provider.dart';
-import 'package:passwordmanager/engine/persistence.dart';
+import 'package:passwordmanager/engine/settings.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});

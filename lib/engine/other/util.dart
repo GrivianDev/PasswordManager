@@ -1,8 +1,7 @@
 import 'dart:io';
 
 String shortenPath(String fullPath) {
-  final cleaned = fullPath.replaceAll('\\', '/'); // Normalize just in case
-  final segments = cleaned.split('/');
+  final segments = fullPath.split(Platform.pathSeparator);
 
   if (segments.length >= 2) {
     final parent = segments[segments.length - 2];
@@ -13,4 +12,9 @@ String shortenPath(String fullPath) {
   } else {
     return fullPath;
   }
+}
+
+bool isValidEmail(String email) {
+  final RegExp simpleEmailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+  return simpleEmailRegex.hasMatch(email);
 }

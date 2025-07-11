@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:passwordmanager/engine/persistence.dart';
+import 'package:passwordmanager/engine/settings.dart';
 import 'package:passwordmanager/pages/home_page.dart';
 
 /// Little animated Splashcreen that navigates to the [HomePage] automaticly after a few seconds.

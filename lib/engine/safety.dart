@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:math';
-import 'package:passwordmanager/engine/persistence.dart';
+import 'package:passwordmanager/engine/settings.dart';
 
 /// Class providing two methods: [SafetyAnalyser.rateSafety], [SafetyAnalyser.generateSavePassword].
 /// Used for determining if a password is considered save or generate strong passwords.

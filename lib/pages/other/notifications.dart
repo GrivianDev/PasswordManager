@@ -76,11 +76,8 @@ class _CustomDialog extends StatelessWidget {
           title: title != null
               ? Text(
                   title!,
-                  style: TextStyle(
-                    fontWeight: Theme.of(context).textTheme.headlineLarge!.fontWeight,
-                    fontSize: Theme.of(context).textTheme.headlineLarge!.fontSize,
-                    color: type == NotificationType.error ? Colors.red : Theme.of(context).textTheme.headlineLarge!.color,
-                    overflow: TextOverflow.clip,
+                  style: Theme.of(context).textTheme.headlineLarge!.copyWith(
+                    color: type == NotificationType.error ? Colors.red : null,
                   ),
                 )
               : null,
@@ -100,12 +97,19 @@ class _CustomDialog extends StatelessWidget {
                 ),
               ),
             ),
-            if (type == NotificationType.confirmDialog || type == NotificationType.deleteDialog)
+            if (type == NotificationType.confirmDialog)
+              ElevatedButton(
+                onPressed: onConfirm,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 10.0),
+                  child: Text('Confirm'),
+                ),
+              ),
+            if (type == NotificationType.deleteDialog)
               ElevatedButton(
                 onPressed: onConfirm,
                 style: ButtonStyle(
-                    backgroundColor:
-                        WidgetStatePropertyAll<Color>(type == NotificationType.confirmDialog ? Theme.of(context).colorScheme.primary : Colors.red),
+                    backgroundColor: WidgetStatePropertyAll<Color>(Colors.red),
                     overlayColor: WidgetStateProperty.resolveWith((Set<WidgetState> states) {
                       if (states.contains(WidgetState.pressed)) {
                         return Colors.red.shade600;
@@ -114,9 +118,7 @@ class _CustomDialog extends StatelessWidget {
                     })),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 10.0),
-                  child: Text(
-                    type == NotificationType.confirmDialog ? "Confirm" : "DELETE",
-                  ),
+                  child: Text('DELETE'),
                 ),
               ),
           ],

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:passwordmanager/pages/two_factor_manage_page.dart';
 import 'package:passwordmanager/pages/widgets/password_field.dart';
 import 'package:provider/provider.dart';
-import 'package:passwordmanager/engine/local_database.dart';
+import 'package:passwordmanager/engine/db/local_database.dart';
 import 'package:passwordmanager/engine/account.dart';
 import 'package:passwordmanager/pages/editing_page.dart';
 

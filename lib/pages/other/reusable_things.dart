@@ -4,7 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:provider/provider.dart';
-import 'package:passwordmanager/engine/persistence.dart';
+import 'package:passwordmanager/engine/settings.dart';
 import 'package:passwordmanager/pages/help_page.dart';
 import 'notifications.dart';
 
@@ -130,6 +130,64 @@ Future<void> displayInfoDialog(BuildContext context) async {
   );
 }
 
+/// Building method for a small indicator on how strong the users password is.
+Column buildPasswordStrengthIndictator(BuildContext context, double rating) {
+  String text = 'Weak';
+  if (rating > 0.5) {
+    text = 'Decent';
+  }
+  if (rating > 0.85) {
+    text = 'Strong';
+  }
+  return Column(
+    children: [
+      Text(
+        'Password strength:',
+        style: Theme.of(context).textTheme.displaySmall,
+      ),
+      SizedBox(
+        width: 250,
+        height: 50,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 120.0,
+              height: 20.0,
+              child: TweenAnimationBuilder<double>(
+                tween: Tween<double>(begin: 0.0, end: rating),
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+                builder: (context, value, child) {
+                  return LinearProgressIndicator(
+                    value: value,
+                    color: Theme.of(context).colorScheme.primary,
+                    backgroundColor: Theme.of(context).primaryColor,
+                    borderRadius: BorderRadius.circular(10.0),
+                  );
+                },
+              ),
+            ),
+            Flexible(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 10.0),
+                child: Text(
+                  text,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontSize: Theme.of(context).textTheme.displaySmall!.fontSize,
+                    overflow: Theme.of(context).textTheme.displaySmall!.overflow,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ],
+  );
+}
+
 Future<String?> getUserDefinedFilenameViaDialog(BuildContext context, String path) async {
   String? storageName;
   String? errorText;
@@ -192,4 +250,25 @@ Future<String?> getUserDefinedFilenameViaDialog(BuildContext context, String pat
     },
   );
   return storageName;
+}
+
+Route createSlideRoute(Widget page, {bool reverse = false}) {
+  return PageRouteBuilder(
+    pageBuilder: (context, animation, secondaryAnimation) => page,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      const begin = Offset(1.0, 0.0); // right-to-left
+      const end = Offset.zero;
+      const reverseBegin = Offset(-1.0, 0.0); // left-to-right
+
+      final tween = Tween<Offset>(
+        begin: reverse ? reverseBegin : begin,
+        end: end,
+      ).chain(CurveTween(curve: Curves.easeInOut));
+
+      return SlideTransition(
+        position: animation.drive(tween),
+        child: child,
+      );
+    },
+  );
 }

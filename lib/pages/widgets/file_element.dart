@@ -55,7 +55,7 @@ class _FileWidgetState extends State<FileWidget> {
     }
   }
 
-  /// After user allows deletion file is deleted and [onDelete] callback is executed.
+  /// After user allows deletion file is deleted and [afterDelete] callback is executed.
   Future<void> _deleteFileClicked() async {
     bool? delete;
     await Notify.dialog(

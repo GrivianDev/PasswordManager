@@ -5,8 +5,8 @@ import 'package:passwordmanager/pages/other/base32_input_formatter.dart';
 import 'package:passwordmanager/pages/widgets/default_page_body.dart';
 import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/account.dart';
-import 'package:passwordmanager/engine/local_database.dart';
-import 'package:passwordmanager/engine/persistence.dart';
+import 'package:passwordmanager/engine/db/local_database.dart';
+import 'package:passwordmanager/engine/settings.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 
 class TwoFactorEditPage extends StatefulWidget {

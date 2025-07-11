@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:passwordmanager/pages/widgets/default_page_body.dart';
 import 'package:provider/provider.dart';
-import 'package:passwordmanager/engine/local_database.dart';
-import 'package:passwordmanager/engine/persistence.dart';
+import 'package:passwordmanager/engine/db/local_database.dart';
+import 'package:passwordmanager/engine/settings.dart';
 import 'package:passwordmanager/engine/safety.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 import 'package:passwordmanager/engine/account.dart';

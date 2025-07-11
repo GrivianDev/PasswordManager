@@ -1,5 +1,5 @@
 
-import 'package:passwordmanager/engine/local_database.dart';
+import 'package:passwordmanager/engine/db/local_database.dart';
 
 abstract class DataAccessor {
   String get version;

@@ -6,8 +6,8 @@ import 'package:passwordmanager/pages/widgets/two_factor_display_subpage.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:passwordmanager/engine/account.dart';
-import 'package:passwordmanager/engine/local_database.dart';
-import 'package:passwordmanager/engine/persistence.dart';
+import 'package:passwordmanager/engine/db/local_database.dart';
+import 'package:passwordmanager/engine/settings.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 
 class TwoFactorManagePage extends StatelessWidget {

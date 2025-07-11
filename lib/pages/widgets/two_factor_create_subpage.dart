@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:passwordmanager/pages/widgets/default_page_body.dart';
 import 'package:passwordmanager/engine/account.dart';
-import 'package:passwordmanager/engine/local_database.dart';
-import 'package:passwordmanager/engine/persistence.dart';
+import 'package:passwordmanager/engine/db/local_database.dart';
+import 'package:passwordmanager/engine/settings.dart';
 import 'package:passwordmanager/engine/two_factor_token.dart';
 import 'package:passwordmanager/pages/qr_scanner_page.dart';
 import 'package:passwordmanager/pages/two_factor_edit_page.dart';

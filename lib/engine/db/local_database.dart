@@ -1,7 +1,7 @@
 import 'dart:collection';
 import 'package:flutter/foundation.dart';
 import 'package:passwordmanager/engine/account.dart';
-import 'package:passwordmanager/engine/source.dart';
+import 'package:passwordmanager/engine/persistence/source.dart';
 
 /// LocalDatabase is the core class of this project. This object exists only once
 /// stored in the [_instance] property as Singleton. The [LocalDatabase] constructor just returns this reference.
@@ -53,7 +53,7 @@ final class LocalDatabase extends ChangeNotifier {
   /// And exception is thrown if the [_source] property is null.
   Future<void> load({required String password}) async {
     if (_source != null) {
-      if (_source!.isValid) {
+      if (await _source!.isValid) {
         _accounts.clear();
         _tagsUsed.clear();
         await _source!.loadData(password: password);
@@ -150,7 +150,6 @@ final class LocalDatabase extends ChangeNotifier {
   void clear({bool notify = true}) {
     _accounts.clear();
     _tagsUsed.clear();
-    if (_source != null) _source!.invalidate();
     _source = null;
     if (notify) notifyAll();
   }
