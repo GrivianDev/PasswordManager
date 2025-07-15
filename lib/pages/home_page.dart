@@ -1,15 +1,16 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:passwordmanager/engine/api/online_providers.dart';
 import 'package:passwordmanager/engine/db/local_database.dart';
 import 'package:passwordmanager/engine/other/util.dart';
 import 'package:passwordmanager/engine/persistence/connector/file_connector.dart';
 import 'package:passwordmanager/engine/selection_result.dart';
 import 'package:passwordmanager/pages/firebase_cloud_access_page.dart';
-import 'package:passwordmanager/pages/firebase_login_page.dart';
 import 'package:passwordmanager/pages/manage_page.dart';
 import 'package:passwordmanager/pages/mobile_file_selection_page.dart';
-import 'package:passwordmanager/pages/other/reusable_things.dart';
+import 'package:passwordmanager/pages/online_provider_select_page.dart';
+import 'package:passwordmanager/pages/flows/app_info_dialog.dart';
 import 'package:passwordmanager/pages/password_getter_page.dart';
 import 'package:passwordmanager/pages/widgets/default_page_body.dart';
 import 'package:passwordmanager/pages/desktop_file_selection_page.dart';
@@ -108,68 +109,65 @@ class HomePage extends StatelessWidget {
     final LocalDatabase database = LocalDatabase();
 
     try {
-      Notify.showLoading(context: context);
-      try {
-        await Firestore.instance.auth.loginWithRefreshToken();
-      } catch (e) {
-        await navigator.push(
-          MaterialPageRoute(builder: (context) => FirebaseLoginPage(loginMode: true)),
-        );
-      }
-      navigator.pop();
-
-      FirestoreSelectionResult? result;
-      if (Firestore.instance.auth.isUserLoggedIn) {
-        result = await navigator.push(
-          MaterialPageRoute(builder: (context) => FirebaseCloudAccessPage()),
-        );
-      }
+      LoginResult? result;
+      result = await navigator.push(
+        MaterialPageRoute(builder: (context) => OnlineProviderSelectPage()),
+      );
 
       if (result == null) return;
 
-      String? pw = await navigator.push(
-        MaterialPageRoute(
-          builder: (contex) => PasswordGetterPage(
-            path: null,
-            title: '${result!.isNewlyCreated ? 'Creating new' : 'Enter password for'} storage',
-            showIndicator: result.isNewlyCreated,
+      if (result.type == OnlineProvidertype.firestore) {
+        FirestoreSelectionResult? firestoreSelect = await navigator.push(
+          MaterialPageRoute(builder: (context) => FirebaseCloudAccessPage()),
+        );
+
+        if (firestoreSelect == null) return;
+
+        String? pw = await navigator.push(
+          MaterialPageRoute(
+            builder: (contex) => PasswordGetterPage(
+              path: null,
+              title: '${firestoreSelect!.isNewlyCreated ? 'Creating new' : 'Enter password for'} storage',
+              showIndicator: firestoreSelect.isNewlyCreated,
+            ),
           ),
-        ),
-      );
+        );
 
-      if (pw == null) return;
+        if (pw == null) return;
 
-      try {
-        Notify.showLoading(context: context);
-        database.setSource(Source(FirebaseConnector(cloudDocId: result.documentId, cloudDocName: result.documentName)));
-        if (result.isNewlyCreated) {
-          await database.source!.initialiseNewSource(password: pw);
-        } else {
-          await database.load(password: pw);
+        try {
+          if (!context.mounted) return;
+          Notify.showLoading(context: context);
+          database.setSource(Source(FirebaseConnector(cloudDocId: firestoreSelect.documentId, cloudDocName: firestoreSelect.documentName)));
+          if (firestoreSelect.isNewlyCreated) {
+            await database.source!.initialiseNewSource(password: pw);
+          } else {
+            await database.load(password: pw);
+          }
+        } catch (e) {
+          navigator.pop();
+          database.clear(notify: false);
+          rethrow;
         }
-      } catch (e) {
         navigator.pop();
-        database.clear(notify: false);
-        rethrow;
+
+      } else {
+        throw UnimplementedError('This provider selection is not implemented');
       }
-      navigator.pop();
 
       navigator.push(
         MaterialPageRoute(builder: (contex) => ManagePage()),
       );
   } catch (e) {
-      if (!context.mounted) return;
-      Notify.dialog(
-        context: context,
-        type: NotificationType.error,
-        title: 'Error occurred!',
-        content: Text(
-          e.toString(),
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
-      );
-    }
+    if (!context.mounted) return;
+    Notify.dialog(
+      context: context,
+      type: NotificationType.error,
+      title: 'Error occurred!',
+      content: Text(e.toString()),
+    );
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -197,10 +195,7 @@ class HomePage extends StatelessWidget {
         title: Row(
           children: [
             Flexible(
-              child: Text(
-                title,
-                style: Theme.of(context).appBarTheme.titleTextStyle,
-              ),
+              child: Text(title),
             ),
             Padding(
               padding: const EdgeInsets.only(left: 20.0, top: 5.0),

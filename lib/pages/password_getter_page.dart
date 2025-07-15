@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:passwordmanager/engine/safety.dart';
-import 'package:passwordmanager/pages/other/reusable_things.dart';
+import 'package:passwordmanager/pages/widgets/password_strength_indicator.dart';
 import 'package:passwordmanager/pages/widgets/default_page_body.dart';
 
 /// Widget that provides a password upon being popped. The user is asked to type in a password that
@@ -52,11 +52,12 @@ class _PasswordGetterPageState extends State<PasswordGetterPage> {
             child: Column(
               spacing: 20,
               children: [
-                Text(
-                  widget.path ?? '',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
+                if (widget.path != null)
+                  Text(
+                    widget.path!,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
                 TextField(
                   obscureText: _isObscured,
                   maxLength: 128,
@@ -89,7 +90,7 @@ class _PasswordGetterPageState extends State<PasswordGetterPage> {
                   },
                   onSubmitted: (string) => _canSubmit ? Navigator.pop(context, string) : null,
                 ),
-                if (widget.showIndicator) buildPasswordStrengthIndictator(context, _rating),
+                if (widget.showIndicator) PasswordStrengthIndicator(rating: _rating),
               ],
             ),
           ),

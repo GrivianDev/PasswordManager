@@ -7,8 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:passwordmanager/engine/settings.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
-
-import 'other/reusable_things.dart';
+import 'package:passwordmanager/pages/flows/user_input_dialog.dart';
 
 class DesktopFileSelectionPage extends StatelessWidget {
   const DesktopFileSelectionPage({super.key});
@@ -60,10 +59,7 @@ class DesktopFileSelectionPage extends StatelessWidget {
         context: context,
         type: NotificationType.error,
         title: 'Error occurred!',
-        content: Text(
-          e.toString(),
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
+        content: Text(e.toString()),
       );
     }
   }
@@ -83,7 +79,20 @@ class DesktopFileSelectionPage extends StatelessWidget {
       if (path == null) return;
 
       // Get user file name wish
-      String? storageName = await getUserDefinedFilenameViaDialog(context, path);
+      if (!context.mounted) return;
+      String? storageName = await getUserInputDialog(
+          context: context,
+          title: 'Name your new storage',
+          description: 'What name do you want for your storage?',
+          labelText: 'Name',
+          validator: (value) {
+            final File fileCheck = File('$path${Platform.pathSeparator}$value.x');
+            if (fileCheck.existsSync()) {
+              return 'File with this name already exists!';
+            }
+            return null;
+          }
+      );
 
       if (storageName == null) return;
 
@@ -100,10 +109,7 @@ class DesktopFileSelectionPage extends StatelessWidget {
         context: context,
         type: NotificationType.error,
         title: 'Error occurred!',
-        content: Text(
-          e.toString(),
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
+        content: Text(e.toString()),
       );
     }
   }

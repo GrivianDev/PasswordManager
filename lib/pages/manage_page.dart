@@ -100,7 +100,7 @@ class _ManagePageState extends State<ManagePage> {
       type: NotificationType.notification,
       title: 'Details ${source.usesFirestoreCloud ? '(Cloud storage)' : '(Local file)'}',
       content: Text(
-        'Name: "${source.name}\nStorage version: ${source.accessorVersion ?? 'Not specified'}\nAccounts: ${database.accounts.length}/${LocalDatabase.maxCapacity}\nTags: ${database.tags.length}',
+        'Name: "${source.name}"\nStorage version: ${source.accessorVersion ?? 'Not specified'}\nAccounts: ${database.accounts.length}/${LocalDatabase.maxCapacity}\nTags: ${database.tags.length}',
         style: Theme.of(context).textTheme.bodySmall,
       ),
     );

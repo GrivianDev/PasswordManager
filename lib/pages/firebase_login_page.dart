@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:passwordmanager/engine/other/util.dart';
 import 'package:passwordmanager/engine/api/firebase/firebase.dart';
-import 'package:passwordmanager/pages/firebase_cloud_access_page.dart';
-import 'package:passwordmanager/pages/other/reusable_things.dart';
 import 'package:passwordmanager/pages/widgets/default_page_body.dart';
 import 'package:passwordmanager/engine/safety.dart';
-
-import 'other/notifications.dart';
+import 'package:passwordmanager/pages/other/notifications.dart';
+import 'package:passwordmanager/pages/widgets/password_strength_indicator.dart';
 
 class FirebaseLoginPage extends StatefulWidget {
   const FirebaseLoginPage({super.key, required this.loginMode});
@@ -18,18 +16,19 @@ class FirebaseLoginPage extends StatefulWidget {
 }
 
 class _FirebaseLoginPageState extends State<FirebaseLoginPage> {
-  late TextEditingController _emailController;
-  late TextEditingController _pwController;
+  late final TextEditingController _emailController;
+  late final TextEditingController _pwController;
   String? _emailFieldErrortext;
   double _rating = 0.0;
   bool _canSubmit = false;
   bool _isObscured = true;
+  bool _loginMode = true;
 
   Future<void> _onSubmit() async {
     final NavigatorState navigator = Navigator.of(context);
     try {
       Notify.showLoading(context: context);
-      if (widget.loginMode) {
+      if (_loginMode) {
         await Firestore.instance.auth.login(_emailController.text, _pwController.text);
       } else {
         await Firestore.instance.auth.signUp(_emailController.text, _pwController.text);
@@ -38,6 +37,7 @@ class _FirebaseLoginPageState extends State<FirebaseLoginPage> {
       navigator.pop(true);
     } catch (e) {
       navigator.pop();
+      if (!mounted) return;
       await Notify.dialog(
         context: context,
         type: NotificationType.error,
@@ -50,8 +50,12 @@ class _FirebaseLoginPageState extends State<FirebaseLoginPage> {
   @override
   void initState() {
     super.initState();
-
-    _emailController = TextEditingController();
+    String? initialEmail;
+    try {
+      initialEmail = Firestore.instance.auth.lastSignedInEmail();
+    } catch (_) {}
+    _loginMode = widget.loginMode;
+    _emailController = TextEditingController(text: initialEmail);
     _pwController = TextEditingController();
   }
 
@@ -66,7 +70,7 @@ class _FirebaseLoginPageState extends State<FirebaseLoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.loginMode ? 'Login to Firebase' : 'Register at Firebase'),
+        title: Text(_loginMode ? 'Login to Firebase' : 'Register at Firebase'),
       ),
       body: Stack(
         children: [
@@ -123,29 +127,35 @@ class _FirebaseLoginPageState extends State<FirebaseLoginPage> {
                   },
                   onSubmitted: (string) => _canSubmit ? _onSubmit() : null,
                 ),
-                if (!widget.loginMode) buildPasswordStrengthIndictator(context, _rating),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      widget.loginMode ? 'No account?' : 'Already have an account?',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pushReplacement(
-                          createSlideRoute(
-                            FirebaseLoginPage(loginMode: !widget.loginMode),
-                            reverse: !widget.loginMode,
-                          ),
-                        );
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Text(widget.loginMode ? 'Sign up' : 'Login'),
+                AnimatedSwitcher(
+                  duration: Duration(milliseconds: 300),
+                  transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
+                  child: !_loginMode ? PasswordStrengthIndicator(rating: _rating) : const SizedBox.shrink(),
+                ),
+                AnimatedSwitcher(
+                  duration: Duration(milliseconds: 300),
+                  transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
+                  child: Row(
+                    key: ValueKey(_loginMode),
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        _loginMode ? 'No account?' : 'Already have an account?',
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
-                    ),
-                  ],
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            _loginMode = !_loginMode;
+                          });
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Text(_loginMode ? 'Sign up' : 'Login'),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),

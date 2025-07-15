@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:passwordmanager/engine/api/firebase/firebase.dart';
 import 'package:passwordmanager/engine/selection_result.dart';
-import 'package:passwordmanager/pages/widgets/cloud_document.dart';
+import 'package:passwordmanager/pages/widgets/firestore_document_widget.dart';
 import 'other/notifications.dart';
 
 class FirebaseCloudAccessPage extends StatefulWidget {
@@ -12,22 +12,22 @@ class FirebaseCloudAccessPage extends StatefulWidget {
 }
 
 class _FirebaseCloudAccessPageState extends State<FirebaseCloudAccessPage> {
-  late Future<List<CloudDocument>> _listDocuments;
+  late Future<List<FirestoreDocumentWidget>> _listDocuments;
 
-  Future<List<CloudDocument>> _getListDocumentsFuture() async {
+  Future<List<FirestoreDocumentWidget>> _getListDocumentsFuture() async {
     final List<Map<String, dynamic>> documents = await Firestore.instance.getCollection(
         Firestore.instance.userVaultPath,
         fieldMask: ['name']
     );
 
-    final List<CloudDocument> docWidgets = [];
+    final List<FirestoreDocumentWidget> docWidgets = [];
     for (final Map<String, dynamic> doc in documents) {
       final String documentId = doc['name'].split('/').last;
       final String documentName = doc['fields']?['name']?['stringValue'] ?? '<no-name>';
-      docWidgets.add(CloudDocument(
+      docWidgets.add(FirestoreDocumentWidget(
           documentId: documentId,
           documentName: documentName,
-          onClicked: (value) {
+          onClicked: () {
             Navigator.pop(context, FirestoreSelectionResult(documentId, documentName, false));
           },
           afterDelete: () => setState(() {
@@ -39,6 +39,8 @@ class _FirebaseCloudAccessPageState extends State<FirebaseCloudAccessPage> {
   }
 
   Future<void> _createNew() async {
+    final NavigatorState navigator = Navigator.of(context);
+
     String? storageName;
     String currentInput = '';
 
@@ -86,7 +88,7 @@ class _FirebaseCloudAccessPageState extends State<FirebaseCloudAccessPage> {
     );
 
     if (storageName != null) {
-      Navigator.pop(context, FirestoreSelectionResult('', storageName!, true));
+      navigator.pop(FirestoreSelectionResult('', storageName!, true));
     }
   }
 
@@ -100,26 +102,7 @@ class _FirebaseCloudAccessPageState extends State<FirebaseCloudAccessPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Select cloud document',
-          style: Theme.of(context).appBarTheme.titleTextStyle,
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 20),
-            child: IconButton(
-              onPressed: () async {
-                await Firestore.instance.auth.logout();
-                Navigator.pop(context);
-              },
-              icon: Icon(
-                Icons.logout,
-                color: Colors.red,
-              ),
-              tooltip: 'Logout',
-            ),
-          )
-        ],
+        title: Text('Select cloud document'),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -133,7 +116,7 @@ class _FirebaseCloudAccessPageState extends State<FirebaseCloudAccessPage> {
           padding: const EdgeInsets.all(25.0),
           child: Column(
             children: [
-              FutureBuilder<List<CloudDocument>>(
+              FutureBuilder<List<FirestoreDocumentWidget>>(
                 future: _listDocuments,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.done) {
@@ -151,7 +134,7 @@ class _FirebaseCloudAccessPageState extends State<FirebaseCloudAccessPage> {
                         ),
                       );
                     } else {
-                      if (snapshot.hasData && snapshot.data!.length > 0) {
+                      if (snapshot.hasData && snapshot.data!.isNotEmpty) {
                         return Expanded(
                           child: ListView.separated(
                             itemCount: snapshot.data!.length,

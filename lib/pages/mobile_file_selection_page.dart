@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:passwordmanager/engine/selection_result.dart';
 import 'package:passwordmanager/pages/widgets/file_element.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
-import 'package:passwordmanager/pages/other/reusable_things.dart';
+import 'package:passwordmanager/pages/flows/user_input_dialog.dart';
 import 'package:path_provider/path_provider.dart';
 
 /// Page that displays all available .x files in the apps directory on mobile.
-/// Also allows selection of external files.
+/// Also allows selection of external files adn creation of new ones.
 class MobileFileSelectionPage extends StatefulWidget {
   const MobileFileSelectionPage({super.key, required this.dir});
 
@@ -61,14 +61,12 @@ class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
 
       if (await file.exists()) {
         bool? allow;
+        if(!mounted) return;
         await Notify.dialog(
             context: context,
             type: NotificationType.confirmDialog,
             title: 'File already exists',
-            content: Text(
-              'Allow overwriting of current file?',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
+            content: Text('Allow overwriting of current file?'),
             onConfirm: () {
               allow = true;
               Navigator.of(context).pop();
@@ -76,28 +74,22 @@ class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
         if (!(allow ?? false)) return;
       }
 
-      if (!context.mounted) return;
-      try {
-        await cacheFile.copy(file.path);
-        await FilePicker.platform.clearTemporaryFiles();
-      } catch (e) {
-        //precaution
-      }
+      await cacheFile.copy(file.path);
+      await FilePicker.platform.clearTemporaryFiles();
 
-      navigator.pop();
+      navigator.pop(); // Pop loading widget
       navigator.pop(FileSelectionResult(file: file, isNewlyCreated: false));
     } catch (e) {
-      await FilePicker.platform.clearTemporaryFiles();
+      try {
+        await FilePicker.platform.clearTemporaryFiles();
+      } catch (_) {}
       navigator.pop();
-      if (!context.mounted) return;
+      if (!mounted) return;
       Notify.dialog(
         context: context,
         type: NotificationType.error,
         title: 'Error occurred!',
-        content: Text(
-          e.toString(),
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
+        content: Text(e.toString()),
       );
     }
   }
@@ -105,7 +97,7 @@ class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
   /// Returns a new not existing save file in the selected directory.
   /// Cases an error is thrown:
   /// * An unknown error occurred
-  Future<void> _mobileCreateFile(BuildContext context) async {
+  Future<void> _mobileCreateFile() async {
     final NavigatorState navigator = Navigator.of(context);
 
     try {
@@ -114,28 +106,32 @@ class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
       if (path == null) return;
 
       // Get user file name wish
-      String? storageName = await getUserDefinedFilenameViaDialog(context, path);
+      if (!mounted) return;
+      String? storageName = await getUserInputDialog(
+          context: context,
+          title: 'Name your new storage',
+          description: 'What name do you want for your storage?',
+          labelText: 'Name',
+          validator: (value) {
+            final File fileCheck = File('$path${Platform.pathSeparator}$value.x');
+            if (fileCheck.existsSync()) {
+              return 'File with this name already exists!';
+            }
+            return null;
+          }
+      );
 
       if (storageName == null) return;
 
       final File file = File('$path${Platform.pathSeparator}$storageName.x');
-
-      if (file.existsSync()) {
-        // Sanity check
-        throw Exception('This file already exists!');
-      }
-
       navigator.pop(FileSelectionResult(file: file, isNewlyCreated: true));
     } catch (e) {
-      if (!context.mounted) return;
+      if (!mounted) return;
       Notify.dialog(
         context: context,
         type: NotificationType.error,
         title: 'Error occurred!',
-        content: Text(
-          e.toString(),
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
+        content: Text(e.toString()),
       );
     }
   }
@@ -236,7 +232,7 @@ class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
                 child: Align(
                   alignment: Alignment.bottomRight,
                   child: TextButton(
-                    onPressed: () => _mobileFileSelection(),
+                    onPressed: _mobileFileSelection,
                     child: const Padding(
                       padding: EdgeInsets.all(10.0),
                       child: Text('Select other'),
@@ -250,7 +246,7 @@ class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
                 child: Align(
                   alignment: Alignment.bottomRight,
                   child: TextButton(
-                    onPressed: () => _mobileCreateFile(context),
+                    onPressed: _mobileCreateFile,
                     child: const Padding(
                       padding: EdgeInsets.all(10.0),
                       child: Text('Create new'),
