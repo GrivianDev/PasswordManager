@@ -15,7 +15,7 @@ import 'package:passwordmanager/engine/db/local_database.dart';
 /// Also this widget is the only option to exit the [ManagePage]. External tries to exit the page for example
 /// through the Android back button are suppressed. You have to explicitly leave the page through clicking logout.
 /// Additional option in offlinemode is to upload current data.
-/// Onlinemode also allows backup saves and deletion of cloud storage.
+/// Onlinemode also allows backup saves.
 class NavBar extends StatelessWidget {
   const NavBar({super.key});
 
@@ -70,61 +70,6 @@ class NavBar extends StatelessWidget {
         ),
       );
     }
-  }
-
-  /// Forever deletes current storage from firebase cloud and wipes database by calling [LocalDatabase.clear].
-  /// Does nothing if deletion fails.
-  Future<void> _deleteStorage(BuildContext context) async {
-    String input = '';
-
-    await Notify.dialog(
-      context: context,
-      type: NotificationType.deleteDialog,
-      title: 'Are you sure?',
-      content: SizedBox(
-        width: double.maxFinite,
-        child: ListView(
-          shrinkWrap: true,
-          children: [
-            Text(
-              'Do you really want to wipe all data of this cloud storage? Action cannot be undone!',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 15.0),
-              child: TextField(
-                onChanged: (value) => input = value.trim(),
-                decoration: const InputDecoration(
-                  constraints: BoxConstraints(maxWidth: 100, maxHeight: 60.0),
-                  hintText: 'Enter "DELETE"',
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-      onConfirm: () async {
-        if (input != 'DELETE') return;
-        final NavigatorState navigator = Navigator.of(context);
-        final LocalDatabase database = LocalDatabase();
-
-        try {
-          Notify.showLoading(context: context);
-          await database.source?.deleteSource();
-          database.clear();
-          navigator.pushAndRemoveUntil(
-            MaterialPageRoute(
-              builder: (context) => const HomePage(title: 'Home'),
-            ),
-            (route) => false,
-          );
-        } catch (e) {
-          navigator.pop();
-          navigator.pop();
-          navigator.pop();
-        }
-      },
-    );
   }
 
   /// Saves a backup of the currently loaded accounts into the selected file or the designated directory on mobile.
@@ -296,36 +241,6 @@ class NavBar extends StatelessWidget {
               ),
             ),
           ),
-          if (context.read<LocalDatabase>().source?.usesFirestoreCloud == true) ...[
-            const Divider(),
-            TextButton(
-              onPressed: () async => _deleteStorage(context),
-              child: const Padding(
-                padding: EdgeInsets.symmetric(vertical: 5.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Icon(
-                      Icons.delete_outline,
-                      color: Colors.red,
-                      size: 30.0,
-                    ),
-                    Flexible(
-                      child: Padding(
-                        padding: EdgeInsets.only(left: 15.0),
-                        child: Text(
-                          'Delete',
-                          style: TextStyle(
-                            color: Colors.red,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
           const Divider(),
           Padding(
             padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
