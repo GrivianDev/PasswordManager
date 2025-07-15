@@ -18,7 +18,7 @@ class FirebaseConnector implements PersistenceConnector {
   @override
   Future<String> load() async {
     final Map<String, dynamic> doc = await Firestore.instance.getDocument('${Firestore.instance.userVaultPath}/$_cloudDocId', fieldMask: ['data']);
-    return doc['data']['stringValue'];
+    return doc['fields']['data']['stringValue'];
   }
 
   /// Saves a new version of the formatted, encrypted data string
@@ -30,7 +30,8 @@ class FirebaseConnector implements PersistenceConnector {
   /// Creates a new document or file with the given content (may be the same as save)
   @override
   Future<void> create(String formattedData) async {
-    await Firestore.instance.setDocument(Firestore.instance.userVaultPath, {'data': formattedData});
+    String totalDocPath = await Firestore.instance.createDocument(Firestore.instance.userVaultPath, {'data': formattedData});
+    _cloudDocId = totalDocPath.split('/').last;
   }
 
   /// Optionally invalidates the session or state (e.g., logout, cache clear)
