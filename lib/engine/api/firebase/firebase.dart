@@ -1,10 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
-
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:passwordmanager/engine/keys/access.dart';
 
 // ----- Global helper functions ------
 
@@ -54,10 +51,11 @@ String? _extractFirebaseError(String body) {
 
 class FirestoreUser {
   final String email;
-  final String userId;
-  final String token;
+  final String refreshToken;
+  final String? userId;
+  final String? idToken;
 
-  FirestoreUser({required this.email, required this.userId, required this.token});
+  FirestoreUser(this.email, this.refreshToken, this.userId, this.idToken);
 }
 
 class FirebaseAuth {
@@ -78,10 +76,21 @@ class FirebaseAuth {
 
   bool get isUserLoggedIn => _user != null;
 
+  bool get isUserAuthenticated => _user?.userId != null && _user?.idToken != null;
+
   FirestoreUser? get user => _user;
 
   Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
+  }
+
+  String? lastSignedInEmail() {
+    String? email;
+    try {
+      email = _prefs.getString(_keyEmail);
+    } catch (_) {}
+
+    return email;
   }
 
   Future<void> signUp(String email, String password) async {
@@ -100,11 +109,12 @@ class FirebaseAuth {
 
     // Store login info
     final String userId = data['localId'];
-    final String token = data['idToken'];
+    final String idToken = data['idToken'];
+    final String refreshToken = data['refreshToken'];
     await _prefs.setString(_keyEmail, email);
-    await _prefs.setString(_keyRefreshToken, data['refreshToken']);
+    await _prefs.setString(_keyRefreshToken, refreshToken);
     // Set firestore user
-    _user = FirestoreUser(email: email, userId: userId, token: token);
+    _user = FirestoreUser(email, refreshToken, userId, idToken);
   }
 
   Future<void> login(String email, String password) async {
@@ -122,11 +132,12 @@ class FirebaseAuth {
 
     // Store login info
     final String userId = data['localId'];
-    final String token = data['idToken'];
+    final String idToken = data['idToken'];
+    final String refreshToken = data['refreshToken'];
     await _prefs.setString(_keyEmail, email);
-    await _prefs.setString(_keyRefreshToken, data['refreshToken']);
+    await _prefs.setString(_keyRefreshToken, refreshToken);
     // Set firestore user
-    _user = FirestoreUser(email: email, userId: userId, token: token);
+    _user = FirestoreUser(email, refreshToken, userId, idToken);
   }
 
   Future<void> loginWithRefreshToken() async {
@@ -149,9 +160,9 @@ class FirebaseAuth {
     final data = jsonDecode(response.body);
     // Store login info
     final String userId = data['user_id'];
-    final String token = data['id_token'];
+    final String idToken = data['id_token'];
     // Set firestore user
-    _user = FirestoreUser(email: email, userId: userId, token: token);
+    _user = FirestoreUser(email, refreshToken, userId, idToken);
   }
 
   Future<void> logout() async {
@@ -176,25 +187,41 @@ class Firestore {
     await instance.auth.init();
   }
 
-  Future<void> setDocument(String docPath, Map<String, dynamic> data) async {
-    final uri = Uri.parse('$basePath/$docPath');
-    await _sendFirestoreRequest(
-          () => http.patch(
+  Future<String> createDocument(String collectionPath, Map<String, dynamic> data) async {
+    final uri = Uri.parse('$basePath/$collectionPath');
+    final response = await _sendFirestoreRequest(
+      () => http.post(
         uri,
         headers: _headers(),
         body: jsonEncode({'fields': _wrapFields(data)}),
       ),
       expectedStatusCodes: [200],
-      tryReloginIfAuthFailed: auth
+      tryReloginIfAuthFailed: auth,
+    );
+
+    final json = jsonDecode(response.body);
+    return json['name'];
+  }
+
+  Future<void> setDocument(String docPath, Map<String, dynamic> data) async {
+    final uri = Uri.parse('$basePath/$docPath');
+    await _sendFirestoreRequest(
+      () => http.patch(
+        uri,
+        headers: _headers(),
+        body: jsonEncode({'fields': _wrapFields(data)}),
+      ),
+      expectedStatusCodes: [200],
+      tryReloginIfAuthFailed: auth,
     );
   }
 
   Future<Map<String, dynamic>> getDocument(String docPath, {List<String>? fieldMask}) async {
     final uri = Uri.parse('$basePath/$docPath${_buildFieldMask(fieldMask)}');
     final response = await _sendFirestoreRequest(
-          () => http.get(uri, headers: _headers()),
+      () => http.get(uri, headers: _headers()),
       expectedStatusCodes: [200],
-        tryReloginIfAuthFailed: auth
+      tryReloginIfAuthFailed: auth,
     );
     return jsonDecode(response.body);
   }
@@ -202,7 +229,7 @@ class Firestore {
   Future<List<Map<String, dynamic>>> getCollection(String collectionPath, {List<String>? fieldMask}) async {
     final uri = Uri.parse('$basePath/$collectionPath${_buildFieldMask(fieldMask)}');
     final response = await _sendFirestoreRequest(
-          () => http.get(uri, headers: _headers()),
+      () => http.get(uri, headers: _headers()),
       expectedStatusCodes: [200],
     );
     final json = jsonDecode(response.body);
@@ -211,15 +238,17 @@ class Firestore {
   }
 
   Future<void> updateDocument(String path, Map<String, dynamic> data) async {
+    if (data.isEmpty) return;
+
     final uri = Uri.parse('$basePath/$path?updateMask.fieldPaths=${data.keys.join(",")}');
     await _sendFirestoreRequest(
-          () => http.patch(
+      () => http.patch(
         uri,
         headers: _headers(),
         body: jsonEncode({'fields': _wrapFields(data)}),
       ),
       expectedStatusCodes: [200],
-      tryReloginIfAuthFailed: auth
+      tryReloginIfAuthFailed: auth,
     );
   }
 
@@ -227,16 +256,16 @@ class Firestore {
     final uri = Uri.parse('$basePath/$path');
     print(uri);
     await _sendFirestoreRequest(
-          () => http.delete(uri, headers: _headers()),
+      () => http.delete(uri, headers: _headers()),
       expectedStatusCodes: [200, 204], // 204 is often used for successful deletions
-      tryReloginIfAuthFailed: auth
+      tryReloginIfAuthFailed: auth,
     );
   }
 
 
   // ----------- Helpers ------------
   Map<String, String> _headers() => {
-    'Authorization': 'Bearer ${auth.user?.token}',
+    'Authorization': 'Bearer ${auth.user?.idToken}',
     'Content-Type': 'application/json',
   };
 
