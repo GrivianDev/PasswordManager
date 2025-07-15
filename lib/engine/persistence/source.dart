@@ -49,7 +49,7 @@ final class Source {
     final String formattedData = await _accessor!.encryptAndFormat(dbRef, password);
 
     if (await connector.isAvailable) {
-      connector.create(formattedData);
+      await connector.create(formattedData);
     } else {
       throw Exception('Connector was not available');
     }
@@ -60,7 +60,7 @@ final class Source {
     final String formattedData = await getFormattedData();
 
     if (await connector.isAvailable) {
-      connector.save(formattedData);
+      await connector.save(formattedData);
     } else {
       throw Exception('Connector was not available');
     }
