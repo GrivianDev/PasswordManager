@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:passwordmanager/engine/other/util.dart';
 import 'package:provider/provider.dart';
 import 'package:passwordmanager/pages/widgets/hoverbuilder.dart';
 import 'package:passwordmanager/engine/account.dart';
@@ -15,19 +16,6 @@ class ListElement extends StatelessWidget {
   const ListElement({super.key, required Account account}) : _account = account;
 
   final Account _account;
-
-  /// Returns a preview of the email in the following format: testing@example.com => t...g@example.com, but only
-  /// if there was a valid email fomatting criteria.
-  String? _mailPreview() {
-    if (_account.email?.contains('@') == true) {
-      String show = String.fromCharCode(_account.email!.codeUnitAt(0));
-      show = '$show...';
-      int remainsIndex = _account.email!.indexOf('@') - 1;
-      if (remainsIndex < 0) return null;
-      return '$show${_account.email!.substring(remainsIndex)}';
-    }
-    return null;
-  }
 
   /// Asynchronous method to save the fact that the account has been deleted.
   /// Displays a snackbar if succeded.
@@ -150,7 +138,7 @@ class ListElement extends StatelessWidget {
                     if (isHovered)
                       Expanded(
                         child: Text(
-                          isHovered ? _mailPreview() ?? '' : '',
+                          isHovered ? mailPreview(_account.email ?? '') ?? '' : '',
                           style: Theme.of(context).textTheme.displaySmall,
                           textAlign: TextAlign.center,
                         ),
