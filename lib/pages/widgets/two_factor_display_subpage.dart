@@ -2,11 +2,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ntp/ntp.dart';
+import 'package:passwordmanager/engine/config/app_config.dart';
 import 'package:passwordmanager/engine/two_factor_token.dart';
 import 'package:passwordmanager/pages/widgets/default_page_body.dart';
-import 'package:provider/provider.dart';
-import 'package:passwordmanager/engine/settings.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
+
+// This is the NTP time offset to calculate how much off the local system time is.
+Duration? _ntpOffset;
 
 class TwoFactorDisplaySubpage extends StatefulWidget {
   const TwoFactorDisplaySubpage({super.key, required this.twoFactorSecret});
@@ -20,7 +22,6 @@ class TwoFactorDisplaySubpage extends StatefulWidget {
 class _TwoFactorDisplaySubpageState extends State<TwoFactorDisplaySubpage> with SingleTickerProviderStateMixin {
   late AnimationController _animController;
   late String _currentCode;
-  Duration? _ntpOffset;
   bool _ntpLoaded = false;
 
   /// Synced time with fetched ntp offset. Falls back to normal local device time.
@@ -31,18 +32,15 @@ class _TwoFactorDisplaySubpageState extends State<TwoFactorDisplaySubpage> with 
 
   /// Async getter and setup function for fetching time offset of local device.
   Future<void> _initWithNtp() async {
-    final settings = context.read<Settings>();
-    if (settings.ntpOffset == null) {
-      DateTime localDate = DateTime.now().toUtc();
+    if (_ntpOffset == null) {
       try {
-        DateTime ntpDate = await NTP.now(timeout: Duration(seconds: 5));
-        settings.ntpOffset = localDate.difference(ntpDate.toUtc());
+        DateTime ntpDate = await NTP.now(lookUpAddress: Config.ntpTimeSyncDomain, timeout: Duration(seconds: 5));
+        DateTime localDate = DateTime.now().toUtc();
+        _ntpOffset = localDate.difference(ntpDate.toUtc());
       } catch (_) {
-        settings.ntpOffset = null;
+        _ntpOffset = null;
       }
     }
-
-    _ntpOffset = settings.ntpOffset;
 
     final DateTime now = _getSyncedTime();
     final double currentProgress = (now.millisecondsSinceEpoch % 30000) / 30000;
