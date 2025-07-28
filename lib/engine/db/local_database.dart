@@ -3,159 +3,136 @@ import 'package:flutter/foundation.dart';
 import 'package:passwordmanager/engine/account.dart';
 import 'package:passwordmanager/engine/persistence/source.dart';
 
-/// LocalDatabase is the core class of this project. This object exists only once
-/// stored in the [_instance] property as Singleton. The [LocalDatabase] constructor just returns this reference.
-/// In addition this class extends the [ChangeNotifier]. Outside calls with [addAccount], [addAllAccounts], [callEditOf], [removeAccount] or [clear] notify all listeners.
-/// Uses a [Source] to determine if cloud or local file should be used for saving changes.
+/// A central class that manages a list of [Account]s and handles loading/saving
+/// via a [Source]. Extends [ChangeNotifier] to support UI updates.
 final class LocalDatabase extends ChangeNotifier {
-  static final LocalDatabase _instance = LocalDatabase._create();
   static const int maxCapacity = 1000;
   static const String disallowedCharacter = '\u0407';
 
   Source? _source;
+  bool _hasUnsavedChanges = false;
+  final List<Account> _accounts = [];
 
-  final List<Account> _accounts;
-  final Set<String> _tagsUsed;
-
-  /// Private constructor for initialising this singleton.
-  LocalDatabase._create()
-      : _accounts = List.empty(growable: true),
-        _tagsUsed = SplayTreeSet.from(
-          const Iterable<String>.empty(),
-          (a, b) => a.compareTo(b),
-        );
-
-  /// Standard constructor. However this always returns the same reference since this
-  /// class is implemented as singleton.
-  factory LocalDatabase() => _instance;
-
-  /// Returns all currently stored [Account] references as unmodifiable List.
+  /// Unmodifiable list of all stored [Account]s.
   List<Account> get accounts => List.unmodifiable(_accounts);
 
-  /// Returns all currently stored tag-string references as unmodifiable Set.
-  Set<String> get tags => Set.unmodifiable(_tagsUsed);
+  /// Sorted set of all tags currently used by accounts.
+  Set<String> get tags => SplayTreeSet.from(_accounts.map((a) => a.tag));
 
+  /// Currently assigned source used for loading/saving.
   Source? get source => _source;
 
-  Future<String> get formattedData async {
-    if(_source == null) throw Exception("Called getter for formatted data but source is not set in database.");
-    return await _source!.getFormattedData();
+  /// Whether a source has been set.
+  bool get isInitialised => _source != null;
+
+  /// Whether there are unsaved changes since the last save/load.
+  bool get hasUnsavedChanges => _hasUnsavedChanges;
+
+  /// The current raw database content in string form, provided by the [Source].
+  Future<String> get formattedData {
+    if (_source == null) {
+      throw Exception("Cannot access formatted data: no source set.");
+    }
+    return _source!.getFormattedData();
   }
 
-  /// Before calling the [load] or [save] function this method MUST be called to provide
-  /// the source File or cloud data to use for encryption and decryption.
-  void setSource(Source source) {
-    _source = source;
-    _source!.dbRef = this;
-  }
-
-  /// Asynchronous method to load [Account] references from the source provided through the [setSource] method.
-  /// And exception is thrown if the [_source] property is null.
-  Future<void> load({required String password}) async {
+  /// Loads accounts from the given [source] using the [password].
+  /// Throws if a source is already set or loading fails.
+  Future<void> loadFromSource(Source source, {required String password, bool notify = true}) async {
     if (_source != null) {
-      if (await _source!.isValid) {
-        _accounts.clear();
-        _tagsUsed.clear();
-        await _source!.loadData(password: password);
+      throw Exception("Source is already set. Clear the database first.");
+    }
+
+    try {
+      if (await source.isValid) {
+        await source.loadData();
+        source.dbRef = this;
+        _source = source;
+        _hasUnsavedChanges = false;
+        if (notify) notifyListeners();
       }
-    } else {
-      throw Exception("Tried to load data without a provided source");
+    } catch (e) {
+      clear(notify: false);
+      rethrow;
     }
   }
 
-  /// Asynchronous method to save all stored [Account] references to the source provided through the [setSource] method.
-  /// And exception is thrown if the [_source] property is null.
-  Future<void> save() async {
-    if (_source != null) {
-      await _source!.saveData();
-    } else {
-      throw Exception("Tried to save data without a provided source");
+  /// Saves all data to the currently assigned source.
+  /// Throws if no source is set.
+  Future<void> save({bool notify = true}) async {
+    if (_source == null) {
+      throw Exception("Cannot save: no source set.");
     }
+
+    await _source!.saveData();
+    _hasUnsavedChanges = false;
+    if (notify) notifyListeners();
   }
 
-  /// Private method to add a larger quantity of [Account] objects without notifying all listeners
-  /// after each new append call.
-  /// * A call to this method notifies all listeners.
-  void addAllAccounts(List<Account> accounts) {
-    for (Account acc in accounts) {
-      if (_accounts.length < LocalDatabase.maxCapacity) {
-        _accounts.add(acc);
-        _tagsUsed.add(acc.tag);
-      } else {
-        throw Exception("Maximum amount of accounts reached");
-      }
+  /// Adds multiple [Account]s at once. Throws if this exceeds [maxCapacity].
+  /// Notifies listeners once after bulk add.
+  void addAllAccounts(List<Account> accounts, {bool notify = true}) {
+    if (accounts.isEmpty) return;
+
+    final availableSpace = maxCapacity - _accounts.length;
+    if (accounts.length > availableSpace) {
+      throw Exception("Adding ${accounts.length} accounts exceeds capacity of $maxCapacity.");
     }
+
+    _accounts.addAll(accounts);
     _accounts.sort();
-    notifyAll();
+    _hasUnsavedChanges = true;
+    if (notify) notifyListeners();
   }
 
-  /// Method to add a new [Account] to the database. The intern List will sort accounts and tags alphabetically.
-  /// If the new Account has a tag that was not used before it will be saved in the [_tagsUsed] property.
-  /// Does not add instances that are already present. If there are to many accounts already
-  /// present (specified in [LocalDatabase.maxCapacity]) and Exception is thrown.
-  /// * A call to this method notifies all listeners if [Account] was added.
+  /// Adds a single [Account] to the database. Throws if capacity is exceeded.
+  /// Notifies listeners if [notify] is true.
   void addAccount(Account acc, {bool notify = true}) {
-    if (_accounts.length < LocalDatabase.maxCapacity) {
-      if (!_accounts.any((element) => element.id == acc.id)) {
-        _accounts.add(acc);
-        _tagsUsed.add(acc.tag);
-        _accounts.sort();
-        source?.claimHasUnsavedChanges();
-        if (notify) notifyAll();
-      }
-    } else {
-      throw Exception("Maximum amount of accounts reached");
+    if (_accounts.length >= maxCapacity) {
+      throw Exception("Account limit ($maxCapacity) reached.");
     }
+
+    _accounts.add(acc);
+    _accounts.sort();
+    _hasUnsavedChanges = true;
+    if (notify) notifyListeners();
   }
 
-  /// After editing an [Account] this method must be called to ensure the intern List is still sorted
-  /// and tags that point to no accounts are removed properly.
-  /// * A call to this method notifies all listeners.
-  void callEditOf(String oldTag, Account acc, {bool notify = true}) {
-    if (_accounts.any((element) => element.id == acc.id)) {
-      _accounts.sort();
-      _tagsUsed.add(acc.tag);
-      if (!_accounts.any((element) => element.tag == oldTag)) {
-        _tagsUsed.remove(oldTag);
-      }
-      source?.claimHasUnsavedChanges();
-      if (notify) notifyAll();
-    }
+  /// Replaces the account with the given [oldAccountId] with [newAccount].
+  /// Returns false if no match was found. Sorts and notifies on success.
+  bool replaceAccount(int oldAccountId, Account newAccount, {bool notify = true}) {
+    final index = _accounts.indexWhere((e) => e.id == oldAccountId);
+    if (index == -1) return false;
+
+    _accounts[index] = newAccount;
+    _accounts.sort();
+    _hasUnsavedChanges = true;
+    if (notify) notifyListeners();
+    return true;
   }
 
-  /// Method to remove the given [Account] from the database. If the old tag is not used by
-  /// other accounts then this property will be removed from the database.
-  /// * A call to this method notifies all listeners if [Account] was removed.
-  void removeAccount(Account acc, {bool notify = true}) {
-    if (_accounts.any((element) => element.id == acc.id)) {
-      _accounts.removeWhere((element) => element.id == acc.id);
-      if (!_accounts.any((element) => element.tag == acc.tag)) {
-        _tagsUsed.remove(acc.tag);
-      }
-      source?.claimHasUnsavedChanges();
-      if (notify) notifyAll();
-    }
+  /// Removes an account by [id]. Returns true if removed.
+  /// Notifies listeners if [notify] is true.
+  bool removeAccount(int id, {bool notify = true}) {
+    final index = _accounts.indexWhere((e) => e.id == id);
+    if (index == -1) return false;
+
+    _accounts.removeAt(index);
+    _hasUnsavedChanges = true;
+    if (notify) notifyListeners();
+    return true;
   }
 
-  /// Returns all [Account] references that have this particular tag.
-  List<Account> getAccountsWithTag(String tag) {
-    List<Account> list = _accounts.where((element) => element.tag == tag).toList();
-    list.sort();
-    return list;
-  }
+  /// Returns all accounts matching the given [tag].
+  List<Account> getAccountsWithTag(String tag) => _accounts.where((a) => a.tag == tag).toList();
 
-  /// Completely wipes all data from the database. In addition the [_source] and [_password] property
-  /// will be set to null.
-  /// * A call to this method notifies all listeners.
+  /// Clears all accounts and resets the source.
+  /// Notifies listeners if [notify] is true.
   void clear({bool notify = true}) {
     _accounts.clear();
-    _tagsUsed.clear();
     _source = null;
-    if (notify) notifyAll();
-  }
-
-  /// Just notifies all listeners
-  void notifyAll() {
-    notifyListeners();
+    _hasUnsavedChanges = false;
+    if (notify) notifyListeners();
   }
 }
+
