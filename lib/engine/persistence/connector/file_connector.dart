@@ -18,7 +18,7 @@ class FileConnector implements PersistenceConnector {
 
   @override
   Future<void> create(String formattedData) async {
-    if (await file.exists()) {
+    if (!(await file.exists())) {
       await file.create(recursive: true);
     }
     await file.writeAsString(formattedData, encoding: utf8);
