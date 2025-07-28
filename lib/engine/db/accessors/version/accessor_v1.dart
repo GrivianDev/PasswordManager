@@ -25,14 +25,12 @@ class DataAccessorV1 implements DataAccessor {
   static const int keyLength = 32;
   static const int saltLength = 32;
 
+  String? _password;
   Key? _totalKey;
   Key? _aesKey;
   Key? _hmacKey;
 
-  @override
-  String get version => "v1";
-
-  Key _deriveKey(String password, [Uint8List? salt]) {
+  static Key _deriveKey(String password, [Uint8List? salt]) {
     final usedSalt = salt ?? CryptographicService.randomBytes(saltLength);
     final Pbkdf2Parameters params = Pbkdf2Parameters(usedSalt, pbkdf2Iterations, keyLength * 2); // Double sized key
     final PBKDF2KeyDerivator pbkdf2 = PBKDF2KeyDerivator(HMac(SHA256Digest(), 64));
@@ -43,7 +41,22 @@ class DataAccessorV1 implements DataAccessor {
   }
 
   @override
-  Future<void> loadAndDecrypt(LocalDatabase targetDatabase, Map<String, String> properties, String password) async {
+  String get version => "v1";
+
+  @override
+  void definePassword(String password) {
+    _password = password;
+    _totalKey = null;
+    _aesKey = null;
+    _hmacKey = null;
+  }
+
+  @override
+  Future<void> loadAndDecrypt(LocalDatabase targetDatabase, Map<String, String> properties) async {
+    if (_password == null) {
+      throw Exception("No password was defined in accessor");
+    }
+
     final String? saltString = properties[saltIdentifier];
     final String? ivString = properties[ivIdentifier];
     final String? hmacString = properties[hmacIdentifier];
@@ -51,10 +64,9 @@ class DataAccessorV1 implements DataAccessor {
 
     if (saltString == null || hmacString == null || ivString == null || cipher == null) throw Exception('Missing properties');
 
-    // Recreate key
     _totalKey = await foundation.compute((message) {
       return _deriveKey(message[0], base16.decode(message[1]));
-    }, [password, saltString]);
+    }, [_password!, saltString]);
     _aesKey = Key(_totalKey!.bytes.sublist(0, keyLength)); // Lower bytes are aes key
     _hmacKey = Key(_totalKey!.bytes.sublist(keyLength)); // Upper bytes are hmac key
 
@@ -101,7 +113,11 @@ class DataAccessorV1 implements DataAccessor {
   }
 
   @override
-  Future<String> encryptAndFormat(LocalDatabase sourceDatabase, [String? password]) async {
+  Future<String> encryptAndFormat(LocalDatabase sourceDatabase, {bool initWithoutLoad = false}) async {
+    if (_password == null) {
+      throw Exception("No password was defined in accessor");
+    }
+
     // Create data string
     const String chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
     Random rand = Random.secure();
@@ -116,15 +132,14 @@ class DataAccessorV1 implements DataAccessor {
       buffer.write(String.fromCharCode(chars.codeUnitAt(rand.nextInt(chars.length))));
     }
 
-    if ((_totalKey == null || _aesKey == null || _hmacKey == null) && password == null) {
-      throw Exception('Can not encrypt data wihout a key, if initializing a new source then the password was missing');
-    }
+    if (_totalKey == null) {
+      if (!initWithoutLoad) {
+        throw Exception("Cannot encrypt format without key. Set initWithoutLoad to true, if new storage should be created and not loaded.");
+      }
 
-    if (password != null) {
-      // Initialize new source
       _totalKey = await foundation.compute((message) {
         return _deriveKey(message);
-      }, password);
+      }, _password!);
       _aesKey = Key(_totalKey!.bytes.sublist(0, keyLength)); // Lower bytes are aes key
       _hmacKey = Key(_totalKey!.bytes.sublist(keyLength)); // Upper bytes are hmac key
     }

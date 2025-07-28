@@ -25,10 +25,8 @@ class DataAccessorV0 implements DataAccessor {
   static const int keyLength = 32;
   static const int saltLength = 32;
 
+  String? _password;
   Key? _key;
-
-  @override
-  String get version => "v0";
 
   static Key _deriveKey(String password, [Uint8List? salt]) {
     final usedSalt = salt ?? CryptographicService.randomBytes(saltLength);
@@ -41,7 +39,20 @@ class DataAccessorV0 implements DataAccessor {
   }
 
   @override
-  Future<void> loadAndDecrypt(LocalDatabase targetDatabase, Map<String, String> properties, String password) async {
+  String get version => "v0";
+
+  @override
+  void definePassword(String password) {
+    _password = password;
+    _key = null;
+  }
+
+  @override
+  Future<void> loadAndDecrypt(LocalDatabase targetDatabase, Map<String, String> properties) async {
+    if (_password == null) {
+      throw Exception("No password was defined in accessor");
+    }
+
     final String? saltString = properties[saltIdentifier];
     final String? ivString = properties[ivIdentifier];
     final String? hmacString = properties[hmacIdentifier];
@@ -52,7 +63,7 @@ class DataAccessorV0 implements DataAccessor {
     // Recreate key
     _key = await foundation.compute((message) {
       return _deriveKey(message[0], base16.decode(message[1]));
-    }, [password, saltString]);
+    }, [_password!, saltString]);
 
     // Decrypt
     final Uint8List presumedData = await foundation.compute((message) {
@@ -98,7 +109,11 @@ class DataAccessorV0 implements DataAccessor {
   }
 
   @override
-  Future<String> encryptAndFormat(LocalDatabase sourceDatabase, [String? password]) async {
+  Future<String> encryptAndFormat(LocalDatabase sourceDatabase) async {
+    if (_password == null) {
+      throw Exception("No password was defined in accessor");
+    }
+
     // Create data string
     const String chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
     Random rand = Random.secure();
@@ -120,16 +135,9 @@ class DataAccessorV0 implements DataAccessor {
     final AES256 encrypter = AES256();
     final Uint8List expandedData = CryptographicService.expandWithValues(utf8.encode(buffer.toString()), encrypter.blockLength, chars.codeUnits);
 
-    if (_key == null && password == null) {
-      throw Exception('Can not encrypt data wihout a key, if initializing a new source then the password was missing');
-    }
-
-    if (password != null) {
-      // Initialize new source
-      _key = await foundation.compute((message) {
-        return _deriveKey(message);
-      }, password);
-    }
+    _key ??= await foundation.compute((message) { // This optinally creates a new key if no loadAndDecrypt call happened before !!!
+      return _deriveKey(message);
+    }, _password!);
 
     // Encrypt data
     final HMac newHmac = HMac(SHA256Digest(), 64)..init(KeyParameter(_key!.bytes));

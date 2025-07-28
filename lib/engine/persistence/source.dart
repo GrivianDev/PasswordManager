@@ -12,11 +12,10 @@ final class Source {
   late final LocalDatabase dbRef;
   final PersistenceConnector connector;
   DataAccessor? _accessor;
-
-  bool _unsavedChanges = false;
+  String _password;
 
   /// Default constructor that requires exactly one valid source. Exceptions are thrown otherwise.
-  Source(this.connector);
+  Source(this.connector, {required String password}) : _password = password;
 
   String? get name => connector.name;
 
@@ -26,27 +25,31 @@ final class Source {
 
   bool get usesFirestoreCloud => connector is FirebaseConnector;
 
-  Future<bool> get isValid async => await connector.isAvailable;
+  Future<bool> get isValid => connector.isAvailable;
 
-  bool get hasUnsavedChanges => _unsavedChanges;
-
-  void claimHasUnsavedChanges() => _unsavedChanges = true;
+  void changePassword(String newPassword) {
+    _password = newPassword;
+    _accessor?.definePassword(_password);
+  }
 
   /// Asynchronous method to load data from given file or firebase cloud.
-  Future<void> loadData({required String password}) async {
+  Future<void> loadData() async {
     final String formattedData = await connector.load();
     final Map<String, String> properties = Source.readProperties(formattedData);
     final String vaultVersion = properties['version'] ?? 'v0';
-    _accessor = DataAccessorRegistry.create(vaultVersion); // Choose correct accessor
 
-    await _accessor!.loadAndDecrypt(dbRef, properties, password);
+    _accessor = DataAccessorRegistry.create(vaultVersion); // Choose correct accessor
+    _accessor!.definePassword(_password);
+
+    await _accessor!.loadAndDecrypt(dbRef, properties);
   }
 
   /// Write a random encrypted value to that source. That way an initial verification code is set.
-  /// If creating a cloud storage then the [cloudDocName] parameter must be set.
-  Future<void> initialiseNewSource({required String password, String? cloudDocName}) async {
+  Future<void> initialiseNewSource({required String password}) async {
     _accessor = DataAccessorRegistry.create(DataAccessorRegistry.latestVersion); // Auto create new ones with newest version
-    final String formattedData = await _accessor!.encryptAndFormat(dbRef, password);
+    _accessor!.definePassword(_password);
+
+    final String formattedData = await _accessor!.encryptAndFormat(dbRef);
 
     if (await connector.isAvailable) {
       await connector.create(formattedData);
@@ -64,7 +67,6 @@ final class Source {
     } else {
       throw Exception('Connector was not available');
     }
-    _unsavedChanges = false;
   }
 
   Future<void> deleteSource() => connector.delete();
