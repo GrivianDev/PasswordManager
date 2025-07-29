@@ -44,7 +44,7 @@ class DataAccessorV0 implements DataAccessor {
   @override
   void definePassword(String password) {
     _password = password;
-    _key = null;
+    _key = null; // Reset cached key
   }
 
   @override

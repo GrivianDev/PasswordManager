@@ -8,5 +8,5 @@ abstract class DataAccessor {
 
   Future<void> loadAndDecrypt(LocalDatabase targetDatabase, Map<String, String> properties);
 
-  Future<String> encryptAndFormat(LocalDatabase sourceDatabase, {bool initWithoutLoad = false});
+  Future<String> encryptAndFormat(LocalDatabase sourceDatabase);
 }

@@ -46,6 +46,8 @@ class DataAccessorV1 implements DataAccessor {
   @override
   void definePassword(String password) {
     _password = password;
+
+    // Reset cached keys
     _totalKey = null;
     _aesKey = null;
     _hmacKey = null;
@@ -113,7 +115,7 @@ class DataAccessorV1 implements DataAccessor {
   }
 
   @override
-  Future<String> encryptAndFormat(LocalDatabase sourceDatabase, {bool initWithoutLoad = false}) async {
+  Future<String> encryptAndFormat(LocalDatabase sourceDatabase) async {
     if (_password == null) {
       throw Exception("No password was defined in accessor");
     }
@@ -133,10 +135,6 @@ class DataAccessorV1 implements DataAccessor {
     }
 
     if (_totalKey == null) {
-      if (!initWithoutLoad) {
-        throw Exception("Cannot encrypt format without key. Set initWithoutLoad to true, if new storage should be created and not loaded.");
-      }
-
       _totalKey = await foundation.compute((message) {
         return _deriveKey(message);
       }, _password!);
