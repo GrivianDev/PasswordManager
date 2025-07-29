@@ -45,7 +45,7 @@ final class Source {
   }
 
   /// Write a random encrypted value to that source. That way an initial verification code is set.
-  Future<void> initialiseNewSource({required String password}) async {
+  Future<void> initialiseNewSource() async {
     _accessor = DataAccessorRegistry.create(DataAccessorRegistry.latestVersion); // Auto create new ones with newest version
     _accessor!.definePassword(_password);
 

@@ -38,7 +38,7 @@ final class LocalDatabase extends ChangeNotifier {
 
   /// Loads accounts from the given [source] using the [password].
   /// Throws if a source is already set or loading fails.
-  Future<void> loadFromSource(Source source, {required String password, bool notify = true}) async {
+  Future<void> loadFromSource(Source source, {bool notify = true}) async {
     if (_source != null) {
       throw Exception("Source is already set. Clear the database first.");
     }
