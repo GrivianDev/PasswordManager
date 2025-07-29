@@ -1,6 +1,4 @@
-import 'dart:async';
 import 'dart:math';
-import 'package:passwordmanager/engine/settings.dart';
 
 /// Class providing two methods: [SafetyAnalyser.rateSafety], [SafetyAnalyser.generateSavePassword].
 /// Used for determining if a password is considered save or generate strong passwords.
@@ -14,7 +12,7 @@ final class SafetyAnalyser {
   /// * Does password contain different characters overall
   /// * Is recommended password length of 12 reached, if not how much is missing.
   /// * Were lowercase, uppercase, numbers and special characters used.
-  double rateSafety({required String password}) {
+  static double rateSafety({required String password}) {
     if(password.isEmpty) return 0.0;
 
     // 1) Test if not always the same symbols have been used
@@ -58,40 +56,12 @@ final class SafetyAnalyser {
   }
 
   /// Generates a random password consisting of [20-32] characters.
-  String generateSavePassword(Settings settings) {
-    String chars = (settings.useLettersEnabled || settings.useNumbersEnabled || settings.useSpecialCharsEnabled) ? '' : alphabet + uAlphabet;
-    if(settings.useLettersEnabled) chars += alphabet + uAlphabet;
-    if(settings.useNumbersEnabled) chars += numbers;
-    if(settings.useSpecialCharsEnabled) chars += specialChars;
+ static String generateSavePassword({required bool useLetters, required bool useNumbers, required bool useSpecialChars}) {
+    String chars = (useLetters || useNumbers || useSpecialChars) ? '' : alphabet + uAlphabet;
+    if(useLetters) chars += alphabet + uAlphabet;
+    if(useNumbers) chars += numbers;
+    if(useSpecialChars) chars += specialChars;
     final Random rand = Random.secure();
     return String.fromCharCodes(Iterable<int>.generate(rand.nextInt(13) + 20, (_) => chars.codeUnitAt(rand.nextInt(chars.length))));
-  }
-}
-
-/// Small class that acts as a kind of security guard for important actions.
-/// Implements an increasing cool down for important actions that failed too often.
-final class Guardian {
-  static const int _cooldown = 15;
-  static const int _maxTries = 3;
-  static int _cooldownMultiplier = 0;
-  static int _remainingTries = _maxTries;
-  static Timer? _timer;
-
-  /// Call this method at the beginning of the important action and catch the possible Exception.
-  static Future<void> failIfAccessDenied(Future<void> Function() func) async {
-    if(_timer != null && _timer!.isActive) {
-      throw Exception("Too many failed attempts. Try again in a few seconds.");
-    }
-    await func();
-  }
-
-  /// Call this method if the important action fails in a security relevant case. Provide an optional message that is thrown as Exception.
-  /// Too many calls will start a timer that will cause a call to [failIfAccessDenied] to throw an Exception.
-  static void callAccessFailed(String? message) {
-    if(--_remainingTries <= 0) {
-      _cooldownMultiplier++;
-      _timer = Timer(Duration(seconds: _cooldownMultiplier * _cooldown), () => _remainingTries = _maxTries);
-    }
-    if(message != null) throw Exception(message);
   }
 }
