@@ -10,7 +10,7 @@ Future<String?> getUserInputDialog({
   String? Function(String input)? validator,
 }) async {
   String? userInput;
-  String currentInput = initialValue?.trim() ?? '';
+  String currentInput = initialValue?.trim() ?? ''; // TODO: Implement correct prefill in textfield
   String? errorText;
 
   await Notify.dialog(
@@ -24,15 +24,11 @@ Future<String?> getUserInputDialog({
           child: ListView(
             shrinkWrap: true,
             children: [
-              Text(
-                description,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
+              Text(description),
               Padding(
                 padding: const EdgeInsets.only(top: 15.0),
                 child: TextField(
                   autofocus: true,
-                  controller: TextEditingController(text: currentInput),
                   onChanged: (value) {
                     currentInput = value.trim();
                     setState(() {
@@ -41,7 +37,7 @@ Future<String?> getUserInputDialog({
                   },
                   onSubmitted: (value) {
                     currentInput = value.trim();
-                    final error = validator?.call(currentInput);
+                    final String? error = validator?.call(currentInput);
                     if (error == null && currentInput.isNotEmpty) {
                       userInput = currentInput;
                       Navigator.pop(context);

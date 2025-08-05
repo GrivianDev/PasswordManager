@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:passwordmanager/engine/persistence/appstate.dart';
 import 'package:passwordmanager/engine/two_factor_token.dart';
 import 'package:passwordmanager/pages/other/base32_input_formatter.dart';
 import 'package:passwordmanager/pages/widgets/default_page_body.dart';
-import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/account.dart';
 import 'package:passwordmanager/engine/db/local_database.dart';
-import 'package:passwordmanager/engine/settings.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 
 class TwoFactorEditPage extends StatefulWidget {
@@ -34,10 +34,11 @@ class _TwoFactorEditPageState extends State<TwoFactorEditPage> {
   Future<void> _save(BuildContext context) async {
     final NavigatorState navigator = Navigator.of(context);
     final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
+    final LocalDatabase database = context.read();
 
     try {
       Notify.showLoading(context: context);
-      await LocalDatabase().save();
+      await database.save();
     } catch (e) {
       navigator.pop();
       if (!context.mounted) return;
@@ -45,39 +46,33 @@ class _TwoFactorEditPageState extends State<TwoFactorEditPage> {
         context: context,
         type: NotificationType.error,
         title: 'Could not save changes!',
-        content: Text(
-          e.toString(),
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
+        content: Text(e.toString()),
       );
       return;
     }
     navigator.pop();
 
-    scaffoldMessenger.showSnackBar(
-      SnackBar(
-        duration: const Duration(milliseconds: 1500),
-        content: const Row(
-          children: [
-            Text('Saved changes'),
-            Padding(
-              padding: EdgeInsets.only(left: 5.0),
-              child: Icon(
-                Icons.sync,
-                size: 15,
-                color: Colors.white,
-              ),
+    scaffoldMessenger.showSnackBar(SnackBar(
+      duration: const Duration(milliseconds: 1500),
+      content: const Row(
+        children: [
+          Text('Saved changes'),
+          Padding(
+            padding: EdgeInsets.only(left: 5.0),
+            child: Icon(
+              Icons.sync,
+              size: 15,
+              color: Colors.white,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-    );
+    ));
   }
 
   Future<void> _confirmClicked() async {
     final NavigatorState navigator = Navigator.of(context);
-    final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
-    final LocalDatabase database = LocalDatabase();
+    final LocalDatabase database = context.read();
 
     try {
       widget.account.twoFactorSecret = TOTPSecret(
@@ -88,26 +83,21 @@ class _TwoFactorEditPageState extends State<TwoFactorEditPage> {
         period: int.parse(_periodController.text),
         digits: int.parse(_digitController.text),
       );
+      database.replaceAccount(widget.account.id, widget.account);
     } catch (e) {
       Notify.dialog(
         context: context,
         type: NotificationType.error,
         title: 'Error occured!',
-        content: Text(
-          e.toString(),
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
+        content: Text(e.toString()),
       );
       return;
     }
 
-    if (context.read<Settings>().isAutoSaving) {
+    if (context.read<AppState>().autosaving.value) {
       await _save(context);
-    } else {
-      database.source?.claimHasUnsavedChanges();
     }
     navigator.pop();
-    database.notifyAll();
   }
 
   @override

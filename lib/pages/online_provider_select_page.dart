@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/api/firebase/firebase.dart';
 import 'package:passwordmanager/engine/api/online_providers.dart';
 import 'package:passwordmanager/pages/firebase_login_page.dart';
@@ -14,34 +15,43 @@ class OnlineProviderSelectPage extends StatefulWidget {
 }
 
 class _OnlineProviderSelectPageState extends State<OnlineProviderSelectPage> {
+  late final Future<void> _firestoreReAuthFuture;
+
+  Future<void> _firestoreReauthenticate() async {
+    final Firestore firestoreService = context.read();
+
+    try {
+      if (firestoreService.auth.isUserLoggedIn) return;
+      await firestoreService.auth.loginWithRefreshToken();
+    } catch (_) {}
+  }
+
+
   Future<void> _firestoreSelected() async {
     final NavigatorState navigator = Navigator.of(context);
+    final Firestore firestoreService = context.read();
 
-    Notify.showLoading(context: context);
     bool? success = true;
-    try {
-      await Firestore.instance.auth.loginWithRefreshToken();
-    } catch (e) {
-      // Manual login
+    if (!firestoreService.auth.isUserLoggedIn) {
       success = await navigator.push(
         MaterialPageRoute(builder: (context) => FirebaseLoginPage(loginMode: true)),
       );
     }
-    navigator.pop();
-
     if (success == true) {
-      navigator.pop(LoginResult(OnlineProvidertype.firestore, loggedIn: Firestore.instance.auth.isUserLoggedIn));
+      navigator.pop(LoginResult(OnlineProvidertype.firestore, loggedIn: firestoreService.auth.isUserLoggedIn));
     }
   }
 
   Future<void> _firestoreLogout() async {
     final NavigatorState navigator = Navigator.of(context);
+    final Firestore firestoreService = context.read();
 
     try {
       Notify.showLoading(context: context);
-      await Firestore.instance.auth.logout();
+      await firestoreService.auth.logout();
       setState(() {}); // Rebuild
     } catch (e) {
+      navigator.pop();
       if (!mounted) return;
       await Notify.dialog(
         context: context,
@@ -49,21 +59,30 @@ class _OnlineProviderSelectPageState extends State<OnlineProviderSelectPage> {
         title: 'Error occured!',
         content: Text(e.toString()),
       );
-    } finally {
-      navigator.pop();
+      return;
     }
+    navigator.pop();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _firestoreReAuthFuture = _firestoreReauthenticate();
   }
 
   @override
   Widget build(BuildContext context) {
+    final Firestore firestoreService = context.read();
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Select your sync option'),
+        title: Text('Select your provider'),
       ),
       body: DefaultPageBody(
         child: Column(
           children: [
             Column(
+              spacing: 5.0,
               children: [
                 ElevatedButton(
                   onPressed: _firestoreSelected,
@@ -76,29 +95,47 @@ class _OnlineProviderSelectPageState extends State<OnlineProviderSelectPage> {
                     ],
                   ),
                 ),
-                if (Firestore.instance.auth.isUserLoggedIn)
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Flexible(
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 10.0),
-                          child: Text(
-                            'Logged in as ${mailPreview(Firestore.instance.auth.user!.email)}',
-                            style: Theme.of(context).textTheme.displaySmall,
+                FutureBuilder<void>(future: _firestoreReAuthFuture, builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.done) {
+                    if (firestoreService.auth.isUserLoggedIn) {
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Flexible(
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 10.0),
+                              child: Text(
+                                'Logged in as ${mailPreview(firestoreService.auth.user!.email)}',
+                                style: Theme.of(context).textTheme.displaySmall,
+                              ),
+                            ),
                           ),
+                          IconButton(
+                            onPressed: _firestoreLogout,
+                            tooltip: 'Logout',
+                            icon: Icon(
+                              Icons.logout,
+                              color: Colors.red,
+                            ),
+                          ),
+                        ],
+                      );
+                    } else {
+                      return SizedBox.shrink();
+                    }
+                  } else {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 10.0),
+                        child: SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2.0),
                         ),
                       ),
-                      IconButton(
-                        onPressed: _firestoreLogout,
-                        tooltip: 'Logout',
-                        icon: Icon(
-                          Icons.logout,
-                          color: Colors.red,
-                        ),
-                      ),
-                    ],
-                  ),
+                    );
+                  }
+                }),
               ],
             )
           ],

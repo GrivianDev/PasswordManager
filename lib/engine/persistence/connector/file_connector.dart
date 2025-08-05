@@ -8,7 +8,7 @@ class FileConnector implements PersistenceConnector {
   FileConnector({required this.file});
 
   @override
-  String get name => file.path.split(Platform.pathSeparator).last;
+  String get name => file.path.split(Platform.pathSeparator).last.split('.').first;
 
   @override
   Future<bool> get isAvailable => file.exists();

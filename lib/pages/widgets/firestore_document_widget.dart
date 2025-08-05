@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/api/firebase/firebase.dart';
 import 'package:passwordmanager/pages/flows/typed_confirmation_dialog.dart';
+import 'package:passwordmanager/pages/flows/user_input_dialog.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 
 class FirestoreDocumentWidget extends StatefulWidget {
@@ -16,6 +18,41 @@ class FirestoreDocumentWidget extends StatefulWidget {
 }
 
 class _FirestoreDocumentWidgetState extends State<FirestoreDocumentWidget> {
+  late String _documentName;
+
+  Future<void> _renameStorage() async {
+    final NavigatorState navigator = Navigator.of(context);
+
+    final String? newName = await getUserInputDialog(
+      context: context,
+      title: 'Enter new name',
+      labelText: 'Name',
+      description: 'Enter new name for this firestore document with ID: ${widget.documentId}.',
+    );
+
+    if (newName == null) return;
+
+    try {
+      if (!mounted) return;
+      Notify.showLoading(context: context);
+      final Firestore firestore = context.read();
+      await firestore.updateDocument('${firestore.userVaultPath}/${widget.documentId}', {'name': newName});
+      setState(() {
+        _documentName = newName;
+      });
+      navigator.pop();
+    } catch (e) {
+      navigator.pop();
+      if (!mounted) return;
+      await Notify.dialog(
+        context: context,
+        type: NotificationType.error,
+        title: 'Error occured!',
+        content: Text(e.toString()),
+      );
+    }
+  }
+
   Future<void> _deleteStorage() async {
     final NavigatorState navigator = Navigator.of(context);
 
@@ -32,10 +69,12 @@ class _FirestoreDocumentWidgetState extends State<FirestoreDocumentWidget> {
     try {
       if (!mounted) return;
       Notify.showLoading(context: context);
-      await Firestore.instance.deleteDocument('${Firestore.instance.userVaultPath}/${widget.documentId}');
-      navigator.pop();
+      final Firestore firestore = context.read();
+      await firestore.deleteDocument('${firestore.userVaultPath}/${widget.documentId}');
       widget.afterDelete();
+      navigator.pop();
     } catch (e) {
+      navigator.pop();
       if (!mounted) return;
       await Notify.dialog(
         context: context,
@@ -44,6 +83,12 @@ class _FirestoreDocumentWidgetState extends State<FirestoreDocumentWidget> {
         content: Text(e.toString()),
       );
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _documentName = widget.documentName;
   }
 
   @override
@@ -60,20 +105,32 @@ class _FirestoreDocumentWidgetState extends State<FirestoreDocumentWidget> {
           size: 40.0,
         ),
         title: Text(
-          widget.documentName,
+          _documentName,
           style: Theme.of(context).textTheme.displayMedium,
         ),
         subtitle: Text(
           'ID: ${widget.documentId}',
           style: Theme.of(context).textTheme.displaySmall?.copyWith(fontSize: 12),
         ),
-        trailing: IconButton(
-          onPressed: _deleteStorage,
-          icon: const Icon(
-            Icons.delete_outline,
-            color: Colors.red,
-            size: 35.0,
-          ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              onPressed: _renameStorage,
+              icon: const Icon(
+                Icons.edit,
+                size: 35.0,
+              ),
+            ),
+            IconButton(
+              onPressed: _deleteStorage,
+              icon: const Icon(
+                Icons.delete_outline,
+                color: Colors.red,
+                size: 35.0,
+              ),
+            ),
+          ],
         ),
       ),
     );

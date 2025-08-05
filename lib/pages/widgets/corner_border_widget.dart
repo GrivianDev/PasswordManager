@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class CornerBorder extends StatelessWidget {
+class CornerBorderWidget extends StatelessWidget {
   final Size size;
   final double cornerLength;
   final double borderRadius;
   final double strokeWidth;
   final Color color;
 
-  const CornerBorder({
+  const CornerBorderWidget({
     super.key,
     required this.size,
     this.cornerLength = 30,

@@ -6,16 +6,16 @@ import 'package:passwordmanager/engine/persistence/connector/persistence_connect
 
 import 'connector/firebase_connector.dart';
 
-/// Source object that models a dynamic source for the [LocalDatabase]. Supports
-/// synchronisation between local files or firebase cloud via the [FirebaseConnector] class.
+/// Source object that models a dynamic source for the [LocalDatabase]. Depending on the [PersistenceConnector] subclass,
+/// actions can be done to a local file or a cloud storage for example.
 final class Source {
-  late final LocalDatabase dbRef;
+  final LocalDatabase dbRef;
   final PersistenceConnector connector;
   DataAccessor? _accessor;
   String _password;
 
   /// Default constructor that requires exactly one valid source. Exceptions are thrown otherwise.
-  Source(this.connector, {required String password}) : _password = password;
+  Source(this.connector, this.dbRef, {required String password}) : _password = password;
 
   String? get name => connector.name;
 
@@ -50,12 +50,7 @@ final class Source {
     _accessor!.definePassword(_password);
 
     final String formattedData = await _accessor!.encryptAndFormat(dbRef);
-
-    if (await connector.isAvailable) {
-      await connector.create(formattedData);
-    } else {
-      throw Exception('Connector was not available');
-    }
+    await connector.create(formattedData);
   }
 
   /// Asynchronous method to save changes to a local file or the firebase cloud.

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:passwordmanager/engine/other/util.dart';
+import 'package:passwordmanager/pages/flows/typed_confirmation_dialog.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 
 /// Widget that represents a local file. Allows deletion and renaming of file.
@@ -28,9 +29,13 @@ class _FileWidgetState extends State<FileWidget> {
       if (newName.trim().isNotEmpty && newName != _currentName) {
         final int lastSeperator = _file.path.lastIndexOf(Platform.pathSeparator);
         final String relativePath = _file.path.substring(0, lastSeperator + 1);
-        if (File('$relativePath$newName.x').existsSync()) throw Exception();
-        _file = await _file.rename('$relativePath$newName.x');
+        final File newFile = File('$relativePath$newName.x');
 
+        if (newFile.existsSync()) throw Exception();
+
+        _file = await _file.rename(newFile.path);
+
+        // Set new name
         setState(() {
           _renaming = false;
           _currentName = newName;
@@ -42,52 +47,59 @@ class _FileWidgetState extends State<FileWidget> {
         });
       }
     } catch (e) {
-      if (!context.mounted) return;
+      if (!mounted) return;
       Notify.dialog(
         context: context,
         type: NotificationType.error,
         title: 'Error occurred!',
-        content: Text(
-          'Could not rename file',
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
+        content: Text('Could not rename file'),
       );
     }
   }
 
   /// After user allows deletion file is deleted and [afterDelete] callback is executed.
   Future<void> _deleteFileClicked() async {
-    bool? delete;
-    await Notify.dialog(
-        context: context,
-        type: NotificationType.deleteDialog,
-        title: 'Are you sure?',
-        content: Text(
-          'Are you sure that you want to delete "${shortenPath(_file.path)}"?\nAction can not be undone!',
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
-        onConfirm: () {
-          delete = true;
-          Navigator.of(context).pop();
-        });
-    if (delete ?? false) {
-      if (!context.mounted) return;
-      Notify.showLoading(context: context);
+    final NavigatorState navigator = Navigator.of(context);
+
+    final bool doDelete = await typedConfirmDialog(
+      context,
+      NotificationType.deleteDialog,
+      title: 'Are you sure?',
+      description: 'Are you sure that you want to delete "${shortenPath(_file.path)}"?\nAction can not be undone!',
+      expectedInput: 'DELETE',
+    );
+
+    if (!doDelete) return;
+
+    if (!mounted) return;
+    Notify.showLoading(context: context);
+
+    try {
       await _file.delete();
-      if (!context.mounted) return;
-      Navigator.of(context).pop();
-      widget.onDelete();
+    } catch (e) {
+      navigator.pop();
+      if (!mounted) return;
+      await Notify.dialog(
+        context: context,
+        type: NotificationType.error,
+        title: 'Error occurred!',
+        content: Text('Could not delete file'),
+      );
+      return;
     }
+
+    navigator.pop();
+    widget.onDelete();
   }
 
   @override
   void initState() {
+    super.initState();
     _file = widget.file;
     _renaming = false;
     final String wholeName = _file.path.split(Platform.pathSeparator).last;
     _currentName = wholeName.substring(0, wholeName.lastIndexOf('.'));
     _renameController = TextEditingController(text: _currentName);
-    super.initState();
   }
 
   @override

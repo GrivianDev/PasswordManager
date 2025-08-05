@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:passwordmanager/pages/widgets/corner_border.dart';
+import 'package:passwordmanager/pages/widgets/corner_border_widget.dart';
 import 'package:passwordmanager/pages/widgets/default_page_body.dart';
 
 /// Page for the view for QR-Code scanning, will return to previous page once a QR-Code has been scanned.
@@ -108,7 +108,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
                 ),
                 Align(
                   alignment: Alignment.center,
-                  child: CornerBorder(
+                  child: CornerBorderWidget(
                     size: Size(200, 200),
                     color: Theme.of(context).colorScheme.primary,
                     borderRadius: 20,

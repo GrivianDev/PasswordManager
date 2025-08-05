@@ -1,18 +1,44 @@
 import 'package:flutter/material.dart';
-import 'package:passwordmanager/pages/widgets/default_page_body.dart';
 import 'package:provider/provider.dart';
-import 'package:passwordmanager/engine/settings.dart';
+import 'package:passwordmanager/engine/persistence/appstate.dart';
+import 'package:passwordmanager/pages/widgets/default_page_body.dart';
+import 'package:passwordmanager/pages/other/notifications.dart';
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
 
   @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  bool _saving = false;
+
+  Future<void> saveSettings() async {
+    final AppState appState = context.read();
+
+    _saving = true;
+    try {
+      await appState.save();
+    } catch (_) {
+      if (!mounted) return;
+      await Notify.dialog(
+        context: context,
+        type: NotificationType.error,
+        title: 'Something went wrong!',
+        content: Text('Could not save current app settings.'),
+      );
+    }
+    _saving = false;
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final AppState appState = context.watch();
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Settings',
-        ),
+        title: const Text('Settings'),
       ),
       body: DefaultPageBody(
         child: Column(
@@ -24,12 +50,16 @@ class SettingsPage extends StatelessWidget {
                 // This doesn't need to actively watch the settings property because a theme change will trigger an automatic rebuild
                 // since the MaterialApp is already watching the theme.
                 Switch.adaptive(
-                  value: context.read<Settings>().isLightMode,
-                  onChanged: (value) => context.read<Settings>().setLightMode(value),
+                  value: appState.darkMode.value,
+                  onChanged: (value) {
+                    if (_saving) return;
+                    appState.darkMode.value = value;
+                    saveSettings();
+                  },
                 ),
                 Flexible(
                   child: Text(
-                    context.read<Settings>().isLightMode ? 'Light theme' : 'Dark theme',
+                    appState.darkMode.value ? 'Dark theme' : 'Light theme',
                     style: Theme.of(context).textTheme.displayMedium,
                   ),
                 ),
@@ -40,12 +70,16 @@ class SettingsPage extends StatelessWidget {
               children: [
                 // This watches the isAutoSaving property because it is not rebuild otherwise.
                 Switch.adaptive(
-                  value: context.watch<Settings>().isAutoSaving,
-                  onChanged: (value) => context.read<Settings>().setAutoSaving(value),
+                  value: appState.autosaving.value,
+                  onChanged: (value) {
+                    if (_saving) return;
+                    appState.autosaving.value = value;
+                    saveSettings();
+                  },
                 ),
                 Flexible(
                   child: Text(
-                    context.read<Settings>().isAutoSaving ? 'Autosaving' : 'Manual saving',
+                    appState.autosaving.value ? 'Autosaving' : 'Manual saving',
                     style: Theme.of(context).textTheme.displayMedium,
                   ),
                 ),
@@ -59,8 +93,12 @@ class SettingsPage extends StatelessWidget {
             Row(
               children: [
                 Checkbox.adaptive(
-                  value: context.watch<Settings>().useLettersEnabled,
-                  onChanged: (value) => context.read<Settings>().setUseLetters(value ?? true),
+                  value: appState.pwGenUseLetters.value,
+                  onChanged: (value) {
+                    if (_saving) return;
+                    appState.pwGenUseLetters.value = value!;
+                    saveSettings();
+                  },
                 ),
                 Flexible(
                   child: Text(
@@ -73,8 +111,12 @@ class SettingsPage extends StatelessWidget {
             Row(
               children: [
                 Checkbox.adaptive(
-                  value: context.watch<Settings>().useNumbersEnabled,
-                  onChanged: (value) => context.read<Settings>().setUseNumbers(value ?? true),
+                  value: appState.pwGenUseNumbers.value,
+                  onChanged: (value) {
+                    if (_saving) return;
+                    appState.pwGenUseNumbers.value = value!;
+                    saveSettings();
+                  },
                 ),
                 Flexible(
                   child: Text(
@@ -87,8 +129,12 @@ class SettingsPage extends StatelessWidget {
             Row(
               children: [
                 Checkbox.adaptive(
-                  value: context.watch<Settings>().useSpecialCharsEnabled,
-                  onChanged: (value) => context.read<Settings>().setUseSpecialChars(value ?? true),
+                  value: appState.pwGenUseSpecialChars.value,
+                  onChanged: (value) {
+                    if (_saving) return;
+                    appState.pwGenUseSpecialChars.value = value!;
+                    saveSettings();
+                  },
                 ),
                 Flexible(
                   child: Text(

@@ -7,14 +7,15 @@ final class Account implements Comparable<Account> {
   static int _idCounter = 0;
   final int id;
 
-  String tag; // Required for sorting
+  String? tag;
   String? name;
   String? info;
   String? email;
   String? password;
   TOTPSecret? twoFactorSecret;
 
-  Account({required this.tag,
+  Account({
+      this.tag,
       this.name,
       this.info,
       this.email,
@@ -24,7 +25,7 @@ final class Account implements Comparable<Account> {
 
   factory Account.fromJson(Map<String, dynamic> json) {
     return Account(
-      tag: json['tag'] as String,
+      tag: json['tag'] as String?,
       name: json['name'] as String?,
       info: json['info'] as String?,
       email: json['email'] as String?,
@@ -37,7 +38,11 @@ final class Account implements Comparable<Account> {
 
   @override
   int compareTo(Account other) {
-    return tag.toLowerCase().compareTo(other.tag.toLowerCase());
+    if (name == null && other.name == null) return 0;
+    if (name == null) return 1; // null > non-null => nulls last
+    if (other.name == null) return -1;
+
+    return name!.toLowerCase().compareTo(other.name!.toLowerCase());
   }
 
   Map<String, dynamic> toJson() {

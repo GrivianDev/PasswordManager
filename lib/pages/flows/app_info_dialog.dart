@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:provider/provider.dart';
-import 'package:passwordmanager/engine/settings.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:passwordmanager/engine/persistence/appstate.dart';
 import 'package:passwordmanager/pages/help_page.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 
@@ -23,7 +23,7 @@ Future<void> displayInfoDialog(BuildContext context) async {
           SizedBox(
             width: 560,
             height: 80,
-            child: context.read<Settings>().isLightMode ? SvgPicture.asset('assets/lightLogo.svg') : SvgPicture.asset('assets/darkLogo.svg'),
+            child: context.read<AppState>().darkMode.value ? SvgPicture.asset('assets/darkLogo.svg') : SvgPicture.asset('assets/lightLogo.svg'),
           ),
           Text(
             'Version: ${info.version}',

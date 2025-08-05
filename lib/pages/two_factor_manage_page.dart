@@ -1,13 +1,14 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'package:passwordmanager/pages/flows/typed_confirmation_dialog.dart';
+import 'package:passwordmanager/engine/persistence/appstate.dart';
 import 'package:passwordmanager/pages/two_factor_edit_page.dart';
 import 'package:passwordmanager/pages/widgets/two_factor_create_subpage.dart';
 import 'package:passwordmanager/pages/widgets/two_factor_display_subpage.dart';
-import 'package:provider/provider.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 import 'package:passwordmanager/engine/account.dart';
 import 'package:passwordmanager/engine/db/local_database.dart';
-import 'package:passwordmanager/engine/settings.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 
 class TwoFactorManagePage extends StatelessWidget {
@@ -20,10 +21,11 @@ class TwoFactorManagePage extends StatelessWidget {
   Future<void> _save(BuildContext context) async {
     final NavigatorState navigator = Navigator.of(context);
     final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
+    final LocalDatabase database = context.read();
 
     try {
       Notify.showLoading(context: context);
-      await LocalDatabase().save();
+      await database.save();
     } catch (e) {
       navigator.pop();
       if (!context.mounted) return;
@@ -31,10 +33,7 @@ class TwoFactorManagePage extends StatelessWidget {
         context: context,
         type: NotificationType.error,
         title: 'Could not save changes!',
-        content: Text(
-          e.toString(),
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
+        content: Text(e.toString()),
       );
       return;
     }
@@ -63,26 +62,24 @@ class TwoFactorManagePage extends StatelessWidget {
   /// Displays a dialog to avoid accidentally deleting 2FA info. If autosaving is active
   /// then the [_save] method is called.
   Future<void> _deleteClicked(BuildContext context) async {
-    await Notify.dialog(
-      context: context,
+    final LocalDatabase database = context.read();
+    final AppState appState = context.read();
+
+    final bool doDelete = await typedConfirmDialog(
+      context,
+      NotificationType.deleteDialog,
       title: 'Are you sure?',
-      type: NotificationType.deleteDialog,
-      content: Text(
-        'Are you sure that you want to delete 2FA information about your "${account.name}" account?\nAction can not be undone!',
-        style: Theme.of(context).textTheme.bodySmall,
-      ),
-      onConfirm: () async {
-        final LocalDatabase database = LocalDatabase();
-        Navigator.pop(context);
-        account.twoFactorSecret = null;
-        if (context.read<Settings>().isAutoSaving) {
-          await _save(context);
-        } else {
-          database.source?.claimHasUnsavedChanges();
-        }
-        database.notifyAll();
-      },
+      description: 'Are you sure that you want to delete 2FA information about your "${account.name}" account?\nAction can not be undone!',
+      expectedInput: 'DELETE',
     );
+
+    if (!doDelete || !context.mounted) return;
+
+    account.twoFactorSecret = null;
+    database.replaceAccount(account.id, account);
+    if (appState.autosaving.value) {
+      await _save(context);
+    }
   }
 
   @override

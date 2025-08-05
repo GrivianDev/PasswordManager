@@ -4,9 +4,17 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 enum StorageType { shared, secure }
 
+enum SerilizationType {
+  string,
+  int,
+  double,
+  bool,
+}
+
 class AppStateField<T> {
   final String key;
   final StorageType storage;
+  final SerilizationType _stype;
   final T defaultValue;
   T _value;
 
@@ -15,9 +23,11 @@ class AppStateField<T> {
   AppStateField({
     required this.key,
     required this.storage,
+    required SerilizationType stype,
     required this.defaultValue,
     required Function() onChanged,
   })  : _value = defaultValue,
+        _stype = stype,
         _onChanged = onChanged;
 
   T get value => _value;
@@ -41,6 +51,7 @@ class AppState extends ChangeNotifier {
   late final darkMode = AppStateField<bool>(
     key: 'ethercrypt.dark_mode',
     storage: StorageType.shared,
+    stype: SerilizationType.bool,
     defaultValue: false,
     onChanged: notifyListeners,
   );
@@ -48,6 +59,7 @@ class AppState extends ChangeNotifier {
   late final lastOpenedFilePath = AppStateField<String?>(
     key: 'ethercrypt.last_opened_filepath',
     storage: StorageType.shared,
+    stype: SerilizationType.string,
     defaultValue: null,
     onChanged: notifyListeners,
   );
@@ -55,6 +67,7 @@ class AppState extends ChangeNotifier {
   late final autosaving = AppStateField<bool>(
     key: 'ethercrypt.autosaving',
     storage: StorageType.shared,
+    stype: SerilizationType.bool,
     defaultValue: false,
     onChanged: notifyListeners,
   );
@@ -62,6 +75,7 @@ class AppState extends ChangeNotifier {
   late final pwGenUseLetters = AppStateField<bool>(
     key: 'ethercrypt.passwordgeneration.use_letters',
     storage: StorageType.shared,
+    stype: SerilizationType.bool,
     defaultValue: true,
     onChanged: notifyListeners,
   );
@@ -69,6 +83,7 @@ class AppState extends ChangeNotifier {
   late final pwGenUseNumbers = AppStateField<bool>(
     key: 'ethercrypt.passwordgeneration.use_numbers',
     storage: StorageType.shared,
+    stype: SerilizationType.bool,
     defaultValue: true,
     onChanged: notifyListeners,
   );
@@ -76,6 +91,7 @@ class AppState extends ChangeNotifier {
   late final pwGenUseSpecialChars = AppStateField<bool>(
     key: 'ethercrypt.passwordgeneration.use_special_chars',
     storage: StorageType.shared,
+    stype: SerilizationType.bool,
     defaultValue: true,
     onChanged: notifyListeners,
   );
@@ -83,6 +99,7 @@ class AppState extends ChangeNotifier {
   late final firebaseAuthLastUserEmail = AppStateField<String?>(
     key: 'ethercrypt.firebase.auth.last_user_email',
     storage: StorageType.secure,
+    stype: SerilizationType.string,
     defaultValue: null,
     onChanged: notifyListeners,
   );
@@ -90,6 +107,7 @@ class AppState extends ChangeNotifier {
   late final firebaseAuthRefreshToken = AppStateField<String?>(
     key: 'ethercrypt.firebase.auth.user_refresh_token',
     storage: StorageType.secure,
+    stype: SerilizationType.string,
     defaultValue: null,
     onChanged: notifyListeners,
   );
@@ -164,12 +182,32 @@ class AppState extends ChangeNotifier {
     return withoutErrors;
   }
 
+  Future<bool> clearAllData() async {
+    // Reset all values
+    for (final AppStateField<dynamic> field in _fields) {
+      field._value = field.defaultValue;
+    }
+
+    bool withoutErrors = true;
+    try {
+      // Clear all persistent storages
+      withoutErrors |= await _prefs.clear();
+      await _secure.deleteAll();
+    } catch (_) {
+      withoutErrors = false;
+    }
+    notifyListeners();
+
+    return withoutErrors;
+  }
+
   // ---- Utility Methods ----
 
   T _loadFromSharedPreferences<T>(AppStateField<T> field) {
     final Object? raw = _prefs.get(field.key);
-    if (raw is T) return raw;
-    return field.defaultValue;
+    if (raw == null) return field.defaultValue;
+
+    return raw as T;
   }
 
   Future<T> _loadFromSecureStorage<T>(AppStateField<T> field) async {
@@ -177,27 +215,24 @@ class AppState extends ChangeNotifier {
     if (raw == null) return field.defaultValue;
 
     try {
-      if (T == String) return raw as T;
-      if (T == int) return int.parse(raw) as T;
-      if (T == double) return double.parse(raw) as T;
-      if (T == bool) return (raw == 'true') as T;
+      if (field._stype == SerilizationType.string) return raw as T;
+      if (field._stype == SerilizationType.int) return int.parse(raw) as T;
+      if (field._stype == SerilizationType.double) return double.parse(raw) as T;
+      if (field._stype == SerilizationType.bool) return (raw == 'true') as T;
     } catch (_) {}
 
     return field.defaultValue;
   }
 
   Future<void> _saveToSharedPreferences(AppStateField field) async {
-    final key = field.key;
-    final val = field.value;
-
-    if (val is String) {
-      await _prefs.setString(key, val);
-    } else if (val is bool) {
-      await _prefs.setBool(key, val);
-    } else if (val is int) {
-      await _prefs.setInt(key, val);
-    } else if (val is double) {
-      await _prefs.setDouble(key, val);
+    if (field._stype == SerilizationType.string) {
+      await _prefs.setString(field.key, field.value);
+    } else if (field._stype == SerilizationType.bool) {
+      await _prefs.setBool(field.key, field.value);
+    } else if (field._stype == SerilizationType.int) {
+      await _prefs.setInt(field.key, field.value);
+    } else if (field._stype == SerilizationType.double) {
+      await _prefs.setDouble(field.key, field.value);
     } else {
       throw UnsupportedError("Unsupported type for shared_preferences");
     }

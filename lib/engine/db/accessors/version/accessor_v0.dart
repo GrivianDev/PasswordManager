@@ -98,11 +98,11 @@ class DataAccessorV0 implements DataAccessor {
     targetDatabase.addAllAccounts(
       foundAccounts
           .map((parts) => Account(
-                tag: parts[0],
-                name: parts[1],
-                info: parts[2],
-                email: parts[3],
-                password: parts[4],
+                tag: parts[0] == 'none' ? null : parts[0],
+                name: parts[1] == 'none' ? null : parts[1],
+                info: parts[2] == 'none' ? null : parts[2],
+                email: parts[3] == 'none' ? null : parts[3],
+                password: parts[4] == 'none' ? null : parts[4],
               ))
           .toList(),
     );
@@ -125,7 +125,7 @@ class DataAccessorV0 implements DataAccessor {
 
     const String c = LocalDatabase.disallowedCharacter;
     for (Account acc in sourceDatabase.accounts) {
-      buffer.write('$c${acc.tag}$c${acc.name}$c${acc.info}$c${acc.email}$c${acc.password}$c');
+      buffer.write('$c${acc.tag ?? 'none'}$c${acc.name ?? 'none'}$c${acc.info ?? 'none'}$c${acc.email ?? 'none'}$c${acc.password ?? 'none'}$c');
       length = rand.nextInt(10) + 1;
       for (int j = 0; j < length; j++) {
         buffer.write(String.fromCharCode(chars.codeUnitAt(rand.nextInt(chars.length))));

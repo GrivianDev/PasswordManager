@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/api/firebase/firebase.dart';
 import 'package:passwordmanager/engine/selection_result.dart';
+import 'package:passwordmanager/pages/flows/user_input_dialog.dart';
 import 'package:passwordmanager/pages/widgets/firestore_document_widget.dart';
-import 'other/notifications.dart';
 
 class FirebaseCloudAccessPage extends StatefulWidget {
   const FirebaseCloudAccessPage({super.key});
@@ -15,8 +16,9 @@ class _FirebaseCloudAccessPageState extends State<FirebaseCloudAccessPage> {
   late Future<List<FirestoreDocumentWidget>> _listDocuments;
 
   Future<List<FirestoreDocumentWidget>> _getListDocumentsFuture() async {
-    final List<Map<String, dynamic>> documents = await Firestore.instance.getCollection(
-        Firestore.instance.userVaultPath,
+    final Firestore firestoreService = context.read();
+    final List<Map<String, dynamic>> documents = await firestoreService.getCollection(
+        firestoreService.userVaultPath,
         fieldMask: ['name']
     );
 
@@ -41,54 +43,15 @@ class _FirebaseCloudAccessPageState extends State<FirebaseCloudAccessPage> {
   Future<void> _createNew() async {
     final NavigatorState navigator = Navigator.of(context);
 
-    String? storageName;
-    String currentInput = '';
-
-    await Notify.dialog(
+    final String? storageName = await getUserInputDialog(
       context: context,
-      type: NotificationType.confirmDialog,
       title: 'Name your new storage',
-      content: StatefulBuilder(
-        builder: (context, setState) {
-          return SizedBox(
-            width: double.maxFinite,
-            child: ListView(
-              shrinkWrap: true,
-              children: [
-                Text(
-                  'What name do you want for your storage?',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 15.0),
-                  child: TextField(
-                    autofocus: true,
-                    onChanged: (value) {
-                      setState(() {
-                        currentInput = value.trim();
-                      });
-                    },
-                    decoration: InputDecoration(
-                      labelText: 'Name',
-                      constraints: const BoxConstraints(maxWidth: 100, maxHeight: 80.0),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-      onConfirm: () {
-        if (currentInput.isNotEmpty) {
-          storageName = currentInput;
-          Navigator.pop(context);
-        }
-      },
+      labelText: 'Name',
+      description: 'What name do you want for your storage?',
     );
 
     if (storageName != null) {
-      navigator.pop(FirestoreSelectionResult('', storageName!, true));
+      navigator.pop(FirestoreSelectionResult('', storageName, true));
     }
   }
 
@@ -180,7 +143,10 @@ class _FirebaseCloudAccessPageState extends State<FirebaseCloudAccessPage> {
                     onPressed: _createNew,
                     child: const Padding(
                       padding: EdgeInsets.all(10.0),
-                      child: Text('Create new'),
+                      child: Text(
+                        'Create new',
+                        style: TextStyle(fontSize: 20),
+                      ),
                     ),
                   ),
                 ),

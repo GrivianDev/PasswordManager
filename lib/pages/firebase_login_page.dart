@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:passwordmanager/engine/persistence/appstate.dart';
+import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/other/util.dart';
 import 'package:passwordmanager/engine/api/firebase/firebase.dart';
 import 'package:passwordmanager/pages/widgets/default_page_body.dart';
@@ -26,12 +28,14 @@ class _FirebaseLoginPageState extends State<FirebaseLoginPage> {
 
   Future<void> _onSubmit() async {
     final NavigatorState navigator = Navigator.of(context);
+    final Firestore firestoreService = context.read();
+
     try {
       Notify.showLoading(context: context);
       if (_loginMode) {
-        await Firestore.instance.auth.login(_emailController.text, _pwController.text);
+        await firestoreService.auth.login(_emailController.text, _pwController.text);
       } else {
-        await Firestore.instance.auth.signUp(_emailController.text, _pwController.text);
+        await firestoreService.auth.signUp(_emailController.text, _pwController.text);
       }
       navigator.pop();
       navigator.pop(true);
@@ -52,7 +56,8 @@ class _FirebaseLoginPageState extends State<FirebaseLoginPage> {
     super.initState();
     String? initialEmail;
     try {
-      initialEmail = Firestore.instance.auth.lastSignedInEmail();
+      final AppState appState = context.read();
+      initialEmail = appState.firebaseAuthLastUserEmail.value;
     } catch (_) {}
     _loginMode = widget.loginMode;
     _emailController = TextEditingController(text: initialEmail);
@@ -114,14 +119,14 @@ class _FirebaseLoginPageState extends State<FirebaseLoginPage> {
                             _isObscured = !_isObscured;
                           });
                         },
-                        icon: Icon(_isObscured ? Icons.visibility_off : Icons.visibility),
+                        icon: Icon(_isObscured ? Icons.visibility : Icons.visibility_off),
                       ),
                     ),
                   ),
                   onChanged: (string) {
-                    final double newRating = SafetyAnalyser().rateSafety(password: _pwController.text);
+                    final double newRating = SafetyAnalyser.rateSafety(password: _pwController.text);
                     setState(() {
-                      _canSubmit = _pwController.text.isNotEmpty && _emailFieldErrortext == null;
+                      _canSubmit = _pwController.text.isNotEmpty && isValidEmail(_emailController.text);
                       _rating = newRating;
                     });
                   },
@@ -151,7 +156,10 @@ class _FirebaseLoginPageState extends State<FirebaseLoginPage> {
                         },
                         child: Padding(
                           padding: const EdgeInsets.all(10.0),
-                          child: Text(_loginMode ? 'Sign up' : 'Login'),
+                          child: Text(
+                            _loginMode ? 'Sign up' : 'Login',
+                            style: TextStyle(fontSize: 20),
+                          ),
                         ),
                       ),
                     ],
@@ -163,20 +171,17 @@ class _FirebaseLoginPageState extends State<FirebaseLoginPage> {
           Positioned(
             bottom: 25,
             right: 25,
-            child: Align(
-              alignment: Alignment.bottomRight,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 50.0),
-                child: TextButton(
-                  onPressed: () => _canSubmit ? _onSubmit() : null,
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Text(
-                      'SUBMIT',
-                      style: TextStyle(
-                        color: _canSubmit ? null : Colors.blueGrey,
-                        fontSize: Theme.of(context).textTheme.displaySmall!.fontSize,
-                      ),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 50.0),
+              child: TextButton(
+                onPressed: () => _canSubmit ? _onSubmit() : null,
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Text(
+                    'SUBMIT',
+                    style: TextStyle(
+                      color: _canSubmit ? null : Colors.blueGrey,
+                      fontSize: Theme.of(context).textTheme.displaySmall!.fontSize,
                     ),
                   ),
                 ),

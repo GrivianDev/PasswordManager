@@ -83,7 +83,7 @@ class _TwoFactorDisplaySubpageState extends State<TwoFactorDisplaySubpage> with 
       if (status == AnimationStatus.completed) {
         // Update code and restart animation
         final DateTime now = _getSyncedTime();
-        _currentCode = widget.twoFactorSecret.generateTOTPCode(timestamp: DateTime.now().toUtc());
+        _currentCode = widget.twoFactorSecret.generateTOTPCode(timestamp: now.toUtc());
         _animController.forward(from: 0.0);
       }
     });

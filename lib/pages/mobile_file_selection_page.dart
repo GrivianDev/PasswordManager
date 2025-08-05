@@ -28,7 +28,7 @@ class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
   }
 
   /// Tries to select a save file by using the platform specific filepicker.
-  /// Files are cached and copied into a permanent directory afterwards. Clears cache after.
+  /// Files are cached and copied into the app directory afterwards. Clears cache after.
   /// If file was already present then a dialog is shown to determine if method should overwrite said file.
   /// Cases an error is thrown:
   /// * The file extension is NOT ".x"
@@ -52,15 +52,15 @@ class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
         return;
       }
 
-      final File cacheFile = File(result.files.single.path ?? '');
-      final File file = File('${widget.dir.path}${Platform.pathSeparator}${cacheFile.path.split(Platform.pathSeparator).last}');
+      final File extrernalFile = File(result.files.single.path ?? '');
+      final File targetFile = File('${widget.dir.path}${Platform.pathSeparator}${extrernalFile.path.split(Platform.pathSeparator).last}');
 
-      if (!cacheFile.path.endsWith('.x')) {
+      if (!extrernalFile.path.endsWith('.x')) {
         throw Exception('File extension is not supported');
       }
 
-      if (await file.exists()) {
-        bool? allow;
+      if (await targetFile.exists()) {
+        bool allowOverwrite = false;
         if(!mounted) return;
         await Notify.dialog(
             context: context,
@@ -68,21 +68,20 @@ class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
             title: 'File already exists',
             content: Text('Allow overwriting of current file?'),
             onConfirm: () {
-              allow = true;
-              Navigator.of(context).pop();
+              allowOverwrite = true;
+              Navigator.pop(context);
             });
-        if (!(allow ?? false)) return;
+        if (!allowOverwrite) return;
       }
 
-      await cacheFile.copy(file.path);
+      await extrernalFile.copy(targetFile.path);
+      // Clear up tmp files. This is nessecary cause android might cache file selections, if now the file
+      // has been changed and reselected, then the cached unchanged variant will be used instead, which is not desired.
       await FilePicker.platform.clearTemporaryFiles();
 
       navigator.pop(); // Pop loading widget
-      navigator.pop(FileSelectionResult(file: file, isNewlyCreated: false));
+      navigator.pop(FileSelectionResult(file: targetFile, isNewlyCreated: false));
     } catch (e) {
-      try {
-        await FilePicker.platform.clearTemporaryFiles();
-      } catch (_) {}
       navigator.pop();
       if (!mounted) return;
       Notify.dialog(
@@ -102,7 +101,6 @@ class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
 
     try {
       String? path = (await getExternalStorageDirectory())?.path;
-
       if (path == null) return;
 
       // Get user file name wish
@@ -138,18 +136,15 @@ class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
 
   @override
   void initState() {
-    _fileList = _receiveFuture();
     super.initState();
+    _fileList = _receiveFuture();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Select file',
-          style: Theme.of(context).appBarTheme.titleTextStyle,
-        ),
+        title: Text('Select file'),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -235,7 +230,10 @@ class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
                     onPressed: _mobileFileSelection,
                     child: const Padding(
                       padding: EdgeInsets.all(10.0),
-                      child: Text('Select other'),
+                      child: Text(
+                        'Select other',
+                        style: TextStyle(fontSize: 20),
+                      ),
                     ),
                   ),
                 ),
@@ -249,7 +247,10 @@ class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
                     onPressed: _mobileCreateFile,
                     child: const Padding(
                       padding: EdgeInsets.all(10.0),
-                      child: Text('Create new'),
+                      child: Text(
+                        'Create new',
+                        style: TextStyle(fontSize: 20),
+                      ),
                     ),
                   ),
                 ),

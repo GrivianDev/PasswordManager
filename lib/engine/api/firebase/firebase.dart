@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:passwordmanager/engine/persistence/appstate.dart';
 
 // ----- Global helper functions ------
 
@@ -11,7 +11,6 @@ Future<http.Response> _sendFirestoreRequest(Future<http.Response> Function() sen
     throw Exception('Firestore user is not logged in');
   }
   try {
-    print('Sending http request...');
     http.Response response = await sendRequest();
 
     if (response.statusCode == 401 && tryReloginIfAuthFailed != null) {
@@ -20,8 +19,6 @@ Future<http.Response> _sendFirestoreRequest(Future<http.Response> Function() sen
       response = await sendRequest();
     }
 
-    print('Response code: ${response.statusCode}');
-    print(response.body);
     if (!expectedStatusCodes.contains(response.statusCode)) {
       throw HttpException(_extractFirebaseError(response.body) ?? 'Unexpected status code: ${response.statusCode}');
     }
@@ -52,46 +49,31 @@ String? _extractFirebaseError(String body) {
 class FirestoreUser {
   final String email;
   final String refreshToken;
-  final String? userId;
-  final String? idToken;
+  final String userId;
+  final String idToken;
 
   FirestoreUser(this.email, this.refreshToken, this.userId, this.idToken);
 }
 
 class FirebaseAuth {
-  static late final SharedPreferences _prefs;
-  static const _keyEmail = 'ethercrypt.auth.firebase.email';
-  static const _keyRefreshToken = 'ethercrypt.auth.firebase.refreshToken';
-
   final Uri _authRefreshTokenUrl;
   final Uri _authSignUpUrl;
   final Uri _authLoginUrl;
+  final AppState _appStateRef;
 
   FirestoreUser? _user;
 
-  FirebaseAuth(String apiKey)
+  FirebaseAuth(String apiKey, AppState appStateRef)
       : _authRefreshTokenUrl = Uri.parse('https://securetoken.googleapis.com/v1/token?key=$apiKey'),
         _authSignUpUrl = Uri.parse('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=$apiKey'),
-        _authLoginUrl = Uri.parse('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=$apiKey');
+        _authLoginUrl = Uri.parse('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=$apiKey'),
+        _appStateRef = appStateRef;
 
   bool get isUserLoggedIn => _user != null;
 
-  bool get isUserAuthenticated => _user?.userId != null && _user?.idToken != null;
-
   FirestoreUser? get user => _user;
 
-  Future<void> init() async {
-    _prefs = await SharedPreferences.getInstance();
-  }
-
-  String? lastSignedInEmail() {
-    String? email;
-    try {
-      email = _prefs.getString(_keyEmail);
-    } catch (_) {}
-
-    return email;
-  }
+  String? lastSignedInEmail() => _appStateRef.firebaseAuthLastUserEmail.value;
 
   Future<void> signUp(String email, String password) async {
     final http.Response response = await _sendFirestoreRequest(() =>
@@ -111,8 +93,12 @@ class FirebaseAuth {
     final String userId = data['localId'];
     final String idToken = data['idToken'];
     final String refreshToken = data['refreshToken'];
-    await _prefs.setString(_keyEmail, email);
-    await _prefs.setString(_keyRefreshToken, refreshToken);
+
+    // Update app state
+    _appStateRef.firebaseAuthLastUserEmail.value = email;
+    _appStateRef.firebaseAuthRefreshToken.value = refreshToken;
+    await _appStateRef.save();
+
     // Set firestore user
     _user = FirestoreUser(email, refreshToken, userId, idToken);
   }
@@ -134,15 +120,19 @@ class FirebaseAuth {
     final String userId = data['localId'];
     final String idToken = data['idToken'];
     final String refreshToken = data['refreshToken'];
-    await _prefs.setString(_keyEmail, email);
-    await _prefs.setString(_keyRefreshToken, refreshToken);
+
+    // Update app state
+    _appStateRef.firebaseAuthLastUserEmail.value = email;
+    _appStateRef.firebaseAuthRefreshToken.value = refreshToken;
+    await _appStateRef.save();
+
     // Set firestore user
     _user = FirestoreUser(email, refreshToken, userId, idToken);
   }
 
   Future<void> loginWithRefreshToken() async {
-    String? email = _prefs.getString(_keyEmail);
-    String? refreshToken = _prefs.getString(_keyRefreshToken);
+    String? email = _appStateRef.firebaseAuthLastUserEmail.value;
+    String? refreshToken = _appStateRef.firebaseAuthRefreshToken.value;
     if (refreshToken == null || email == null) {
       throw Exception('User not logged in, please login again.');
     }
@@ -167,25 +157,19 @@ class FirebaseAuth {
 
   Future<void> logout() async {
     _user = null;
-    _prefs.remove(_keyRefreshToken);
+    _appStateRef.firebaseAuthRefreshToken.value = null;
+    await _appStateRef.save();
   }
 }
 
 class Firestore {
-  static late final Firestore instance;
-
   final String projectId;
   final String apiKey;
   final FirebaseAuth auth;
   String get basePath => 'https://firestore.googleapis.com/v1/projects/$projectId/databases/(default)/documents';
-  String get userVaultPath => 'ethercrypt-users/${auth.user?.userId}/vault';
+  String get userVaultPath => 'ethercrypt-users/${auth.user!.userId}/vault';
 
-  Firestore(this.projectId, this.apiKey) : auth = FirebaseAuth(apiKey);
-
-  static Future<void> init(String projectId, String apiKey) async {
-    instance = Firestore(projectId, apiKey);
-    await instance.auth.init();
-  }
+  Firestore(this.projectId, this.apiKey, AppState appState) : auth = FirebaseAuth(apiKey, appState);
 
   Future<String> createDocument(String collectionPath, Map<String, dynamic> data) async {
     final uri = Uri.parse('$basePath/$collectionPath');
@@ -254,7 +238,6 @@ class Firestore {
 
   Future<void> deleteDocument(String path) async {
     final uri = Uri.parse('$basePath/$path');
-    print(uri);
     await _sendFirestoreRequest(
       () => http.delete(uri, headers: _headers()),
       expectedStatusCodes: [200, 204], // 204 is often used for successful deletions

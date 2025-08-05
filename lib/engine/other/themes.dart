@@ -15,6 +15,11 @@ class AppThemeData {
       tileColor: Color.fromRGBO(77, 83, 84, 1),
       selectedTileColor: Color.fromRGBO(77, 83, 84, 1),
     ),
+    dropdownMenuTheme: DropdownMenuThemeData(
+      menuStyle: MenuStyle(
+        backgroundColor: WidgetStatePropertyAll<Color>(Color.fromRGBO(46, 50, 51, 1)),
+      ),
+    ),
     appBarTheme: const AppBarTheme(
       elevation: 0.0,
       backgroundColor: Color.fromRGBO(46, 50, 51, 1),
@@ -88,10 +93,10 @@ class AppThemeData {
         iconSize: WidgetStatePropertyAll<double?>(20.0),
         textStyle: WidgetStatePropertyAll<TextStyle>(
           TextStyle(
-            fontSize: 20.0,
+            fontSize: 16.0,
             fontWeight: FontWeight.w500,
             color: Colors.white,
-            overflow: TextOverflow.ellipsis,
+            overflow: TextOverflow.clip,
           ),
         ),
         foregroundColor: WidgetStatePropertyAll<Color>(Colors.blue),
@@ -208,6 +213,11 @@ class AppThemeData {
       tileColor: Colors.white,
       selectedTileColor: Colors.white,
     ),
+    dropdownMenuTheme: DropdownMenuThemeData(
+      menuStyle: MenuStyle(
+        backgroundColor: WidgetStatePropertyAll<Color>(Color.fromRGBO(225, 225, 225, 1)),
+      ),
+    ),
     appBarTheme: const AppBarTheme(
       elevation: 0.0,
       backgroundColor: Color.fromRGBO(225, 225, 225, 1),
@@ -281,10 +291,10 @@ class AppThemeData {
         iconSize: WidgetStatePropertyAll<double?>(20.0),
         textStyle: WidgetStatePropertyAll<TextStyle>(
           TextStyle(
-            fontSize: 20.0,
+            fontSize: 16.0,
             fontWeight: FontWeight.w500,
             color: Colors.black,
-            overflow: TextOverflow.ellipsis,
+            overflow: TextOverflow.clip,
           ),
         ),
         foregroundColor: WidgetStatePropertyAll<Color>(Color.fromRGBO(20, 75, 200, 1)),

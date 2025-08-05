@@ -1,11 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:passwordmanager/engine/other/util.dart';
+import 'package:passwordmanager/engine/persistence/appstate.dart';
 import 'package:provider/provider.dart';
 import 'package:passwordmanager/pages/widgets/hoverbuilder.dart';
 import 'package:passwordmanager/engine/account.dart';
 import 'package:passwordmanager/engine/db/local_database.dart';
-import 'package:passwordmanager/engine/settings.dart';
 import 'package:passwordmanager/pages//other/notifications.dart';
 import 'package:passwordmanager/pages/account_display_page.dart';
 
@@ -22,7 +24,7 @@ class ListElement extends StatelessWidget {
   Future<void> _save(BuildContext context) async {
     final NavigatorState navigator = Navigator.of(context);
     final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
-    final LocalDatabase database = LocalDatabase();
+    final LocalDatabase database = context.read();
 
     try {
       Notify.showLoading(context: context);
@@ -34,15 +36,10 @@ class ListElement extends StatelessWidget {
         context: context,
         type: NotificationType.error,
         title: 'Could not save changes!',
-        content: Text(
-          e.toString(),
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
+        content: Text(e.toString()),
       );
-      database.notifyAll();
       return;
     }
-    database.notifyAll();
     navigator.pop();
 
     scaffoldMessenger.showSnackBar(
@@ -67,6 +64,7 @@ class ListElement extends StatelessWidget {
 
   /// Copies password to the clipboard.
   Future<void> _copyClicked(BuildContext context) async {
+    if (_account.password == null) return;
     await Clipboard.setData(ClipboardData(text: _account.password!));
 
     if (!context.mounted) return;
@@ -82,6 +80,8 @@ class ListElement extends StatelessWidget {
   /// Displays a dialog to avoid accidentally deleting accounts. If autosaving is active
   /// then the [_save] method is called.
   Future<void> _deleteClicked(BuildContext context) async {
+    final LocalDatabase database = context.read();
+
     await Notify.dialog(
       context: context,
       title: 'Are you sure?',
@@ -89,18 +89,13 @@ class ListElement extends StatelessWidget {
       content: Text(
         'Are you sure that you want to delete all information about your '
         '${(_account.name?.isNotEmpty ?? false) ? '"${_account.name}"' : 'unnamed'} account?\n'
-        'Action can not be undone!',
-        style: Theme.of(context).textTheme.bodySmall,
+        'Action can not be undone!'
       ),
       onConfirm: () async {
-        final LocalDatabase database = LocalDatabase();
         Navigator.pop(context);
-        database.removeAccount(_account, notify: false);
-        if (context.read<Settings>().isAutoSaving) {
+        database.removeAccount(_account.id);
+        if (context.read<AppState>().autosaving.value) {
           await _save(context);
-        } else {
-          database.source?.claimHasUnsavedChanges();
-          database.notifyAll();
         }
       },
     );
@@ -128,7 +123,7 @@ class ListElement extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Padding(
-                        padding: EdgeInsets.only(top: Settings.isWindows ? 0.0 : 5.0),
+                        padding: EdgeInsets.only(top: Platform.isWindows || Platform.isLinux ? 0.0 : 5.0),
                         child: Text(
                           _account.name ?? '<no-name>',
                           style: Theme.of(context).textTheme.displaySmall,

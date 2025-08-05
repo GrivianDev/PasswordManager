@@ -55,7 +55,7 @@ class AccountDisplay extends StatelessWidget {
                       spacing: 20,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        _SelectableDisplay(description: 'Tag:', text: _account.tag),
+                        _SelectableDisplay(description: 'Tag:', text: _account.tag ?? ''),
                         _SelectableDisplay(description: 'Info:', text: _account.info ?? ''),
                         _SelectableDisplay(description: 'E-mail:', text: _account.email ?? ''),
                         Column(

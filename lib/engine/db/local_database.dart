@@ -16,8 +16,8 @@ final class LocalDatabase extends ChangeNotifier {
   /// Unmodifiable list of all stored [Account]s.
   List<Account> get accounts => List.unmodifiable(_accounts);
 
-  /// Sorted set of all tags currently used by accounts.
-  Set<String> get tags => SplayTreeSet.from(_accounts.map((a) => a.tag));
+  /// Sorted set of all tags currently used by accounts (Does not include null for unttagged accounts).
+  Set<String> get tags => SplayTreeSet.from(_accounts.where((a) => a.tag != null).map((a) => a.tag));
 
   /// Currently assigned source used for loading/saving.
   Source? get source => _source;
@@ -46,7 +46,6 @@ final class LocalDatabase extends ChangeNotifier {
     try {
       if (await source.isValid) {
         await source.loadData();
-        source.dbRef = this;
         _source = source;
         _hasUnsavedChanges = false;
         if (notify) notifyListeners();
@@ -123,8 +122,8 @@ final class LocalDatabase extends ChangeNotifier {
     return true;
   }
 
-  /// Returns all accounts matching the given [tag].
-  List<Account> getAccountsWithTag(String tag) => _accounts.where((a) => a.tag == tag).toList();
+  /// Returns all accounts matching the given [tag]. Pass in null to get untagged accounts.
+  List<Account> getAccountsWithTag(String? tag) => _accounts.where((a) => a.tag == tag).toList();
 
   /// Clears all accounts and resets the source.
   /// Notifies listeners if [notify] is true.

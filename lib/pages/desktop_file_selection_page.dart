@@ -1,37 +1,34 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:passwordmanager/engine/persistence/appstate.dart';
 import 'package:passwordmanager/engine/other/util.dart';
 import 'package:passwordmanager/engine/selection_result.dart';
 import 'package:passwordmanager/pages/widgets/default_page_body.dart';
-import 'package:provider/provider.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:passwordmanager/engine/settings.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 import 'package:passwordmanager/pages/flows/user_input_dialog.dart';
 
 class DesktopFileSelectionPage extends StatelessWidget {
   const DesktopFileSelectionPage({super.key});
 
-  /// Returns the last opened save file through the [Settings.lastOpenedPath] property.
+  /// Returns the last opened save file to the parent widget, but only if it exists.
   void _openLast(BuildContext context) {
-    final File file = File(context.read<Settings>().lastOpenedPath);
+    final File file = File(context.read<AppState>().lastOpenedFilePath.value!);
     if (file.existsSync()) {
-      Navigator.of(context).pop(FileSelectionResult(file: file, isNewlyCreated: false));
+      Navigator.pop(context, FileSelectionResult(file: file, isNewlyCreated: false));
     } else {
       Notify.dialog(
         context: context,
         type: NotificationType.error,
         title: 'Error occurred!',
-        content: Text(
-          'File does not exist.',
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
+        content: Text('File does not exist.'),
       );
     }
   }
 
   /// Returns an existing save file by using the platform specific filepicker.
-  /// Cases an error is thrown:
+  /// Cases an error occurs:
   /// * The file extension is NOT ".x"
   /// * An unknown error occurred
   Future<void> _selectFile(BuildContext context) async {
@@ -98,10 +95,6 @@ class DesktopFileSelectionPage extends StatelessWidget {
 
       final File file = File('$path${Platform.pathSeparator}$storageName.x');
 
-      if (file.existsSync()) { // Sanity check
-        throw Exception('This file already exists!');
-      }
-
       navigator.pop(FileSelectionResult(file: file, isNewlyCreated: true));
     } catch (e) {
       if (!context.mounted) return;
@@ -118,49 +111,52 @@ class DesktopFileSelectionPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Select file',
-          style: Theme.of(context).appBarTheme.titleTextStyle,
-        ),
+        title: Text('Select file'),
       ),
-      body: DefaultPageBody(
-        child: Column(
-          spacing: 35,
-          children: [
-            Column(
+      body: Stack(
+        children: [
+          DefaultPageBody(
+            child: Column(
+              spacing: 35,
               children: [
-                Text(
-                  'Select your save file:',
-                  style: Theme.of(context).textTheme.displayMedium,
+                Column(
+                  children: [
+                    Text(
+                      'Select your save file:',
+                      style: Theme.of(context).textTheme.displayMedium,
+                    ),
+                    const SizedBox(height: 15.0),
+                    ElevatedButton(
+                      onPressed: () => _selectFile(context),
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 25.0, vertical: 2.5),
+                        child: Icon(
+                          Icons.search,
+                          size: 40,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 15.0),
-                ElevatedButton(
-                  onPressed: () => _selectFile(context),
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 25.0, vertical: 2.5),
-                    child: Icon(
-                      Icons.search,
-                      size: 40,
+                if (context.read<AppState>().lastOpenedFilePath.value != null)
+                  TextButton(
+                    onPressed: () => _openLast(context),
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Text(
+                        'Open last: ${shortenPath(context.read<AppState>().lastOpenedFilePath.value!)}',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 20)
+                      ),
                     ),
                   ),
-                ),
               ],
             ),
-            if (context.read<Settings>().lastOpenedPath.isNotEmpty)
-            TextButton(
-              onPressed: () => _openLast(context),
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Text(
-                  'Open last: ${shortenPath(context.read<Settings>().lastOpenedPath)}',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    overflow: Theme.of(context).textTheme.bodySmall!.overflow,
-                  ),
-                ),
-              ),
-            ),
-            Column(
+          ),
+          Positioned(
+            bottom: 25,
+            right: 25,
+            child: Column(
               children: [
                 Text(
                   'No save file?',
@@ -171,14 +167,15 @@ class DesktopFileSelectionPage extends StatelessWidget {
                   child: const Padding(
                     padding: EdgeInsets.all(10.0),
                     child: Text(
-                      'Create a new one',
+                        'Create a new one',
+                        style: TextStyle(fontSize: 20)
                     ),
                   ),
                 ),
               ],
-            ),
-          ],
-        ),
+            )
+          ),
+        ],
       ),
     );
   }

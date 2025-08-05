@@ -34,7 +34,7 @@ class FirebaseConnector implements PersistenceConnector {
   /// Creates a new document or file with the given content (may be the same as save)
   @override
   Future<void> create(String formattedData) async {
-    String totalDocPath = await _firestoreServiceRef.createDocument(_firestoreServiceRef.userVaultPath, {'data': formattedData});
+    String totalDocPath = await _firestoreServiceRef.createDocument(_firestoreServiceRef.userVaultPath, {'name': _cloudDocName, 'data': formattedData});
     _cloudDocId = totalDocPath.split('/').last;
   }
 

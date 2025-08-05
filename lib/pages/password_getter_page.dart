@@ -6,11 +6,11 @@ import 'package:passwordmanager/pages/widgets/default_page_body.dart';
 /// Widget that provides a password upon being popped. The user is asked to type in a password that
 /// the is used to encrypt data.
 class PasswordGetterPage extends StatefulWidget {
-  const PasswordGetterPage({super.key, required this.path, required this.title, this.showIndicator = false});
+  const PasswordGetterPage({super.key, required this.path, required this.title, this.showPwStrengthIndicator = false});
 
   final String title;
   final String? path;
-  final bool showIndicator;
+  final bool showPwStrengthIndicator;
 
   @override
   State<PasswordGetterPage> createState() => _PasswordGetterPageState();
@@ -25,11 +25,11 @@ class _PasswordGetterPageState extends State<PasswordGetterPage> {
 
   @override
   void initState() {
+    super.initState();
     _isObscured = true;
     _canSubmit = false;
     _rating = 0.0;
     _pwController = TextEditingController();
-    super.initState();
   }
 
   @override
@@ -42,9 +42,7 @@ class _PasswordGetterPageState extends State<PasswordGetterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          widget.title,
-        ),
+        title: Text(widget.title),
       ),
       body: Stack(
         children: [
@@ -77,12 +75,12 @@ class _PasswordGetterPageState extends State<PasswordGetterPage> {
                             _isObscured = !_isObscured;
                           });
                         },
-                        icon: Icon(_isObscured ? Icons.visibility_off : Icons.visibility),
+                        icon: Icon(_isObscured ? Icons.visibility : Icons.visibility_off),
                       ),
                     ),
                   ),
                   onChanged: (string) {
-                    final double newRating = SafetyAnalyser().rateSafety(password: _pwController.text);
+                    final double newRating = SafetyAnalyser.rateSafety(password: _pwController.text);
                     setState(() {
                       _canSubmit = _pwController.text.isNotEmpty;
                       _rating = newRating;
@@ -90,7 +88,7 @@ class _PasswordGetterPageState extends State<PasswordGetterPage> {
                   },
                   onSubmitted: (string) => _canSubmit ? Navigator.pop(context, string) : null,
                 ),
-                if (widget.showIndicator) PasswordStrengthIndicator(rating: _rating),
+                if (widget.showPwStrengthIndicator) PasswordStrengthIndicator(rating: _rating),
               ],
             ),
           ),
@@ -105,7 +103,6 @@ class _PasswordGetterPageState extends State<PasswordGetterPage> {
                   'SUBMIT',
                   style: TextStyle(
                     color: _canSubmit ? null : Colors.blueGrey,
-                    fontSize: Theme.of(context).textTheme.displaySmall!.fontSize,
                   ),
                 ),
               ),

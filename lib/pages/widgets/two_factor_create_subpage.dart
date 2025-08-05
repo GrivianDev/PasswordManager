@@ -1,8 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:passwordmanager/pages/widgets/default_page_body.dart';
 import 'package:passwordmanager/engine/account.dart';
 import 'package:passwordmanager/engine/db/local_database.dart';
-import 'package:passwordmanager/engine/settings.dart';
 import 'package:passwordmanager/engine/two_factor_token.dart';
 import 'package:passwordmanager/pages/qr_scanner_page.dart';
 import 'package:passwordmanager/pages/two_factor_edit_page.dart';
@@ -18,7 +19,7 @@ class TwoFactorCreateSubpage extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          if (!Settings.isWindows)
+          if (Platform.isAndroid || Platform.isIOS)
             ElevatedButton(
               onPressed: () => Navigator.push(
                 context,
@@ -26,7 +27,8 @@ class TwoFactorCreateSubpage extends StatelessWidget {
                   builder: (context) => QrScannerPage(
                     onScan: (String code) {
                       account.twoFactorSecret = TOTPSecret.fromUri(code);
-                      LocalDatabase().notifyAll();
+                      final LocalDatabase db = context.read();
+                      db.replaceAccount(account.id, account); // This trivial replacement is just to notify listeners
                     },
                   ),
                 ),

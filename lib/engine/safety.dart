@@ -57,10 +57,12 @@ final class SafetyAnalyser {
 
   /// Generates a random password consisting of [20-32] characters.
  static String generateSavePassword({required bool useLetters, required bool useNumbers, required bool useSpecialChars}) {
-    String chars = (useLetters || useNumbers || useSpecialChars) ? '' : alphabet + uAlphabet;
+    String chars = '';
     if(useLetters) chars += alphabet + uAlphabet;
     if(useNumbers) chars += numbers;
     if(useSpecialChars) chars += specialChars;
+    if (chars.isEmpty) return '';
+
     final Random rand = Random.secure();
     return String.fromCharCodes(Iterable<int>.generate(rand.nextInt(13) + 20, (_) => chars.codeUnitAt(rand.nextInt(chars.length))));
   }

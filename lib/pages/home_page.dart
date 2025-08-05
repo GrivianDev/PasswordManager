@@ -1,6 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:passwordmanager/engine/persistence/appstate.dart';
 import 'package:passwordmanager/engine/api/online_providers.dart';
 import 'package:passwordmanager/engine/db/local_database.dart';
 import 'package:passwordmanager/engine/other/util.dart';
@@ -14,32 +17,26 @@ import 'package:passwordmanager/pages/flows/app_info_dialog.dart';
 import 'package:passwordmanager/pages/password_getter_page.dart';
 import 'package:passwordmanager/pages/widgets/default_page_body.dart';
 import 'package:passwordmanager/pages/desktop_file_selection_page.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:provider/provider.dart';
-import 'package:passwordmanager/engine/settings.dart';
 import 'package:passwordmanager/pages/widgets/home_navbar.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 import 'package:passwordmanager/engine/persistence/source.dart';
-
-import '../engine/api/firebase/firebase.dart';
-import '../engine/persistence/connector/firebase_connector.dart';
+import 'package:passwordmanager/engine/persistence/connector/firebase_connector.dart';
 
 /// The entry point of the application.
 /// Can display the current version information and provides options for:
 /// * Offline: Locally select / create save files
 /// * Online: Online select of files
 class HomePage extends StatelessWidget {
-  const HomePage({super.key, required this.title});
-
-  final String title;
+  const HomePage({super.key});
 
   Future<void> _selectLocally(BuildContext context) async {
     final NavigatorState navigator = Navigator.of(context);
-    final LocalDatabase database = LocalDatabase();
+    final LocalDatabase database = context.read();
+    final AppState appState = context.read();
 
     FileSelectionResult? fileResult;
     try {
-      if (Settings.isWindows) {
+      if (Platform.isWindows || Platform.isLinux) {
         // Use desktop file selection
         fileResult = await navigator.push(
           MaterialPageRoute(
@@ -63,8 +60,8 @@ class HomePage extends StatelessWidget {
         MaterialPageRoute(
           builder: (contex) => PasswordGetterPage(
             path: shortenPath(fileResult!.file.path),
-            title: '${fileResult.isNewlyCreated ? 'Creating new' : 'Enter password for'} storage',
-            showIndicator: fileResult.isNewlyCreated,
+            title: fileResult.isNewlyCreated ? 'Define storage password' : 'Enter password for storage',
+            showPwStrengthIndicator: fileResult.isNewlyCreated,
           ),
         ),
       );
@@ -74,12 +71,15 @@ class HomePage extends StatelessWidget {
       try {
         if (!context.mounted) return;
         Notify.showLoading(context: context);
-        database.setSource(Source(FileConnector(file: fileResult.file)));
+        final Source source = Source(FileConnector(file: fileResult.file), database, password: pw);
         if (fileResult.isNewlyCreated) {
-          await database.source!.initialiseNewSource(password: pw);
-        } else {
-          await database.load(password: pw);
+          await source.initialiseNewSource();
         }
+        await database.loadFromSource(source);
+
+        // Store last opened file path
+        appState.lastOpenedFilePath.value = fileResult.file.path;
+        await appState.save();
       } catch (e) {
         navigator.pop();
         rethrow;
@@ -96,17 +96,14 @@ class HomePage extends StatelessWidget {
         context: context,
         type: NotificationType.error,
         title: 'Error occurred!',
-        content: Text(
-          e.toString(),
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
+        content: Text(e.toString()),
       );
     }
   }
 
   Future<void> _selectOnline(BuildContext context) async {
     final NavigatorState navigator = Navigator.of(context);
-    final LocalDatabase database = LocalDatabase();
+    final LocalDatabase database = context.read();
 
     try {
       LoginResult? result;
@@ -127,8 +124,8 @@ class HomePage extends StatelessWidget {
           MaterialPageRoute(
             builder: (contex) => PasswordGetterPage(
               path: null,
-              title: '${firestoreSelect!.isNewlyCreated ? 'Creating new' : 'Enter password for'} storage',
-              showIndicator: firestoreSelect.isNewlyCreated,
+              title: firestoreSelect.isNewlyCreated ? 'Define storage password' : 'Enter password for storage',
+              showPwStrengthIndicator: firestoreSelect.isNewlyCreated,
             ),
           ),
         );
@@ -138,12 +135,21 @@ class HomePage extends StatelessWidget {
         try {
           if (!context.mounted) return;
           Notify.showLoading(context: context);
-          database.setSource(Source(FirebaseConnector(cloudDocId: firestoreSelect.documentId, cloudDocName: firestoreSelect.documentName)));
+
+          final Source source = Source(
+            FirebaseConnector(
+              cloudDocId: firestoreSelect.documentId,
+              cloudDocName: firestoreSelect.documentName,
+              firestoreServiceRef: context.read(),
+            ),
+            database,
+            password: pw,
+          );
+
           if (firestoreSelect.isNewlyCreated) {
-            await database.source!.initialiseNewSource(password: pw);
-          } else {
-            await database.load(password: pw);
+            await source.initialiseNewSource();
           }
+          await database.loadFromSource(source);
         } catch (e) {
           navigator.pop();
           database.clear(notify: false);
@@ -195,11 +201,11 @@ class HomePage extends StatelessWidget {
         title: Row(
           children: [
             Flexible(
-              child: Text(title),
+              child: Text('Home'),
             ),
             Padding(
               padding: const EdgeInsets.only(left: 20.0, top: 5.0),
-              child: Icon(Settings.isWindows ? Icons.desktop_windows_outlined : Icons.phone_android_outlined),
+              child: Icon(Platform.isWindows || Platform.isLinux ? Icons.desktop_windows_outlined : Icons.phone_android_outlined),
             ),
           ],
         ),
@@ -212,7 +218,7 @@ class HomePage extends StatelessWidget {
             SizedBox(
               width: 560,
               height: 120,
-              child: context.read<Settings>().isLightMode ? SvgPicture.asset('assets/lightLogo.svg') : SvgPicture.asset('assets/darkLogo.svg'),
+              child: context.read<AppState>().darkMode.value ? SvgPicture.asset('assets/darkLogo.svg') : SvgPicture.asset('assets/lightLogo.svg'),
             ),
             Text(
               'Access your encrypted save file:',
@@ -225,7 +231,7 @@ class HomePage extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Icon(Icons.search_rounded),
+                    Icon(Icons.file_open_outlined),
                     const SizedBox(width: 10),
                     Flexible(child: Text('Load from local file')),
                   ],
