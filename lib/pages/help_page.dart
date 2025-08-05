@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class HelpPage extends StatelessWidget {
-  const HelpPage({Key? key}) : super(key: key);
+  const HelpPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +15,7 @@ class HelpPage extends StatelessWidget {
             topLeft: Radius.circular(20.0),
             topRight: Radius.circular(20.0),
           ),
-          color: Theme.of(context).colorScheme.background,
+          color: Theme.of(context).colorScheme.surface,
         ),
         child: ListView(
           padding: const EdgeInsets.all(25.0),
@@ -124,7 +124,7 @@ class HelpPage extends StatelessWidget {
 }
 
 class HelpTile extends StatelessWidget {
-  const HelpTile({Key? key, required this.title, required this.children}) : super(key: key);
+  const HelpTile({super.key, required this.title, required this.children});
 
   final String title;
   final List<InlineSpan> children;

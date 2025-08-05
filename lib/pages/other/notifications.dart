@@ -51,7 +51,7 @@ final class Notify {
 }
 
 class _CustomDialog extends StatelessWidget {
-  const _CustomDialog({Key? key, required this.type, this.title, this.content, this.beforeReturn, this.onConfirm}) : super(key: key);
+  const _CustomDialog({required this.type, this.title, this.content, this.beforeReturn, this.onConfirm});
 
   final NotificationType type;
   final String? title;
@@ -76,11 +76,8 @@ class _CustomDialog extends StatelessWidget {
           title: title != null
               ? Text(
                   title!,
-                  style: TextStyle(
-                    fontWeight: Theme.of(context).textTheme.headlineLarge!.fontWeight,
-                    fontSize: Theme.of(context).textTheme.headlineLarge!.fontSize,
-                    color: type == NotificationType.error ? Colors.red : Theme.of(context).textTheme.headlineLarge!.color,
-                    overflow: TextOverflow.clip,
+                  style: Theme.of(context).textTheme.headlineLarge!.copyWith(
+                    color: type == NotificationType.error ? Colors.red : null,
                   ),
                 )
               : null,
@@ -97,30 +94,31 @@ class _CustomDialog extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 10.0),
                 child: Text(
                   (type == NotificationType.confirmDialog || type == NotificationType.deleteDialog) ? 'Cancel' : 'Return',
-                  style: TextStyle(
-                    fontSize: Theme.of(context).textTheme.displaySmall?.fontSize,
-                    overflow: TextOverflow.ellipsis,
-                  ),
                 ),
               ),
             ),
-            if (type == NotificationType.confirmDialog || type == NotificationType.deleteDialog)
+            if (type == NotificationType.confirmDialog)
+              ElevatedButton(
+                onPressed: onConfirm,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 10.0),
+                  child: Text('Confirm'),
+                ),
+              ),
+            if (type == NotificationType.deleteDialog)
               ElevatedButton(
                 onPressed: onConfirm,
                 style: ButtonStyle(
-                  backgroundColor:
-                      MaterialStateProperty.all<Color>(type == NotificationType.confirmDialog ? Theme.of(context).colorScheme.primary : Colors.red),
-                ),
+                    backgroundColor: WidgetStatePropertyAll<Color>(Colors.red),
+                    overlayColor: WidgetStateProperty.resolveWith((Set<WidgetState> states) {
+                      if (states.contains(WidgetState.pressed)) {
+                        return Colors.red.shade600;
+                      }
+                      return Colors.red.shade400;
+                    })),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 10.0),
-                  child: Text(
-                    type == NotificationType.confirmDialog ? "Confirm" : "DELETE",
-                    style: TextStyle(
-                      fontSize: Theme.of(context).textTheme.displaySmall?.fontSize,
-                      overflow: TextOverflow.ellipsis,
-                      color: Colors.white,
-                    ),
-                  ),
+                  child: Text('DELETE'),
                 ),
               ),
           ],

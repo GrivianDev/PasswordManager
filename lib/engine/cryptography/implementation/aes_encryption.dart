@@ -12,12 +12,12 @@ final class AES256 implements Encryption {
   /// Plain data is encrypted using a 256 bit key. Requires an iv of length 16 and key of length 32.
   /// Additionally, the datas length must be a multiple of 16.
   @override
-  Uint8List encrypt({required Uint8List data, required Key key, required IV iv}) {
+  Uint8List encrypt({required Uint8List data, required Uint8List key, required IV iv}) {
     if(key.length != keyLength) throw Exception('Expected key length for AES-256 is 32 bytes but got ${key.length} bytes');
     if(iv.length != blockLength) throw Exception('Length of iv must be 16 bytes for AES but got ${iv.length} bytes');
     if(data.length % blockLength != 0) throw Exception('Length of data must be a multiple of 16 bytes for AES');
 
-    final CBCBlockCipher cbc = CBCBlockCipher(AESEngine())..init(true, ParametersWithIV(KeyParameter(key.bytes), iv.bytes));
+    final CBCBlockCipher cbc = CBCBlockCipher(AESEngine())..init(true, ParametersWithIV(KeyParameter(key), iv.bytes));
     final Uint8List cipher = Uint8List(data.length);
 
     int offset = 0;
@@ -31,12 +31,12 @@ final class AES256 implements Encryption {
   /// Plain data is decrypted using a 256 bit key. Requires an iv of length 16 and key of length 32.
   /// Additionally, the datas length must be a multiple of 16.
   @override
-  Uint8List decrypt({required Uint8List cipher, required Key key, required IV iv}) {
+  Uint8List decrypt({required Uint8List cipher, required Uint8List key, required IV iv}) {
     if(key.length != keyLength) throw Exception('Expected key length for AES-256 is 32 bytes but got ${key.length} bytes');
     if(iv.length != blockLength) throw Exception('Length of iv must be 16 bytes for AES but got ${iv.length} bytes');
     if(cipher.length % blockLength != 0) throw Exception('Length of cipher must be a multiple of 16 bytes for AES');
 
-    final CBCBlockCipher cbc = CBCBlockCipher(AESEngine())..init(false, ParametersWithIV(KeyParameter(key.bytes), iv.bytes));
+    final CBCBlockCipher cbc = CBCBlockCipher(AESEngine())..init(false, ParametersWithIV(KeyParameter(key), iv.bytes));
     final Uint8List data = Uint8List(cipher.length);
 
     int offset = 0;

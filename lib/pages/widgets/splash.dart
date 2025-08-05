@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:passwordmanager/engine/persistence.dart';
 import 'package:passwordmanager/pages/home_page.dart';
+import 'package:passwordmanager/engine/persistence/appstate.dart';
 
 /// Little animated Splashcreen that navigates to the [HomePage] automaticly after a few seconds.
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key}) : super(key: key);
+  const SplashScreen({super.key});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -18,20 +18,24 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
   @override
   void initState() {
+    super.initState();
     _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1500));
     _animation = Tween(
       begin: 0.0,
       end: 1.0,
     ).animate(_controller);
-    super.initState();
+    _controller.forward();
 
     Future.delayed(const Duration(seconds: 2)).then(
-      (value) => Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const HomePage(title: 'Home'),
-        ),
-      ),
+      (value) {
+        if (!mounted) return;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const HomePage(),
+          ),
+        );
+      }
     );
   }
 
@@ -43,9 +47,8 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
-    _controller.forward();
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: Center(
         child: FadeTransition(
           opacity: _animation,
@@ -55,7 +58,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
               SizedBox(
                 width: 560,
                 height: 120,
-                child: context.read<Settings>().isLightMode ? SvgPicture.asset('assets/lightLogo.svg') : SvgPicture.asset('assets/darkLogo.svg'),
+                child: context.read<AppState>().darkMode.value ? SvgPicture.asset('assets/darkLogo.svg') : SvgPicture.asset('assets/lightLogo.svg'),
               ),
               const Icon(
                 Icons.shield_outlined,

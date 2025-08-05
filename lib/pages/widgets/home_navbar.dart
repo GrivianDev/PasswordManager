@@ -1,37 +1,62 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:passwordmanager/engine/cloud_connector.dart';
-import 'package:passwordmanager/engine/persistence.dart';
+import 'package:passwordmanager/engine/persistence/appstate.dart';
 import 'package:passwordmanager/pages/settings_page.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 
-/// Simplified navigation bar for the [HomePage]. The only options are to change the current theme and go online.
 class HomeNavBar extends StatelessWidget {
-  const HomeNavBar({Key? key}) : super(key: key);
+  const HomeNavBar({super.key});
 
-  /// Logs in the app into the firebase cloud or does the logout logic.
-  Future<void> _changeOnlineMode(BuildContext context, bool enabled) async {
-    final FirebaseConnector connector = context.read<FirebaseConnector>();
-    final Settings settings = context.read<Settings>();
-    try {
-      if (enabled) {
-        await connector.login();
-      } else {
-        connector.logout();
+  Future<void> _clearAppData(BuildContext context) async {
+    final NavigatorState navigator = Navigator.of(context);
+    final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
+
+    bool doClear = false;
+    await Notify.dialog(
+      context: context,
+      type: NotificationType.confirmDialog,
+      title: 'Proceed?',
+      content: Text('This will reset all cached app settings. While it will not delete any secure files or online data, it will log you out of all connected providers.'),
+      onConfirm: () {
+        doClear = true;
+        navigator.pop();
       }
-      settings.setOnlineMode(enabled);
+    );
+
+    if (!doClear) return;
+
+    try {
+      if (!context.mounted) return;
+      Notify.showLoading(context: context);
+      final AppState appState = context.read();
+      await appState.clearAllData();
     } catch (e) {
+      navigator.pop();
       if (!context.mounted) return;
       Notify.dialog(
         context: context,
         type: NotificationType.error,
-        title: 'Error occured!',
-        content: Text(
-          e.toString(),
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
+        title: 'Could not clear data',
       );
+      return;
     }
+    navigator.pop();
+    scaffoldMessenger.showSnackBar(SnackBar(
+      duration: const Duration(milliseconds: 1500),
+      content: const Row(
+        children: [
+          Text('Successfully cleared data'),
+          Padding(
+            padding: EdgeInsets.only(left: 5.0),
+            child: Icon(
+              Icons.auto_awesome,
+              size: 15,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    ));
   }
 
   @override
@@ -39,7 +64,7 @@ class HomeNavBar extends StatelessWidget {
     return Drawer(
       child: ListView(
         padding: const EdgeInsets.all(20.0),
-        children: <Widget>[
+        children: [
           Text(
             'Options',
             style: Theme.of(context).textTheme.displayLarge,
@@ -62,6 +87,7 @@ class HomeNavBar extends StatelessWidget {
                       padding: EdgeInsets.only(left: 15.0),
                       child: Text(
                         'Settings',
+                        style: TextStyle(fontSize: 20),
                       ),
                     ),
                   ),
@@ -70,27 +96,26 @@ class HomeNavBar extends StatelessWidget {
             ),
           ),
           const Divider(),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Switch.adaptive(
-                value: context.watch<Settings>().isOnlineModeEnabled,
-                onChanged: (enabled) => !FirebaseConnector.deactivated ? _changeOnlineMode(context, enabled) : null,
-              ),
-              Flexible(
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 5.0),
-                  child: Text(
-                    context.read<Settings>().isOnlineModeEnabled ? 'Online' : 'Offline',
-                    style: Theme.of(context).textTheme.displayMedium,
+          TextButton(
+            onPressed: () => _clearAppData(context),
+            child: const Padding(
+              padding: EdgeInsets.symmetric(vertical: 6.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Icon(Icons.cleaning_services),
+                  Flexible(
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 15.0),
+                      child: Text(
+                        'Clear app data',
+                        style: TextStyle(fontSize: 20),
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
-              Padding(
-                padding: const EdgeInsets.only(left: 15.0),
-                child: Icon(context.read<Settings>().isOnlineModeEnabled ? Icons.cloud_sync : Icons.cloud_off),
-              ),
-            ],
+            ),
           ),
         ],
       ),

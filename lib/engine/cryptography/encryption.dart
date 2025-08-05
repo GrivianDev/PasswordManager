@@ -7,11 +7,11 @@ abstract class Encryption {
 
   /// Encrypts the given data according to the underlying implementation with the provided key.
   /// In most cases you should also provide a valid initialization vector.
-  Uint8List encrypt({required Uint8List data, required Key key, required IV iv});
+  Uint8List encrypt({required Uint8List data, required Uint8List key, required IV iv});
 
   /// Decrypts the given cipher according to the underlying implementation with the provided key.
   /// In most cases you should also provide a valid initialization vector.
-  Uint8List decrypt({required Uint8List cipher, required Key key, required IV iv});
+  Uint8List decrypt({required Uint8List cipher, required Uint8List key, required IV iv});
 
   int get blockLength;
 

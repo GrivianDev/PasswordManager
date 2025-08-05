@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 /// Helpful widget builder class that returns a certain widget depending
 /// on if the intern MouseRegion is hovered or not.
 class HoverBuilder extends StatefulWidget {
-  const HoverBuilder({required this.builder, Key? key}) : super(key: key);
+  const HoverBuilder({required this.builder, super.key});
 
   final Widget Function(bool) builder;
 

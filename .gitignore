@@ -28,6 +28,7 @@ migrate_working_dir/
 .flutter-plugins
 .flutter-plugins-dependencies
 .packages
+*.lock
 .pub-cache/
 .pub/
 /build/
@@ -43,5 +44,5 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# Access keys
-/lib/engine/keys/access.dart
+# Access config
+/lib/engine/config/app_config.dart
