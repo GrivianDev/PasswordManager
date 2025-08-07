@@ -86,7 +86,7 @@ class DataAccessorV1 implements DataAccessor {
     final String testHMac = base16.encode(hmac.process(bBuilder.toBytes()));
 
     if (testHMac != hmacString) {
-      throw Exception('Wrong password or data corruption');
+      throw Exception('Wrong password');
     }
 
     // Decrypt

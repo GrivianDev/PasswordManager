@@ -53,8 +53,7 @@ final class Source {
     _accessor = DataAccessorRegistry.create(DataAccessorRegistry.latestVersion); // Auto create new ones with newest version
     _accessor!.definePassword(_password);
 
-    final String formattedData = await _accessor!.encryptAndFormat(dbRef);
-    await connector.create(formattedData);
+    await connector.create(await getFormattedData());
   }
 
   /// Asynchronous method to save changes to a local file or the firebase cloud.
@@ -63,8 +62,18 @@ final class Source {
       throw Exception('Connector was not available');
     }
 
-    final String formattedData = await getFormattedData();
-    await connector.save(formattedData);
+    await connector.save(await getFormattedData());
+  }
+
+  Future<void> upgradeSource() async {
+    if (!(await connector.isAvailable)) {
+      throw Exception('Connector was not available');
+    }
+
+    _accessor = DataAccessorRegistry.create(DataAccessorRegistry.latestVersion);
+    _accessor!.definePassword(_password);
+
+    await connector.save(await getFormattedData());
   }
 
   Future<void> deleteSource() => connector.delete();

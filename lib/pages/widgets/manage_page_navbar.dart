@@ -70,6 +70,13 @@ class ManagePageNavbar extends StatelessWidget {
       database.source!.changePassword(newPassword);
       await database.save();
       navigator.pop();
+      if (!context.mounted) return;
+      await Notify.dialog(
+        context: context,
+        type: NotificationType.notification,
+        title: 'Successfully changed password!',
+        content: Text('Accessing this storage again will now require the new password.'),
+      );
     } catch (e) {
       navigator.pop();
       if (!context.mounted) return;
@@ -170,6 +177,7 @@ class ManagePageNavbar extends StatelessWidget {
       navigator.pop();
       if (error) throw Exception('Could not save backup');
 
+      navigator.pop();
       if (!context.mounted) return;
       await Notify.dialog(
         context: context,
@@ -177,7 +185,6 @@ class ManagePageNavbar extends StatelessWidget {
         title: 'Successfully saved backup',
         content: Text('Saved file under:\n${file.path}'),
       );
-      navigator.pop();
     } catch (e) {
       navigator.pop();
       if (!context.mounted) return;

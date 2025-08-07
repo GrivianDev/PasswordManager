@@ -9,6 +9,8 @@ import 'package:passwordmanager/pages/widgets/manage_page_navbar.dart';
 import 'package:passwordmanager/pages/editing_page.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 
+import '../engine/db/accessors/accessor_registry.dart';
+
 class ManagePage extends StatefulWidget {
   const ManagePage({super.key});
 
@@ -21,7 +23,7 @@ class _ManagePageState extends State<ManagePage> {
   String? tagQuery;
 
   /// Case insensitive search for accounts. A widget is displayed with the found accounts.
-  void _searchAccountDetails(BuildContext context, String string) {
+  void _searchAccountDetails(String string) {
     setState(() {
       searchQuery = string.isNotEmpty ? string : null;
       tagQuery = null;
@@ -29,7 +31,7 @@ class _ManagePageState extends State<ManagePage> {
   }
 
   /// Case insensitive search for tags. A widget is displayed with the found accounts.
-  void _searchTag(BuildContext context, String string) {
+  void _searchTag(String string) {
     setState(() {
       tagQuery = string.isNotEmpty ? string : null;
       searchQuery = null;
@@ -38,7 +40,7 @@ class _ManagePageState extends State<ManagePage> {
 
   /// Asynchronous method to save the fact that changes happened.
   /// Note: Can only be accessed through the button that is only visible when autosaving is not activated.
-  Future<void> _save(BuildContext context) async {
+  Future<void> _save() async {
     final NavigatorState navigator = Navigator.of(context);
     final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
     final LocalDatabase database = context.read();
@@ -48,7 +50,7 @@ class _ManagePageState extends State<ManagePage> {
       await database.save();
     } catch (e) {
       navigator.pop();
-      if (!context.mounted) return;
+      if (!mounted) return;
       Notify.dialog(
         context: context,
         type: NotificationType.error,
@@ -77,7 +79,53 @@ class _ManagePageState extends State<ManagePage> {
     ));
   }
 
-  Future<void> _showDetails(BuildContext context) async {
+  Future<void> _askToMigrate() async {
+    final NavigatorState navigator = Navigator.of(context);
+    final LocalDatabase database = context.read();
+    final String currentVersion = database.source?.accessorVersion ?? 'not-specified';
+
+    bool migrate = false;
+    await Notify.dialog(
+      context: context,
+      type: NotificationType.confirmDialog,
+      title: 'Outdated storage!',
+      content: Text(
+        'Your current storage version is "$currentVersion", but the most recent version is "${DataAccessorRegistry.latestVersion}". Do you wish to upgrade?\n',
+      ),
+      onConfirm: () {
+        migrate = true;
+        Navigator.pop(context);
+      }
+    );
+
+    if (!migrate) return;
+
+    try {
+      if (!mounted) return;
+      Notify.showLoading(context: context);
+      await database.source?.upgradeSource();
+      setState(() {}); // Rebuild
+      navigator.pop();
+      if (!mounted) return;
+      Notify.dialog(
+        context: context,
+        type: NotificationType.notification,
+        title: 'Successfully upgraded storage!',
+        content: Text('All new features and are now available.'),
+      );
+    } catch (e) {
+      navigator.pop();
+      if (!mounted) return;
+      Notify.dialog(
+        context: context,
+        type: NotificationType.error,
+        title: 'Could not migrate!',
+        content: Text(e.toString()),
+      );
+    }
+  }
+
+  Future<void> _showDetails() async {
     final LocalDatabase database = context.read();
     final Source source = database.source!;
 
@@ -88,7 +136,7 @@ class _ManagePageState extends State<ManagePage> {
       type = 'Firestore cloud document';
     }
 
-    await Notify.dialog(
+    return Notify.dialog(
       context: context,
       type: NotificationType.notification,
       title: 'Details',
@@ -107,11 +155,19 @@ class _ManagePageState extends State<ManagePage> {
         appBar: AppBar(
           automaticallyImplyLeading: false,
           actions: [
+            if (context.read<LocalDatabase>().source?.accessorVersion != DataAccessorRegistry.latestVersion)
+              Padding(
+                padding: EdgeInsets.only(right: 10.0),
+                child: IconButton(
+                  icon: const Icon(Icons.warning_amber_rounded , color: Colors.orange),
+                  onPressed: _askToMigrate,
+                ),
+              ),
             Padding(
-              padding: const EdgeInsets.only(right: 20.0),
+              padding: const EdgeInsets.only(right: 10.0),
               child: IconButton(
                 icon: const Icon(Icons.sticky_note_2_outlined),
-                onPressed: () => _showDetails(context),
+                onPressed: _showDetails,
               ),
             ),
             Padding(
@@ -177,7 +233,7 @@ class _ManagePageState extends State<ManagePage> {
                                         clipBehavior: Clip.none,
                                         children: [
                                           ElevatedButton(
-                                            onPressed: () => _save(context),
+                                            onPressed: _save,
                                             child: Padding(
                                               padding: const EdgeInsets.all(12.0),
                                               child: Row(
@@ -185,7 +241,7 @@ class _ManagePageState extends State<ManagePage> {
                                                   Padding(
                                                     padding: const EdgeInsets.only(right: 10.0),
                                                     child: Icon(
-                                                      localDb.source?.usesLocalFile == false ? Icons.sync : Icons.save,
+                                                      localDb.source?.usesLocalFile == false ? Icons.sync : Icons.save_rounded,
                                                     ),
                                                   ),
                                                   Text('Save'),
@@ -251,8 +307,8 @@ class _CustomAutocomplete extends StatefulWidget {
     required this.onSwitchFalse,
   });
 
-  final void Function(BuildContext context, String key) onSwitchTrue;
-  final void Function(BuildContext context, String key) onSwitchFalse;
+  final void Function(String key) onSwitchTrue;
+  final void Function(String key) onSwitchFalse;
 
   @override
   State<_CustomAutocomplete> createState() => _CustomAutocompleteState();
@@ -267,9 +323,9 @@ class _CustomAutocompleteState extends State<_CustomAutocomplete> {
 
   void _execute(String string) {
     if (_switch) {
-      widget.onSwitchTrue(context, string);
+      widget.onSwitchTrue(string);
     } else {
-      widget.onSwitchFalse(context, string);
+      widget.onSwitchFalse(string);
     }
   }
 

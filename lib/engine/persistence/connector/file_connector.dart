@@ -9,7 +9,7 @@ class FileConnector implements PersistenceConnector {
   FileConnector({required this.file});
 
   @override
-  String get name => getBasename(file.parent.path);
+  String get name => getBasename(extractFilenameFromPath(file.path));
 
   @override
   Future<bool> get isAvailable => file.exists();

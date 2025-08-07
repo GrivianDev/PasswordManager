@@ -182,7 +182,7 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 20.0),
+            padding: const EdgeInsets.only(right: 10.0),
             child: IconButton(
               icon: const Icon(Icons.info_outline),
               onPressed: () => displayInfoDialog(context),
