@@ -275,15 +275,14 @@ class _CustomAutocompleteState extends State<_CustomAutocomplete> {
 
   /// Asynchronous and case insensitive search for options to display
   Future<Iterable<_TwoValueContainer<String>>> _searchForOptions(String value) async {
-    // TODO: Recheck this!!!
     final LocalDatabase database = context.read();
-    final searchValue = value.toLowerCase();
+    final String searchValue = value.toLowerCase();
     if (!_switch) {
       return database.accounts
-          .where((element) =>
-              (element.name?.toLowerCase().contains(searchValue) ?? false) ||
-              (element.info?.toLowerCase().contains(searchValue) ?? false) ||
-              (element.email?.toLowerCase().contains(searchValue) ?? false))
+          .where((acc) =>
+              (acc.name?.toLowerCase().contains(searchValue) ?? false) ||
+              (acc.info?.toLowerCase().contains(searchValue) ?? false) ||
+              (acc.email?.toLowerCase().contains(searchValue) ?? false))
           .take(10)
           .map((e) => _TwoValueContainer(e.name ?? '<no-name>', e.tag ?? '<no-tag>'));
     }

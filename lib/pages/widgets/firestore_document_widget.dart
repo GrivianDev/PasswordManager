@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:passwordmanager/engine/other/util.dart';
 import 'package:passwordmanager/engine/api/firebase/firebase.dart';
 import 'package:passwordmanager/pages/flows/typed_confirmation_dialog.dart';
-import 'package:passwordmanager/pages/flows/user_input_dialog.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 
 class FirestoreDocumentWidget extends StatefulWidget {
@@ -18,31 +18,30 @@ class FirestoreDocumentWidget extends StatefulWidget {
 }
 
 class _FirestoreDocumentWidgetState extends State<FirestoreDocumentWidget> {
-  late String _documentName;
+  late TextEditingController _renameController;
+  late String _currentDocumentName;
+  String? _inputErrorText;
+  bool _renaming = false;
 
-  Future<void> _renameStorage() async {
-    final NavigatorState navigator = Navigator.of(context);
-
-    final String? newName = await getUserInputDialog(
-      context: context,
-      title: 'Enter new name',
-      labelText: 'Name',
-      description: 'Enter new name for this firestore document with ID: ${widget.documentId}.',
-    );
-
-    if (newName == null) return;
+  Future<void> _renameStorage(String newName) async {
+    if (newName.trim().isEmpty || newName == _currentDocumentName || _inputErrorText != null) {
+      // Invalid / irrelevant input -> Return and deactivate rename mode
+      setState(() {
+        _renaming = false;
+        _inputErrorText = null;
+        _renameController.text = _currentDocumentName; // Reset to previous value
+      });
+      return;
+    }
 
     try {
-      if (!mounted) return;
-      Notify.showLoading(context: context);
       final Firestore firestore = context.read();
       await firestore.updateDocument('${firestore.userVaultPath}/${widget.documentId}', {'name': newName});
       setState(() {
-        _documentName = newName;
+        _renaming = false;
+        _currentDocumentName = newName;
       });
-      navigator.pop();
     } catch (e) {
-      navigator.pop();
       if (!mounted) return;
       await Notify.dialog(
         context: context,
@@ -88,7 +87,8 @@ class _FirestoreDocumentWidgetState extends State<FirestoreDocumentWidget> {
   @override
   void initState() {
     super.initState();
-    _documentName = widget.documentName;
+    _currentDocumentName = widget.documentName;
+    _renameController = TextEditingController(text: _currentDocumentName);
   }
 
   @override
@@ -99,27 +99,53 @@ class _FirestoreDocumentWidgetState extends State<FirestoreDocumentWidget> {
         borderRadius: BorderRadius.circular(10.0),
       ),
       child: ListTile(
-        onTap: widget.onClicked,
+        onTap: !_renaming ? widget.onClicked : null,
         leading: const Icon(
           Icons.cloud_circle,
           size: 40.0,
         ),
-        title: Text(
-          _documentName,
+        title: !_renaming ? Text(
+          _currentDocumentName,
           style: Theme.of(context).textTheme.displayMedium,
+        ) : Padding(
+          padding: const EdgeInsets.only(bottom: 5.0),
+          child: TextField(
+            controller: _renameController,
+            autofocus: true,
+            onSubmitted: (value) => _renameStorage(value),
+            decoration: InputDecoration(
+              errorText: _inputErrorText,
+              errorMaxLines: 10,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 15.0),
+            ),
+            onChanged: (value) => setState(() {
+              if(!isValidFilename(value)) {
+                _inputErrorText = 'Discouraged storage name!';
+              } else {
+                _inputErrorText = null;
+              }
+            }),
+            onTapOutside: (value) => setState(() {
+              _renaming = false;
+              _inputErrorText = null;
+              _renameController.text = _currentDocumentName;
+            }),
+          ),
         ),
         subtitle: Text(
           'ID: ${widget.documentId}',
           style: Theme.of(context).textTheme.displaySmall?.copyWith(fontSize: 12),
         ),
-        trailing: Row(
+        trailing: !_renaming ? Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-              onPressed: _renameStorage,
+              onPressed: () => setState(() {
+                _renaming = true;
+              }),
               icon: const Icon(
                 Icons.edit,
-                size: 35.0,
+                size: 30.0,
               ),
             ),
             IconButton(
@@ -131,7 +157,7 @@ class _FirestoreDocumentWidgetState extends State<FirestoreDocumentWidget> {
               ),
             ),
           ],
-        ),
+        ) : null,
       ),
     );
   }

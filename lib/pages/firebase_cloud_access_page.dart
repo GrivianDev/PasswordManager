@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:passwordmanager/engine/other/util.dart';
 import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/api/firebase/firebase.dart';
 import 'package:passwordmanager/engine/selection_result.dart';
@@ -48,11 +49,17 @@ class _FirebaseCloudAccessPageState extends State<FirebaseCloudAccessPage> {
       title: 'Name your new storage',
       labelText: 'Name',
       description: 'What name do you want for your storage?',
+      validator: (value) {
+        if (!isValidFilename(value)) {
+          return 'Discouraged storage name!';
+        }
+        return null;
+      }
     );
 
-    if (storageName != null) {
-      navigator.pop(FirestoreSelectionResult('', storageName, true));
-    }
+    if (storageName == null || storageName.isEmpty) return;
+
+    navigator.pop(FirestoreSelectionResult('', storageName, true));
   }
 
   @override
@@ -118,6 +125,7 @@ class _FirebaseCloudAccessPageState extends State<FirebaseCloudAccessPage> {
                                 Text(
                                   'Seems like there are no documents yet...',
                                   style: TextStyle(color: Colors.grey),
+                                  textAlign: TextAlign.center,
                                 )
                               ],
                             ),

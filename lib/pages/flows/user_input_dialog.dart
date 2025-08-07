@@ -6,11 +6,10 @@ Future<String?> getUserInputDialog({
   required String title,
   required String description,
   String? labelText,
-  String? initialValue,
   String? Function(String input)? validator,
 }) async {
   String? userInput;
-  String currentInput = initialValue?.trim() ?? ''; // TODO: Implement correct prefill in textfield
+  String currentInput = '';
   String? errorText;
 
   await Notify.dialog(
@@ -30,13 +29,13 @@ Future<String?> getUserInputDialog({
                 child: TextField(
                   autofocus: true,
                   onChanged: (value) {
-                    currentInput = value.trim();
                     setState(() {
+                      currentInput = value;
                       errorText = validator?.call(currentInput);
                     });
                   },
                   onSubmitted: (value) {
-                    currentInput = value.trim();
+                    currentInput = value;
                     final String? error = validator?.call(currentInput);
                     if (error == null && currentInput.isNotEmpty) {
                       userInput = currentInput;
@@ -46,6 +45,7 @@ Future<String?> getUserInputDialog({
                   decoration: InputDecoration(
                     labelText: labelText,
                     errorText: errorText,
+                    errorMaxLines: 10,
                     constraints: const BoxConstraints(maxWidth: 100, maxHeight: 80.0),
                   ),
                 ),

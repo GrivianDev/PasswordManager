@@ -34,6 +34,10 @@ final class Source {
 
   /// Asynchronous method to load data from given file or firebase cloud.
   Future<void> loadData() async {
+    if (!(await connector.isAvailable)) {
+      throw Exception('Connector was not available');
+    }
+
     final String formattedData = await connector.load();
     final Map<String, String> properties = Source.readProperties(formattedData);
     final String vaultVersion = properties['version'] ?? 'v0';
@@ -55,13 +59,12 @@ final class Source {
 
   /// Asynchronous method to save changes to a local file or the firebase cloud.
   Future<void> saveData() async {
-    final String formattedData = await getFormattedData();
-
-    if (await connector.isAvailable) {
-      await connector.save(formattedData);
-    } else {
+    if (!(await connector.isAvailable)) {
       throw Exception('Connector was not available');
     }
+
+    final String formattedData = await getFormattedData();
+    await connector.save(formattedData);
   }
 
   Future<void> deleteSource() => connector.delete();

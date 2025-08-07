@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:passwordmanager/engine/other/util.dart';
 import 'package:passwordmanager/engine/selection_result.dart';
 import 'package:passwordmanager/pages/widgets/file_element.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
@@ -53,7 +54,7 @@ class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
       }
 
       final File extrernalFile = File(result.files.single.path ?? '');
-      final File targetFile = File('${widget.dir.path}${Platform.pathSeparator}${extrernalFile.path.split(Platform.pathSeparator).last}');
+      final File targetFile = File('${widget.dir.path}${Platform.pathSeparator}${extractFilenameFromPath(extrernalFile.path)}');
 
       if (!extrernalFile.path.endsWith('.x')) {
         throw Exception('File extension is not supported');
@@ -114,12 +115,14 @@ class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
             final File fileCheck = File('$path${Platform.pathSeparator}$value.x');
             if (fileCheck.existsSync()) {
               return 'File with this name already exists!';
+            } else if (!isValidFilename(value)) {
+              return 'Discouraged filename!';
             }
             return null;
           }
       );
 
-      if (storageName == null) return;
+      if (storageName == null || storageName.isEmpty) return;
 
       final File file = File('$path${Platform.pathSeparator}$storageName.x');
       navigator.pop(FileSelectionResult(file: file, isNewlyCreated: true));
@@ -159,7 +162,7 @@ class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
           child: Column(
             children: [
               Text(
-                '...${Platform.pathSeparator}${widget.dir.path.split(Platform.pathSeparator).last}',
+                shortenPath(widget.dir.path, parentsToShow: 0),
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               FutureBuilder<List<File>>(
@@ -179,6 +182,7 @@ class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
                               Text(
                                 'Seems like there are no files yet...',
                                 style: TextStyle(color: Colors.grey),
+                                textAlign: TextAlign.center,
                               )
                             ],
                           ),

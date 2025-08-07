@@ -18,34 +18,34 @@ class FileWidget extends StatefulWidget {
 
 class _FileWidgetState extends State<FileWidget> {
   late File _file;
-  late bool _renaming;
   late TextEditingController _renameController;
   late String _currentName;
+  String? _inputErrorText;
+  bool _renaming = false;
 
   /// Asynchronous method to rename the file. Does nothing if provided name is empty or only consists of whitespaces.
   /// Purposefully fails if file with new name already exists.
   Future<void> _rename(String newName) async {
+    if (newName.trim().isEmpty || newName == _currentName || _inputErrorText != null) {
+      // Invalid / irrelevant input -> Return and deactivate rename mode
+      setState(() {
+        _renaming = false;
+        _renameController.text = _currentName; // Reset to previous value
+      });
+      return;
+    }
+
     try {
-      if (newName.trim().isNotEmpty && newName != _currentName) {
-        final int lastSeperator = _file.path.lastIndexOf(Platform.pathSeparator);
-        final String relativePath = _file.path.substring(0, lastSeperator + 1);
-        final File newFile = File('$relativePath$newName.x');
+      final File newFile = File('${_file.parent.path}${Platform.pathSeparator}$newName.x');
 
-        if (newFile.existsSync()) throw Exception();
+      if (newFile.existsSync()) throw Exception(); // Sanity check
 
-        _file = await _file.rename(newFile.path);
-
-        // Set new name
-        setState(() {
-          _renaming = false;
-          _currentName = newName;
-        });
-      } else {
-        setState(() {
-          _renaming = false;
-          _renameController.text = _currentName;
-        });
-      }
+      _file = await _file.rename(newFile.path);
+      // Set new name
+      setState(() {
+        _renaming = false;
+        _currentName = newName; // Set to new value
+      });
     } catch (e) {
       if (!mounted) return;
       Notify.dialog(
@@ -96,9 +96,7 @@ class _FileWidgetState extends State<FileWidget> {
   void initState() {
     super.initState();
     _file = widget.file;
-    _renaming = false;
-    final String wholeName = _file.path.split(Platform.pathSeparator).last;
-    _currentName = wholeName.substring(0, wholeName.lastIndexOf('.'));
+    _currentName = getBasename(extractFilenameFromPath(_file.path));
     _renameController = TextEditingController(text: _currentName);
   }
 
@@ -123,7 +121,7 @@ class _FileWidgetState extends State<FileWidget> {
         ),
         title: !_renaming
             ? Text(
-                _file.path.split(Platform.pathSeparator).last,
+                extractFilenameFromPath(_file.path),
                 style: Theme.of(context).textTheme.displayMedium,
               )
             : Padding(
@@ -132,12 +130,25 @@ class _FileWidgetState extends State<FileWidget> {
                   controller: _renameController,
                   autofocus: true,
                   onSubmitted: (value) => _rename(value),
-                  decoration: const InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(horizontal: 15.0),
+                  decoration: InputDecoration(
+                    errorText: _inputErrorText,
+                    errorMaxLines: 10,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 15.0),
                   ),
+                  onChanged: (value) => setState(() {
+                    final File file = File('${_file.parent.path}${Platform.pathSeparator}$value.x');
+                    if (file.existsSync() && value != _currentName) {
+                      _inputErrorText = 'File with this name already exists!';
+                    } else if(!isValidFilename(value)) {
+                      _inputErrorText = 'Discouraged filename!';
+                    } else {
+                      _inputErrorText = null;
+                    }
+                  }),
                   onTapOutside: (value) => setState(() {
                     _renaming = false;
-                    _renameController.text = _currentName;
+                    _inputErrorText = null;
+                    _renameController.text = _currentName; // Reset to previous value
                   }),
                 ),
               ),
@@ -145,21 +156,20 @@ class _FileWidgetState extends State<FileWidget> {
           '${_file.lengthSync()} bytes',
           style: Theme.of(context).textTheme.displaySmall,
         ),
-        trailing: Row(
+        trailing: !_renaming ? Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (!_renaming)
-              IconButton(
-                onPressed: () => setState(() {
-                  _renaming = true;
-                }),
-                icon: const Icon(
-                  Icons.edit,
-                  size: 30.0,
-                ),
-              ),
             IconButton(
-              onPressed: () => !_renaming ? _deleteFileClicked() : null,
+              onPressed: () => setState(() {
+                _renaming = true;
+              }),
+              icon: const Icon(
+                Icons.edit,
+                size: 30.0,
+              ),
+            ),
+            IconButton(
+              onPressed: _deleteFileClicked,
               icon: const Icon(
                 Icons.delete_outline,
                 color: Colors.red,
@@ -167,7 +177,7 @@ class _FileWidgetState extends State<FileWidget> {
               ),
             ),
           ],
-        ),
+        ) : null,
       ),
     );
   }

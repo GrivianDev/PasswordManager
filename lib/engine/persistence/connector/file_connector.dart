@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:passwordmanager/engine/other/util.dart';
 import 'package:passwordmanager/engine/persistence/connector/persistence_connector.dart';
 
 class FileConnector implements PersistenceConnector {
@@ -8,7 +9,7 @@ class FileConnector implements PersistenceConnector {
   FileConnector({required this.file});
 
   @override
-  String get name => file.path.split(Platform.pathSeparator).last.split('.').first;
+  String get name => getBasename(file.parent.path);
 
   @override
   Future<bool> get isAvailable => file.exists();

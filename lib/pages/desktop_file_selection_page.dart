@@ -91,7 +91,7 @@ class DesktopFileSelectionPage extends StatelessWidget {
           }
       );
 
-      if (storageName == null) return;
+      if (storageName == null || storageName.isEmpty) return;
 
       final File file = File('$path${Platform.pathSeparator}$storageName.x');
 
