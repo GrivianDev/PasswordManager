@@ -19,6 +19,7 @@ class _OnlineProviderSelectPageState extends State<OnlineProviderSelectPage> {
 
   Future<void> _firestoreReauthenticate() async {
     final Firestore firestoreService = context.read();
+    if (firestoreService.deactivated) return; // Exit if firestore was not configured
 
     try {
       if (firestoreService.auth.isUserLoggedIn) return;
@@ -85,13 +86,14 @@ class _OnlineProviderSelectPageState extends State<OnlineProviderSelectPage> {
               spacing: 5.0,
               children: [
                 ElevatedButton(
-                  onPressed: _firestoreSelected,
+                  onPressed: !firestoreService.deactivated ? _firestoreSelected : null,
+                  style: firestoreService.deactivated ? ButtonStyle(backgroundColor: WidgetStatePropertyAll<Color>(Colors.blueGrey)) : null,
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     spacing: 10.0,
                     children: [
                       Icon(Icons.storage_rounded),
-                      Flexible(child: Text('Cloud Firestore')),
+                      Flexible(child: Text('Cloud Firestore${firestoreService.deactivated ? ' (deactivated)' : ''}')),
                     ],
                   ),
                 ),

@@ -171,6 +171,8 @@ class Firestore {
 
   Firestore(this.projectId, this.apiKey, AppState appState) : auth = FirebaseAuth(apiKey, appState);
 
+  bool get deactivated => projectId.isEmpty || apiKey.isEmpty;
+
   Future<String> createDocument(String collectionPath, Map<String, dynamic> data) async {
     final uri = Uri.parse('$basePath/$collectionPath');
     final response = await _sendFirestoreRequest(
