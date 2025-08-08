@@ -141,7 +141,7 @@ class _ManagePageState extends State<ManagePage> {
       type: NotificationType.notification,
       title: 'Details',
       content: Text(
-        'Type: $type\nName: "${source.name}"\nStorage version: ${source.accessorVersion ?? 'Not specified'}\nAccounts: ${database.accounts.length}/${LocalDatabase.maxCapacity}\nTags: ${database.tags.length}',
+        'Type: $type\nName: "${source.displayName}"\nStorage version: ${source.accessorVersion ?? 'Not specified'}\nAccounts: ${database.accounts.length}/${LocalDatabase.maxCapacity}\nTags: ${database.tags.length}',
       ),
     );
   }

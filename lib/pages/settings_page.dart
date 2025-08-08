@@ -12,7 +12,7 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  bool _saving = false;
+  bool _saving = false; // Flag do avoid race conditions / multiple frequent save callbacks
 
   Future<void> saveSettings() async {
     final AppState appState = context.read();

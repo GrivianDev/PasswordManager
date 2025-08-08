@@ -5,6 +5,10 @@ import 'package:passwordmanager/engine/persistence/appstate.dart';
 
 // ----- Global helper functions ------
 
+/// Sends a Firestore HTTP request with:
+/// - Automatic retry on auth failure (if [tryReloginIfAuthFailed] is set)
+/// - Status code validation against [expectedStatusCodes]
+/// - Error handling for network, format, and Firebase error responses
 Future<http.Response> _sendFirestoreRequest(Future<http.Response> Function() sendRequest,
     {List<int> expectedStatusCodes = const [200], FirebaseAuth? tryReloginIfAuthFailed}) async {
   if (tryReloginIfAuthFailed != null && !tryReloginIfAuthFailed.isUserLoggedIn) {
@@ -33,6 +37,8 @@ Future<http.Response> _sendFirestoreRequest(Future<http.Response> Function() sen
   }
 }
 
+/// Parses Firebase error messages from a response body.
+/// Returns `null` if no error message could be extracted.
 String? _extractFirebaseError(String body) {
   try {
     final Map<String, dynamic> data = jsonDecode(body);
@@ -46,15 +52,32 @@ String? _extractFirebaseError(String body) {
   return null;
 }
 
+/// Holds authentication details for a signed-in Firebase user.
 class FirestoreUser {
   final String email;
+
+  /// Long-lived refresh token for obtaining new ID tokens
+  /// without requiring the user's password again.
+  ///
+  /// Stored in [AppState] so it can persist across app restarts.
   final String refreshToken;
+
+  /// Firebase Authentication user identifier (`localId` in API responses).
+  ///
+  /// This is globally unique within the Firebase project.
   final String userId;
+
+  /// Short-lived ID token (JWT) used for authenticating
+  /// requests to Firebase services like Firestore.
+  ///
+  /// Expires after ~1 hour, after which it must be refreshed
+  /// using [refreshToken].
   final String idToken;
 
   FirestoreUser(this.email, this.refreshToken, this.userId, this.idToken);
 }
 
+/// Handles Firebase Authentication via REST API.
 class FirebaseAuth {
   final Uri _authRefreshTokenUrl;
   final Uri _authSignUpUrl;
@@ -63,6 +86,7 @@ class FirebaseAuth {
 
   FirestoreUser? _user;
 
+  /// Creates an auth client using the provided [apiKey] and [appStateRef].
   FirebaseAuth(String apiKey, AppState appStateRef)
       : _authRefreshTokenUrl = Uri.parse('https://securetoken.googleapis.com/v1/token?key=$apiKey'),
         _authSignUpUrl = Uri.parse('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=$apiKey'),
@@ -73,8 +97,10 @@ class FirebaseAuth {
 
   FirestoreUser? get user => _user;
 
+  /// Returns the last email used to sign in, if available.
   String? lastSignedInEmail() => _appStateRef.firebaseAuthLastUserEmail.value;
 
+  /// Creates a new Firebase user account and signs them in.
   Future<void> signUp(String email, String password) async {
     final http.Response response = await _sendFirestoreRequest(() =>
         http.post(
@@ -103,6 +129,7 @@ class FirebaseAuth {
     _user = FirestoreUser(email, refreshToken, userId, idToken);
   }
 
+  /// Signs in an existing Firebase user with [email] and [password].
   Future<void> login(String email, String password) async {
     final http.Response response = await _sendFirestoreRequest(() => http.post(
         _authLoginUrl,
@@ -130,6 +157,7 @@ class FirebaseAuth {
     _user = FirestoreUser(email, refreshToken, userId, idToken);
   }
 
+  /// Logs in using the stored refresh token from [AppState].
   Future<void> loginWithRefreshToken() async {
     String? email = _appStateRef.firebaseAuthLastUserEmail.value;
     String? refreshToken = _appStateRef.firebaseAuthRefreshToken.value;
@@ -155,6 +183,7 @@ class FirebaseAuth {
     _user = FirestoreUser(email, refreshToken, userId, idToken);
   }
 
+  /// Logs out the current user and clears stored credentials.
   Future<void> logout() async {
     _user = null;
     _appStateRef.firebaseAuthRefreshToken.value = null;
@@ -162,17 +191,36 @@ class FirebaseAuth {
   }
 }
 
+/// Provides Firestore document CRUD operations using REST API.
+/// All request are automatically retried once.
 class Firestore {
   final String projectId;
   final String apiKey;
   final FirebaseAuth auth;
+
+  /// Base path for Firestore REST API requests.
   String get basePath => 'https://firestore.googleapis.com/v1/projects/$projectId/databases/(default)/documents';
+  /// Path to the signed-in user's vault.
   String get userVaultPath => 'ethercrypt-users/${auth.user!.userId}/vault';
 
   Firestore(this.projectId, this.apiKey, AppState appState) : auth = FirebaseAuth(apiKey, appState);
 
+  /// Returns `true` if [projectId] or [apiKey] is empty.
   bool get deactivated => projectId.isEmpty || apiKey.isEmpty;
 
+  /// Creates a new document in the given Firestore [collectionPath].
+  ///
+  /// **Input**:
+  /// - [collectionPath] is relative to the database root (e.g. `"users"`, `"users/userId/items"`).
+  /// - [data] is a plain Dart map of field names to values.
+  ///
+  /// **Output**:
+  /// - Returns the document's full resource name (string) in the format:
+  ///   `"projects/{projectId}/databases/(default)/documents/{collectionPath}/{docId}"`
+  ///
+  /// **Notes**:
+  /// - A random document ID is generated by Firestore.
+  /// - Throws if the API key or authentication is invalid.
   Future<String> createDocument(String collectionPath, Map<String, dynamic> data) async {
     final uri = Uri.parse('$basePath/$collectionPath');
     final response = await _sendFirestoreRequest(
@@ -189,6 +237,15 @@ class Firestore {
     return json['name'];
   }
 
+  /// Creates or completely overwrites the document at [docPath].
+  ///
+  /// **Input**:
+  /// - [docPath] must be the full path from the database root, including the document name (e.g. `"users/userId/documentName"`).
+  /// - [data] is a plain Dart map of field names to values.
+  ///
+  /// **Behavior**:
+  /// - If the document exists, all existing fields will be replaced.
+  /// - If it doesn't exist, it will be created.
   Future<void> setDocument(String docPath, Map<String, dynamic> data) async {
     final uri = Uri.parse('$basePath/$docPath');
     await _sendFirestoreRequest(
@@ -202,6 +259,29 @@ class Firestore {
     );
   }
 
+  /// Retrieves a single document specified by [docPath].
+  ///
+  /// **Input**:
+  /// - [docPath] is the full path from the database root.
+  /// - Optional [fieldMask] filters which fields are returned. An empty list only returns the document name.
+  ///
+  /// **Output**:
+  /// - Returns the raw Firestore REST response as a Dart `Map<String, dynamic>`.
+  ///   Example structure:
+  ///   ```json
+  ///   {
+  ///     "name": "projects/.../documents/users/userId",
+  ///     "fields": {
+  ///       "username": {"stringValue": "alice"},
+  ///       "age": {"integerValue": "30"}
+  ///     },
+  ///     "createTime": "...",
+  ///     "updateTime": "..."
+  ///   }
+  ///   ```
+  ///
+  /// **Note**:
+  /// - This does **not** unwrap the `"fields"` map to raw Dart types — caller must handle that.
   Future<Map<String, dynamic>> getDocument(String docPath, {List<String>? fieldMask}) async {
     final uri = Uri.parse('$basePath/$docPath${_buildFieldMask(fieldMask)}');
     final response = await _sendFirestoreRequest(
@@ -212,6 +292,18 @@ class Firestore {
     return jsonDecode(response.body);
   }
 
+  /// Retrieves all documents from a collection at [collectionPath].
+  ///
+  /// **Input**:
+  /// - [collectionPath] is relative to the database root.
+  /// - Optional [fieldMask] filters fields for all returned documents. An empty list only returns the document name.
+  ///
+  /// **Output**:
+  /// - Returns a list of raw Firestore REST document maps, same structure as [getDocument].
+  /// - If the collection is empty, returns an empty list.
+  ///
+  /// **Note**:
+  /// - Does not auto-paginate — will only return the first page of results from Firestore.
   Future<List<Map<String, dynamic>>> getCollection(String collectionPath, {List<String>? fieldMask}) async {
     final uri = Uri.parse('$basePath/$collectionPath${_buildFieldMask(fieldMask)}');
     final response = await _sendFirestoreRequest(
@@ -223,10 +315,19 @@ class Firestore {
     return docs.cast<Map<String, dynamic>>();
   }
 
-  Future<void> updateDocument(String path, Map<String, dynamic> data) async {
+  /// Updates one or more fields in an existing document at [docPath].
+  ///
+  /// **Input**:
+  /// - [docPath] is the document path from the database root.
+  /// - [data] contains only the fields to update.
+  ///
+  /// **Behavior**:
+  /// - Fields not listed in [data] remain unchanged.
+  /// - If [data] is empty, the method returns immediately without making a request.
+  Future<void> updateDocument(String docPath, Map<String, dynamic> data) async {
     if (data.isEmpty) return;
 
-    final uri = Uri.parse('$basePath/$path?updateMask.fieldPaths=${data.keys.join(",")}');
+    final uri = Uri.parse('$basePath/$docPath?updateMask.fieldPaths=${data.keys.join(",")}');
     await _sendFirestoreRequest(
       () => http.patch(
         uri,
@@ -238,8 +339,15 @@ class Firestore {
     );
   }
 
-  Future<void> deleteDocument(String path) async {
-    final uri = Uri.parse('$basePath/$path');
+  /// Deletes the document at [docPath].
+  ///
+  /// **Input**:
+  /// - [docPath] is the document path from the database root.
+  ///
+  /// **Behavior**:
+  /// - Removes the document and all of its fields.
+  Future<void> deleteDocument(String docPath) async {
+    final uri = Uri.parse('$basePath/$docPath');
     await _sendFirestoreRequest(
       () => http.delete(uri, headers: _headers()),
       expectedStatusCodes: [200, 204], // 204 is often used for successful deletions

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:passwordmanager/engine/persistence/appstate.dart';
 import 'package:provider/provider.dart';
+import 'package:passwordmanager/engine/persistence/appstate.dart';
 import 'package:passwordmanager/engine/other/util.dart';
 import 'package:passwordmanager/engine/api/firebase/firebase.dart';
 import 'package:passwordmanager/pages/widgets/default_page_body.dart';
@@ -8,6 +8,12 @@ import 'package:passwordmanager/engine/safety.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 import 'package:passwordmanager/pages/widgets/password_strength_indicator.dart';
 
+/// Page for Firebase login or registration.
+///
+/// Displays email (last used email is prefilled) and password fields with validation,
+/// password strength indicator (for registration),
+/// and toggles between login and sign-up modes.
+/// Handles submission with loading and error dialogs.
 class FirebaseLoginPage extends StatefulWidget {
   const FirebaseLoginPage({super.key, required this.loginMode});
 

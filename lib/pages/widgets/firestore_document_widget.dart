@@ -5,6 +5,15 @@ import 'package:passwordmanager/engine/api/firebase/firebase.dart';
 import 'package:passwordmanager/pages/flows/typed_confirmation_dialog.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 
+/// Widget representing a Firestore document with inline rename and delete functionality.
+///
+/// Displays the document name and ID, and allows renaming with validation.
+/// Deletion requires user confirmation, with error handling for failures.
+///
+/// - [documentId]: The Firestore document ID.
+/// - [documentName]: The current document name shown.
+/// - [onClicked]: Callback triggered when tapping the widget (if not renaming).
+/// - [afterDelete]: Callback triggered after successful deletion.
 class FirestoreDocumentWidget extends StatefulWidget {
   const FirestoreDocumentWidget({super.key, required this.documentId, required this.documentName, required this.onClicked, required this.afterDelete});
 
@@ -23,6 +32,11 @@ class _FirestoreDocumentWidgetState extends State<FirestoreDocumentWidget> {
   String? _inputErrorText;
   bool _renaming = false;
 
+  /// Attempts to rename the Firestore document if the new name is valid and different.
+  /// Cancels rename mode if the name is invalid or unchanged.
+  /// Shows error dialog on failure.
+  ///
+  /// - [newName]: The new name for the document.
   Future<void> _renameStorage(String newName) async {
     if (newName.trim().isEmpty || newName == _currentDocumentName || _inputErrorText != null) {
       // Invalid / irrelevant input -> Return and deactivate rename mode
@@ -52,6 +66,9 @@ class _FirestoreDocumentWidgetState extends State<FirestoreDocumentWidget> {
     }
   }
 
+  /// Prompts the user for confirmation and deletes the Firestore document if confirmed.
+  /// Shows a loading indicator during deletion and handles errors.
+  /// Calls [afterDelete] after successful deletion.
   Future<void> _deleteStorage() async {
     final NavigatorState navigator = Navigator.of(context);
 

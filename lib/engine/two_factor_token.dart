@@ -4,6 +4,8 @@ import 'package:base32/base32.dart';
 import 'package:pointycastle/api.dart';
 import 'package:pointycastle/macs/hmac.dart';
 
+/// Holds data and logic for a Time-based One-Time Password (TOTP) secret,
+/// including parameters for generation and serialization.
 class TOTPSecret {
   static const String defaultAlgorithm = 'SHA-1';
   static const int defaultPeriod = 30;
@@ -17,6 +19,7 @@ class TOTPSecret {
   int period;
   int digits;
 
+  /// Creates a new TOTP secret from given parameters, validating algorithm and value constraints.
   TOTPSecret(
       {required this.issuer,
       required this.accountName,
@@ -32,6 +35,7 @@ class TOTPSecret {
     }
   }
 
+  /// Creates a TOTP secret from a valid `otpauth://totp/` URI string.
   factory TOTPSecret.fromUri(String uriString) {
     final uri = Uri.parse(uriString);
 
@@ -80,6 +84,7 @@ class TOTPSecret {
         digits: int.tryParse(query['digits'] ?? TOTPSecret.defaultDigit.toString()) ?? TOTPSecret.defaultDigit);
   }
 
+  /// Creates a TOTP secret from a JSON-compatible map.
   factory TOTPSecret.fromJson(Map<String, dynamic> json) {
     return TOTPSecret(
         issuer: json['issuer'] as String,
@@ -90,6 +95,7 @@ class TOTPSecret {
         digits: json['digits'] as int? ?? TOTPSecret.defaultDigit);
   }
 
+  /// Generates a TOTP code for the given timestamp or for the current UTC time.
   String generateTOTPCode({DateTime? timestamp}) {
     final DateTime now = timestamp ?? DateTime.now().toUtc();
     final int secondsSinceEpoch = now.millisecondsSinceEpoch ~/ 1000;
@@ -111,6 +117,7 @@ class TOTPSecret {
     return otp.toString().padLeft(digits, '0');
   }
 
+  /// Converts the TOTP secret to a JSON-compatible map.
   Map<String, dynamic> toJson() {
     return {
       'issuer': issuer,
@@ -122,6 +129,7 @@ class TOTPSecret {
     };
   }
 
+  /// Generates the `otpauth://totp/` URI for this TOTP secret.
   String getAuthUrl() {
     final String encodedIssuer = Uri.encodeComponent(issuer);
     final String encodedAccount = Uri.encodeComponent(accountName);
@@ -145,7 +153,7 @@ class TOTPSecret {
     return uri.toString();
   }
 
-  /// Returns a format that is human readable.
+  /// Returns a human-readable string representation of the TOTP secret.
   @override
   String toString() {
     return 'TOTPSecret(issuer=$issuer, accountName=$accountName, secret=$secret, algorithm=$algorithm, period=$period, digits=$digits)';

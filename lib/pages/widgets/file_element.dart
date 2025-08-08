@@ -4,7 +4,15 @@ import 'package:passwordmanager/engine/other/util.dart';
 import 'package:passwordmanager/pages/flows/typed_confirmation_dialog.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 
-/// Widget that represents a local file. Allows deletion and renaming of file.
+/// Widget that displays a local file with options to rename or delete it.
+///
+/// Shows the file name, size in bytes, and provides buttons for inline renaming
+/// or deleting the file. Renaming validates for uniqueness and discouraged filenames.
+/// Deletion requires user confirmation.
+///
+/// - [file]: The file to display.
+/// - [onClicked]: Callback when the file tile is tapped (if not renaming).
+/// - [onDelete]: Callback after successful deletion.
 class FileWidget extends StatefulWidget {
   const FileWidget({super.key, required this.file, required this.onClicked, required this.onDelete});
 
@@ -23,8 +31,11 @@ class _FileWidgetState extends State<FileWidget> {
   String? _inputErrorText;
   bool _renaming = false;
 
-  /// Asynchronous method to rename the file. Does nothing if provided name is empty or only consists of whitespaces.
-  /// Purposefully fails if file with new name already exists.
+  /// Asynchronously renames the file if the new name is valid and not empty.
+  /// Cancels rename if the name is unchanged or invalid.
+  /// Throws an error dialog if renaming fails.
+  ///
+  /// - [newName]: The new name to rename the file to.
   Future<void> _rename(String newName) async {
     if (newName.trim().isEmpty || newName == _currentName || _inputErrorText != null) {
       // Invalid / irrelevant input -> Return and deactivate rename mode
@@ -57,7 +68,9 @@ class _FileWidgetState extends State<FileWidget> {
     }
   }
 
-  /// After user allows deletion file is deleted and [afterDelete] callback is executed.
+  /// Prompts the user to confirm file deletion.
+  /// Deletes the file if confirmed, showing a loading indicator.
+  /// Calls the [onDelete] callback after successful deletion.
   Future<void> _deleteFileClicked() async {
     final NavigatorState navigator = Navigator.of(context);
 

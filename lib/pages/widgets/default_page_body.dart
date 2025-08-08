@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// A reusable page root, with a rounded appbar and automatic scroll.
 class DefaultPageBody extends StatelessWidget {
   const DefaultPageBody({super.key, required this.child});
 

@@ -3,8 +3,11 @@ import 'package:passwordmanager/engine/safety.dart';
 import 'package:passwordmanager/pages/widgets/password_strength_indicator.dart';
 import 'package:passwordmanager/pages/widgets/default_page_body.dart';
 
-/// Widget that provides a password upon being popped. The user is asked to type in a password that
-/// the is used to encrypt data.
+/// Page for entering a password, optionally showing password strength.
+///
+/// Displays a password input field with show/hide toggle,
+/// optional password strength indicator,
+/// and a submit button enabled only when input is valid.
 class PasswordGetterPage extends StatefulWidget {
   const PasswordGetterPage({super.key, required this.path, required this.title, this.showPwStrengthIndicator = false});
 
@@ -16,7 +19,6 @@ class PasswordGetterPage extends StatefulWidget {
   State<PasswordGetterPage> createState() => _PasswordGetterPageState();
 }
 
-/// State checking that passwords can only be submitted if the text input is not empty.
 class _PasswordGetterPageState extends State<PasswordGetterPage> {
   late bool _isObscured;
   late bool _canSubmit;

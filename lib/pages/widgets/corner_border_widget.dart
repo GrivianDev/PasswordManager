@@ -1,5 +1,15 @@
 import 'package:flutter/material.dart';
 
+/// A widget that draws stylized corner borders around a rectangular area.
+///
+/// The borders are shaped like rounded "L" corners at each corner of the given [size].
+/// Useful for highlighting or framing UI elements with decorative corner borders.
+///
+/// - [size]: The overall size of the widget's bounding box.
+/// - [cornerLength]: Length of each corner's border lines.
+/// - [borderRadius]: Radius of the rounded edges at corners.
+/// - [strokeWidth]: Thickness of the corner border lines.
+/// - [color]: Color of the corner borders.
 class CornerBorderWidget extends StatelessWidget {
   final Size size;
   final double cornerLength;

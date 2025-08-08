@@ -15,6 +15,21 @@ import 'package:passwordmanager/engine/cryptography/datatypes.dart';
 import 'package:passwordmanager/engine/cryptography/implementation/aes_encryption.dart';
 import 'package:passwordmanager/engine/cryptography/service.dart';
 
+/// DataAccessorV1 implements a secure version of the data accessor interface,
+/// providing encryption and decryption of account data using AES-256 CBC with
+/// HMAC-SHA256 verification and PBKDF2 key derivation.
+///
+/// This version improves upon V0 by:
+/// - Using a higher PBKDF2 iteration count (100,000) for stronger key derivation.
+/// - Deriving a 64-byte key split into separate AES encryption and HMAC keys for seperation of concerns.
+/// - Storing data in JSON format for improved structure and extensibility.
+/// - Verifying integrity with an HMAC over the combined key, IV, and ciphertext.
+///
+/// Properties include:
+/// - [saltIdentifier] (hex-encoded salt used for PBKDF2)
+/// - [ivIdentifier] (hex-encoded AES initialization vector)
+/// - [hmacIdentifier] (hex-encoded HMAC of key+IV+ciphertext)
+/// - [dataIdentifier] (Base64-encoded AES-encrypted JSON data)
 class DataAccessorV1 implements DataAccessor {
   static const String saltIdentifier = 'Salt';
   static const String ivIdentifier = 'IV';
@@ -27,9 +42,14 @@ class DataAccessorV1 implements DataAccessor {
 
   String? _password;
   Key? _totalKey;
-  Key? _aesKey;
-  Key? _hmacKey;
+  Key? _aesKey; // The 32-byte AES encryption key (lower half of _totalKey).
+  Key? _hmacKey; // The 32-byte HMAC key (upper half of _totalKey).
 
+  /// Derives a 64-byte key from the given password and optional salt using PBKDF2
+  /// with HMAC-SHA256 and [pbkdf2Iterations].
+  ///
+  /// If no salt is provided, a random salt of length [saltLength] is generated.
+  /// The returned [Key] contains the derived key bytes and the salt used.
   static Key _deriveKey(String password, [Uint8List? salt]) {
     final usedSalt = salt ?? CryptographicService.randomBytes(saltLength);
     final Pbkdf2Parameters params = Pbkdf2Parameters(usedSalt, pbkdf2Iterations, keyLength * 2); // Double sized key
@@ -66,9 +86,11 @@ class DataAccessorV1 implements DataAccessor {
 
     if (saltString == null || hmacString == null || ivString == null || cipher == null) throw Exception('Missing properties');
 
+    // Derive the 64-byte combined key from password and salt
     _totalKey = await foundation.compute((message) {
       return _deriveKey(message[0], base16.decode(message[1]));
     }, [_password!, saltString]);
+    // Split total key into AES and HMAC keys
     _aesKey = Key(_totalKey!.bytes.sublist(0, keyLength)); // Lower bytes are aes key
     _hmacKey = Key(_totalKey!.bytes.sublist(keyLength)); // Upper bytes are hmac key
 
@@ -76,12 +98,13 @@ class DataAccessorV1 implements DataAccessor {
     final IV iv = IV(base16.decode(ivString));
     final Uint8List cipherBytes = base64.decode(cipher);
 
+    // Concatenate totalKey + IV + ciphertext for HMAC verification
     final bBuilder = BytesBuilder(copy: false);
     bBuilder.add(_totalKey!.bytes);
     bBuilder.add(iv.bytes);
     bBuilder.add(cipherBytes);
 
-    // Check HMAC
+    // Verify HMAC integrity
     final HMac hmac = HMac(SHA256Digest(), 64)..init(KeyParameter(_hmacKey!.bytes));
     final String testHMac = base16.encode(hmac.process(bBuilder.toBytes()));
 
@@ -89,13 +112,14 @@ class DataAccessorV1 implements DataAccessor {
       throw Exception('Wrong password');
     }
 
-    // Decrypt
+    // Decrypt AES-encrypted data asynchronously
     final String decryptedString = await foundation.compute((message) {
       final AES256 decrypter = AES256();
       return utf8.decode(decrypter.decrypt(cipher: message[0] as Uint8List, key: (message[1] as Key).bytes, iv: message[2] as IV),
           allowMalformed: true);
     }, [cipherBytes, _aesKey, iv]);
 
+    // Extract JSON object from decrypted string
     final start = decryptedString.indexOf('{');
     final end = decryptedString.lastIndexOf('}');
 
@@ -111,6 +135,7 @@ class DataAccessorV1 implements DataAccessor {
       throw const FormatException('Expected "accounts" to be a List');
     }
 
+    // Populate database with decrypted accounts
     targetDatabase.addAllAccounts(accountsJson.map((e) => Account.fromJson(e as Map<String, dynamic>)).toList());
   }
 
@@ -128,12 +153,14 @@ class DataAccessorV1 implements DataAccessor {
     for (int j = 0; j < length; j++) {
       buffer.write(String.fromCharCode(chars.codeUnitAt(rand.nextInt(chars.length))));
     }
+    // Serialize accounts as JSON string
     buffer.write(jsonEncode({"accounts": sourceDatabase.accounts.map((a) => a.toJson()).toList()}));
     length = rand.nextInt(10) + 1;
     for (int j = 0; j < length; j++) {
       buffer.write(String.fromCharCode(chars.codeUnitAt(rand.nextInt(chars.length))));
     }
 
+    // Derive keys if not already done
     if (_totalKey == null) {
       _totalKey = await foundation.compute((message) {
         return _deriveKey(message);
@@ -143,7 +170,10 @@ class DataAccessorV1 implements DataAccessor {
     }
 
     final AES256 encrypter = AES256();
+    // Expand data to block-aligned length with allowed characters
     final Uint8List expandedData = CryptographicService.expandWithValues(utf8.encode(buffer.toString()), encrypter.blockLength, chars.codeUnits);
+
+    // Compute HMAC over key + IV + ciphertext later, so create HMac object now
     final HMac newHmac = HMac(SHA256Digest(), 64)..init(KeyParameter(_hmacKey!.bytes));
     final IV iv = IV.fromLength(encrypter.blockLength);
 
@@ -152,6 +182,7 @@ class DataAccessorV1 implements DataAccessor {
       return encrypter.encrypt(data: message[0] as Uint8List, key: (message[1] as Key).bytes, iv: message[2] as IV);
     }, [expandedData, _aesKey, iv]);
 
+    // Prepare bytes for HMAC calculation
     final bBuilder = BytesBuilder(copy: false);
     bBuilder.add(_totalKey!.bytes);
     bBuilder.add(iv.bytes);
@@ -159,6 +190,7 @@ class DataAccessorV1 implements DataAccessor {
 
     final Uint8List newHmacBytes = newHmac.process(bBuilder.toBytes());
 
+    // Format the encrypted data and metadata as key=value; pairs
     StringBuffer outBuffer = StringBuffer();
     outBuffer.write('version=$version;');
     outBuffer.write('$saltIdentifier=${base16.encode(_totalKey!.salt!)};');

@@ -104,7 +104,7 @@ class ManagePageNavbar extends StatelessWidget {
       if (!context.mounted) return;
       Notify.showLoading(context: context);
       late final PersistenceConnector connector;
-      final String uploadName = database.source!.name!;
+      final String uploadName = database.source!.displayName!;
       if (result.type == OnlineProvidertype.firestore) {
         connector = FirebaseConnector(
           cloudDocId: '',
@@ -147,7 +147,7 @@ class ManagePageNavbar extends StatelessWidget {
       if (Platform.isWindows || Platform.isLinux) {
         path = await FilePicker.platform.saveFile(
           lockParentWindow: true,
-          fileName: '${database.source!.name}-backup.x',
+          fileName: '${database.source!.displayName}-backup.x',
           dialogTitle: 'Save your data',
           type: FileType.custom,
           allowedExtensions: ['x'],
@@ -155,7 +155,7 @@ class ManagePageNavbar extends StatelessWidget {
       } else {
         final Directory? dir = await getExternalStorageDirectory();
         if (dir == null) throw Exception('Could not receive storage directory');
-        path = '${dir.path}${Platform.pathSeparator}${database.source!.name}-backup.x';
+        path = '${dir.path}${Platform.pathSeparator}${database.source!.displayName}-backup.x';
       }
 
       if (path == null) return;

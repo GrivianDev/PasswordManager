@@ -212,9 +212,7 @@ class _EditingPageState extends State<EditingPage> {
             Align(
               alignment: Alignment.centerRight,
               child: ElevatedButton(
-                style: ButtonStyle(
-                  backgroundColor: WidgetStatePropertyAll<Color>(_changes ? Theme.of(context).colorScheme.primary : Colors.blueGrey),
-                ),
+                style: !_changes ? ButtonStyle(backgroundColor: WidgetStatePropertyAll<Color>(Colors.blueGrey)) : null,
                 onPressed: _changes ? _save : null,
                 child: const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 25.0, vertical: 5.0),

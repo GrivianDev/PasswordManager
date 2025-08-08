@@ -2,7 +2,14 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-enum StorageType { shared, secure }
+/// Defines where a setting is stored.
+enum StorageType {
+  /// Stored in unencrypted shared preferences (accessible to the app).
+  shared,
+
+  /// Stored in encrypted secure storage (protected with platform-level encryption).
+  secure,
+}
 
 enum SerilizationType {
   string,
@@ -11,6 +18,12 @@ enum SerilizationType {
   bool,
 }
 
+/// Represents a single application state field with a key, storage type,
+/// serialization type, and default value.
+///
+/// This is a generic class that can store any type `T` supported by the
+/// serialization system. It tracks value changes and triggers an
+/// `onChanged` callback when updated.
 class AppStateField<T> {
   final String key;
   final StorageType storage;
@@ -46,8 +59,17 @@ AndroidOptions _getAndroidOptions() => const AndroidOptions(
   encryptedSharedPreferences: true,
 );
 
+/// Holds all application state fields and manages persistent storage.
+///
+/// This class:
+/// - Initializes state from persistent storage
+/// - Saves changes to storage
+/// - Clears all data when requested
+/// - Notifies listeners on changes
 class AppState extends ChangeNotifier {
-  // All App properties
+  // -------- State Fields --------
+
+  /// Whether dark mode is enabled.
   late final darkMode = AppStateField<bool>(
     key: 'ethercrypt.dark_mode',
     storage: StorageType.shared,
@@ -56,6 +78,7 @@ class AppState extends ChangeNotifier {
     onChanged: notifyListeners,
   );
 
+  /// Path to the last opened file.
   late final lastOpenedFilePath = AppStateField<String?>(
     key: 'ethercrypt.last_opened_filepath',
     storage: StorageType.shared,
@@ -64,6 +87,7 @@ class AppState extends ChangeNotifier {
     onChanged: notifyListeners,
   );
 
+  /// Whether autosaving is enabled.
   late final autosaving = AppStateField<bool>(
     key: 'ethercrypt.autosaving',
     storage: StorageType.shared,
@@ -72,6 +96,7 @@ class AppState extends ChangeNotifier {
     onChanged: notifyListeners,
   );
 
+  /// Whether password generation includes letters.
   late final pwGenUseLetters = AppStateField<bool>(
     key: 'ethercrypt.passwordgeneration.use_letters',
     storage: StorageType.shared,
@@ -80,6 +105,7 @@ class AppState extends ChangeNotifier {
     onChanged: notifyListeners,
   );
 
+  /// Whether password generation includes numbers.
   late final pwGenUseNumbers = AppStateField<bool>(
     key: 'ethercrypt.passwordgeneration.use_numbers',
     storage: StorageType.shared,
@@ -88,6 +114,7 @@ class AppState extends ChangeNotifier {
     onChanged: notifyListeners,
   );
 
+  /// Whether password generation includes special characters.
   late final pwGenUseSpecialChars = AppStateField<bool>(
     key: 'ethercrypt.passwordgeneration.use_special_chars',
     storage: StorageType.shared,
@@ -96,6 +123,7 @@ class AppState extends ChangeNotifier {
     onChanged: notifyListeners,
   );
 
+  /// Email of the last Firebase-authenticated user.
   late final firebaseAuthLastUserEmail = AppStateField<String?>(
     key: 'ethercrypt.firebase.auth.last_user_email',
     storage: StorageType.secure,
@@ -104,6 +132,7 @@ class AppState extends ChangeNotifier {
     onChanged: notifyListeners,
   );
 
+  /// Refresh token for the last Firebase-authenticated user.
   late final firebaseAuthRefreshToken = AppStateField<String?>(
     key: 'ethercrypt.firebase.auth.user_refresh_token',
     storage: StorageType.secure,
@@ -112,12 +141,14 @@ class AppState extends ChangeNotifier {
     onChanged: notifyListeners,
   );
 
+  /// List of all state fields (used for batch operations).
   late final List<AppStateField> _fields;
 
   // Storage backends
   late final SharedPreferences _prefs;
   late final FlutterSecureStorage _secure;
 
+  /// Creates a new [AppState] and registers all state fields.
   AppState() {
     // All property fields should be also inserted in this total list !!!
     _fields = [
@@ -132,6 +163,9 @@ class AppState extends ChangeNotifier {
     ];
   }
 
+  /// Initializes the app state by loading values from storage.
+  ///
+  /// Returns `true` if all values loaded without errors.
   Future<bool> init() async {
     _prefs = await SharedPreferences.getInstance();
     _secure = FlutterSecureStorage(aOptions: _getAndroidOptions());
@@ -155,6 +189,9 @@ class AppState extends ChangeNotifier {
     return withoutErrors;
   }
 
+  /// Saves all state fields to persistent storage.
+  ///
+  /// Returns `true` if all values saved without errors.
   Future<bool> save() async {
     bool withoutErrors = true;
     for (final field in _fields) {
@@ -182,6 +219,9 @@ class AppState extends ChangeNotifier {
     return withoutErrors;
   }
 
+  /// Clears all stored data and resets state fields to default values.
+  ///
+  /// Returns `true` if clearing succeeded without errors.
   Future<bool> clearAllData() async {
     // Reset all values
     for (final AppStateField<dynamic> field in _fields) {
@@ -203,6 +243,7 @@ class AppState extends ChangeNotifier {
 
   // ---- Utility Methods ----
 
+  /// Loads a value from shared preferences for the given [field].
   T _loadFromSharedPreferences<T>(AppStateField<T> field) {
     final Object? raw = _prefs.get(field.key);
     if (raw == null) return field.defaultValue;
@@ -210,6 +251,7 @@ class AppState extends ChangeNotifier {
     return raw as T;
   }
 
+  /// Loads a value from secure storage for the given [field].
   Future<T> _loadFromSecureStorage<T>(AppStateField<T> field) async {
     final String? raw = await _secure.read(key: field.key);
     if (raw == null) return field.defaultValue;
@@ -224,6 +266,7 @@ class AppState extends ChangeNotifier {
     return field.defaultValue;
   }
 
+  /// Saves a value to shared preferences for the given [field].
   Future<void> _saveToSharedPreferences(AppStateField field) async {
     if (field._stype == SerilizationType.string) {
       await _prefs.setString(field.key, field.value);

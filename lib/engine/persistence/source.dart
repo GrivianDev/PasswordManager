@@ -6,33 +6,45 @@ import 'package:passwordmanager/engine/persistence/connector/persistence_connect
 
 import 'connector/firebase_connector.dart';
 
-/// Source object that models a dynamic source for the [LocalDatabase]. Depending on the [PersistenceConnector] subclass,
-/// actions can be done to a local file or a cloud storage for example.
+/// Represents a single dynamic storage source for a [LocalDatabase].
+///
+/// A `Source` acts as the bridge between a [LocalDatabase] and a physical or remote
+/// storage location, defined by its [PersistenceConnector] (e.g., a local file, Firebase cloud).
 final class Source {
   final LocalDatabase dbRef;
   final PersistenceConnector connector;
   DataAccessor? _accessor;
   String _password;
 
-  /// Default constructor that requires exactly one valid source. Exceptions are thrown otherwise.
+  /// Creates a new source bound to a given [connector] and [LocalDatabase] reference.
+  ///
+  /// [password] is the encryption key for this source. Must be provided.
   Source(this.connector, this.dbRef, {required String password}) : _password = password;
 
-  String? get name => connector.name;
+  String? get displayName => connector.name;
 
+  /// Version of the currently active [DataAccessor] used for interpreting and encrypting data.
   String? get accessorVersion => _accessor?.version;
 
+  /// Whether the source is backed by a local file.
   bool get usesLocalFile => connector is FileConnector;
 
+  /// Whether the source is backed by a Firebase Firestore cloud connector.
   bool get usesFirestoreCloud => connector is FirebaseConnector;
 
+  /// Whether the source is currently available for load/save operations.
   Future<bool> get isValid => connector.isAvailable;
 
+  /// Changes the encryption password for the source and applies it to the active [DataAccessor].
   void changePassword(String newPassword) {
     _password = newPassword;
     _accessor?.definePassword(_password);
   }
 
-  /// Asynchronous method to load data from given file or firebase cloud.
+  /// Loads and decrypts data from the source into the [LocalDatabase].
+  ///
+  /// Throws an [Exception] if the connector is unavailable or the stored data
+  /// cannot be parsed.
   Future<void> loadData() async {
     if (!(await connector.isAvailable)) {
       throw Exception('Connector was not available');
@@ -48,7 +60,9 @@ final class Source {
     await _accessor!.loadAndDecrypt(dbRef, properties);
   }
 
-  /// Write a random encrypted value to that source. That way an initial verification code is set.
+  /// Creates a new source with an initial encrypted value to set up verification.
+  ///
+  /// Uses the latest [DataAccessor] version for formatting and encryption.
   Future<void> initialiseNewSource() async {
     _accessor = DataAccessorRegistry.create(DataAccessorRegistry.latestVersion); // Auto create new ones with newest version
     _accessor!.definePassword(_password);
@@ -56,7 +70,9 @@ final class Source {
     await connector.create(await getFormattedData());
   }
 
-  /// Asynchronous method to save changes to a local file or the firebase cloud.
+  /// Saves the current [LocalDatabase] state to the source, encrypting it first.
+  ///
+  /// Throws an [Exception] if the connector is unavailable.
   Future<void> saveData() async {
     if (!(await connector.isAvailable)) {
       throw Exception('Connector was not available');
@@ -65,6 +81,9 @@ final class Source {
     await connector.save(await getFormattedData());
   }
 
+  /// Upgrades the source to use the latest [DataAccessor] format and saves it.
+  ///
+  /// Throws an [Exception] if the connector is unavailable.
   Future<void> upgradeSource() async {
     if (!(await connector.isAvailable)) {
       throw Exception('Connector was not available');
@@ -76,12 +95,17 @@ final class Source {
     await connector.save(await getFormattedData());
   }
 
+  /// Deletes the its underlying storage.
   Future<void> deleteSource() => connector.delete();
 
+  /// Encrypts the [LocalDatabase] contents and formats them for storage.
   Future<String> getFormattedData() async {
     return await _accessor!.encryptAndFormat(dbRef);
   }
 
+  /// Parses a `key=value;` formatted string into a [Map] of properties.
+  ///
+  /// Throws an [Exception] if any property key or value is empty.
   static Map<String, String> readProperties(String content) {
     Map<String, String> properties = {};
 

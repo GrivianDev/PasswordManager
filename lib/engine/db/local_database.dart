@@ -4,7 +4,7 @@ import 'package:passwordmanager/engine/account.dart';
 import 'package:passwordmanager/engine/persistence/source.dart';
 
 /// A central class that manages a list of [Account]s and handles loading/saving
-/// via a [Source]. Extends [ChangeNotifier] to support UI updates.
+/// via a [Source] object. Extends [ChangeNotifier] to support UI updates.
 final class LocalDatabase extends ChangeNotifier {
   static const int maxCapacity = 1000;
   static const String disallowedCharacter = '\u0407';
@@ -38,6 +38,7 @@ final class LocalDatabase extends ChangeNotifier {
 
   /// Loads accounts from the given [source] using the [password].
   /// Throws if a source is already set or loading fails.
+  /// Notifies listeners if [notify] is true.
   Future<void> loadFromSource(Source source, {bool notify = true}) async {
     if (_source != null) {
       throw Exception("Source is already set. Clear the database first.");
@@ -58,6 +59,7 @@ final class LocalDatabase extends ChangeNotifier {
 
   /// Saves all data to the currently assigned source.
   /// Throws if no source is set.
+  /// Notifies listeners if [notify] is true.
   Future<void> save({bool notify = true}) async {
     if (_source == null) {
       throw Exception("Cannot save: no source set.");
@@ -98,7 +100,8 @@ final class LocalDatabase extends ChangeNotifier {
   }
 
   /// Replaces the account with the given [oldAccountId] with [newAccount].
-  /// Returns false if no match was found. Sorts and notifies on success.
+  /// Returns false if no match was found / no account was replaced.
+  /// Notifies listeners if [notify] is true.
   bool replaceAccount(int oldAccountId, Account newAccount, {bool notify = true}) {
     final index = _accounts.indexWhere((e) => e.id == oldAccountId);
     if (index == -1) return false;

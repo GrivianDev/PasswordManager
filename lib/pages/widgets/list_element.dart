@@ -1,10 +1,9 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/other/util.dart';
 import 'package:passwordmanager/engine/persistence/appstate.dart';
-import 'package:provider/provider.dart';
 import 'package:passwordmanager/pages/widgets/hoverbuilder.dart';
 import 'package:passwordmanager/engine/account.dart';
 import 'package:passwordmanager/engine/db/local_database.dart';
@@ -14,7 +13,6 @@ import 'package:passwordmanager/pages/account_display_page.dart';
 /// An element in the account list. The Widget itself is clickable wich navigates to the [AccountDisplayPage] of the stored [Account] instance.
 /// Hovewer, this widget also provides the option to copy the password of the stored account to the clipboard or delete the account.
 class ListElement extends StatelessWidget {
-  // The _isSearchResult property states if an additional widget (the search result widget) needs to be popped in addition to the loading screen when saving.
   const ListElement({super.key, required Account account}) : _account = account;
 
   final Account _account;

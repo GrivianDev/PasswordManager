@@ -70,6 +70,8 @@ class _TwoFactorEditPageState extends State<TwoFactorEditPage> {
     ));
   }
 
+  /// Callback that inserts the new / edited account into the database.
+  /// Calls [_save] if autosaving is enabled.
   Future<void> _confirmClicked() async {
     final NavigatorState navigator = Navigator.of(context);
     final LocalDatabase database = context.read();
@@ -255,11 +257,11 @@ class _TwoFactorEditPageState extends State<TwoFactorEditPage> {
             ),
             const SizedBox(height: 25.0),
             ElevatedButton(
-              style: ButtonStyle(
-                backgroundColor: WidgetStatePropertyAll<Color>(
-                  _changes && _secretController.text.isNotEmpty ? Theme.of(context).colorScheme.primary : Colors.blueGrey,
-                ),
-              ),
+              style: !_changes || _secretController.text.isEmpty
+                  ? ButtonStyle(
+                      backgroundColor: WidgetStatePropertyAll<Color>(Colors.blueGrey),
+                    )
+                  : null,
               onPressed: _changes && _secretController.text.isNotEmpty ? _confirmClicked : null,
               child: const Padding(
                 padding: EdgeInsets.symmetric(vertical: 5.0),

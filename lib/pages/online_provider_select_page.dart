@@ -7,6 +7,9 @@ import 'package:passwordmanager/pages/widgets/default_page_body.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 import 'package:passwordmanager/engine/other/util.dart';
 
+/// Page to select an online provider for login.
+///
+/// Handles Firestore re-authentication, login, and logout.
 class OnlineProviderSelectPage extends StatefulWidget {
   const OnlineProviderSelectPage({super.key});
 

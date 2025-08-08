@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 
+/// Widget to display a password either obscured as dots or visible as text.
+///
+/// Shows a message if no password is set. Includes a toggle button
+/// to switch between obscured and visible password display.
+///
+/// - [password]: The password string to display (nullable).
 class PasswordField extends StatefulWidget {
   final String? password;
 

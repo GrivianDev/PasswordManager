@@ -25,7 +25,7 @@ import 'package:passwordmanager/engine/persistence/connector/firebase_connector.
 /// The entry point of the application.
 /// Can display the current version information and provides options for:
 /// * Offline: Locally select / create save files
-/// * Online: Online select of files
+/// * Online: Online select of files / choosing a provider
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 

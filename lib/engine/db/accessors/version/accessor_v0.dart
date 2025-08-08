@@ -15,6 +15,15 @@ import 'package:passwordmanager/engine/cryptography/datatypes.dart';
 import 'package:passwordmanager/engine/cryptography/service.dart';
 import 'package:passwordmanager/engine/cryptography/base16_codec.dart';
 
+/// DataAccessor implementation for the initial data format version "v0".
+///
+/// Provides encryption and decryption using AES-256 CBC with
+/// PBKDF2 key derivation, HMAC-SHA256 verification,
+/// and a custom serialized data format.
+///
+/// Data format includes base16-encoded salt, IV, HMAC, and base64-encoded encrypted data.
+///
+/// The decrypted data is parsed from a legacy regex-based format into [Account] entries.
 class DataAccessorV0 implements DataAccessor {
   static const String saltIdentifier = 'Salt';
   static const String ivIdentifier = 'IV';
@@ -28,6 +37,10 @@ class DataAccessorV0 implements DataAccessor {
   String? _password;
   Key? _key;
 
+  /// Derives a cryptographic key from the given [password] and optional [salt]
+  /// using PBKDF2 with HMAC-SHA256.
+  ///
+  /// If [salt] is not provided, a new random salt is generated.
   static Key _deriveKey(String password, [Uint8List? salt]) {
     final usedSalt = salt ?? CryptographicService.randomBytes(saltLength);
     final Pbkdf2Parameters params = Pbkdf2Parameters(usedSalt, pbkdf2Iterations, keyLength);
@@ -60,18 +73,18 @@ class DataAccessorV0 implements DataAccessor {
 
     if (saltString == null || hmacString == null || ivString == null || cipher == null) throw Exception('Missing properties');
 
-    // Recreate key
+    // Derive the key using password and salt (in a separate isolate)
     _key = await foundation.compute((message) {
       return _deriveKey(message[0], base16.decode(message[1]));
     }, [_password!, saltString]);
 
-    // Decrypt
+    // Decrypt the ciphertext using AES-256-CBC (in a separate isolate)
     final Uint8List presumedData = await foundation.compute((message) {
       final AES256 decrypter = AES256();
       return decrypter.decrypt(cipher: base64.decode(message[0]), key: _key!.bytes, iv: IV(base16.decode(message[1])));
     }, [cipher, ivString]);
 
-    // Check HMAC
+    // Verify HMAC to check integrity and password correctness (Note that this inputs the decrypted string)
     final HMac hmac = HMac(SHA256Digest(), 64)..init(KeyParameter(_key!.bytes));
     final String testHMac = base16.encode(hmac.process(presumedData));
 
@@ -81,7 +94,7 @@ class DataAccessorV0 implements DataAccessor {
 
     final String decryptedString = utf8.decode(presumedData, allowMalformed: true);
 
-    // Push data into database (Uses old regex read format)
+    // Parse legacy regex-based format and populate the database
     const String c = LocalDatabase.disallowedCharacter;
 
     List<List<String>> foundAccounts = [];
@@ -123,6 +136,7 @@ class DataAccessorV0 implements DataAccessor {
       buffer.write(String.fromCharCode(chars.codeUnitAt(rand.nextInt(chars.length))));
     }
 
+    // Serialize accounts into the legacy format separated by disallowed character
     const String c = LocalDatabase.disallowedCharacter;
     for (Account acc in sourceDatabase.accounts) {
       buffer.write('$c${acc.tag ?? 'none'}$c${acc.name ?? 'none'}$c${acc.info ?? 'none'}$c${acc.email ?? 'none'}$c${acc.password ?? 'none'}$c');
@@ -135,7 +149,8 @@ class DataAccessorV0 implements DataAccessor {
     final AES256 encrypter = AES256();
     final Uint8List expandedData = CryptographicService.expandWithValues(utf8.encode(buffer.toString()), encrypter.blockLength, chars.codeUnits);
 
-    _key ??= await foundation.compute((message) { // This optinally creates a new key if no loadAndDecrypt call happened before !!!
+    // Derive key if not previously derived
+    _key ??= await foundation.compute((message) {
       return _deriveKey(message);
     }, _password!);
 
@@ -144,12 +159,13 @@ class DataAccessorV0 implements DataAccessor {
     final Uint8List newHmacBytes = newHmac.process(expandedData);
     final IV iv = IV.fromLength(encrypter.blockLength); // New IV for each encryption
 
+    // Encrypt the data in a separate isolate
     final Uint8List cipher = await foundation.compute((message) {
       final AES256 encrypter = AES256();
       return encrypter.encrypt(data: message[0] as Uint8List, key: (message[1] as Key).bytes, iv: message[2] as IV);
     }, [expandedData, _key, iv]);
 
-    // Write out formatted properties
+    // Format the encrypted data and metadata as key=value; pairs
     StringBuffer outBuffer = StringBuffer();
     outBuffer.write('version=$version;');
     outBuffer.write('$saltIdentifier=${base16.encode(_key!.salt!)};');

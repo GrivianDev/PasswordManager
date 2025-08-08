@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+/// Displays an animated password strength indicator with a progress bar and label.
+///
+/// - [rating]: A double between 0.0 and 1.0 indicating password strength.
+///   Shows "Weak", "Decent", or "Strong" based on the rating value.
 class PasswordStrengthIndicator extends StatelessWidget {
   const PasswordStrengthIndicator({super.key, required this.rating});
 
