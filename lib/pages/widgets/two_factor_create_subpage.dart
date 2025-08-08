@@ -19,6 +19,11 @@ class TwoFactorCreateSubpage extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          Text(
+            'Easily generate your 2FA codes with built-in support for Time-based One-Time Passwords (TOTP), the most widely used standard.',
+            style: Theme.of(context).textTheme.bodyMedium,
+            textAlign: TextAlign.center,
+          ),
           if (Platform.isAndroid || Platform.isIOS)
             ElevatedButton(
               onPressed: () => Navigator.push(
