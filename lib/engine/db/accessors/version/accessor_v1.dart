@@ -21,7 +21,7 @@ class DataAccessorV1 implements DataAccessor {
   static const String hmacIdentifier = 'HMac';
   static const String dataIdentifier = 'Data';
 
-  static const int pbkdf2Iterations = 4096;
+  static const int pbkdf2Iterations = 100000;
   static const int keyLength = 32;
   static const int saltLength = 32;
 
