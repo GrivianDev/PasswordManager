@@ -60,7 +60,7 @@ class HomePage extends StatelessWidget {
         MaterialPageRoute(
           builder: (contex) => PasswordGetterPage(
             path: shortenPath(fileResult!.file.path),
-            title: fileResult.isNewlyCreated ? 'Define storage password' : 'Enter password for storage',
+            title: fileResult.isNewlyCreated ? 'Define storage password' : 'Enter storage password',
             showPwStrengthIndicator: fileResult.isNewlyCreated,
           ),
         ),
@@ -124,7 +124,7 @@ class HomePage extends StatelessWidget {
           MaterialPageRoute(
             builder: (contex) => PasswordGetterPage(
               path: null,
-              title: firestoreSelect.isNewlyCreated ? 'Define storage password' : 'Enter password for storage',
+              title: firestoreSelect.isNewlyCreated ? 'Define storage password' : 'Enter storage password',
               showPwStrengthIndicator: firestoreSelect.isNewlyCreated,
             ),
           ),

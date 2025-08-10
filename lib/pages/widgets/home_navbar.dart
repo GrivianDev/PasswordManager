@@ -16,8 +16,9 @@ class HomeNavBar extends StatelessWidget {
       context: context,
       type: NotificationType.confirmDialog,
       title: 'Proceed?',
-      content: Text('This will reset all cached app settings. While it will not delete any secure files or online data, it will log you out of all connected providers.'),
-      onConfirm: () {
+        content: Text('This will reset all cached app settings. While it will not delete any secure files or online data, '
+            'it will log you out of all connected providers when closing this app.'),
+        onConfirm: () {
         doClear = true;
         navigator.pop();
       }

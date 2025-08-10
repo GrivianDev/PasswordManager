@@ -24,7 +24,8 @@ class TwoFactorCreateSubpage extends StatelessWidget {
             style: Theme.of(context).textTheme.bodyMedium,
             textAlign: TextAlign.center,
           ),
-          if (Platform.isAndroid || Platform.isIOS)
+          if (Platform.isAndroid || Platform.isIOS) ...[
+            const SizedBox(height: 25.0),
             ElevatedButton(
               onPressed: () => Navigator.push(
                 context,
@@ -55,6 +56,7 @@ class TwoFactorCreateSubpage extends StatelessWidget {
                 ),
               ),
             ),
+          ],
           const SizedBox(height: 25.0),
           ElevatedButton(
             onPressed: () => Navigator.push(
