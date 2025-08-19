@@ -22,7 +22,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
     if (_hasScanned) return;
 
     final String? code = capture.barcodes.first.rawValue;
-    if (code != null) return;
+    if (code == null) return;
     setState(() {
       _hasScanned = true;
     });
