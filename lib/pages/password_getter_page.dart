@@ -46,71 +46,78 @@ class _PasswordGetterPageState extends State<PasswordGetterPage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Stack(
-        children: [
-          DefaultPageBody(
-            child: Column(
-              spacing: 20,
-              children: [
-                if (widget.path != null)
-                  Text(
-                    widget.path!,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                TextField(
-                  obscureText: _isObscured,
-                  maxLength: 128,
-                  autofocus: true,
-                  controller: _pwController,
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    prefixIcon: const Padding(
-                      padding: EdgeInsets.only(left: 5.0),
-                      child: Icon(Icons.key),
-                    ),
-                    suffixIcon: Padding(
-                      padding: const EdgeInsets.only(right: 5.0),
-                      child: IconButton(
-                        onPressed: () {
+      body: DefaultPageBody(
+        child: Padding(
+          padding: EdgeInsets.all(25),
+          child: Column(
+            spacing: 20,
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    spacing: 20,
+                    children: [
+                      if (widget.path != null)
+                        Text(
+                          widget.path!,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      TextField(
+                        obscureText: _isObscured,
+                        maxLength: 128,
+                        autofocus: true,
+                        controller: _pwController,
+                        decoration: InputDecoration(
+                          labelText: 'Password',
+                          prefixIcon: const Padding(
+                            padding: EdgeInsets.only(left: 5.0),
+                            child: Icon(Icons.key),
+                          ),
+                          suffixIcon: Padding(
+                            padding: const EdgeInsets.only(right: 5.0),
+                            child: IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  _isObscured = !_isObscured;
+                                });
+                              },
+                              icon: Icon(_isObscured ? Icons.visibility : Icons.visibility_off),
+                            ),
+                          ),
+                        ),
+                        onChanged: (string) {
+                          final double newRating = SafetyAnalyser.rateSafety(password: _pwController.text);
                           setState(() {
-                            _isObscured = !_isObscured;
+                            _canSubmit = _pwController.text.isNotEmpty;
+                            _rating = newRating;
                           });
                         },
-                        icon: Icon(_isObscured ? Icons.visibility : Icons.visibility_off),
+                        onSubmitted: (string) => _canSubmit ? Navigator.pop(context, string) : null,
                       ),
-                    ),
-                  ),
-                  onChanged: (string) {
-                    final double newRating = SafetyAnalyser.rateSafety(password: _pwController.text);
-                    setState(() {
-                      _canSubmit = _pwController.text.isNotEmpty;
-                      _rating = newRating;
-                    });
-                  },
-                  onSubmitted: (string) => _canSubmit ? Navigator.pop(context, string) : null,
-                ),
-                if (widget.showPwStrengthIndicator) PasswordStrengthIndicator(rating: _rating),
-              ],
-            ),
-          ),
-          Positioned(
-            bottom: 25,
-            right: 25,
-            child: TextButton(
-              onPressed: () => _canSubmit ? Navigator.pop(context, _pwController.text) : null,
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Text(
-                  'SUBMIT',
-                  style: TextStyle(
-                    color: _canSubmit ? null : Colors.blueGrey,
+                      if (widget.showPwStrengthIndicator) PasswordStrengthIndicator(rating: _rating),
+                    ],
                   ),
                 ),
               ),
-            ),
+              Align(
+                alignment: Alignment.bottomRight,
+                child: TextButton(
+                  onPressed: () => _canSubmit ? Navigator.pop(context, _pwController.text) : null,
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Text(
+                      'SUBMIT',
+                      style: TextStyle(
+                        color: _canSubmit ? null : Colors.blueGrey,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

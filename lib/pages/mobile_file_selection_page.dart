@@ -3,6 +3,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:passwordmanager/engine/other/util.dart';
 import 'package:passwordmanager/engine/selection_result.dart';
+import 'package:passwordmanager/pages/widgets/default_page_body.dart';
 import 'package:passwordmanager/pages/widgets/file_element.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 import 'package:passwordmanager/pages/flows/user_input_dialog.dart';
@@ -149,14 +150,7 @@ class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
       appBar: AppBar(
         title: Text('Select file'),
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(20.0),
-            topRight: Radius.circular(20.0),
-          ),
-          color: Theme.of(context).colorScheme.surface,
-        ),
+      body: DefaultPageBody(
         child: Padding(
           padding: const EdgeInsets.all(25.0),
           child: Column(

@@ -41,110 +41,113 @@ class _SettingsPageState extends State<SettingsPage> {
         title: const Text('Settings'),
       ),
       body: DefaultPageBody(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 2,
-          children: [
-            Row(
-              children: [
-                // This doesn't need to actively watch the settings property because a theme change will trigger an automatic rebuild
-                // since the MaterialApp is already watching the theme.
-                Switch.adaptive(
-                  value: appState.darkMode.value,
-                  onChanged: (value) {
-                    if (_saving) return;
-                    appState.darkMode.value = value;
-                    saveSettings();
-                  },
-                ),
-                Flexible(
-                  child: Text(
-                    appState.darkMode.value ? 'Dark theme' : 'Light theme',
-                    style: Theme.of(context).textTheme.displayMedium,
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(25),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 2,
+            children: [
+              Row(
+                children: [
+                  // This doesn't need to actively watch the settings property because a theme change will trigger an automatic rebuild
+                  // since the MaterialApp is already watching the theme.
+                  Switch.adaptive(
+                    value: appState.darkMode.value,
+                    onChanged: (value) {
+                      if (_saving) return;
+                      appState.darkMode.value = value;
+                      saveSettings();
+                    },
                   ),
-                ),
-              ],
-            ),
-            const Divider(),
-            Row(
-              children: [
-                // This watches the isAutoSaving property because it is not rebuild otherwise.
-                Switch.adaptive(
-                  value: appState.autosaving.value,
-                  onChanged: (value) {
-                    if (_saving) return;
-                    appState.autosaving.value = value;
-                    saveSettings();
-                  },
-                ),
-                Flexible(
-                  child: Text(
-                    appState.autosaving.value ? 'Autosaving' : 'Manual saving',
-                    style: Theme.of(context).textTheme.displayMedium,
+                  Flexible(
+                    child: Text(
+                      appState.darkMode.value ? 'Dark theme' : 'Light theme',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const Divider(),
-            Text(
-              'Password generation:',
-              style: Theme.of(context).textTheme.displayLarge,
-            ),
-            Row(
-              children: [
-                Checkbox.adaptive(
-                  value: appState.pwGenUseLetters.value,
-                  onChanged: (value) {
-                    if (_saving) return;
-                    appState.pwGenUseLetters.value = value!;
-                    saveSettings();
-                  },
-                ),
-                Flexible(
-                  child: Text(
-                    'Use letters',
-                    style: Theme.of(context).textTheme.displayMedium,
+                ],
+              ),
+              const Divider(),
+              Row(
+                children: [
+                  // This watches the isAutoSaving property because it is not rebuild otherwise.
+                  Switch.adaptive(
+                    value: appState.autosaving.value,
+                    onChanged: (value) {
+                      if (_saving) return;
+                      appState.autosaving.value = value;
+                      saveSettings();
+                    },
                   ),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Checkbox.adaptive(
-                  value: appState.pwGenUseNumbers.value,
-                  onChanged: (value) {
-                    if (_saving) return;
-                    appState.pwGenUseNumbers.value = value!;
-                    saveSettings();
-                  },
-                ),
-                Flexible(
-                  child: Text(
-                    'Use numbers',
-                    style: Theme.of(context).textTheme.displayMedium,
+                  Flexible(
+                    child: Text(
+                      appState.autosaving.value ? 'Autosaving' : 'Manual saving',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
                   ),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Checkbox.adaptive(
-                  value: appState.pwGenUseSpecialChars.value,
-                  onChanged: (value) {
-                    if (_saving) return;
-                    appState.pwGenUseSpecialChars.value = value!;
-                    saveSettings();
-                  },
-                ),
-                Flexible(
-                  child: Text(
-                    'Use special characters',
-                    style: Theme.of(context).textTheme.displayMedium,
+                ],
+              ),
+              const Divider(),
+              Text(
+                'Password generation:',
+                style: Theme.of(context).textTheme.displayLarge,
+              ),
+              Row(
+                children: [
+                  Checkbox.adaptive(
+                    value: appState.pwGenUseLetters.value,
+                    onChanged: (value) {
+                      if (_saving) return;
+                      appState.pwGenUseLetters.value = value!;
+                      saveSettings();
+                    },
                   ),
-                ),
-              ],
-            ),
-          ],
+                  Flexible(
+                    child: Text(
+                      'Use letters',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Checkbox.adaptive(
+                    value: appState.pwGenUseNumbers.value,
+                    onChanged: (value) {
+                      if (_saving) return;
+                      appState.pwGenUseNumbers.value = value!;
+                      saveSettings();
+                    },
+                  ),
+                  Flexible(
+                    child: Text(
+                      'Use numbers',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Checkbox.adaptive(
+                    value: appState.pwGenUseSpecialChars.value,
+                    onChanged: (value) {
+                      if (_saving) return;
+                      appState.pwGenUseSpecialChars.value = value!;
+                      saveSettings();
+                    },
+                  ),
+                  Flexible(
+                    child: Text(
+                      'Use special characters',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

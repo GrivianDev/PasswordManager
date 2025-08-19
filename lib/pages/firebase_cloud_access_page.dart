@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:passwordmanager/engine/other/util.dart';
 import 'package:provider/provider.dart';
+import 'package:passwordmanager/engine/other/util.dart';
+import 'package:passwordmanager/pages/widgets/default_page_body.dart';
 import 'package:passwordmanager/engine/api/firebase/firebase.dart';
 import 'package:passwordmanager/engine/selection_result.dart';
 import 'package:passwordmanager/pages/flows/user_input_dialog.dart';
@@ -18,10 +19,7 @@ class _FirebaseCloudAccessPageState extends State<FirebaseCloudAccessPage> {
 
   Future<List<FirestoreDocumentWidget>> _getListDocumentsFuture() async {
     final Firestore firestoreService = context.read();
-    final List<Map<String, dynamic>> documents = await firestoreService.getCollection(
-        firestoreService.userVaultPath,
-        fieldMask: ['name']
-    );
+    final List<Map<String, dynamic>> documents = await firestoreService.getCollection(firestoreService.userVaultPath, fieldMask: ['name']);
 
     final List<FirestoreDocumentWidget> docWidgets = [];
     for (final Map<String, dynamic> doc in documents) {
@@ -34,9 +32,8 @@ class _FirebaseCloudAccessPageState extends State<FirebaseCloudAccessPage> {
             Navigator.pop(context, FirestoreSelectionResult(documentId, documentName, false));
           },
           afterDelete: () => setState(() {
-            _listDocuments = _getListDocumentsFuture();
-          })
-      ));
+                _listDocuments = _getListDocumentsFuture();
+              })));
     }
     return docWidgets;
   }
@@ -45,17 +42,16 @@ class _FirebaseCloudAccessPageState extends State<FirebaseCloudAccessPage> {
     final NavigatorState navigator = Navigator.of(context);
 
     final String? storageName = await getUserInputDialog(
-      context: context,
-      title: 'Name your new storage',
-      labelText: 'Name',
-      description: 'What name do you want for your storage?',
-      validator: (value) {
-        if (!isValidFilename(value)) {
-          return 'Discouraged storage name!';
-        }
-        return null;
-      }
-    );
+        context: context,
+        title: 'Name your new storage',
+        labelText: 'Name',
+        description: 'What name do you want for your storage?',
+        validator: (value) {
+          if (!isValidFilename(value)) {
+            return 'Discouraged storage name!';
+          }
+          return null;
+        });
 
     if (storageName == null || storageName.isEmpty) return;
 
@@ -74,14 +70,7 @@ class _FirebaseCloudAccessPageState extends State<FirebaseCloudAccessPage> {
       appBar: AppBar(
         title: Text('Select cloud document'),
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(20.0),
-            topRight: Radius.circular(20.0),
-          ),
-          color: Theme.of(context).colorScheme.surface,
-        ),
+      body: DefaultPageBody(
         child: Padding(
           padding: const EdgeInsets.all(25.0),
           child: Column(
@@ -142,9 +131,8 @@ class _FirebaseCloudAccessPageState extends State<FirebaseCloudAccessPage> {
                   }
                 },
               ),
-              SizedBox(
-                height: 60.0,
-                width: MediaQuery.of(context).size.width,
+              Padding(
+                padding: EdgeInsets.only(top: 10.0),
                 child: Align(
                   alignment: Alignment.bottomRight,
                   child: TextButton(

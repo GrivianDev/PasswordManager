@@ -162,7 +162,7 @@ class HomePage extends StatelessWidget {
       }
 
       navigator.push(
-        MaterialPageRoute(builder: (contex) => ManagePage()),
+        MaterialPageRoute(builder: (context) => ManagePage()),
       );
   } catch (e) {
     if (!context.mounted) return;
@@ -211,48 +211,52 @@ class HomePage extends StatelessWidget {
         ),
       ),
       body: DefaultPageBody(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          spacing: 20,
-          children: [
-            SizedBox(
-              width: 560,
-              height: 120,
-              child: context.read<AppState>().darkMode.value ? SvgPicture.asset('assets/darkLogo.svg') : SvgPicture.asset('assets/lightLogo.svg'),
-            ),
-            Text(
-              'Access your encrypted save file:',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            Container(
-              constraints: BoxConstraints(maxWidth: 225),
-              child: ElevatedButton(
-                onPressed: () => _selectLocally(context),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Icon(Icons.file_open_outlined),
-                    const SizedBox(width: 10),
-                    Flexible(child: Text('Load from local file')),
-                  ],
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.all(25),
+            child: Column(
+              spacing: 20,
+              children: [
+                SizedBox(
+                  width: 560,
+                  height: 120,
+                  child: context.read<AppState>().darkMode.value ? SvgPicture.asset('assets/darkLogo.svg') : SvgPicture.asset('assets/lightLogo.svg'),
                 ),
-              ),
-            ),
-            Container(
-              constraints: BoxConstraints(maxWidth: 225),
-              child: ElevatedButton(
-                onPressed: () => _selectOnline(context),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Icon(Icons.cloud),
-                    const SizedBox(width: 10),
-                    Flexible(child: Text('Connect to cloud')),
-                  ],
+                Text(
+                  'Access your encrypted save file:',
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
-              ),
+                Container(
+                  constraints: BoxConstraints(maxWidth: 225),
+                  child: ElevatedButton(
+                    onPressed: () => _selectLocally(context),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Icon(Icons.file_open_outlined),
+                        const SizedBox(width: 10),
+                        Flexible(child: Text('Load from local file')),
+                      ],
+                    ),
+                  ),
+                ),
+                Container(
+                  constraints: BoxConstraints(maxWidth: 225),
+                  child: ElevatedButton(
+                    onPressed: () => _selectOnline(context),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Icon(Icons.cloud),
+                        const SizedBox(width: 10),
+                        Flexible(child: Text('Connect to cloud')),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:ntp/ntp.dart';
 import 'package:passwordmanager/engine/config/app_config.dart';
 import 'package:passwordmanager/engine/two_factor_token.dart';
-import 'package:passwordmanager/pages/widgets/default_page_body.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 
 // This is the NTP time offset to calculate how much off the local system time is.
@@ -103,7 +102,7 @@ class _TwoFactorDisplaySubpageState extends State<TwoFactorDisplaySubpage> with 
       return const Center(child: CircularProgressIndicator());
     }
 
-    return DefaultPageBody(
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

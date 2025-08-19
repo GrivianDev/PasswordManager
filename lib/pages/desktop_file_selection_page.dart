@@ -88,8 +88,7 @@ class DesktopFileSelectionPage extends StatelessWidget {
               return 'File with this name already exists!';
             }
             return null;
-          }
-      );
+          });
 
       if (storageName == null || storageName.isEmpty) return;
 
@@ -113,69 +112,64 @@ class DesktopFileSelectionPage extends StatelessWidget {
       appBar: AppBar(
         title: Text('Select file'),
       ),
-      body: Stack(
-        children: [
-          DefaultPageBody(
-            child: Column(
-              spacing: 35,
-              children: [
-                Column(
-                  children: [
-                    Text(
-                      'Select your save file:',
-                      style: Theme.of(context).textTheme.displayMedium,
-                    ),
-                    const SizedBox(height: 15.0),
-                    ElevatedButton(
-                      onPressed: () => _selectFile(context),
-                      child: const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 25.0, vertical: 2.5),
-                        child: Icon(
-                          Icons.search,
-                          size: 40,
+      body: DefaultPageBody(
+        child: Padding(
+          padding: EdgeInsets.all(25),
+          child: Column(
+            spacing: 15,
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    spacing: 15,
+                    children: [
+                      Text(
+                        'Select your save file:',
+                        style: Theme.of(context).textTheme.displayMedium,
+                      ),
+                      ElevatedButton(
+                        onPressed: () => _selectFile(context),
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 25.0, vertical: 2.5),
+                          child: Icon(
+                            Icons.search,
+                            size: 40,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                if (context.read<AppState>().lastOpenedFilePath.value != null)
-                  TextButton(
-                    onPressed: () => _openLast(context),
-                    child: Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Text(
-                        'Open last: ${shortenPath(context.read<AppState>().lastOpenedFilePath.value!)}',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 20)
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          Positioned(
-            bottom: 25,
-            right: 25,
-            child: Column(
-              children: [
-                Text(
-                  'No save file?',
-                  style: Theme.of(context).textTheme.displayMedium,
-                ),
-                TextButton(
-                  onPressed: () => _createFile(context),
-                  child: const Padding(
-                    padding: EdgeInsets.all(10.0),
-                    child: Text(
-                        'Create a new one',
-                        style: TextStyle(fontSize: 20)
-                    ),
+                      if (context.read<AppState>().lastOpenedFilePath.value != null)
+                        TextButton(
+                          onPressed: () => _openLast(context),
+                          child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Text(
+                              'Open last: ${shortenPath(context.read<AppState>().lastOpenedFilePath.value!)}',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: 20),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
-              ],
-            )
+              ),
+              Text(
+                'No save file?',
+                style: Theme.of(context).textTheme.displayMedium,
+              ),
+              TextButton(
+                onPressed: () => _createFile(context),
+                child: const Padding(
+                  padding: EdgeInsets.all(10.0),
+                  child: Text(
+                    'Create a new one',
+                    style: TextStyle(fontSize: 20),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

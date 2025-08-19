@@ -83,67 +83,70 @@ class _OnlineProviderSelectPageState extends State<OnlineProviderSelectPage> {
         title: Text('Select your provider'),
       ),
       body: DefaultPageBody(
-        child: Column(
-          children: [
-            Column(
-              spacing: 5.0,
-              children: [
-                ElevatedButton(
-                  onPressed: !firestoreService.deactivated ? _firestoreSelected : null,
-                  style: firestoreService.deactivated ? ButtonStyle(backgroundColor: WidgetStatePropertyAll<Color>(Colors.blueGrey)) : null,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    spacing: 10.0,
-                    children: [
-                      Icon(Icons.storage_rounded),
-                      Flexible(child: Text('Cloud Firestore${firestoreService.deactivated ? ' (deactivated)' : ''}')),
-                    ],
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(25),
+          child: Column(
+            children: [
+              Column(
+                spacing: 5.0,
+                children: [
+                  ElevatedButton(
+                    onPressed: !firestoreService.deactivated ? _firestoreSelected : null,
+                    style: firestoreService.deactivated ? ButtonStyle(backgroundColor: WidgetStatePropertyAll<Color>(Colors.blueGrey)) : null,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      spacing: 10.0,
+                      children: [
+                        Icon(Icons.storage_rounded),
+                        Flexible(child: Text('Cloud Firestore${firestoreService.deactivated ? ' (deactivated)' : ''}')),
+                      ],
+                    ),
                   ),
-                ),
-                FutureBuilder<void>(future: _firestoreReAuthFuture, builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.done) {
-                    if (firestoreService.auth.isUserLoggedIn) {
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Flexible(
-                            child: Padding(
-                              padding: const EdgeInsets.only(right: 10.0),
-                              child: Text(
-                                'Logged in as ${mailPreview(firestoreService.auth.user!.email)}',
-                                style: Theme.of(context).textTheme.displaySmall,
+                  FutureBuilder<void>(future: _firestoreReAuthFuture, builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.done) {
+                      if (firestoreService.auth.isUserLoggedIn) {
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Flexible(
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 10.0),
+                                child: Text(
+                                  'Logged in as ${mailPreview(firestoreService.auth.user!.email)}',
+                                  style: Theme.of(context).textTheme.displaySmall,
+                                ),
                               ),
                             ),
-                          ),
-                          IconButton(
-                            onPressed: _firestoreLogout,
-                            tooltip: 'Logout',
-                            icon: Icon(
-                              Icons.logout,
-                              color: Colors.red,
+                            IconButton(
+                              onPressed: _firestoreLogout,
+                              tooltip: 'Logout',
+                              icon: Icon(
+                                Icons.logout,
+                                color: Colors.red,
+                              ),
                             ),
-                          ),
-                        ],
-                      );
+                          ],
+                        );
+                      } else {
+                        return SizedBox.shrink();
+                      }
                     } else {
-                      return SizedBox.shrink();
-                    }
-                  } else {
-                    return Center(
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 10.0),
-                        child: SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2.0),
+                      return Center(
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 10.0),
+                          child: SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2.0),
+                          ),
                         ),
-                      ),
-                    );
-                  }
-                }),
-              ],
-            )
-          ],
+                      );
+                    }
+                  }),
+                ],
+              )
+            ],
+          ),
         ),
       ),
     );

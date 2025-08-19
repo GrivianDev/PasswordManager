@@ -37,12 +37,12 @@ Future<String?> getUserInputDialog({
     context: context,
     type: NotificationType.confirmDialog,
     title: title,
-    content: StatefulBuilder(
-      builder: (context, setState) {
-        return SizedBox(
-          width: double.maxFinite,
-          child: ListView(
-            shrinkWrap: true,
+    content: SizedBox(
+      width: double.maxFinite,
+      child: StatefulBuilder(
+        builder: (context, setState) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(description),
               Padding(
@@ -67,14 +67,14 @@ Future<String?> getUserInputDialog({
                     labelText: labelText,
                     errorText: errorText,
                     errorMaxLines: 10,
-                    constraints: const BoxConstraints(maxWidth: 100, maxHeight: 80.0),
+                    constraints: const BoxConstraints(maxWidth: 100),
                   ),
                 ),
               ),
             ],
-          ),
-        );
-      },
+          );
+        },
+      ),
     ),
     onConfirm: () {
       final error = validator?.call(currentInput);

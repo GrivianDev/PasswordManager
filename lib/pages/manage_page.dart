@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:passwordmanager/engine/persistence/appstate.dart';
+import 'package:passwordmanager/pages/widgets/default_page_body.dart';
 import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/db/local_database.dart';
 import 'package:passwordmanager/engine/persistence/source.dart';
@@ -197,80 +198,70 @@ class _ManagePageState extends State<ManagePage> {
             ),
           ),
         ),
-        body: Container(
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(20.0),
-              topRight: Radius.circular(20.0),
-            ),
-            color: Theme.of(context).colorScheme.surface,
-          ),
+        body: DefaultPageBody(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 85.0),
+            padding: const EdgeInsets.fromLTRB(25.0, 25.0, 25.0, 85.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 10.0),
-                  child: SizedBox(
-                    height: 60.0,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: _CustomAutocomplete(
-                            onSwitchTrue: _searchTag,
-                            onSwitchFalse: _searchAccountDetails,
-                          ),
+                  padding: EdgeInsets.only(bottom: 15),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _CustomAutocomplete(
+                          onSwitchTrue: _searchTag,
+                          onSwitchFalse: _searchAccountDetails,
                         ),
-                        Consumer<AppState>(
-                          builder: (context, appstate, child) {
-                            return appstate.autosaving.value
-                                ? Container()
-                                : Consumer<LocalDatabase>(
-                                    builder: (context, localDb, child) => Padding(
-                                      padding: const EdgeInsets.only(left: 15.0),
-                                      child: Stack(
-                                        clipBehavior: Clip.none,
+                      ),
+                      Consumer<AppState>(
+                        builder: (context, appstate, child) {
+                          return appstate.autosaving.value
+                              ? Container()
+                              : Consumer<LocalDatabase>(
+                            builder: (context, localDb, child) => Padding(
+                              padding: const EdgeInsets.only(left: 15.0),
+                              child: Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: _save,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(12.0),
+                                      child: Row(
                                         children: [
-                                          ElevatedButton(
-                                            onPressed: _save,
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(12.0),
-                                              child: Row(
-                                                children: [
-                                                  Padding(
-                                                    padding: const EdgeInsets.only(right: 10.0),
-                                                    child: Icon(
-                                                      localDb.source?.usesLocalFile == false ? Icons.sync : Icons.save_rounded,
-                                                    ),
-                                                  ),
-                                                  Text('Save'),
-                                                ],
-                                              ),
+                                          Padding(
+                                            padding: const EdgeInsets.only(right: 10.0),
+                                            child: Icon(
+                                              localDb.source?.usesLocalFile == false ? Icons.sync : Icons.save_rounded,
                                             ),
                                           ),
-                                          if (localDb.hasUnsavedChanges)
-                                            Positioned(
-                                              right: -4,
-                                              top: -4,
-                                              child: Container(
-                                                width: 12,
-                                                height: 12,
-                                                decoration: BoxDecoration(
-                                                  color: Colors.red,
-                                                  shape: BoxShape.circle,
-                                                  border: Border.all(color: Colors.orange, width: 2),
-                                                ),
-                                              ),
-                                            ),
+                                          Text('Save'),
                                         ],
                                       ),
                                     ),
-                                  );
-                          },
-                        ),
-                      ],
-                    ),
+                                  ),
+                                  if (localDb.hasUnsavedChanges)
+                                    Positioned(
+                                      right: -4,
+                                      top: -4,
+                                      child: Container(
+                                        width: 12,
+                                        height: 12,
+                                        decoration: BoxDecoration(
+                                          color: Colors.red,
+                                          shape: BoxShape.circle,
+                                          border: Border.all(color: Colors.orange, width: 2),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                   ),
                 ),
                 Expanded(

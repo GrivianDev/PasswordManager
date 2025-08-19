@@ -8,26 +8,18 @@ class DefaultPageBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(20.0),
-          topRight: Radius.circular(20.0),
-        ),
-        color: Theme.of(context).colorScheme.surface,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(25.0),
-                child: child,
-              ),
+    return SafeArea(
+      child: SizedBox.expand(
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(20.0),
+              topRight: Radius.circular(20.0),
             ),
+            color: Theme.of(context).colorScheme.surface,
           ),
-        ],
+          child: child,
+        ),
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:passwordmanager/pages/widgets/default_page_body.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:passwordmanager/pages/flows/typed_confirmation_dialog.dart';
@@ -86,90 +87,98 @@ class TwoFactorManagePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('2FA')),
-      body: Consumer<LocalDatabase>(builder: (context, database, child) {
-        if (account.twoFactorSecret != null) {
-          return Stack(
-            children: [
-              TwoFactorDisplaySubpage(
-                key: ValueKey(account.twoFactorSecret),
-                twoFactorSecret: account.twoFactorSecret!,
-              ),
-              Positioned(
-                bottom: 164,
-                right: 16,
-                child: FloatingActionButton(
-                  onPressed: () async => await _deleteClicked(context),
-                  heroTag: 'deleteFAB',
-                  backgroundColor: Colors.red,
-                  child: Icon(
-                    Icons.delete_outline,
-                    color: Colors.white,
+      body: DefaultPageBody(
+        child: Consumer<LocalDatabase>(builder: (context, database, child) {
+          if (account.twoFactorSecret != null) {
+            return Stack(
+              children: [
+                SingleChildScrollView(
+                  padding: EdgeInsets.all(25),
+                  child: TwoFactorDisplaySubpage(
+                    key: ValueKey(account.twoFactorSecret),
+                    twoFactorSecret: account.twoFactorSecret!,
                   ),
                 ),
-              ),
-              Positioned(
-                bottom: 90, // stacked higher than the other two
-                right: 16,
-                child: FloatingActionButton(
-                  heroTag: "shareQR",
-                  onPressed: () async => await Notify.dialog(
-                      context: context,
-                      type: NotificationType.notification,
-                      title: '2FA Setup QR Code',
-                      content: SizedBox(
-                        width: 225,
-                        height: 225,
-                        child: Center(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(15.0),
-                            child: Container(
-                              color: Colors.white,
-                              padding: EdgeInsets.all(10.0),
-                              child: QrImageView(
-                                data: account.twoFactorSecret!.getAuthUrl(),
-                                // The data you want to encode
-                                version: QrVersions.auto,
-                                size: 200.0,
-                                backgroundColor: Colors.white,
+                Positioned(
+                  bottom: 164,
+                  right: 16,
+                  child: FloatingActionButton(
+                    onPressed: () async => await _deleteClicked(context),
+                    heroTag: 'deleteFAB',
+                    backgroundColor: Colors.red,
+                    child: Icon(
+                      Icons.delete_outline,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                Positioned(
+                  bottom: 90, // stacked higher than the other two
+                  right: 16,
+                  child: FloatingActionButton(
+                    heroTag: "shareQR",
+                    onPressed: () async => await Notify.dialog(
+                        context: context,
+                        type: NotificationType.notification,
+                        title: '2FA Setup QR Code',
+                        content: SizedBox(
+                          width: 225,
+                          height: 225,
+                          child: Center(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(15.0),
+                              child: Container(
+                                color: Colors.white,
+                                padding: EdgeInsets.all(10.0),
+                                child: QrImageView(
+                                  data: account.twoFactorSecret!.getAuthUrl(),
+                                  // The data you want to encode
+                                  version: QrVersions.auto,
+                                  size: 200.0,
+                                  backgroundColor: Colors.white,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      )),
-                  child: const Icon(
-                    Icons.qr_code,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              Positioned(
-                bottom: 16, // place it above the first FAB
-                right: 16,
-                child: FloatingActionButton(
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => TwoFactorEditPage(
-                        title: 'Edit 2FA information',
-                        account: account,
-                      ),
+                        )),
+                    child: const Icon(
+                      Icons.qr_code,
+                      color: Colors.white,
                     ),
                   ),
-                  heroTag: 'editFAB',
-                  child: Icon(
-                    Icons.edit,
-                    color: Colors.white,
+                ),
+                Positioned(
+                  bottom: 16, // place it above the first FAB
+                  right: 16,
+                  child: FloatingActionButton(
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TwoFactorEditPage(
+                          title: 'Edit 2FA information',
+                          account: account,
+                        ),
+                      ),
+                    ),
+                    heroTag: 'editFAB',
+                    child: Icon(
+                      Icons.edit,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
+              ],
+            );
+          } else {
+            return SingleChildScrollView(
+              padding: EdgeInsets.all(25),
+              child: TwoFactorCreateSubpage(
+                account: account,
               ),
-            ],
-          );
-        } else {
-          return TwoFactorCreateSubpage(
-            account: account,
-          );
-        }
-      }),
+            );
+          }
+        }),
+      ),
     );
   }
 }

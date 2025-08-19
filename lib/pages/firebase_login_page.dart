@@ -83,118 +83,121 @@ class _FirebaseLoginPageState extends State<FirebaseLoginPage> {
       appBar: AppBar(
         title: Text(_loginMode ? 'Login to Firebase' : 'Register at Firebase'),
       ),
-      body: Stack(
-        children: [
-          DefaultPageBody(
-            child: Column(
-              spacing: 20,
-              children: [
-                TextField(
-                  controller: _emailController,
-                  decoration: InputDecoration(
-                    labelText: 'Email',
-                    errorText: _emailFieldErrortext,
-                    prefixIcon: const Padding(
-                      padding: EdgeInsets.only(left: 5.0),
-                      child: Icon(Icons.email),
-                    ),
-                  ),
-                  onChanged: (value) {
-                    final bool isValid = isValidEmail(_emailController.text);
-                    setState(() {
-                      _emailFieldErrortext = isValid ? null : 'Not a valid email';
-                      _canSubmit = _pwController.text.isNotEmpty && isValid;
-                    });
-                  },
-                ),
-                TextField(
-                  obscureText: _isObscured,
-                  maxLength: 128,
-                  controller: _pwController,
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    prefixIcon: const Padding(
-                      padding: EdgeInsets.only(left: 5.0),
-                      child: Icon(Icons.key),
-                    ),
-                    suffixIcon: Padding(
-                      padding: const EdgeInsets.only(right: 5.0),
-                      child: IconButton(
-                        onPressed: () {
-                          setState(() {
-                            _isObscured = !_isObscured;
-                          });
-                        },
-                        icon: Icon(_isObscured ? Icons.visibility : Icons.visibility_off),
-                      ),
-                    ),
-                  ),
-                  onChanged: (string) {
-                    final double newRating = SafetyAnalyser.rateSafety(password: _pwController.text);
-                    setState(() {
-                      _canSubmit = _pwController.text.isNotEmpty && isValidEmail(_emailController.text);
-                      _rating = newRating;
-                    });
-                  },
-                  onSubmitted: (string) => _canSubmit ? _onSubmit() : null,
-                ),
-                AnimatedSwitcher(
-                  duration: Duration(milliseconds: 300),
-                  transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
-                  child: !_loginMode ? PasswordStrengthIndicator(rating: _rating) : const SizedBox.shrink(),
-                ),
-                AnimatedSwitcher(
-                  duration: Duration(milliseconds: 300),
-                  transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
-                  child: Row(
-                    key: ValueKey(_loginMode),
-                    mainAxisAlignment: MainAxisAlignment.center,
+      body: DefaultPageBody(
+        child: Padding(
+          padding: EdgeInsets.all(25),
+          child: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    spacing: 20,
                     children: [
-                      Text(
-                        _loginMode ? 'No account?' : 'Already have an account?',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                      TextButton(
-                        onPressed: () {
+                      TextField(
+                        controller: _emailController,
+                        decoration: InputDecoration(
+                          labelText: 'Email',
+                          errorText: _emailFieldErrortext,
+                          prefixIcon: const Padding(
+                            padding: EdgeInsets.only(left: 5.0),
+                            child: Icon(Icons.email),
+                          ),
+                        ),
+                        onChanged: (value) {
+                          final bool isValid = isValidEmail(_emailController.text);
                           setState(() {
-                            _loginMode = !_loginMode;
+                            _emailFieldErrortext = isValid ? null : 'Not a valid email';
+                            _canSubmit = _pwController.text.isNotEmpty && isValid;
                           });
                         },
-                        child: Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Text(
-                            _loginMode ? 'Sign up' : 'Login',
-                            style: TextStyle(fontSize: 20),
+                      ),
+                      TextField(
+                        obscureText: _isObscured,
+                        maxLength: 128,
+                        controller: _pwController,
+                        decoration: InputDecoration(
+                          labelText: 'Password',
+                          prefixIcon: const Padding(
+                            padding: EdgeInsets.only(left: 5.0),
+                            child: Icon(Icons.key),
                           ),
+                          suffixIcon: Padding(
+                            padding: const EdgeInsets.only(right: 5.0),
+                            child: IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  _isObscured = !_isObscured;
+                                });
+                              },
+                              icon: Icon(_isObscured ? Icons.visibility : Icons.visibility_off),
+                            ),
+                          ),
+                        ),
+                        onChanged: (string) {
+                          final double newRating = SafetyAnalyser.rateSafety(password: _pwController.text);
+                          setState(() {
+                            _canSubmit = _pwController.text.isNotEmpty && isValidEmail(_emailController.text);
+                            _rating = newRating;
+                          });
+                        },
+                        onSubmitted: (string) => _canSubmit ? _onSubmit() : null,
+                      ),
+                      AnimatedSwitcher(
+                        duration: Duration(milliseconds: 300),
+                        transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
+                        child: !_loginMode ? PasswordStrengthIndicator(rating: _rating) : const SizedBox.shrink(),
+                      ),
+                      AnimatedSwitcher(
+                        duration: Duration(milliseconds: 300),
+                        transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
+                        child: Row(
+                          key: ValueKey(_loginMode),
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              _loginMode ? 'No account?' : 'Already have an account?',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                setState(() {
+                                  _loginMode = !_loginMode;
+                                });
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Text(
+                                  _loginMode ? 'Sign up' : 'Login',
+                                  style: TextStyle(fontSize: 20),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
                 ),
-              ],
-            ),
-          ),
-          Positioned(
-            bottom: 25,
-            right: 25,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 50.0),
-              child: TextButton(
-                onPressed: () => _canSubmit ? _onSubmit() : null,
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Text(
-                    'SUBMIT',
-                    style: TextStyle(
-                      color: _canSubmit ? null : Colors.blueGrey,
-                      fontSize: Theme.of(context).textTheme.displaySmall!.fontSize,
+              ),
+              Align(
+                alignment: Alignment.bottomRight,
+                child: TextButton(
+                  onPressed: () => _canSubmit ? _onSubmit() : null,
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Text(
+                      'SUBMIT',
+                      style: TextStyle(
+                        color: _canSubmit ? null : Colors.blueGrey,
+                        fontSize: Theme.of(context).textTheme.displaySmall!.fontSize,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

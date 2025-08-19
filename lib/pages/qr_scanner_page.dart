@@ -115,26 +115,29 @@ class _QrScannerPageState extends State<QrScannerPage> {
               ]),
               errorBuilder: (context, error) {
                 return DefaultPageBody(
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 25.0),
-                      Icon(
-                        Icons.camera_alt_outlined,
-                        size: 64,
-                        color: Colors.redAccent,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Unable to access the camera',
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        error.toString(),
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(color: Colors.grey),
-                      ),
-                    ],
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.all(25),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 25.0),
+                        Icon(
+                          Icons.camera_alt_outlined,
+                          size: 64,
+                          color: Colors.redAccent,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Unable to access the camera',
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          error.toString(),
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(color: Colors.grey),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },

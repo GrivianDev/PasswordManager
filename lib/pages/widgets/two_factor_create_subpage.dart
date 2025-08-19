@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:passwordmanager/pages/widgets/default_page_body.dart';
 import 'package:passwordmanager/engine/persistence/appstate.dart';
 import 'package:passwordmanager/engine/account.dart';
 import 'package:passwordmanager/engine/db/local_database.dart';
@@ -73,9 +72,10 @@ class TwoFactorCreateSubpage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultPageBody(
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        spacing: 25,
         children: [
           Text(
             'Easily generate your 2FA codes with built-in support for Time-based One-Time Passwords (TOTP), the most widely used standard.',
@@ -83,7 +83,6 @@ class TwoFactorCreateSubpage extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           if (Platform.isAndroid || Platform.isIOS) ...[
-            const SizedBox(height: 25.0),
             ElevatedButton(
               onPressed: () => _getQRCode(context),
               child: Padding(
@@ -104,7 +103,6 @@ class TwoFactorCreateSubpage extends StatelessWidget {
               ),
             ),
           ],
-          const SizedBox(height: 25.0),
           ElevatedButton(
             onPressed: () => Navigator.push(
               context,

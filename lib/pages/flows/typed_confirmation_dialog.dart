@@ -26,8 +26,8 @@ Future<bool> typedConfirmDialog(BuildContext context, NotificationType type, {re
     title: title,
     content: SizedBox(
       width: double.maxFinite,
-      child: ListView(
-        shrinkWrap: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
             description,
@@ -38,7 +38,7 @@ Future<bool> typedConfirmDialog(BuildContext context, NotificationType type, {re
             child: TextField(
               onChanged: (value) => currentInput = value,
               decoration: InputDecoration(
-                constraints: const BoxConstraints(maxWidth: 100, maxHeight: 60.0),
+                constraints: const BoxConstraints(maxWidth: 100),
                 hintText: 'Enter "$expectedInput"',
               ),
             ),

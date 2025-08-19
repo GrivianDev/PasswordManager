@@ -129,146 +129,149 @@ class _TwoFactorEditPageState extends State<TwoFactorEditPage> {
     return Scaffold(
       appBar: AppBar(title: Text(widget.title)),
       body: DefaultPageBody(
-        child: Column(
-          spacing: 20.0,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextField(
-              inputFormatters: [Base32InputFormatter()],
-              controller: _secretController,
-              decoration: const InputDecoration(
-                labelText: 'Setup Key (Secret)',
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(25),
+          child: Column(
+            spacing: 20.0,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextField(
+                inputFormatters: [Base32InputFormatter()],
+                controller: _secretController,
+                decoration: const InputDecoration(
+                  labelText: 'Setup Key (Secret)',
+                ),
+                onSubmitted: (_) => _confirmClicked(),
+                onChanged: (string) {
+                  setState(() {
+                    _changes = true;
+                  });
+                },
               ),
-              onSubmitted: (_) => _confirmClicked(),
-              onChanged: (string) {
-                setState(() {
-                  _changes = true;
-                });
-              },
-            ),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10.0),
-              child: Theme(
-                data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-                child: ExpansionTile(
-                  title: Text(
-                    'Advanced Settings',
-                    style: TextStyle(
-                      fontSize: Theme.of(context).textTheme.displayMedium!.fontSize,
-                      overflow: Theme.of(context).textTheme.displayMedium!.overflow,
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10.0),
+                child: Theme(
+                  data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                  child: ExpansionTile(
+                    title: Text(
+                      'Advanced Settings',
+                      style: TextStyle(
+                        fontSize: Theme.of(context).textTheme.displayMedium!.fontSize,
+                        overflow: Theme.of(context).textTheme.displayMedium!.overflow,
+                      ),
                     ),
+                    subtitle: const Text(
+                      'Only change this if you know what you are doing or your provider explicitly tells you to specify these parameters.',
+                      style: TextStyle(fontSize: 14, color: Colors.orange),
+                    ),
+                    childrenPadding: EdgeInsets.all(20.0),
+                    expandedAlignment: Alignment.center,
+                    children: [
+                      TextField(
+                        controller: _accountNameController,
+                        decoration: const InputDecoration(
+                          labelText: 'Account Name',
+                        ),
+                        onChanged: (_) {
+                          if (!_changes) {
+                            setState(() {
+                              _changes = true;
+                            });
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 15.0),
+                      TextField(
+                        controller: _issuerController,
+                        decoration: const InputDecoration(
+                          labelText: 'Issuer',
+                        ),
+                        onChanged: (_) {
+                          if (!_changes) {
+                            setState(() {
+                              _changes = true;
+                            });
+                          }
+                        },
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 15.0),
+                        child: Divider(thickness: 1.5),
+                      ),
+                      TextField(
+                        controller: _periodController,
+                        decoration: const InputDecoration(
+                          labelText: 'Period (seconds)',
+                        ),
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        onChanged: (_) {
+                          if (!_changes) {
+                            setState(() {
+                              _changes = true;
+                            });
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 15.0),
+                      TextField(
+                        controller: _digitController,
+                        decoration: const InputDecoration(
+                          labelText: 'Digits',
+                        ),
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        onChanged: (_) {
+                          if (!_changes) {
+                            setState(() {
+                              _changes = true;
+                            });
+                          }
+                        },
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 15.0),
+                        child: Divider(thickness: 1.5),
+                      ),
+                      DropdownButtonFormField<String>(
+                        value: _selectedAlgorithm,
+                        decoration: const InputDecoration(
+                          labelText: 'Algorithm',
+                        ),
+                        items: TOTPSecret.allowedAlgorithms.map((algo) {
+                          return DropdownMenuItem(
+                            value: algo,
+                            child: Text(algo),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          if (value != null && value != _selectedAlgorithm) {
+                            setState(() {
+                              _selectedAlgorithm = value;
+                              _changes = true;
+                            });
+                          }
+                        },
+                      ),
+                    ],
                   ),
-                  subtitle: const Text(
-                    'Only change this if you know what you are doing or your provider explicitly tells you to specify these parameters.',
-                    style: TextStyle(fontSize: 14, color: Colors.orange),
-                  ),
-                  childrenPadding: EdgeInsets.all(20.0),
-                  expandedAlignment: Alignment.center,
-                  children: [
-                    TextField(
-                      controller: _accountNameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Account Name',
-                      ),
-                      onChanged: (_) {
-                        if (!_changes) {
-                          setState(() {
-                            _changes = true;
-                          });
-                        }
-                      },
-                    ),
-                    const SizedBox(height: 15.0),
-                    TextField(
-                      controller: _issuerController,
-                      decoration: const InputDecoration(
-                        labelText: 'Issuer',
-                      ),
-                      onChanged: (_) {
-                        if (!_changes) {
-                          setState(() {
-                            _changes = true;
-                          });
-                        }
-                      },
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 15.0),
-                      child: Divider(thickness: 1.5),
-                    ),
-                    TextField(
-                      controller: _periodController,
-                      decoration: const InputDecoration(
-                        labelText: 'Period (seconds)',
-                      ),
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      onChanged: (_) {
-                        if (!_changes) {
-                          setState(() {
-                            _changes = true;
-                          });
-                        }
-                      },
-                    ),
-                    const SizedBox(height: 15.0),
-                    TextField(
-                      controller: _digitController,
-                      decoration: const InputDecoration(
-                        labelText: 'Digits',
-                      ),
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      onChanged: (_) {
-                        if (!_changes) {
-                          setState(() {
-                            _changes = true;
-                          });
-                        }
-                      },
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 15.0),
-                      child: Divider(thickness: 1.5),
-                    ),
-                    DropdownButtonFormField<String>(
-                      value: _selectedAlgorithm,
-                      decoration: const InputDecoration(
-                        labelText: 'Algorithm',
-                      ),
-                      items: TOTPSecret.allowedAlgorithms.map((algo) {
-                        return DropdownMenuItem(
-                          value: algo,
-                          child: Text(algo),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        if (value != null && value != _selectedAlgorithm) {
-                          setState(() {
-                            _selectedAlgorithm = value;
-                            _changes = true;
-                          });
-                        }
-                      },
-                    ),
-                  ],
                 ),
               ),
-            ),
-            const SizedBox(height: 25.0),
-            ElevatedButton(
-              style: !_changes || _secretController.text.isEmpty
-                  ? ButtonStyle(
-                      backgroundColor: WidgetStatePropertyAll<Color>(Colors.blueGrey),
-                    )
-                  : null,
-              onPressed: _changes && _secretController.text.isNotEmpty ? _confirmClicked : null,
-              child: const Padding(
-                padding: EdgeInsets.symmetric(vertical: 5.0),
-                child: Icon(Icons.check, size: 40),
+              const SizedBox(height: 25.0),
+              ElevatedButton(
+                style: !_changes || _secretController.text.isEmpty
+                    ? ButtonStyle(
+                        backgroundColor: WidgetStatePropertyAll<Color>(Colors.blueGrey),
+                      )
+                    : null,
+                onPressed: _changes && _secretController.text.isNotEmpty ? _confirmClicked : null,
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 5.0),
+                  child: Icon(Icons.check, size: 40),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

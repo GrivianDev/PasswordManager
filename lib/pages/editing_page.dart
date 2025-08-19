@@ -120,110 +120,110 @@ class _EditingPageState extends State<EditingPage> {
         title: Text(widget.title),
       ),
       body: DefaultPageBody(
-        child: Column(
-          children: [
-            TextField(
-              controller: _nameController,
-              maxLength: 100,
-              decoration: const InputDecoration(
-                labelText: 'Name',
-              ),
-              onChanged: (string) => !_changes
-                  ? setState(() {
-                      _changes = true;
-                    })
-                  : null,
-            ),
-            const SizedBox(height: 10),
-            DropdownMenu<String>(
-              enableSearch: true,
-              enableFilter: true,
-              requestFocusOnTap: true,
-              width: double.infinity,
-              menuHeight: 250,
-              label: Text('Tag'),
-              controller: _tagController,
-              dropdownMenuEntries:
-                  context.read<LocalDatabase>().tags.map((t) => DropdownMenuEntry(value: t, label: t, trailingIcon: Icon(Icons.sell))).toList(),
-              onSelected: (string) => !_changes
-                  ? setState(() {
-                      _changes = true;
-                    })
-                  : null,
-            ),
-            const SizedBox(height: 30),
-            TextField(
-              maxLength: 600,
-              controller: _infoController,
-              maxLines: 10,
-              decoration: const InputDecoration(
-                labelText: 'Info',
-              ),
-              onChanged: (string) => !_changes
-                  ? setState(() {
-                      _changes = true;
-                    })
-                  : null,
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              maxLength: 100,
-              controller: _emailController,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-              ),
-              onChanged: (string) => !_changes
-                  ? setState(() {
-                      _changes = true;
-                    })
-                  : null,
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              maxLength: 100,
-              controller: _pwController,
-              decoration: InputDecoration(
-                labelText: 'Password',
-                suffixIcon: Padding(
-                  padding: const EdgeInsets.only(right: 5.0),
-                  child: IconButton(
-                    onPressed: () {
-                      final AppState appstate = context.read();
-                      _pwController.text = SafetyAnalyser.generateSavePassword(
-                          useLetters: appstate.pwGenUseLetters.value,
-                          useNumbers: appstate.pwGenUseNumbers.value,
-                          useSpecialChars: appstate.pwGenUseSpecialChars.value,
-                      );
-                      setState(() {
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(25),
+          child: Column(
+            spacing: 10,
+            children: [
+              TextField(
+                controller: _nameController,
+                maxLength: 100,
+                decoration: const InputDecoration(
+                  labelText: 'Name',
+                ),
+                onChanged: (string) => !_changes
+                    ? setState(() {
                         _changes = true;
-                      });
-                    },
-                    icon: const Icon(Icons.refresh),
+                      })
+                    : null,
+              ),
+              DropdownMenu<String>(
+                enableSearch: true,
+                enableFilter: true,
+                requestFocusOnTap: true,
+                width: double.infinity,
+                menuHeight: 250,
+                label: Text('Tag'),
+                controller: _tagController,
+                dropdownMenuEntries:
+                    context.read<LocalDatabase>().tags.map((t) => DropdownMenuEntry(value: t, label: t, trailingIcon: Icon(Icons.sell))).toList(),
+                onSelected: (string) => !_changes
+                    ? setState(() {
+                        _changes = true;
+                      })
+                    : null,
+              ),
+              const SizedBox(height: 15),
+              TextField(
+                maxLength: 600,
+                controller: _infoController,
+                maxLines: 10,
+                decoration: const InputDecoration(
+                  labelText: 'Info',
+                ),
+                onChanged: (string) => !_changes
+                    ? setState(() {
+                        _changes = true;
+                      })
+                    : null,
+              ),
+              TextField(
+                maxLength: 100,
+                controller: _emailController,
+                decoration: const InputDecoration(
+                  labelText: 'Email',
+                ),
+                onChanged: (string) => !_changes
+                    ? setState(() {
+                        _changes = true;
+                      })
+                    : null,
+              ),
+              TextField(
+                maxLength: 100,
+                controller: _pwController,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  suffixIcon: Padding(
+                    padding: const EdgeInsets.only(right: 5.0),
+                    child: IconButton(
+                      onPressed: () {
+                        final AppState appstate = context.read();
+                        _pwController.text = SafetyAnalyser.generateSavePassword(
+                            useLetters: appstate.pwGenUseLetters.value,
+                            useNumbers: appstate.pwGenUseNumbers.value,
+                            useSpecialChars: appstate.pwGenUseSpecialChars.value,
+                        );
+                        setState(() {
+                          _changes = true;
+                        });
+                      },
+                      icon: const Icon(Icons.refresh),
+                    ),
+                  ),
+                ),
+                onChanged: (string) => !_changes
+                    ? setState(() {
+                        _changes = true;
+                      })
+                    : null,
+              ),
+              Align(
+                alignment: Alignment.bottomRight,
+                child: ElevatedButton(
+                  style: !_changes ? ButtonStyle(backgroundColor: WidgetStatePropertyAll<Color>(Colors.blueGrey)) : null,
+                  onPressed: _changes ? _save : null,
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 25.0, vertical: 5.0),
+                    child: Icon(
+                      Icons.check,
+                      size: 40,
+                    ),
                   ),
                 ),
               ),
-              onChanged: (string) => !_changes
-                  ? setState(() {
-                      _changes = true;
-                    })
-                  : null,
-            ),
-            const SizedBox(height: 10),
-            Align(
-              alignment: Alignment.centerRight,
-              child: ElevatedButton(
-                style: !_changes ? ButtonStyle(backgroundColor: WidgetStatePropertyAll<Color>(Colors.blueGrey)) : null,
-                onPressed: _changes ? _save : null,
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 25.0, vertical: 5.0),
-                  child: Icon(
-                    Icons.check,
-                    size: 40,
-                  ),
-                ),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

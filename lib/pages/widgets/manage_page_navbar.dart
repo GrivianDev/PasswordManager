@@ -202,7 +202,7 @@ class ManagePageNavbar extends StatelessWidget {
     return Drawer(
       child: ListView(
         padding: const EdgeInsets.all(20.0),
-        children: <Widget>[
+        children: [
           Text(
             'Options',
             style: Theme.of(context).textTheme.displayLarge,

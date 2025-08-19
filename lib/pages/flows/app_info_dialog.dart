@@ -15,68 +15,70 @@ Future<void> displayInfoDialog(BuildContext context) async {
   Notify.dialog(
     context: context,
     type: NotificationType.notification,
-    content: SingleChildScrollView(
-      child: Column(
-        spacing: 10.0,
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          SizedBox(
-            width: 560,
-            height: 80,
-            child: context.read<AppState>().darkMode.value ? SvgPicture.asset('assets/darkLogo.svg') : SvgPicture.asset('assets/lightLogo.svg'),
-          ),
-          Text(
-            'Version: ${info.version}',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-          TextButton(
-            onPressed: () async => await launchUrl(Uri.parse('https://github.com/grievous110/PasswordManager/tree/main')),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.code),
-                Flexible(
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 5.0),
-                    child: Text('View code'),
+    content: Column(
+      spacing: 10.0,
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        SizedBox(
+          width: 560,
+          height: 80,
+          child: context.read<AppState>().darkMode.value ? SvgPicture.asset('assets/darkLogo.svg') : SvgPicture.asset('assets/lightLogo.svg'),
+        ),
+        Text(
+          'Version: ${info.version}',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+        Column(
+          children: [
+            TextButton(
+              onPressed: () async => await launchUrl(Uri.parse('https://github.com/grievous110/PasswordManager/tree/main')),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.code),
+                  Flexible(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 5.0),
+                      child: Text('View code'),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              showLicensePage(
-                context: context,
-                applicationName: 'Ethercrypt',
-                applicationIcon: const Padding(
-                  padding: EdgeInsets.only(top: 10.0),
-                  child: Icon(Icons.shield_outlined),
-                ),
-              );
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.copyright),
-                Flexible(
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 5.0),
-                    child: Text('Licenses'),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                showLicensePage(
+                  context: context,
+                  applicationName: 'Ethercrypt',
+                  applicationIcon: const Padding(
+                    padding: EdgeInsets.only(top: 10.0),
+                    child: Icon(Icons.shield_outlined),
                   ),
-                ),
-              ],
+                );
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.copyright),
+                  Flexible(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 5.0),
+                      child: Text('Licenses'),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Text(
-            'created by:\nJoel Lutz',
-            style: Theme.of(context).textTheme.bodySmall,
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
+          ],
+        ),
+        Text(
+          'created by:\nJoel Lutz',
+          style: Theme.of(context).textTheme.bodySmall,
+          textAlign: TextAlign.center,
+        ),
+      ],
     ),
   );
 }

@@ -73,6 +73,7 @@ class _CustomDialog extends StatelessWidget {
           ),
         ),
         AlertDialog(
+          scrollable: true,
           title: title != null
               ? Text(
                   title!,
