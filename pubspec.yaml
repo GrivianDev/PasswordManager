@@ -40,3 +40,4 @@ flutter:
   assets:
     - assets/lightLogo.svg
     - assets/darkLogo.svg
+    - assets/appIcon.png
