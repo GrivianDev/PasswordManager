@@ -45,12 +45,12 @@ class TOTPSecret {
       this.algorithm = TOTPSecret.defaultAlgorithm,
       this.period = TOTPSecret.defaultPeriod,
       this.digits = TOTPSecret.defaultDigit})
-  : secret = secret.toUpperCase().trim() {
+      : secret = secret.toUpperCase().trim() {
     if (!TOTPSecret.allowedAlgorithms.contains(algorithm)) {
       throw ArgumentError('Unsupported algorithm: $algorithm. Must be one of: ${TOTPSecret.allowedAlgorithms.join(', ')}.');
     }
-    if (!base32.isValid(secret, encoding: Encoding.standardRFC4648)) {
-      throw ArgumentError('Invalid base32 secret for StandardRFC4648: "$secret"');
+    if (!base32.isValid(this.secret, encoding: Encoding.standardRFC4648)) {
+      throw ArgumentError('Invalid base32 secret for StandardRFC4648: "${this.secret}"');
     }
     if (period < 0 || digits < 0) {
       throw ArgumentError('Unsupported negative values for period or digit.');
