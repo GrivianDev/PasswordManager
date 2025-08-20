@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'dart:math';
 import 'package:base32/base32.dart';
+import 'package:base32/encodings.dart';
 import 'package:pointycastle/api.dart';
 import 'package:pointycastle/macs/hmac.dart';
 
@@ -19,16 +20,37 @@ class TOTPSecret {
   int period;
   int digits;
 
-  /// Creates a new TOTP secret from given parameters, validating algorithm and value constraints.
+  /// Creates a new [TOTPSecret] instance with the given parameters.
+  ///
+  /// - **[issuer]**: The service or application providing the TOTP (e.g. "Google").
+  /// - **[accountName]**: The user account associated with the TOTP (e.g. "alice@example.com").
+  /// - **[secret]**: The shared secret in **Base32 Standard (RFC 4648) encoding**.
+  ///   - Lowercase input is automatically normalized to uppercase, since TOTP
+  ///     requires StandardRFC4648, which is case-insensitive by spec but strict
+  ///     in many implementations.
+  ///   - Whitespace around the secret is trimmed.
+  /// - **[algorithm]**: The HMAC algorithm to use (`SHA-1`, `SHA-256`, `SHA-512`).
+  ///   Any unsupported value throws an [ArgumentError].
+  /// - **[period]**: The time step in seconds (commonly 30). Must be non-negative.
+  /// - **[digits]**: The number of output digits (commonly 6 or 8). Must be non-negative.
+  ///
+  /// Throws:
+  /// - [ArgumentError] if the algorithm is not one of the allowed values.
+  /// - [ArgumentError] if the secret is not a valid RFC 4648 Base32 string after normalization to uppercase.
+  /// - [ArgumentError] if [period] or [digits] are negative.
   TOTPSecret(
       {required this.issuer,
       required this.accountName,
-      required this.secret,
+      required String secret,
       this.algorithm = TOTPSecret.defaultAlgorithm,
       this.period = TOTPSecret.defaultPeriod,
-      this.digits = TOTPSecret.defaultDigit}) {
+      this.digits = TOTPSecret.defaultDigit})
+  : secret = secret.toUpperCase().trim() {
     if (!TOTPSecret.allowedAlgorithms.contains(algorithm)) {
       throw ArgumentError('Unsupported algorithm: $algorithm. Must be one of: ${TOTPSecret.allowedAlgorithms.join(', ')}.');
+    }
+    if (!base32.isValid(secret, encoding: Encoding.standardRFC4648)) {
+      throw ArgumentError('Invalid base32 secret for StandardRFC4648: "$secret"');
     }
     if (period < 0 || digits < 0) {
       throw ArgumentError('Unsupported negative values for period or digit.');
@@ -37,27 +59,27 @@ class TOTPSecret {
 
   /// Creates a TOTP secret from a valid `otpauth://totp/` URI string.
   factory TOTPSecret.fromUri(String uriString) {
-    final uri = Uri.parse(uriString);
+    final Uri uri = Uri.parse(uriString);
 
     if (uri.scheme != 'otpauth' || uri.host != 'totp') {
       throw const FormatException('Invalid URI: must start with otpauth://totp/');
     }
 
     // Extract label: expected to be issuer:accountName
-    final label = uri.pathSegments.isNotEmpty ? uri.pathSegments[0] : '';
-    final decodedLabel = Uri.decodeComponent(label);
-    final parts = decodedLabel.split(':');
+    final String label = uri.pathSegments.isNotEmpty ? uri.pathSegments[0] : '';
+    final String decodedLabel = Uri.decodeComponent(label);
+    final List<String> parts = decodedLabel.split(':');
 
     if (parts.length != 2) {
       throw const FormatException('Invalid label format: expected issuer:accountName');
     }
 
-    final issuerFromLabel = parts[0];
-    final accountName = parts[1];
+    final String issuerFromLabel = parts[0];
+    final String accountName = parts[1];
 
-    final query = uri.queryParameters;
-    final secret = query['secret'];
-    if (secret == null) {
+    final Map<String, String> query = uri.queryParameters;
+    final String? rawSecret = query['secret'];
+    if (rawSecret == null) {
       throw const FormatException('Missing "secret" in URI query');
     }
 
@@ -78,7 +100,7 @@ class TOTPSecret {
     return TOTPSecret(
         issuer: query['issuer'] ?? issuerFromLabel,
         accountName: accountName,
-        secret: secret,
+        secret: rawSecret,
         algorithm: mapAlgorithm(query['algorithm']),
         period: int.tryParse(query['period'] ?? TOTPSecret.defaultPeriod.toString()) ?? TOTPSecret.defaultPeriod,
         digits: int.tryParse(query['digits'] ?? TOTPSecret.defaultDigit.toString()) ?? TOTPSecret.defaultDigit);
