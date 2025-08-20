@@ -153,20 +153,28 @@ class DesktopFileSelectionPage extends StatelessWidget {
                   ),
                 ),
               ),
-              Text(
-                'No save file?',
-                style: Theme.of(context).textTheme.displayMedium,
-              ),
-              TextButton(
-                onPressed: () => _createFile(context),
-                child: const Padding(
-                  padding: EdgeInsets.all(10.0),
-                  child: Text(
-                    'Create a new one',
-                    style: TextStyle(fontSize: 20),
-                  ),
+              Align(
+                alignment: Alignment.bottomRight,
+                child: Column(
+                  spacing: 5,
+                  children: [
+                    Text(
+                      'No save file?',
+                      style: Theme.of(context).textTheme.displayMedium,
+                    ),
+                    TextButton(
+                      onPressed: () => _createFile(context),
+                      child: const Padding(
+                        padding: EdgeInsets.all(10.0),
+                        child: Text(
+                          'Create a new one',
+                          style: TextStyle(fontSize: 20),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
+              )
             ],
           ),
         ),
