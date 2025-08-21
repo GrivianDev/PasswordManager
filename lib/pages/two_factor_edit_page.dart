@@ -27,6 +27,7 @@ class _TwoFactorEditPageState extends State<TwoFactorEditPage> {
   late final TextEditingController _digitController;
 
   late String _selectedAlgorithm;
+  bool _isUnusualSecret = false;
   bool _changes = false;
 
   /// Asynchronous method to persist changes.
@@ -106,8 +107,11 @@ class _TwoFactorEditPageState extends State<TwoFactorEditPage> {
   void initState() {
     super.initState();
     final TOTPSecret? secret = widget.account.twoFactorSecret;
+    if (secret != null) {
+      _isUnusualSecret = secret.unpaddedSecret.length % 8 != 0;
+    }
     _accountNameController = TextEditingController(text: secret?.accountName ?? widget.account.name ?? 'unnamed');
-    _secretController = TextEditingController(text: secret != null ? Base32InputFormatter.formatBase32(secret.secret) : '');
+    _secretController = TextEditingController(text: secret != null ? Base32InputFormatter.formatBase32(secret.unpaddedSecret) : '');
     _issuerController = TextEditingController(text: secret?.issuer ?? 'unnamed');
     _periodController = TextEditingController(text: secret?.period.toString() ?? TOTPSecret.defaultPeriod.toString());
     _digitController = TextEditingController(text: secret?.digits.toString() ?? TOTPSecret.defaultDigit.toString());
@@ -138,12 +142,25 @@ class _TwoFactorEditPageState extends State<TwoFactorEditPage> {
               TextField(
                 inputFormatters: [Base32InputFormatter()],
                 controller: _secretController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
+                  suffixIcon: _isUnusualSecret ? Padding(
+                    padding: EdgeInsets.only(right: 5.0),
+                    child: Tooltip(
+                      showDuration: Duration(seconds: 5),
+                      message: 'Secret is not a multiple of 8 characters. It works here, but may be incompatible for export into some authenticator apps.',
+                      textStyle: TextStyle(color: Colors.orange),
+                      child: Icon(
+                        Icons.warning_amber_rounded,
+                        color: Colors.orange,
+                      ),
+                    ),
+                  ) : null,
                   labelText: 'Setup Key (Secret)',
                 ),
                 onSubmitted: (_) => _confirmClicked(),
                 onChanged: (string) {
                   setState(() {
+                    _isUnusualSecret = _secretController.text.replaceAll(' ', '').length % 8 != 0;
                     _changes = true;
                   });
                 },

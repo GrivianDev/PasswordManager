@@ -199,6 +199,16 @@ class AppThemeData {
       fillColor: WidgetStatePropertyAll<Color>(Colors.blue),
       checkColor: WidgetStatePropertyAll<Color>(Colors.white),
     ),
+    tooltipTheme: TooltipThemeData(
+      decoration: BoxDecoration(
+        color: const Color.fromRGBO(46, 50, 51, 1),
+        borderRadius: BorderRadius.circular(5),
+      ),
+      textStyle: TextStyle(color: Colors.white),
+      margin: EdgeInsets.all(10.0),
+      padding: EdgeInsets.all(5.0),
+      triggerMode: TooltipTriggerMode.tap,
+    ),
   );
 
   static final ThemeData lightTheme = ThemeData(
@@ -396,6 +406,16 @@ class AppThemeData {
     checkboxTheme: const CheckboxThemeData(
       fillColor: WidgetStatePropertyAll<Color>(Color.fromRGBO(20, 75, 200, 1)),
       checkColor: WidgetStatePropertyAll<Color>(Colors.white),
+    ),
+    tooltipTheme: TooltipThemeData(
+      decoration: BoxDecoration(
+        color: const Color.fromRGBO(225, 225, 225, 1),
+        borderRadius: BorderRadius.circular(5),
+      ),
+      textStyle: TextStyle(color: Colors.black87),
+      margin: EdgeInsets.all(10.0),
+      padding: EdgeInsets.all(5.0),
+      triggerMode: TooltipTriggerMode.tap,
     ),
   );
 }

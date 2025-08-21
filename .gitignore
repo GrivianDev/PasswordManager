@@ -46,3 +46,6 @@ app.*.map.json
 
 # Access config
 /lib/engine/config/app_config.dart
+
+# Custom
+devtools_options.yaml

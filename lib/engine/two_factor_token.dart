@@ -20,15 +20,19 @@ class TOTPSecret {
   int period;
   int digits;
 
+  static String _normalizeLooseBase32ToRFC4648(String base32secret) {
+    final String s = base32secret.toUpperCase().replaceAll(' ', '').trim();
+    final int padLen = (8 - (s.length % 8)) % 8;
+    return s.padRight(s.length + padLen, '=');
+  }
+
   /// Creates a new [TOTPSecret] instance with the given parameters.
   ///
   /// - **[issuer]**: The service or application providing the TOTP (e.g. "Google").
   /// - **[accountName]**: The user account associated with the TOTP (e.g. "alice@example.com").
-  /// - **[secret]**: The shared secret in **Base32 Standard (RFC 4648) encoding**.
-  ///   - Lowercase input is automatically normalized to uppercase, since TOTP
-  ///     requires StandardRFC4648, which is case-insensitive by spec but strict
-  ///     in many implementations.
-  ///   - Whitespace around the secret is trimmed.
+  /// - **[secret]**: The shared secret in **Base32 encoding** (loosely RFC 4648 compliant).
+  ///   - Input is normalized to uppercase and trimmed of whitespaces.
+  ///   - Padding with '=' is added internally, but TOTP URIs and QR codes commonly omit it.
   /// - **[algorithm]**: The HMAC algorithm to use (`SHA-1`, `SHA-256`, `SHA-512`).
   ///   Any unsupported value throws an [ArgumentError].
   /// - **[period]**: The time step in seconds (commonly 30). Must be non-negative.
@@ -45,7 +49,7 @@ class TOTPSecret {
       this.algorithm = TOTPSecret.defaultAlgorithm,
       this.period = TOTPSecret.defaultPeriod,
       this.digits = TOTPSecret.defaultDigit})
-      : secret = secret.toUpperCase().trim() {
+      : secret = _normalizeLooseBase32ToRFC4648(secret) {
     if (!TOTPSecret.allowedAlgorithms.contains(algorithm)) {
       throw ArgumentError('Unsupported algorithm: $algorithm. Must be one of: ${TOTPSecret.allowedAlgorithms.join(', ')}.');
     }
@@ -117,13 +121,15 @@ class TOTPSecret {
         digits: json['digits'] as int? ?? TOTPSecret.defaultDigit);
   }
 
+  String get unpaddedSecret => secret.replaceAll('=', '');
+
   /// Generates a TOTP code for the given timestamp or for the current UTC time.
   String generateTOTPCode({DateTime? timestamp}) {
     final DateTime now = timestamp ?? DateTime.now().toUtc();
     final int secondsSinceEpoch = now.millisecondsSinceEpoch ~/ 1000;
     final int counter = secondsSinceEpoch ~/ period;
 
-    final Uint8List decodedSecret = base32.decode(secret);
+    final Uint8List decodedSecret = base32.decode(secret, encoding: Encoding.standardRFC4648);
     final ByteData timeBytes = ByteData(8)..setInt64(0, counter, Endian.big);
 
     final HMac hmac = HMac(Digest(algorithm), 64)..init(KeyParameter(decodedSecret));
@@ -164,7 +170,7 @@ class TOTPSecret {
       host: 'totp',
       path: '$encodedIssuer:$encodedAccount',
       queryParameters: {
-        'secret': secret,
+        'secret': unpaddedSecret,
         'issuer': issuer,
         'algorithm': normalizedAlgorithm,
         'digits': digits.toString(),
