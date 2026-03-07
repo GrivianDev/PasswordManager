@@ -139,6 +139,14 @@ class AppState extends ChangeNotifier {
     onChanged: notifyListeners,
   );
 
+  late final ntpTimeSyncServer = AppStateField<String?>(
+    key: 'ethercrypt.ntp.server_adress',
+    storage: StorageType.shared,
+    stype: SerilizationType.string,
+    defaultValue: 'time.google.com',
+    onChanged: notifyListeners,
+  );
+
   /// Email of the last Firebase-authenticated user.
   late final firebaseAuthLastUserEmail = AppStateField<String?>(
     key: 'ethercrypt.firebase.auth.last_user_email',

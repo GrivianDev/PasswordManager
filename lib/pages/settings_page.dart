@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/persistence/appstate.dart';
 import 'package:passwordmanager/pages/widgets/default_page_body.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
+import 'package:passwordmanager/pages/flows/user_input_dialog.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -14,7 +15,7 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   bool _saving = false; // Flag do avoid race conditions / multiple frequent save callbacks
 
-  Future<void> saveSettings() async {
+  Future<void> _saveSettings() async {
     final AppState appState = context.read();
 
     _saving = true;
@@ -57,7 +58,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     onChanged: (value) {
                       if (_saving) return;
                       appState.darkMode.value = value;
-                      saveSettings();
+                      _saveSettings();
                     },
                   ),
                   Flexible(
@@ -78,7 +79,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     onChanged: (value) {
                       if (_saving) return;
                       appState.autosaving.value = value;
-                      saveSettings();
+                      _saveSettings();
                     },
                   ),
                   Flexible(
@@ -91,12 +92,12 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               const Divider(),
               Text(
-                'Password generation:',
-                style: Theme.of(context).textTheme.displayLarge,
+                'Password generation',
+                style: Theme.of(context).textTheme.headlineLarge,
               ),
-              const SizedBox(height: 15),
+              const SizedBox(height: 10),
               Text(
-                'Generated password length: ${appState.pwGenMinCharacters.value} - ${appState.pwGenMaxCharacters.value}',
+                'Password length: ${appState.pwGenMinCharacters.value} - ${appState.pwGenMaxCharacters.value}',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               RangeSlider(
@@ -110,10 +111,10 @@ class _SettingsPageState extends State<SettingsPage> {
                   if (_saving) return;
                   appState.pwGenMinCharacters.value = range.start.toInt();
                   appState.pwGenMaxCharacters.value = range.end.toInt();
-                  saveSettings();
+                  _saveSettings();
                 },
               ),
-              const SizedBox(height: 15),
+              const SizedBox(height: 10),
               Row(
                 children: [
                   Checkbox.adaptive(
@@ -121,7 +122,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     onChanged: (value) {
                       if (_saving) return;
                       appState.pwGenUseLetters.value = value!;
-                      saveSettings();
+                      _saveSettings();
                     },
                   ),
                   Flexible(
@@ -139,7 +140,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     onChanged: (value) {
                       if (_saving) return;
                       appState.pwGenUseNumbers.value = value!;
-                      saveSettings();
+                      _saveSettings();
                     },
                   ),
                   Flexible(
@@ -157,7 +158,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     onChanged: (value) {
                       if (_saving) return;
                       appState.pwGenUseSpecialChars.value = value!;
-                      saveSettings();
+                      _saveSettings();
                     },
                   ),
                   Flexible(
@@ -165,6 +166,46 @@ class _SettingsPageState extends State<SettingsPage> {
                       'Use special characters',
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
+                  ),
+                ],
+              ),
+              const Divider(),
+              Row(
+                spacing: 10,
+                children: [
+                  Text(
+                    'NTP Server',
+                    style: Theme.of(context).textTheme.headlineLarge,
+                  ),
+                  Tooltip(
+                    message: 'Used to synchronize time for more accurate 2FA code generation.',
+                    child: Icon(Icons.help_outline, size: 18),
+                  ),
+                ],
+              ),
+              Row(
+                spacing: 10,
+                children: [
+                  Flexible(
+                    child: Text(
+                      appState.ntpTimeSyncServer.value ?? 'Not configured',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () async {
+                      final AppState appState = context.read();
+                      String? input = await getUserInputDialog(
+                        context: context,
+                        title: 'Enter new NTP server',
+                        labelText: 'NTP Server',
+                        hintText: 'time.example.com',
+                        allowEmptyInput: true,
+                      );
+                      if (input == null) return;
+                      appState.ntpTimeSyncServer.value = input.isEmpty ? null : input;
+                    },
+                    icon: const Icon(Icons.edit),
                   ),
                 ],
               ),

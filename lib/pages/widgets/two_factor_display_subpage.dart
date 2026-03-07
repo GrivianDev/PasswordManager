@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:ntp/ntp.dart';
-import 'package:passwordmanager/engine/config/app_config.dart';
+import 'package:passwordmanager/engine/persistence/appstate.dart';
 import 'package:passwordmanager/engine/two_factor_token.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 
@@ -31,9 +32,12 @@ class _TwoFactorDisplaySubpageState extends State<TwoFactorDisplaySubpage> with 
 
   /// Async getter and setup function for fetching time offset of local device.
   Future<void> _initWithNtp() async {
-    if (_ntpOffset == null) {
+    final AppState appState = context.read();
+    final String? ntpTimeSyncServer = appState.ntpTimeSyncServer.value;
+
+    if (_ntpOffset == null && ntpTimeSyncServer != null) {
       try {
-        DateTime ntpDate = await NTP.now(lookUpAddress: Config.ntpTimeSyncDomain, timeout: Duration(seconds: 5));
+        DateTime ntpDate = await NTP.now(lookUpAddress: ntpTimeSyncServer, timeout: Duration(seconds: 5));
         DateTime localDate = DateTime.now().toUtc();
         _ntpOffset = localDate.difference(ntpDate.toUtc());
       } catch (_) {
@@ -104,6 +108,7 @@ class _TwoFactorDisplaySubpageState extends State<TwoFactorDisplaySubpage> with 
 
     return Center(
       child: Column(
+        spacing: 15.0,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           TextButton(
@@ -115,7 +120,6 @@ class _TwoFactorDisplaySubpageState extends State<TwoFactorDisplaySubpage> with 
                   style: TextStyle(fontSize: 35.0, letterSpacing: 1.0),
                 ),
               )),
-          const SizedBox(height: 15.0),
           SizedBox(
             width: 250,
             height: 10,
@@ -129,10 +133,8 @@ class _TwoFactorDisplaySubpageState extends State<TwoFactorDisplaySubpage> with 
               ),
             ),
           ),
-          const SizedBox(height: 15.0),
           Text("${((1.0 - _animController.value) * 30).ceil()}s remaining"),
           if (_ntpOffset == null) ...[
-            const SizedBox(height: 15.0),
             IconButton(
               icon: const Icon(Icons.warning_amber, color: Colors.deepOrange, size: 30),
               onPressed: () => Notify.dialog(
