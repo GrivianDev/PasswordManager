@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/config/app_config.dart';
 import 'package:passwordmanager/engine/other/themes.dart';
-import 'package:passwordmanager/pages/widgets/splash.dart';
+import 'package:passwordmanager/pages/home_page.dart';
 import 'package:passwordmanager/engine/persistence/appstate.dart';
 import 'package:passwordmanager/engine/db/local_database.dart';
 import 'package:passwordmanager/engine/api/firebase/firebase.dart';
@@ -47,7 +47,7 @@ class Application extends StatelessWidget {
           themeMode: context.watch<AppState>().darkMode.value ? ThemeMode.dark : ThemeMode.light,
           theme: AppThemeData.lightTheme,
           darkTheme: AppThemeData.darkTheme,
-          home: const SplashScreen(),
+          home: const HomePage(),
         );
       },
     );
