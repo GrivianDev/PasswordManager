@@ -65,7 +65,6 @@ class _PasswordGetterPageState extends State<PasswordGetterPage> {
                         ),
                       TextField(
                         obscureText: _isObscured,
-                        maxLength: 128,
                         autofocus: true,
                         controller: _pwController,
                         decoration: InputDecoration(

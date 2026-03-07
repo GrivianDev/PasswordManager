@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 /// Widget to display a password either obscured as dots or visible as text.
-///
-/// Shows a message if no password is set. Includes a toggle button
-/// to switch between obscured and visible password display.
 ///
 /// - [password]: The password string to display (nullable).
 class PasswordField extends StatefulWidget {
@@ -18,21 +16,38 @@ class PasswordField extends StatefulWidget {
 class _PasswordFieldState extends State<PasswordField> {
   bool _obscured = true;
 
-  Widget get obscuredDots => Wrap(
-    spacing: 3,
-    runSpacing: 4,
-    children: List.generate(
-      widget.password!.length,
-          (_) => Container(
-        width: 6,
-        height: 6,
-        decoration: BoxDecoration(
-          color: Theme.of(context).textTheme.bodyMedium?.color,
-          shape: BoxShape.circle,
-        ),
+  /// Copies password to the clipboard.
+  Future<void> _copyClicked() async {
+    if (widget.password == null) return;
+    final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
+    final Color bgColor = Theme.of(context).colorScheme.primary;
+
+    await Clipboard.setData(ClipboardData(text: widget.password!));
+
+    scaffoldMessenger.showSnackBar(
+      SnackBar(
+        duration: const Duration(seconds: 2),
+        backgroundColor: bgColor,
+        content: Text('Copied password to clipboard'),
       ),
-    ),
-  );
+    );
+  }
+
+  Widget get obscuredDots => Wrap(
+        spacing: 3,
+        runSpacing: 4,
+        children: List.generate(
+          widget.password!.length,
+          (_) => Container(
+            width: 6,
+            height: 6,
+            decoration: BoxDecoration(
+              color: Theme.of(context).textTheme.bodyMedium?.color,
+              shape: BoxShape.circle,
+            ),
+          ),
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +77,13 @@ class _PasswordFieldState extends State<PasswordField> {
                   widget.password!,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
+        ),
+        Center(
+          child: IconButton(
+            icon: const Icon(Icons.copy),
+            tooltip: 'Copy to clipboad',
+            onPressed: _copyClicked
+          ),
         ),
         Center(
           child: IconButton(
