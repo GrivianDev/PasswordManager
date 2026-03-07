@@ -96,6 +96,22 @@ class AppState extends ChangeNotifier {
     onChanged: notifyListeners,
   );
 
+  late final pwGenMinCharacters = AppStateField<int>(
+    key: 'ethercrypt.passwordgeneration.min_chars',
+    storage: StorageType.shared,
+    stype: SerilizationType.int,
+    defaultValue: 8,
+    onChanged: notifyListeners,
+  );
+
+    late final pwGenMaxCharacters = AppStateField<int>(
+    key: 'ethercrypt.passwordgeneration.max_chars',
+    storage: StorageType.shared,
+    stype: SerilizationType.int,
+    defaultValue: 32,
+    onChanged: notifyListeners,
+  );
+
   /// Whether password generation includes letters.
   late final pwGenUseLetters = AppStateField<bool>(
     key: 'ethercrypt.passwordgeneration.use_letters',
@@ -155,6 +171,8 @@ class AppState extends ChangeNotifier {
       darkMode,
       lastOpenedFilePath,
       autosaving,
+      pwGenMinCharacters,
+      pwGenMaxCharacters,
       pwGenUseLetters,
       pwGenUseNumbers,
       pwGenUseSpecialChars,

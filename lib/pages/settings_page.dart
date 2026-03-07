@@ -48,6 +48,7 @@ class _SettingsPageState extends State<SettingsPage> {
             spacing: 2,
             children: [
               Row(
+                spacing: 10,
                 children: [
                   // This doesn't need to actively watch the settings property because a theme change will trigger an automatic rebuild
                   // since the MaterialApp is already watching the theme.
@@ -69,6 +70,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               const Divider(),
               Row(
+                spacing: 10,
                 children: [
                   // This watches the isAutoSaving property because it is not rebuild otherwise.
                   Switch.adaptive(
@@ -92,6 +94,26 @@ class _SettingsPageState extends State<SettingsPage> {
                 'Password generation:',
                 style: Theme.of(context).textTheme.displayLarge,
               ),
+              const SizedBox(height: 15),
+              Text(
+                'Generated password length: ${appState.pwGenMinCharacters.value} - ${appState.pwGenMaxCharacters.value}',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              RangeSlider(
+                values: RangeValues(
+                  appState.pwGenMinCharacters.value.toDouble(),
+                  appState.pwGenMaxCharacters.value.toDouble(),
+                ),
+                min: 8,
+                max: 100,                
+                onChanged: (range) {
+                  if (_saving) return;
+                  appState.pwGenMinCharacters.value = range.start.toInt();
+                  appState.pwGenMaxCharacters.value = range.end.toInt();
+                  saveSettings();
+                },
+              ),
+              const SizedBox(height: 15),
               Row(
                 children: [
                   Checkbox.adaptive(

@@ -173,9 +173,11 @@ class _EditingPageState extends State<EditingPage> {
                       onPressed: () {
                         final AppState appstate = context.read();
                         _pwController.text = SafetyAnalyser.generateSavePassword(
-                            useLetters: appstate.pwGenUseLetters.value,
-                            useNumbers: appstate.pwGenUseNumbers.value,
-                            useSpecialChars: appstate.pwGenUseSpecialChars.value,
+                          min: appstate.pwGenMinCharacters.value,
+                          max: appstate.pwGenMaxCharacters.value,
+                          useLetters: appstate.pwGenUseLetters.value,
+                          useNumbers: appstate.pwGenUseNumbers.value,
+                          useSpecialChars: appstate.pwGenUseSpecialChars.value,
                         );
                       },
                       icon: const Icon(Icons.refresh),
