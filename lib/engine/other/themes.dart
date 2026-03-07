@@ -178,6 +178,7 @@ class AppThemeData {
         borderRadius: BorderRadius.circular(25.0),
         borderSide: const BorderSide(width: 2, color: Colors.red),
       ),
+      hintStyle: TextStyle(color: Colors.white60),
       errorStyle: TextStyle(
         fontSize: 16.0,
         fontWeight: FontWeight.w800,
@@ -392,6 +393,7 @@ class AppThemeData {
         color: Colors.redAccent,
         overflow: TextOverflow.clip,
       ),
+      hintStyle: TextStyle(color: Colors.black54)
     ),
     switchTheme: const SwitchThemeData(
       thumbColor: WidgetStatePropertyAll<Color>(Color.fromRGBO(20, 75, 200, 1)),

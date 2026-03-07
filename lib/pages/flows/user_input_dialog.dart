@@ -9,9 +9,11 @@ import 'package:passwordmanager/pages/other/notifications.dart';
 /// - [title] – Dialog title.
 /// - [description] – Description or instructions displayed above the input field.
 /// - [labelText] – Optional label for the text field.
+/// - [hintText] – Optional hint to display on emtpy text field.
 /// - [validator] – Optional function called whenever the input changes.
 ///   - Should return `null` if the input is valid.
 ///   - Should return an error message string if invalid.
+/// - [allowEmptyInput] – Whether to allow empty input.
 ///
 /// **Behavior:**
 /// - The confirm button is only accepted if:
@@ -25,9 +27,11 @@ import 'package:passwordmanager/pages/other/notifications.dart';
 Future<String?> getUserInputDialog({
   required BuildContext context,
   required String title,
-  required String description,
+  String? description,
   String? labelText,
+  String? hintText,
   String? Function(String input)? validator,
+  bool allowEmptyInput = false,
 }) async {
   String? userInput;
   String currentInput = '';
@@ -44,7 +48,8 @@ Future<String?> getUserInputDialog({
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(description),
+              if (description != null)
+                Text(description),
               Padding(
                 padding: const EdgeInsets.only(top: 15.0),
                 child: TextField(
@@ -58,7 +63,7 @@ Future<String?> getUserInputDialog({
                   onSubmitted: (value) {
                     currentInput = value;
                     final String? error = validator?.call(currentInput);
-                    if (error == null && currentInput.isNotEmpty) {
+                    if (error == null && (currentInput.isNotEmpty || allowEmptyInput)) {
                       userInput = currentInput;
                       Navigator.pop(context);
                     }
@@ -66,6 +71,7 @@ Future<String?> getUserInputDialog({
                   decoration: InputDecoration(
                     labelText: labelText,
                     errorText: errorText,
+                    hintText: hintText,
                     errorMaxLines: 10,
                     constraints: const BoxConstraints(maxWidth: 100),
                   ),
@@ -78,7 +84,7 @@ Future<String?> getUserInputDialog({
     ),
     onConfirm: () {
       final error = validator?.call(currentInput);
-      if (error == null && currentInput.isNotEmpty) {
+      if (error == null && (currentInput.isNotEmpty || allowEmptyInput)) {
         userInput = currentInput;
         Navigator.pop(context);
       }
