@@ -10,7 +10,7 @@ import 'package:passwordmanager/pages/flows/user_input_dialog.dart';
 import 'package:path_provider/path_provider.dart';
 
 /// Page that displays all available .x files in the apps directory on mobile.
-/// Also allows selection of external files adn creation of new ones.
+/// Also allows selection of external files and creation of new ones.
 class MobileFileSelectionPage extends StatefulWidget {
   const MobileFileSelectionPage({super.key, required this.dir});
 
@@ -54,10 +54,10 @@ class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
         return;
       }
 
-      final File extrernalFile = File(result.files.single.path ?? '');
-      final File targetFile = File('${widget.dir.path}${Platform.pathSeparator}${extractFilenameFromPath(extrernalFile.path)}');
+      final File externalFile = File(result.files.single.path ?? '');
+      final File targetFile = File('${widget.dir.path}${Platform.pathSeparator}${extractFilenameFromPath(externalFile.path)}');
 
-      if (!extrernalFile.path.endsWith('.x')) {
+      if (!externalFile.path.endsWith('.x')) {
         throw Exception('File extension is not supported');
       }
 
@@ -73,10 +73,13 @@ class _MobileFileSelectionPageState extends State<MobileFileSelectionPage> {
               allowOverwrite = true;
               Navigator.pop(context);
             });
-        if (!allowOverwrite) return;
+        if (!allowOverwrite) {
+          navigator.pop(); // Pop loading widget
+          return;
+        }
       }
 
-      await extrernalFile.copy(targetFile.path);
+      await externalFile.copy(targetFile.path);
       // Clear up tmp files. This is nessecary cause android might cache file selections, if now the file
       // has been changed and reselected, then the cached unchanged variant will be used instead, which is not desired.
       await FilePicker.platform.clearTemporaryFiles();
