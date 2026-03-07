@@ -6,7 +6,9 @@ import 'package:passwordmanager/engine/persistence/source.dart';
 /// A central class that manages a list of [Account]s and handles loading/saving
 /// via a [Source] object. Extends [ChangeNotifier] to support UI updates.
 final class LocalDatabase extends ChangeNotifier {
+  @Deprecated('for legacy code')
   static const int maxCapacity = 1000;
+  @Deprecated('for legacy code')
   static const String disallowedCharacter = '\u0407';
 
   Source? _source;
@@ -70,15 +72,10 @@ final class LocalDatabase extends ChangeNotifier {
     if (notify) notifyListeners();
   }
 
-  /// Adds multiple [Account]s at once. Throws if this exceeds [maxCapacity].
+  /// Adds multiple [Account]s at once.
   /// Notifies listeners once after bulk add.
   void addAllAccounts(List<Account> accounts, {bool notify = true}) {
     if (accounts.isEmpty) return;
-
-    final availableSpace = maxCapacity - _accounts.length;
-    if (accounts.length > availableSpace) {
-      throw Exception("Adding ${accounts.length} accounts exceeds capacity of $maxCapacity.");
-    }
 
     _accounts.addAll(accounts);
     _accounts.sort();
@@ -86,13 +83,9 @@ final class LocalDatabase extends ChangeNotifier {
     if (notify) notifyListeners();
   }
 
-  /// Adds a single [Account] to the database. Throws if capacity is exceeded.
+  /// Adds a single [Account] to the database.
   /// Notifies listeners if [notify] is true.
   void addAccount(Account acc, {bool notify = true}) {
-    if (_accounts.length >= maxCapacity) {
-      throw Exception("Account limit ($maxCapacity) reached.");
-    }
-
     _accounts.add(acc);
     _accounts.sort();
     _hasUnsavedChanges = true;

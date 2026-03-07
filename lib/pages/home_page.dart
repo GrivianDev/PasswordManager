@@ -164,16 +164,16 @@ class HomePage extends StatelessWidget {
       navigator.push(
         MaterialPageRoute(builder: (context) => ManagePage()),
       );
-  } catch (e) {
-    if (!context.mounted) return;
-    Notify.dialog(
-      context: context,
-      type: NotificationType.error,
-      title: 'Error occurred!',
-      content: Text(e.toString()),
-    );
+    } catch (e) {
+      if (!context.mounted) return;
+      Notify.dialog(
+        context: context,
+        type: NotificationType.error,
+        title: 'Error occurred!',
+        content: Text(e.toString()),
+      );
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -217,10 +217,21 @@ class HomePage extends StatelessWidget {
             child: Column(
               spacing: 20,
               children: [
-                SizedBox(
-                  width: 560,
-                  height: 120,
-                  child: context.read<AppState>().darkMode.value ? SvgPicture.asset('assets/darkLogo.svg') : SvgPicture.asset('assets/lightLogo.svg'),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Row(                 
+                    children: [
+                      const Icon(
+                        Icons.shield_outlined,
+                        size: 75,
+                      ),
+                      SizedBox(
+                        width: 560,
+                        height: 120,
+                        child: context.read<AppState>().darkMode.value ? SvgPicture.asset('assets/darkLogo.svg') : SvgPicture.asset('assets/lightLogo.svg'),
+                      ),
+                    ],
+                  ),
                 ),
                 Text(
                   'Access your encrypted save file:',
