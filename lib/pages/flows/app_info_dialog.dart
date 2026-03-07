@@ -36,7 +36,7 @@ Future<void> displayInfoDialog(BuildContext context) async {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.code),
+                  const Icon(Icons.open_in_new),
                   Flexible(
                     child: Padding(
                       padding: const EdgeInsets.only(left: 5.0),

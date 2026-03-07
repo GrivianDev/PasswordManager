@@ -28,7 +28,6 @@ class _TwoFactorEditPageState extends State<TwoFactorEditPage> {
 
   late String _selectedAlgorithm;
   bool _isUnusualSecret = false;
-  bool _changes = false;
 
   /// Asynchronous method to persist changes.
   /// Displays a snackbar if succeeded.
@@ -161,7 +160,6 @@ class _TwoFactorEditPageState extends State<TwoFactorEditPage> {
                 onChanged: (string) {
                   setState(() {
                     _isUnusualSecret = _secretController.text.replaceAll(' ', '').length % 8 != 0;
-                    _changes = true;
                   });
                 },
               ),
@@ -189,13 +187,6 @@ class _TwoFactorEditPageState extends State<TwoFactorEditPage> {
                         decoration: const InputDecoration(
                           labelText: 'Account Name',
                         ),
-                        onChanged: (_) {
-                          if (!_changes) {
-                            setState(() {
-                              _changes = true;
-                            });
-                          }
-                        },
                       ),
                       const SizedBox(height: 15.0),
                       TextField(
@@ -203,13 +194,6 @@ class _TwoFactorEditPageState extends State<TwoFactorEditPage> {
                         decoration: const InputDecoration(
                           labelText: 'Issuer',
                         ),
-                        onChanged: (_) {
-                          if (!_changes) {
-                            setState(() {
-                              _changes = true;
-                            });
-                          }
-                        },
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 15.0),
@@ -222,13 +206,6 @@ class _TwoFactorEditPageState extends State<TwoFactorEditPage> {
                         ),
                         keyboardType: TextInputType.number,
                         inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                        onChanged: (_) {
-                          if (!_changes) {
-                            setState(() {
-                              _changes = true;
-                            });
-                          }
-                        },
                       ),
                       const SizedBox(height: 15.0),
                       TextField(
@@ -238,13 +215,6 @@ class _TwoFactorEditPageState extends State<TwoFactorEditPage> {
                         ),
                         keyboardType: TextInputType.number,
                         inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                        onChanged: (_) {
-                          if (!_changes) {
-                            setState(() {
-                              _changes = true;
-                            });
-                          }
-                        },
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 15.0),
@@ -262,11 +232,8 @@ class _TwoFactorEditPageState extends State<TwoFactorEditPage> {
                           );
                         }).toList(),
                         onChanged: (value) {
-                          if (value != null && value != _selectedAlgorithm) {
-                            setState(() {
-                              _selectedAlgorithm = value;
-                              _changes = true;
-                            });
+                          if (value != null) {
+                            _selectedAlgorithm = value;
                           }
                         },
                       ),
@@ -276,12 +243,12 @@ class _TwoFactorEditPageState extends State<TwoFactorEditPage> {
               ),
               const SizedBox(height: 25.0),
               ElevatedButton(
-                style: !_changes || _secretController.text.isEmpty
+                style: _secretController.text.isEmpty
                     ? ButtonStyle(
                         backgroundColor: WidgetStatePropertyAll<Color>(Colors.blueGrey),
                       )
                     : null,
-                onPressed: _changes && _secretController.text.isNotEmpty ? _confirmClicked : null,
+                onPressed: _secretController.text.isNotEmpty ? _confirmClicked : null,
                 child: const Padding(
                   padding: EdgeInsets.symmetric(vertical: 5.0),
                   child: Icon(Icons.check, size: 40),

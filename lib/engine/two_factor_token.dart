@@ -53,6 +53,9 @@ class TOTPSecret {
     if (!TOTPSecret.allowedAlgorithms.contains(algorithm)) {
       throw ArgumentError('Unsupported algorithm: $algorithm. Must be one of: ${TOTPSecret.allowedAlgorithms.join(', ')}.');
     }
+    if (period < 1) {
+      throw ArgumentError('Period must not be less then 1.');
+    }
     if (!base32.isValid(this.secret, encoding: Encoding.standardRFC4648)) {
       throw ArgumentError('Invalid base32 secret for StandardRFC4648: "${this.secret}"');
     }
