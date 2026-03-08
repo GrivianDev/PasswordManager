@@ -46,7 +46,13 @@ static void my_application_activate(GApplication* application) {
   } else {
     gtk_window_set_title(window, "Ethercrypt");
   }
-  gtk_window_set_icon_from_file(window, "assets/appIcon.png", nullptr);
+  if (g_file_test("assets", G_FILE_TEST_IS_DIR)) {
+    // For debug mode
+    gtk_window_set_icon_from_file(window, "assets/appIcon.png", nullptr);
+  } else {
+    // For release mode
+    gtk_window_set_icon_from_file(window, "data/flutter_assets/assets/appIcon.png", nullptr);
+  }
 
   gtk_window_set_default_size(window, 1280, 720);
   gtk_widget_show(GTK_WIDGET(window));
