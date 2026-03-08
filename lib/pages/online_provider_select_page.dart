@@ -19,15 +19,24 @@ class OnlineProviderSelectPage extends StatefulWidget {
 
 class _OnlineProviderSelectPageState extends State<OnlineProviderSelectPage> {
   late final Future<void> _firestoreReAuthFuture;
+  bool _firestoreLoading = true;
 
   Future<void> _firestoreReauthenticate() async {
+    _firestoreLoading = true;
     final Firestore firestoreService = context.read();
-    if (firestoreService.deactivated) return; // Exit if firestore was not configured
+    if (firestoreService.deactivated) {
+      _firestoreLoading = false;
+      return; // Exit if firestore was not configured
+    }
 
     try {
-      if (firestoreService.auth.isUserLoggedIn) return;
-      await firestoreService.auth.loginWithRefreshToken();
+      if (!firestoreService.auth.isUserLoggedIn) {
+        await firestoreService.auth.loginWithRefreshToken();
+      }
     } catch (_) {}
+    setState(() {
+      _firestoreLoading = false;      
+    });
   }
 
 
@@ -91,8 +100,8 @@ class _OnlineProviderSelectPageState extends State<OnlineProviderSelectPage> {
                 spacing: 5.0,
                 children: [
                   ElevatedButton(
-                    onPressed: !firestoreService.deactivated ? _firestoreSelected : null,
-                    style: firestoreService.deactivated ? ButtonStyle(backgroundColor: WidgetStatePropertyAll<Color>(Colors.blueGrey)) : null,
+                    onPressed: !firestoreService.deactivated && !_firestoreLoading ? _firestoreSelected : null,
+                    style: firestoreService.deactivated || _firestoreLoading ? ButtonStyle(backgroundColor: WidgetStatePropertyAll<Color>(Colors.blueGrey)) : null,
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       spacing: 10.0,
