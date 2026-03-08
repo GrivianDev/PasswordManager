@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:passwordmanager/engine/other/util.dart';
+import 'package:passwordmanager/pages/flows/user_input_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:file_picker/file_picker.dart';
@@ -152,13 +154,30 @@ class ManagePageNavbar extends StatelessWidget {
           type: FileType.custom,
           allowedExtensions: ['x'],
         );
+        if (path == null) return;
       } else {
         final Directory? dir = await getExternalStorageDirectory();
         if (dir == null) throw Exception('Could not receive storage directory');
-        path = '${dir.path}${Platform.pathSeparator}${database.source!.displayName}-backup.x';
-      }
 
-      if (path == null) return;
+        if (!context.mounted) return;
+        String? filename = await getUserInputDialog(
+          context: context,
+          title: 'Name your backup',
+          description: 'What name do you want for your backup?',
+          labelText: 'Name',
+          validator: (value) {
+            final File fileCheck = File('${dir.path}${Platform.pathSeparator}$value.x');
+            if (fileCheck.existsSync()) {
+              return 'File with this name already exists!';
+            } if (!isValidFilename(value)) {
+              return 'Discouraged filename!';
+            }
+            return null;
+          }
+        );
+        if (filename == null) return;
+        path = '${dir.path}${Platform.pathSeparator}$filename.x';
+      }
 
       File file = File(path);
       if (!file.path.endsWith('.x')) {
