@@ -46,7 +46,6 @@ Clone it with git or download it manually.
    final class Config {
      static const String firestoreApiKey = '<firestore-api-key>';
      static const String firestoreProjectId = '<firestore-project-id>';
-     static const String ntpTimeSyncDomain = 'time.google.com';
    }
    ```
 
@@ -54,7 +53,6 @@ Clone it with git or download it manually.
         * The app communicates with Firestore exclusively via REST APIs — no Firestore SDK or CLI is required.
         * You only need these two values from your Firebase project setup.
    * If you do **not** want Firestore integration, leave them as empty strings (`''`).
-   * **`ntpTimeSyncDomain`** can be customized; is used for accurate time synchronization to ensure correct 2FA code generation.
 
 ### 4. Install Dependencies
 
