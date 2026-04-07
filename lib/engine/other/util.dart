@@ -1,17 +1,11 @@
+import 'dart:convert';
 import 'dart:io';
 
-/// Shortens a full file path to show only the last [parentsToShow] parent folders and the file.
-/// The result is returned in the format: `.../parent1/.../filename`
+/// Formats a full file path to show only the last [parentsToShow] parent folders and the file.
 ///
 /// [parentsToShow] defines how many parent segments to show before the file name.
 ///  - 0 shows only the file: `.../filename`
 ///  - 1 shows one parent:   `.../parent/filename`
-///  - 2 shows two parents:  `.../grandparent/parent/filename`
-///  - and so on...
-///
-/// Example:
-///  - Input:  '/users/docs/reports/report.pdf', parentsToShow: 2
-///  - Output: '.../docs/reports/report.pdf'
 String shortenPath(String fullPath, {int parentsToShow = 1}) {
   final List<String> parts = fullPath.split(Platform.pathSeparator);
 
@@ -36,21 +30,94 @@ String getBasename(String filename) {
   return filename.substring(0, dotIndex);
 }
 
+/// Pretty formatting for json
+String prettyJson(String body) {
+  try {
+    final decoded = json.decode(body);
+    return const JsonEncoder.withIndent('  ').convert(decoded);
+  } catch (_) {
+    return body;
+  }
+}
+
+String timeAgo(DateTime date) {
+  final DateTime now = DateTime.now();
+  final Duration diff = now.difference(date);
+
+  // Future dates (just in case)
+  if (diff.isNegative) return 'Just now';
+
+  if (diff.inSeconds < 5) return 'Just now';
+  if (diff.inSeconds < 60) return '${diff.inSeconds}s ago';
+
+  if (diff.inMinutes < 60) {
+    final m = diff.inMinutes;
+    return m == 1 ? '1 min ago' : '$m min ago';
+  }
+
+  if (diff.inHours < 24) {
+    final h = diff.inHours;
+    return h == 1 ? '1 hr ago' : '$h hr ago';
+  }
+
+  if (diff.inDays == 1) return 'Yesterday';
+
+  if (diff.inDays < 7) {
+    final d = diff.inDays;
+    return d == 1 ? '1 day ago' : '$d days ago';
+  }
+
+  const List<String> months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  final String month = months[date.month - 1];
+  return '$month ${date.day}, ${date.year}';
+}
+
+String formatBytes(int bytes, {int decimals = 1}) {
+  if (bytes <= 0) return '0 B';
+
+  const units = ['bytes', 'kb', 'MB', 'GB', 'TB', 'PB'];
+
+  int i = (bytes.bitLength - 1) ~/ 10; // log2(bytes) / 10 ≈ log1024
+  if (i >= units.length) i = units.length - 1;
+
+  final size = bytes / (1 << (10 * i));
+
+  return '${size.toStringAsFixed(decimals)} ${units[i]}';
+}
+
 /// Checks if a filename contains only valid characters.
 ///
 /// [name]: The filename to validate (without path).
 /// [crossPlatformSafe]: If true, enforces rules that are safe across all platforms.
 ///                      If false, checks only against the current platform rules.
-///
-/// Returns true if the filename is valid, false otherwise.
 bool isValidFilename(String name, {bool crossPlatformSafe = true}) {
   if (name.isEmpty || name == '.' || name == '..') return false;
 
   // Reserved Windows device names
   const Set<String> reservedNames = {
-    'CON', 'PRN', 'AUX', 'NUL',
-    'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9',
-    'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9'
+    'CON',
+    'PRN',
+    'AUX',
+    'NUL',
+    'COM1',
+    'COM2',
+    'COM3',
+    'COM4',
+    'COM5',
+    'COM6',
+    'COM7',
+    'COM8',
+    'COM9',
+    'LPT1',
+    'LPT2',
+    'LPT3',
+    'LPT4',
+    'LPT5',
+    'LPT6',
+    'LPT7',
+    'LPT8',
+    'LPT9'
   };
 
   // Disallowed characters (Unicode control characters 0x00–0x1F)
@@ -91,15 +158,10 @@ bool isValidFilename(String name, {bool crossPlatformSafe = true}) {
   return true;
 }
 
-/// This function uses a basic regular expression to verify that the input is a valid email address:
+/// Checks that the input is a valid email address (Does not fully validate all RFC-compliant email formats):
 /// - Contains exactly one `@` character
 /// - Has non-whitespace characters before and after the `@`
 /// - Has at least one `.` in the domain part (after the `@`)
-///
-/// Note: This is a lightweight check and does not fully validate all RFC-compliant
-/// email formats, but is sufficient for most practical use cases.
-///
-/// Returns `true` if the email matches the pattern, `false` otherwise.
 bool isValidEmail(String email) {
   final RegExp simpleEmailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
   return simpleEmailRegex.hasMatch(email);

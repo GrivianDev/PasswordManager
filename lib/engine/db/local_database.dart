@@ -18,7 +18,7 @@ final class LocalDatabase extends ChangeNotifier {
   /// Unmodifiable list of all stored [Account]s.
   List<Account> get accounts => List.unmodifiable(_accounts);
 
-  /// Sorted set of all tags currently used by accounts (Does not include null for unttagged accounts).
+  /// Sorted set of all tags currently used by accounts (Does not include null for untagged accounts).
   Set<String> get tags => SplayTreeSet.from(_accounts.where((a) => a.tag != null).map((a) => a.tag));
 
   /// Currently assigned source used for loading/saving.
@@ -33,7 +33,7 @@ final class LocalDatabase extends ChangeNotifier {
   /// The current raw database content in string form, provided by the [Source].
   Future<String> get formattedData {
     if (_source == null) {
-      throw Exception("Cannot access formatted data: no source set.");
+      throw Exception('Cannot access formatted data: no source set.');
     }
     return _source!.getFormattedData();
   }
@@ -43,7 +43,7 @@ final class LocalDatabase extends ChangeNotifier {
   /// Notifies listeners if [notify] is true.
   Future<void> loadFromSource(Source source, {bool notify = true}) async {
     if (_source != null) {
-      throw Exception("Source is already set. Clear the database first.");
+      throw Exception('Source is already set. Clear the database first.');
     }
 
     try {
@@ -64,7 +64,7 @@ final class LocalDatabase extends ChangeNotifier {
   /// Notifies listeners if [notify] is true.
   Future<void> save({bool notify = true}) async {
     if (_source == null) {
-      throw Exception("Cannot save: no source set.");
+      throw Exception('Cannot save: no source set.');
     }
 
     await _source!.saveData();

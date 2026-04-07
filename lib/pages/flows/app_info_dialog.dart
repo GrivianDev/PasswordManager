@@ -32,7 +32,7 @@ Future<void> displayInfoDialog(BuildContext context) async {
         Column(
           children: [
             TextButton(
-              onPressed: () async => await launchUrl(Uri.parse('https://github.com/grievous110/PasswordManager/tree/main')),
+              onPressed: () async => await launchUrl(Uri.parse('https://github.com/GrivianDev/PasswordManager')),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

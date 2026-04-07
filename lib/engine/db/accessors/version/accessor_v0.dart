@@ -52,7 +52,7 @@ class DataAccessorV0 implements DataAccessor {
   }
 
   @override
-  String get version => "v0";
+  String get version => 'v0';
 
   @override
   void definePassword(String password) {
@@ -63,7 +63,7 @@ class DataAccessorV0 implements DataAccessor {
   @override
   Future<void> loadAndDecrypt(LocalDatabase targetDatabase, Map<String, String> properties) async {
     if (_password == null) {
-      throw Exception("No password was defined in accessor");
+      throw Exception('No password was defined in accessor');
     }
 
     final String? saltString = properties[saltIdentifier];
@@ -124,7 +124,7 @@ class DataAccessorV0 implements DataAccessor {
   @override
   Future<String> encryptAndFormat(LocalDatabase sourceDatabase) async {
     if (_password == null) {
-      throw Exception("No password was defined in accessor");
+      throw Exception('No password was defined in accessor');
     }
 
     // Create data string

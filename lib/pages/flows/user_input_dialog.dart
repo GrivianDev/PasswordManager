@@ -13,6 +13,7 @@ import 'package:passwordmanager/pages/other/notifications.dart';
 /// - [validator] – Optional function called whenever the input changes.
 ///   - Should return `null` if the input is valid.
 ///   - Should return an error message string if invalid.
+/// - [obscured] – If input should be obscured.
 /// - [allowEmptyInput] – Whether to allow empty input.
 ///
 /// **Behavior:**
@@ -31,8 +32,10 @@ Future<String?> getUserInputDialog({
   String? labelText,
   String? hintText,
   String? Function(String input)? validator,
+  bool obscured = false,
   bool allowEmptyInput = false,
 }) async {
+  bool currentlyObscured = obscured;
   String? userInput;
   String currentInput = '';
   String? errorText;
@@ -48,12 +51,12 @@ Future<String?> getUserInputDialog({
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (description != null)
-                Text(description),
+              if (description != null) Text(description),
               Padding(
                 padding: const EdgeInsets.only(top: 15.0),
                 child: TextField(
                   autofocus: true,
+                  obscureText: obscured,
                   onChanged: (value) {
                     setState(() {
                       currentInput = value;
@@ -69,6 +72,21 @@ Future<String?> getUserInputDialog({
                     }
                   },
                   decoration: InputDecoration(
+                    prefixIcon: obscured
+                        ? const Padding(
+                            padding: EdgeInsets.only(left: 5.0),
+                            child: Icon(Icons.key),
+                          )
+                        : null,
+                    suffixIcon: obscured
+                        ? Padding(
+                            padding: const EdgeInsets.only(right: 5.0),
+                            child: IconButton(
+                              onPressed: () => setState(() => currentlyObscured = !currentlyObscured),
+                              icon: Icon(currentlyObscured ? Icons.visibility : Icons.visibility_off),
+                            ),
+                          )
+                        : null,
                     labelText: labelText,
                     errorText: errorText,
                     hintText: hintText,

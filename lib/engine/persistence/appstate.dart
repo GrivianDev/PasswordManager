@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:passwordmanager/engine/exceptions/app_exception.dart';
 
 /// Defines where a setting is stored.
 enum StorageType {
@@ -20,10 +21,6 @@ enum SerilizationType {
 
 /// Represents a single application state field with a key, storage type,
 /// serialization type, and default value.
-///
-/// This is a generic class that can store any type `T` supported by the
-/// serialization system. It tracks value changes and triggers an
-/// `onChanged` callback when updated.
 class AppStateField<T> {
   final String key;
   final StorageType storage;
@@ -56,16 +53,10 @@ class AppStateField<T> {
 }
 
 AndroidOptions _getAndroidOptions() => const AndroidOptions(
-  encryptedSharedPreferences: true,
-);
+      encryptedSharedPreferences: true,
+    );
 
 /// Holds all application state fields and manages persistent storage.
-///
-/// This class:
-/// - Initializes state from persistent storage
-/// - Saves changes to storage
-/// - Clears all data when requested
-/// - Notifies listeners on changes
 class AppState extends ChangeNotifier {
   // -------- State Fields --------
 
@@ -104,7 +95,7 @@ class AppState extends ChangeNotifier {
     onChanged: notifyListeners,
   );
 
-    late final pwGenMaxCharacters = AppStateField<int>(
+  late final pwGenMaxCharacters = AppStateField<int>(
     key: 'ethercrypt.passwordgeneration.max_chars',
     storage: StorageType.shared,
     stype: SerilizationType.int,
@@ -190,15 +181,12 @@ class AppState extends ChangeNotifier {
   }
 
   /// Initializes the app state by loading values from storage.
-  ///
-  /// Returns `true` if all values loaded without errors.
-  Future<bool> init() async {
-    _prefs = await SharedPreferences.getInstance();
-    _secure = FlutterSecureStorage(aOptions: _getAndroidOptions());
+  Future<void> init() async {
+    try {
+      _prefs = await SharedPreferences.getInstance();
+      _secure = FlutterSecureStorage(aOptions: _getAndroidOptions());
 
-    bool withoutErrors = true;
-    for (final AppStateField<dynamic> field in _fields) {
-      try {
+      for (final AppStateField<dynamic> field in _fields) {
         switch (field.storage) {
           case StorageType.shared:
             field._value = _loadFromSharedPreferences(field);
@@ -207,21 +195,23 @@ class AppState extends ChangeNotifier {
             field._value = await _loadFromSecureStorage(field);
             break;
         }
-      } catch (e) {
-        withoutErrors = false;
       }
+    } catch (e, stackTrace) {
+      throw AppException(
+        'Could not initialise app state',
+        debugContext: 'Init Appstate',
+        cause: e,
+        stackTrace: stackTrace,
+      );
+    } finally {
+      notifyListeners();
     }
-    notifyListeners();
-    return withoutErrors;
   }
 
   /// Saves all state fields to persistent storage.
-  ///
-  /// Returns `true` if all values saved without errors.
-  Future<bool> save() async {
-    bool withoutErrors = true;
-    for (final field in _fields) {
-      try {
+  Future<void> save() async {
+    try {
+      for (final field in _fields) {
         switch (field.storage) {
           case StorageType.shared:
             if (field.value == null) {
@@ -238,36 +228,38 @@ class AppState extends ChangeNotifier {
             }
             break;
         }
-      } catch (e) {
-        withoutErrors = false;
       }
+    } catch (e, stackTrace) {
+      throw AppException(
+        'Could not save app state',
+        debugContext: 'Save AppState',
+        cause: e,
+        stackTrace: stackTrace,
+      );
     }
-    return withoutErrors;
   }
 
   /// Clears all stored data and resets state fields to default values.
-  ///
-  /// Returns `true` if clearing succeeded without errors.
-  Future<bool> clearAllData() async {
-    // Reset all values
-    for (final AppStateField<dynamic> field in _fields) {
-      field._value = field.defaultValue;
-    }
-
-    bool withoutErrors = true;
+  Future<void> clearAllData() async {
     try {
+      // Reset all values
+      for (final AppStateField<dynamic> field in _fields) {
+        field._value = field.defaultValue;
+      }
       // Clear all persistent storages
-      withoutErrors |= await _prefs.clear();
+      await _prefs.clear();
       await _secure.deleteAll();
-    } catch (_) {
-      withoutErrors = false;
+    } catch (e, stackTrace) {
+      throw AppException(
+        'Could not clear app state',
+        debugContext: 'Clear AppState',
+        cause: e,
+        stackTrace: stackTrace,
+      );
+    } finally {
+      notifyListeners();
     }
-    notifyListeners();
-
-    return withoutErrors;
   }
-
-  // ---- Utility Methods ----
 
   /// Loads a value from shared preferences for the given [field].
   T _loadFromSharedPreferences<T>(AppStateField<T> field) {
@@ -283,10 +275,12 @@ class AppState extends ChangeNotifier {
     if (raw == null) return field.defaultValue;
 
     try {
-      if (field._stype == SerilizationType.string) return raw as T;
-      if (field._stype == SerilizationType.int) return int.parse(raw) as T;
-      if (field._stype == SerilizationType.double) return double.parse(raw) as T;
-      if (field._stype == SerilizationType.bool) return (raw == 'true') as T;
+      return switch (field._stype) {
+        SerilizationType.bool => (raw == 'true') as T,
+        SerilizationType.int => int.parse(raw) as T,
+        SerilizationType.double => double.parse(raw) as T,
+        SerilizationType.string => raw as T,
+      };
     } catch (_) {}
 
     return field.defaultValue;
@@ -294,16 +288,19 @@ class AppState extends ChangeNotifier {
 
   /// Saves a value to shared preferences for the given [field].
   Future<void> _saveToSharedPreferences(AppStateField field) async {
-    if (field._stype == SerilizationType.string) {
-      await _prefs.setString(field.key, field.value);
-    } else if (field._stype == SerilizationType.bool) {
-      await _prefs.setBool(field.key, field.value);
-    } else if (field._stype == SerilizationType.int) {
-      await _prefs.setInt(field.key, field.value);
-    } else if (field._stype == SerilizationType.double) {
-      await _prefs.setDouble(field.key, field.value);
-    } else {
-      throw UnsupportedError("Unsupported type for shared_preferences");
+    switch (field._stype) {
+      case SerilizationType.bool:
+        await _prefs.setBool(field.key, field.value);
+        break;
+      case SerilizationType.int:
+        await _prefs.setInt(field.key, field.value);
+        break;
+      case SerilizationType.double:
+        await _prefs.setDouble(field.key, field.value);
+        break;
+      case SerilizationType.string:
+        await _prefs.setString(field.key, field.value);
+        break;
     }
   }
 }

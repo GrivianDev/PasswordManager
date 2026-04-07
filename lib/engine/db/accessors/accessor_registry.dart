@@ -23,7 +23,7 @@ class DataAccessorRegistry {
   /// Throws an [Exception] if the version is unknown or unsupported.
   static DataAccessor create(String version) {
     final factory = factories[version];
-    if (factory == null) throw Exception("Unknown or unsupported accessor version: $version");
+    if (factory == null) throw Exception('Unknown or unsupported accessor version: $version');
     return factory();
   }
 }

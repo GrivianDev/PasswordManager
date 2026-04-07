@@ -61,7 +61,7 @@ class DataAccessorV1 implements DataAccessor {
   }
 
   @override
-  String get version => "v1";
+  String get version => 'v1';
 
   @override
   void definePassword(String password) {
@@ -76,7 +76,7 @@ class DataAccessorV1 implements DataAccessor {
   @override
   Future<void> loadAndDecrypt(LocalDatabase targetDatabase, Map<String, String> properties) async {
     if (_password == null) {
-      throw Exception("No password was defined in accessor");
+      throw Exception('No password was defined in accessor');
     }
 
     final String? saltString = properties[saltIdentifier];
@@ -142,7 +142,7 @@ class DataAccessorV1 implements DataAccessor {
   @override
   Future<String> encryptAndFormat(LocalDatabase sourceDatabase) async {
     if (_password == null) {
-      throw Exception("No password was defined in accessor");
+      throw Exception('No password was defined in accessor');
     }
 
     // Create data string
@@ -154,7 +154,7 @@ class DataAccessorV1 implements DataAccessor {
       buffer.write(String.fromCharCode(chars.codeUnitAt(rand.nextInt(chars.length))));
     }
     // Serialize accounts as JSON string
-    buffer.write(jsonEncode({"accounts": sourceDatabase.accounts.map((a) => a.toJson()).toList()}));
+    buffer.write(jsonEncode({'accounts': sourceDatabase.accounts.map((a) => a.toJson()).toList()}));
     length = rand.nextInt(10) + 1;
     for (int j = 0; j < length; j++) {
       buffer.write(String.fromCharCode(chars.codeUnitAt(rand.nextInt(chars.length))));

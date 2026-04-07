@@ -34,9 +34,8 @@ class TOTPSecret {
   ///   - Input is normalized to uppercase and trimmed of whitespaces.
   ///   - Padding with '=' is added internally, but TOTP URIs and QR codes commonly omit it.
   /// - **[algorithm]**: The HMAC algorithm to use (`SHA-1`, `SHA-256`, `SHA-512`).
-  ///   Any unsupported value throws an [ArgumentError].
-  /// - **[period]**: The time step in seconds (commonly 30). Must be non-negative.
-  /// - **[digits]**: The number of output digits (commonly 6 or 8). Must be non-negative.
+  /// - **[period]**: The time step in seconds (commonly 30).
+  /// - **[digits]**: The number of output digits (commonly 6 or 8).
   ///
   /// Throws:
   /// - [ArgumentError] if the algorithm is not one of the allowed values.

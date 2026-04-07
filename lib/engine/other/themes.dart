@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 
 /// Class that provides the themedata used in this project.
-/// The data can be accessed through the static getters [darkTheme] and [lightTheme].
 class AppThemeData {
   static final ThemeData darkTheme = ThemeData(
     primaryColor: const Color.fromRGBO(46, 50, 51, 1),
-    highlightColor: Colors.white,
+    highlightColor: Colors.white54,
     scaffoldBackgroundColor: const Color.fromRGBO(46, 50, 51, 1),
     cardColor: const Color.fromRGBO(77, 83, 84, 1),
     dividerTheme: const DividerThemeData(
@@ -192,6 +191,8 @@ class AppThemeData {
     ),
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
       backgroundColor: Colors.blue,
+      foregroundColor: Colors.white,
+      iconSize: 25,
     ),
     iconTheme: const IconThemeData(
       color: Colors.white,
@@ -214,7 +215,7 @@ class AppThemeData {
 
   static final ThemeData lightTheme = ThemeData(
     primaryColor: const Color.fromRGBO(225, 225, 225, 1),
-    highlightColor: const Color.fromRGBO(225, 225, 225, 1),
+    highlightColor: Colors.black12,
     scaffoldBackgroundColor: const Color.fromRGBO(225, 225, 225, 1),
     cardColor: Colors.white,
     dividerTheme: const DividerThemeData(
@@ -401,6 +402,8 @@ class AppThemeData {
     ),
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
       backgroundColor: Color.fromRGBO(20, 75, 200, 1),
+      foregroundColor: Colors.white,
+      iconSize: 25,
     ),
     iconTheme: const IconThemeData(
       color: Colors.black,
