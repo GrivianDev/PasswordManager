@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/account.dart';
 import 'package:passwordmanager/engine/db/local_database.dart';
-import 'package:passwordmanager/pages/widgets/list_element.dart';
+import 'package:passwordmanager/pages/accounts/account_list_element.dart';
 
 /// The ListView displaying all [Account] instances based on the tag and order in the alphabet.
 /// "Relativly" expensive because changes need to call the [_buildTiles] everytime the database adds,
@@ -64,7 +64,7 @@ class AccountListView extends StatelessWidget {
       if (accounts.isEmpty) continue;
 
       result.add(_buildTagHeader(context, tag ?? '<no-tag>'));
-      result.addAll(accounts.map((acc) => ListElement(account: acc)));
+      result.addAll(accounts.map((acc) => AccountListElement(account: acc)));
     }
 
     // If no accounts present make return a placeholder widget

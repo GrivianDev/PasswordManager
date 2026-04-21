@@ -5,9 +5,9 @@ import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:passwordmanager/pages/flows/typed_confirmation_dialog.dart';
 import 'package:passwordmanager/engine/persistence/appstate.dart';
-import 'package:passwordmanager/pages/two_factor_edit_page.dart';
-import 'package:passwordmanager/pages/widgets/two_factor_create_subpage.dart';
-import 'package:passwordmanager/pages/widgets/two_factor_display_subpage.dart';
+import 'package:passwordmanager/pages/accounts/twofactor/two_factor_edit_page.dart';
+import 'package:passwordmanager/pages/accounts/twofactor/two_factor_setup.dart';
+import 'package:passwordmanager/pages/accounts/twofactor/two_factor_display.dart';
 import 'package:passwordmanager/engine/account.dart';
 import 'package:passwordmanager/engine/db/local_database.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
@@ -94,7 +94,7 @@ class TwoFactorManagePage extends StatelessWidget {
               children: [
                 SingleChildScrollView(
                   padding: EdgeInsets.all(25),
-                  child: TwoFactorDisplaySubpage(
+                  child: TwoFactorDisplayPage(
                     key: ValueKey(account.twoFactorSecret),
                     twoFactorSecret: account.twoFactorSecret!,
                   ),
@@ -106,17 +106,14 @@ class TwoFactorManagePage extends StatelessWidget {
                     onPressed: () async => await _deleteClicked(context),
                     heroTag: 'deleteFAB',
                     backgroundColor: Colors.red,
-                    child: Icon(
-                      Icons.delete_outline,
-                      color: Colors.white,
-                    ),
+                    child: Icon(Icons.delete_outline),
                   ),
                 ),
                 Positioned(
                   bottom: 90, // stacked higher than the other two
                   right: 16,
                   child: FloatingActionButton(
-                    heroTag: "shareQR",
+                    heroTag: 'shareQR',
                     onPressed: () async => await Notify.dialog(
                         context: context,
                         type: NotificationType.notification,
@@ -141,10 +138,7 @@ class TwoFactorManagePage extends StatelessWidget {
                             ),
                           ),
                         )),
-                    child: const Icon(
-                      Icons.qr_code,
-                      color: Colors.white,
-                    ),
+                    child: const Icon(Icons.qr_code),
                   ),
                 ),
                 Positioned(
@@ -161,10 +155,7 @@ class TwoFactorManagePage extends StatelessWidget {
                       ),
                     ),
                     heroTag: 'editFAB',
-                    child: Icon(
-                      Icons.edit,
-                      color: Colors.white,
-                    ),
+                    child: Icon(Icons.edit),
                   ),
                 ),
               ],
@@ -172,7 +163,7 @@ class TwoFactorManagePage extends StatelessWidget {
           } else {
             return SingleChildScrollView(
               padding: EdgeInsets.all(25),
-              child: TwoFactorCreateSubpage(
+              child: TwoFactorSetupPage(
                 account: account,
               ),
             );

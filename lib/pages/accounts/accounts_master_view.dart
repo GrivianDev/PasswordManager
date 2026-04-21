@@ -5,21 +5,21 @@ import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/db/local_database.dart';
 import 'package:passwordmanager/engine/persistence/source.dart';
 import 'package:passwordmanager/engine/account.dart';
-import 'package:passwordmanager/pages/widgets/account_list_view.dart';
-import 'package:passwordmanager/pages/widgets/manage_page_navbar.dart';
-import 'package:passwordmanager/pages/editing_page.dart';
+import 'package:passwordmanager/pages/accounts/account_list_view.dart';
+import 'package:passwordmanager/pages/accounts/account_master_view_navbar.dart';
+import 'package:passwordmanager/pages/accounts/account_editing_page.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 
-import '../engine/db/accessors/accessor_registry.dart';
+import '../../engine/db/accessors/accessor_registry.dart';
 
-class ManagePage extends StatefulWidget {
-  const ManagePage({super.key});
+class AccountsMasterView extends StatefulWidget {
+  const AccountsMasterView({super.key});
 
   @override
-  State<ManagePage> createState() => _ManagePageState();
+  State<AccountsMasterView> createState() => _AccountsMasterViewState();
 }
 
-class _ManagePageState extends State<ManagePage> {
+class _AccountsMasterViewState extends State<AccountsMasterView> {
   String? searchQuery;
   String? tagQuery;
 
@@ -133,7 +133,7 @@ class _ManagePageState extends State<ManagePage> {
     String type = 'Unknown';
     if (source.usesLocalFile) {
       type = 'Local file';
-    } else if (source.usesFirestoreCloud) {
+    } else if (source.usesOnlineStorage) {
       type = 'Firestore cloud document';
     }
 
@@ -142,7 +142,7 @@ class _ManagePageState extends State<ManagePage> {
       type: NotificationType.notification,
       title: 'Details',
       content: Text(
-        'Type: $type\nName: "${source.displayName}"\nStorage version: ${source.accessorVersion ?? 'Not specified'}\nAccounts: ${database.accounts.length}\nTags: ${database.tags.length}',
+        'Type: $type\nName: "${source.file.name}"\nStorage version: ${source.accessorVersion ?? 'Not specified'}\nAccounts: ${database.accounts.length}\nTags: ${database.tags.length}',
       ),
     );
   }
@@ -152,7 +152,7 @@ class _ManagePageState extends State<ManagePage> {
     return PopScope(
       canPop: false,
       child: Scaffold(
-        endDrawer: const ManagePageNavbar(),
+        endDrawer: const AccountMasterViewNavbar(),
         appBar: AppBar(
           automaticallyImplyLeading: false,
           actions: [
@@ -185,14 +185,11 @@ class _ManagePageState extends State<ManagePage> {
         ),
         floatingActionButton: FloatingActionButton(
           backgroundColor: Colors.green,
-          child: const Icon(
-            Icons.add,
-            color: Colors.white,
-          ),
+          child: const Icon(Icons.add),
           onPressed: () => Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => const EditingPage(
+              builder: (context) => const AccountEditingPage(
                 title: 'Create account',
               ),
             ),

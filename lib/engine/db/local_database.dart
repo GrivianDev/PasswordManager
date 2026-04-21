@@ -4,8 +4,8 @@ import 'package:passwordmanager/engine/account.dart';
 import 'package:passwordmanager/engine/persistence/source.dart';
 
 /// A central class that manages a list of [Account]s and handles loading/saving
-/// via a [Source] object. Extends [ChangeNotifier] to support UI updates.
-final class LocalDatabase extends ChangeNotifier {
+/// via a [Source] object.
+final class LocalDatabase with ChangeNotifier {
   @Deprecated('for legacy code')
   static const int maxCapacity = 1000;
   @Deprecated('for legacy code')
@@ -47,12 +47,10 @@ final class LocalDatabase extends ChangeNotifier {
     }
 
     try {
-      if (await source.isValid) {
-        await source.loadData();
-        _source = source;
-        _hasUnsavedChanges = false;
-        if (notify) notifyListeners();
-      }
+      await source.loadData();
+      _source = source;
+      _hasUnsavedChanges = false;
+      if (notify) notifyListeners();
     } catch (e) {
       clear(notify: false);
       rethrow;
@@ -130,4 +128,3 @@ final class LocalDatabase extends ChangeNotifier {
     if (notify) notifyListeners();
   }
 }
-

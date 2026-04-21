@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:passwordmanager/pages/two_factor_manage_page.dart';
+import 'package:passwordmanager/pages/accounts/twofactor/two_factor_master_page.dart';
 import 'package:passwordmanager/pages/widgets/password_field.dart';
 import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/db/local_database.dart';
 import 'package:passwordmanager/engine/account.dart';
-import 'package:passwordmanager/pages/editing_page.dart';
+import 'package:passwordmanager/pages/accounts/account_editing_page.dart';
 
 /// Simple widget for displaying all data of an [Account]. Can navigate to the [EditPage] for editing
 /// the displayed account or to [TwoFactorManagePage] to add / edit the 2FA setup.
-class AccountDisplay extends StatelessWidget {
-  const AccountDisplay({super.key, required Account account, bool accessedThroughSearch = false}) : _account = account;
+class AccountDetailPage extends StatelessWidget {
+  const AccountDetailPage({super.key, required Account account, bool accessedThroughSearch = false}) : _account = account;
 
   final Account _account;
 
@@ -22,14 +22,11 @@ class AccountDisplay extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        child: const Icon(
-          Icons.edit,
-          color: Colors.white,
-        ),
+        child: const Icon(Icons.edit),
         onPressed: () => Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => EditingPage(
+            builder: (context) => AccountEditingPage(
               title: 'Edit account',
               account: _account,
             ),

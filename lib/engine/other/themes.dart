@@ -13,6 +13,22 @@ class AppThemeData {
     listTileTheme: const ListTileThemeData(
       tileColor: Color.fromRGBO(77, 83, 84, 1),
       selectedTileColor: Color.fromRGBO(77, 83, 84, 1),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(12)),
+      ),
+      titleTextStyle: TextStyle(
+        fontSize: 20.0,
+        fontWeight: FontWeight.w400,
+        color: Colors.white,
+        overflow: TextOverflow.clip,
+      ),
+      subtitleTextStyle: TextStyle(
+        fontSize: 14.0,
+        fontWeight: FontWeight.w400,
+        color: Colors.grey,
+        height: 1.4,
+        overflow: TextOverflow.clip,
+      ),
     ),
     dropdownMenuTheme: DropdownMenuThemeData(
       menuStyle: MenuStyle(
@@ -177,13 +193,13 @@ class AppThemeData {
         borderRadius: BorderRadius.circular(25.0),
         borderSide: const BorderSide(width: 2, color: Colors.red),
       ),
-      hintStyle: TextStyle(color: Colors.white60),
-      errorStyle: TextStyle(
+      errorStyle: const TextStyle(
         fontSize: 16.0,
         fontWeight: FontWeight.w800,
         color: Colors.redAccent,
         overflow: TextOverflow.clip,
       ),
+      hintStyle: const TextStyle(color: Colors.white60),
     ),
     switchTheme: const SwitchThemeData(
       thumbColor: WidgetStatePropertyAll<Color>(Colors.blue),
@@ -224,6 +240,22 @@ class AppThemeData {
     listTileTheme: const ListTileThemeData(
       tileColor: Colors.white,
       selectedTileColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(12)),
+      ),
+      titleTextStyle: TextStyle(
+        fontSize: 20.0,
+        fontWeight: FontWeight.w400,
+        color: Colors.black87,
+        overflow: TextOverflow.clip,
+      ),
+      subtitleTextStyle: TextStyle(
+        fontSize: 14.0,
+        fontWeight: FontWeight.w400,
+        color: Colors.grey,
+        height: 1.4,
+        overflow: TextOverflow.clip,
+      ),
     ),
     dropdownMenuTheme: DropdownMenuThemeData(
       menuStyle: MenuStyle(
@@ -371,31 +403,30 @@ class AppThemeData {
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
-      contentPadding: const EdgeInsets.all(15),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(25.0),
-        borderSide: BorderSide(width: 2, color: Colors.grey.shade900),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(25.0),
-        borderSide: const BorderSide(width: 2, color: Color.fromRGBO(20, 75, 200, 1)),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(25.0),
-        borderSide: BorderSide(width: 2, color: Colors.grey.shade900),
-      ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(25.0),
-        borderSide: const BorderSide(width: 2, color: Colors.red),
-      ),
-      errorStyle: TextStyle(
-        fontSize: 16.0,
-        fontWeight: FontWeight.w800,
-        color: Colors.redAccent,
-        overflow: TextOverflow.clip,
-      ),
-      hintStyle: TextStyle(color: Colors.black54)
-    ),
+        contentPadding: const EdgeInsets.all(15),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25.0),
+          borderSide: BorderSide(width: 2, color: Colors.grey.shade900),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25.0),
+          borderSide: const BorderSide(width: 2, color: Color.fromRGBO(20, 75, 200, 1)),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25.0),
+          borderSide: BorderSide(width: 2, color: Colors.grey.shade900),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25.0),
+          borderSide: const BorderSide(width: 2, color: Colors.red),
+        ),
+        errorStyle: const TextStyle(
+          fontSize: 16.0,
+          fontWeight: FontWeight.w800,
+          color: Colors.redAccent,
+          overflow: TextOverflow.clip,
+        ),
+        hintStyle: const TextStyle(color: Colors.black54)),
     switchTheme: const SwitchThemeData(
       thumbColor: WidgetStatePropertyAll<Color>(Color.fromRGBO(20, 75, 200, 1)),
       trackColor: WidgetStatePropertyAll<Color>(Colors.black),

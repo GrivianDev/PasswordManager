@@ -8,12 +8,12 @@ import 'package:passwordmanager/pages/widgets/hoverbuilder.dart';
 import 'package:passwordmanager/engine/account.dart';
 import 'package:passwordmanager/engine/db/local_database.dart';
 import 'package:passwordmanager/pages//other/notifications.dart';
-import 'package:passwordmanager/pages/account_display_page.dart';
+import 'package:passwordmanager/pages/accounts/account_detail_page.dart';
 
 /// An element in the account list. The Widget itself is clickable wich navigates to the [AccountDisplayPage] of the stored [Account] instance.
 /// Hovewer, this widget also provides the option to copy the password of the stored account to the clipboard or delete the account.
-class ListElement extends StatelessWidget {
-  const ListElement({super.key, required Account account}) : _account = account;
+class AccountListElement extends StatelessWidget {
+  const AccountListElement({super.key, required Account account}) : _account = account;
 
   final Account _account;
 
@@ -165,7 +165,7 @@ class ListElement extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => AccountDisplay(
+                builder: (context) => AccountDetailPage(
                   account: _account,
                 ),
               ),

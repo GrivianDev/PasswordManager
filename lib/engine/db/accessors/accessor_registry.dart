@@ -2,14 +2,7 @@ import 'package:passwordmanager/engine/db/accessors/version/accessor_v0.dart';
 import 'package:passwordmanager/engine/db/accessors/version/accessor_v1.dart';
 import 'package:passwordmanager/engine/db/accessors/accessor.dart';
 
-/// Registry for managing different versions of [DataAccessor] implementations.
-///
-/// Provides a factory method to create an accessor instance by version string.
-///
-/// Usage:
-/// ```dart
-/// final accessor = DataAccessorRegistry.create('v1');
-/// ```
+/// Registry for getting different versions of [DataAccessor] implementations.
 class DataAccessorRegistry {
   static const String latestVersion = 'v1';
 

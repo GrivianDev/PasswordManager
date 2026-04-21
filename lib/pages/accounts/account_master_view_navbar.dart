@@ -5,27 +5,22 @@ import 'package:passwordmanager/pages/flows/user_input_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:passwordmanager/engine/api/firebase/firebase.dart';
-import 'package:passwordmanager/engine/api/online_providers.dart';
-import 'package:passwordmanager/engine/persistence/connector/persistence_connector.dart';
-import 'package:passwordmanager/pages/online_provider_select_page.dart';
 import 'package:passwordmanager/pages/password_getter_page.dart';
 import 'package:passwordmanager/pages/home_page.dart';
-import 'package:passwordmanager/pages/settings_page.dart';
-import 'package:passwordmanager/pages/manage_page.dart';
+import 'package:passwordmanager/pages/settings/settings_page.dart';
+import 'package:passwordmanager/pages/accounts/accounts_master_view.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 import 'package:passwordmanager/engine/db/local_database.dart';
-import 'package:passwordmanager/engine/persistence/connector/firebase_connector.dart';
 
 /// Navbar that gives more options, in particular the option to activate and deactivate autosaving.
-/// Also this widget is the only option to exit the [ManagePage]. External tries to exit the page for example
+/// Also this widget is the only option to exit the [AccountsMasterView]. External tries to exit the page for example
 /// through the Android back button are suppressed. You have to explicitly leave the page through clicking logout.
 /// Additional option when using local files is to upload current data.
 /// Online ser also allows backup saves.
-class ManagePageNavbar extends StatelessWidget {
-  const ManagePageNavbar({super.key});
+class AccountMasterViewNavbar extends StatelessWidget {
+  const AccountMasterViewNavbar({super.key});
 
-  /// Exits the [ManagePage] and completly wipes the database by calling [LocalDatabase.clear].
+  /// Exits the [AccountsMasterView] and completly wipes the database by calling [LocalDatabase.clear].
   Future<void> _exit(BuildContext context) async {
     final LocalDatabase database = context.read();
 
@@ -91,52 +86,52 @@ class ManagePageNavbar extends StatelessWidget {
     }
   }
 
-  Future<void> _uploadFile(BuildContext context) async {
-    final NavigatorState navigator = Navigator.of(context);
-    final LocalDatabase database = context.read();
-    final Firestore firestoreService = context.read();
+  // Future<void> _uploadFile(BuildContext context) async {
+  //   final NavigatorState navigator = Navigator.of(context);
+  //   final LocalDatabase database = context.read();
+  //   final Firestore firestoreService = context.read();
 
-    try {
-      final LoginResult? result = await navigator.push(MaterialPageRoute(
-        builder: (context) => OnlineProviderSelectPage(),
-      ));
+  //   try {
+  //     final LoginResult? result = await navigator.push(MaterialPageRoute(
+  //       builder: (context) => OnlineProviderSelectPage(),
+  //     ));
 
-      if (result == null) return;
+  //     if (result == null) return;
 
-      if (!context.mounted) return;
-      Notify.showLoading(context: context);
-      late final PersistenceConnector connector;
-      final String uploadName = database.source!.displayName!;
-      if (result.type == OnlineProvidertype.firestore) {
-        connector = FirebaseConnector(
-          cloudDocId: '',
-          cloudDocName: uploadName,
-          firestoreServiceRef: firestoreService,
-        );
-      } else {
-        throw Exception('This online provider is not supported for uploading.');
-      }
-      await connector.create(await database.formattedData);
-      navigator.pop();
-      if (!context.mounted) return;
-      await Notify.dialog(
-        context: context,
-        type: NotificationType.notification,
-        title: 'Upload success!',
-        content: Text('"$uploadName" has been uploaded.\nPlease note: Changes made in this session will not '
-            'affect the uploaded file unless you re-upload it. To work with the uploaded version, go back to the home page and select it from there.'),
-      );
-    } catch (e) {
-      navigator.pop();
-      if (!context.mounted) return;
-      await Notify.dialog(
-        context: context,
-        type: NotificationType.error,
-        title: 'Error occurred!',
-        content: Text(e.toString()),
-      );
-    }
-  }
+  //     if (!context.mounted) return;
+  //     Notify.showLoading(context: context);
+  //     late final PersistenceConnector connector;
+  //     final String uploadName = database.source!.displayName!;
+  //     if (result.type == OnlineProvidertype.firestore) {
+  //       connector = FirebaseConnector(
+  //         cloudDocId: '',
+  //         cloudDocName: uploadName,
+  //         firestoreServiceRef: firestoreService,
+  //       );
+  //     } else {
+  //       throw Exception('This online provider is not supported for uploading.');
+  //     }
+  //     await connector.create(await database.formattedData);
+  //     navigator.pop();
+  //     if (!context.mounted) return;
+  //     await Notify.dialog(
+  //       context: context,
+  //       type: NotificationType.notification,
+  //       title: 'Upload success!',
+  //       content: Text('"$uploadName" has been uploaded.\nPlease note: Changes made in this session will not '
+  //           'affect the uploaded file unless you re-upload it. To work with the uploaded version, go back to the home page and select it from there.'),
+  //     );
+  //   } catch (e) {
+  //     navigator.pop();
+  //     if (!context.mounted) return;
+  //     await Notify.dialog(
+  //       context: context,
+  //       type: NotificationType.error,
+  //       title: 'Error occurred!',
+  //       content: Text(e.toString()),
+  //     );
+  //   }
+  // }
 
   /// Saves a backup of the currently loaded accounts into the selected file or the designated directory on mobile.
   /// Allows overwriting files.
@@ -149,7 +144,7 @@ class ManagePageNavbar extends StatelessWidget {
       if (Platform.isWindows || Platform.isLinux) {
         path = await FilePicker.platform.saveFile(
           lockParentWindow: true,
-          fileName: '${database.source!.displayName}-backup.x',
+          fileName: '${database.source!.file.name}-backup.x',
           dialogTitle: 'Save your data',
           type: FileType.custom,
           allowedExtensions: ['x'],
@@ -279,7 +274,7 @@ class ManagePageNavbar extends StatelessWidget {
           if (context.read<LocalDatabase>().source?.usesLocalFile == true) ...[
             const Divider(),
             TextButton(
-              onPressed: () => _uploadFile(context),
+              onPressed: () {},
               child: const Padding(
                 padding: EdgeInsets.symmetric(vertical: 5.0),
                 child: Row(
@@ -326,7 +321,7 @@ class ManagePageNavbar extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
             child: IconButton(
-              tooltip: "Exit",
+              tooltip: 'Exit',
               iconSize: 35.0,
               onPressed: () => _exit(context),
               icon: const Icon(

@@ -10,16 +10,16 @@ import 'package:passwordmanager/pages/other/notifications.dart';
 // This is the NTP time offset to calculate how much off the local system time is.
 Duration? _ntpOffset;
 
-class TwoFactorDisplaySubpage extends StatefulWidget {
-  const TwoFactorDisplaySubpage({super.key, required this.twoFactorSecret});
+class TwoFactorDisplayPage extends StatefulWidget {
+  const TwoFactorDisplayPage({super.key, required this.twoFactorSecret});
 
   final TOTPSecret twoFactorSecret;
 
   @override
-  State<TwoFactorDisplaySubpage> createState() => _TwoFactorDisplaySubpageState();
+  State<TwoFactorDisplayPage> createState() => _TwoFactorDisplayPageState();
 }
 
-class _TwoFactorDisplaySubpageState extends State<TwoFactorDisplaySubpage> with SingleTickerProviderStateMixin {
+class _TwoFactorDisplayPageState extends State<TwoFactorDisplayPage> with SingleTickerProviderStateMixin {
   late AnimationController _animController;
   late String _currentCode;
   bool _ntpLoaded = false;
@@ -133,7 +133,7 @@ class _TwoFactorDisplaySubpageState extends State<TwoFactorDisplaySubpage> with 
               ),
             ),
           ),
-          Text("${((1.0 - _animController.value) * 30).ceil()}s remaining"),
+          Text('${((1.0 - _animController.value) * 30).ceil()}s remaining'),
           if (_ntpOffset == null) ...[
             IconButton(
               icon: const Icon(Icons.warning_amber, color: Colors.deepOrange, size: 30),

@@ -2,24 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/persistence/appstate.dart';
 import 'package:passwordmanager/engine/db/local_database.dart';
-import 'package:passwordmanager/engine/safety.dart';
+import 'package:passwordmanager/engine/other/safety.dart';
 import 'package:passwordmanager/engine/account.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 import 'package:passwordmanager/pages/widgets/default_page_body.dart';
 
 /// The EditingPage is used for editing AND creating [Account] instances despite it beeing named "EditingPage".
-class EditingPage extends StatefulWidget {
-  const EditingPage({super.key, required this.title, Account? account}) : _account = account;
+class AccountEditingPage extends StatefulWidget {
+  const AccountEditingPage({super.key, required this.title, Account? account}) : _account = account;
 
   final String title;
   final Account? _account;
 
   @override
-  State<EditingPage> createState() => _EditingPageState();
+  State<AccountEditingPage> createState() => _AccountEditingPageState();
 }
 
 /// State that stores all data with controllers. Changes can only be applied if something has indeed changed at least once.
-class _EditingPageState extends State<EditingPage> {
+class _AccountEditingPageState extends State<AccountEditingPage> {
   late final TextEditingController _nameController;
   late final TextEditingController _tagController;
   late final TextEditingController _infoController;
