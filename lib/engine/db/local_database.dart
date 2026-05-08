@@ -1,16 +1,12 @@
 import 'dart:collection';
 import 'package:flutter/foundation.dart';
 import 'package:passwordmanager/engine/account.dart';
+import 'package:passwordmanager/engine/db/database_content.dart';
 import 'package:passwordmanager/engine/persistence/source.dart';
 
 /// A central class that manages a list of [Account]s and handles loading/saving
 /// via a [Source] object.
 final class LocalDatabase with ChangeNotifier {
-  @Deprecated('for legacy code')
-  static const int maxCapacity = 1000;
-  @Deprecated('for legacy code')
-  static const String disallowedCharacter = '\u0407';
-
   Source? _source;
   bool _hasUnsavedChanges = false;
   final List<Account> _accounts = [];
@@ -30,89 +26,75 @@ final class LocalDatabase with ChangeNotifier {
   /// Whether there are unsaved changes since the last save/load.
   bool get hasUnsavedChanges => _hasUnsavedChanges;
 
-  /// The current raw database content in string form, provided by the [Source].
-  Future<String> get formattedData {
-    if (_source == null) {
-      throw Exception('Cannot access formatted data: no source set.');
-    }
-    return _source!.getFormattedData();
-  }
+  Future<String> get asFormattedData => _source!.getFormattedData(DatabaseContent(accounts: accounts));
 
-  /// Loads accounts from the given [source] using the [password].
+  /// Loads accounts from the given [source].
   /// Throws if a source is already set or loading fails.
-  /// Notifies listeners if [notify] is true.
-  Future<void> loadFromSource(Source source, {bool notify = true}) async {
+  Future<void> loadFromSource(Source source) async {
     if (_source != null) {
       throw Exception('Source is already set. Clear the database first.');
     }
 
     try {
-      await source.loadData();
+      final DatabaseContent content = await source.loadData();
       _source = source;
       _hasUnsavedChanges = false;
-      if (notify) notifyListeners();
+      addAllAccounts(content.accounts);
     } catch (e) {
-      clear(notify: false);
+      clear();
       rethrow;
     }
   }
 
   /// Saves all data to the currently assigned source.
   /// Throws if no source is set.
-  /// Notifies listeners if [notify] is true.
-  Future<void> save({bool notify = true}) async {
+  Future<void> save() async {
     if (_source == null) {
       throw Exception('Cannot save: no source set.');
     }
 
-    await _source!.saveData();
+    await _source!.saveData(DatabaseContent(accounts: accounts));
     _hasUnsavedChanges = false;
-    if (notify) notifyListeners();
+    notifyListeners();
   }
 
-  /// Adds multiple [Account]s at once.
-  /// Notifies listeners once after bulk add.
-  void addAllAccounts(List<Account> accounts, {bool notify = true}) {
+  void addAllAccounts(List<Account> accounts) {
     if (accounts.isEmpty) return;
 
     _accounts.addAll(accounts);
     _accounts.sort();
     _hasUnsavedChanges = true;
-    if (notify) notifyListeners();
+    notifyListeners();
   }
 
-  /// Adds a single [Account] to the database.
-  /// Notifies listeners if [notify] is true.
-  void addAccount(Account acc, {bool notify = true}) {
+  void addAccount(Account acc) {
     _accounts.add(acc);
     _accounts.sort();
     _hasUnsavedChanges = true;
-    if (notify) notifyListeners();
+    notifyListeners();
   }
 
   /// Replaces the account with the given [oldAccountId] with [newAccount].
   /// Returns false if no match was found / no account was replaced.
-  /// Notifies listeners if [notify] is true.
-  bool replaceAccount(int oldAccountId, Account newAccount, {bool notify = true}) {
+  bool replaceAccount(int oldAccountId, Account newAccount) {
     final index = _accounts.indexWhere((e) => e.id == oldAccountId);
     if (index == -1) return false;
 
     _accounts[index] = newAccount;
     _accounts.sort();
     _hasUnsavedChanges = true;
-    if (notify) notifyListeners();
+    notifyListeners();
     return true;
   }
 
   /// Removes an account by [id]. Returns true if removed.
-  /// Notifies listeners if [notify] is true.
-  bool removeAccount(int id, {bool notify = true}) {
+  bool removeAccount(int id) {
     final index = _accounts.indexWhere((e) => e.id == id);
     if (index == -1) return false;
 
     _accounts.removeAt(index);
     _hasUnsavedChanges = true;
-    if (notify) notifyListeners();
+    notifyListeners();
     return true;
   }
 
@@ -120,11 +102,10 @@ final class LocalDatabase with ChangeNotifier {
   List<Account> getAccountsWithTag(String? tag) => _accounts.where((a) => a.tag == tag).toList();
 
   /// Clears all accounts and resets the source.
-  /// Notifies listeners if [notify] is true.
-  void clear({bool notify = true}) {
+  void clear() {
     _accounts.clear();
     _source = null;
     _hasUnsavedChanges = false;
-    if (notify) notifyListeners();
+    notifyListeners();
   }
 }

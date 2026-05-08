@@ -51,7 +51,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
       body: Stack(
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.only(
+            borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(25.0),
               topRight: Radius.circular(25.0),
             ),
@@ -61,7 +61,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
                 Align(
                   alignment: Alignment.topCenter,
                   child: Padding(
-                    padding: EdgeInsets.only(top: 20.0),
+                    padding: const EdgeInsets.only(top: 20.0),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(20.0),
                       child: SizedBox(
@@ -88,7 +88,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
                                 },
                               ),
                               IconButton(
-                                icon: Icon(
+                                icon: const Icon(
                                   Icons.cameraswitch_outlined,
                                   color: Colors.white,
                                 ),
@@ -105,7 +105,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
                 Align(
                   alignment: Alignment.center,
                   child: CornerBorderWidget(
-                    size: Size(200, 200),
+                    size: const Size(200, 200),
                     color: Theme.of(context).colorScheme.primary,
                     borderRadius: 20,
                     cornerLength: 40,
@@ -116,11 +116,11 @@ class _QrScannerPageState extends State<QrScannerPage> {
               errorBuilder: (context, error) {
                 return DefaultPageBody(
                   child: SingleChildScrollView(
-                    padding: EdgeInsets.all(25),
+                    padding: const EdgeInsets.all(25),
                     child: Column(
                       children: [
                         const SizedBox(height: 25.0),
-                        Icon(
+                        const Icon(
                           Icons.camera_alt_outlined,
                           size: 64,
                           color: Colors.redAccent,

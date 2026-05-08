@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 
 class ObscuredTextField extends StatefulWidget {
-  final TextEditingController? controller;
-  final String? label;
-  final void Function(String)? onChanged;
-  final void Function(String)? onSubmitted;
-
   const ObscuredTextField({
     super.key,
     this.controller,
@@ -13,6 +8,11 @@ class ObscuredTextField extends StatefulWidget {
     this.onChanged,
     this.onSubmitted,
   });
+
+  final TextEditingController? controller;
+  final String? label;
+  final void Function(String)? onChanged;
+  final void Function(String)? onSubmitted;
 
   @override
   State<ObscuredTextField> createState() => _ObscuredTextFieldState();

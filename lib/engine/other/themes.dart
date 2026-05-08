@@ -30,7 +30,7 @@ class AppThemeData {
         overflow: TextOverflow.clip,
       ),
     ),
-    dropdownMenuTheme: DropdownMenuThemeData(
+    dropdownMenuTheme: const DropdownMenuThemeData(
       menuStyle: MenuStyle(
         backgroundColor: WidgetStatePropertyAll<Color>(Color.fromRGBO(46, 50, 51, 1)),
       ),
@@ -49,14 +49,14 @@ class AppThemeData {
         overflow: TextOverflow.ellipsis,
       ),
     ),
-    snackBarTheme: SnackBarThemeData(
+    snackBarTheme: const SnackBarThemeData(
       backgroundColor: Colors.blue,
       contentTextStyle: TextStyle(
         color: Colors.white,
         fontSize: 14,
       ),
     ),
-    dialogTheme: DialogThemeData(
+    dialogTheme: const DialogThemeData(
       backgroundColor: Color.fromRGBO(77, 83, 84, 1),
       titleTextStyle: TextStyle(
         fontSize: 25.0,
@@ -71,14 +71,14 @@ class AppThemeData {
         overflow: TextOverflow.clip,
       ),
     ),
-    iconButtonTheme: IconButtonThemeData(
+    iconButtonTheme: const IconButtonThemeData(
       style: ButtonStyle(
         iconSize: WidgetStatePropertyAll<double?>(20.0),
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ButtonStyle(
-        iconSize: WidgetStatePropertyAll<double?>(20.0),
+        iconSize: const WidgetStatePropertyAll<double?>(20.0),
         foregroundColor: const WidgetStatePropertyAll<Color>(Colors.white),
         backgroundColor: const WidgetStatePropertyAll<Color>(Colors.blue),
         iconColor: const WidgetStatePropertyAll<Color>(Colors.white),
@@ -88,7 +88,7 @@ class AppThemeData {
           }
           return Colors.blue.shade400;
         }),
-        textStyle: WidgetStatePropertyAll<TextStyle>(
+        textStyle: const WidgetStatePropertyAll<TextStyle>(
           TextStyle(
             fontSize: 16.0,
             fontWeight: FontWeight.w400,
@@ -222,9 +222,9 @@ class AppThemeData {
         color: const Color.fromRGBO(46, 50, 51, 1),
         borderRadius: BorderRadius.circular(5),
       ),
-      textStyle: TextStyle(color: Colors.white),
-      margin: EdgeInsets.all(10.0),
-      padding: EdgeInsets.all(5.0),
+      textStyle: const TextStyle(color: Colors.white),
+      margin: const EdgeInsets.all(10.0),
+      padding: const EdgeInsets.all(5.0),
       triggerMode: TooltipTriggerMode.tap,
     ),
   );
@@ -257,7 +257,7 @@ class AppThemeData {
         overflow: TextOverflow.clip,
       ),
     ),
-    dropdownMenuTheme: DropdownMenuThemeData(
+    dropdownMenuTheme: const DropdownMenuThemeData(
       menuStyle: MenuStyle(
         backgroundColor: WidgetStatePropertyAll<Color>(Color.fromRGBO(225, 225, 225, 1)),
       ),
@@ -276,14 +276,14 @@ class AppThemeData {
         overflow: TextOverflow.ellipsis,
       ),
     ),
-    snackBarTheme: SnackBarThemeData(
+    snackBarTheme: const SnackBarThemeData(
       backgroundColor: Color.fromRGBO(20, 75, 200, 1),
       contentTextStyle: TextStyle(
         color: Colors.white,
         fontSize: 14,
       ),
     ),
-    dialogTheme: DialogThemeData(
+    dialogTheme: const DialogThemeData(
       backgroundColor: Colors.white,
       titleTextStyle: TextStyle(
         fontSize: 25.0,
@@ -298,24 +298,24 @@ class AppThemeData {
         overflow: TextOverflow.clip,
       ),
     ),
-    iconButtonTheme: IconButtonThemeData(
+    iconButtonTheme: const IconButtonThemeData(
       style: ButtonStyle(
         iconSize: WidgetStatePropertyAll<double?>(20.0),
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ButtonStyle(
-        iconSize: WidgetStatePropertyAll<double?>(20.0),
+        iconSize: const WidgetStatePropertyAll<double?>(20.0),
         foregroundColor: const WidgetStatePropertyAll<Color>(Colors.white),
         backgroundColor: const WidgetStatePropertyAll<Color>(Color.fromRGBO(20, 75, 200, 1)),
         iconColor: const WidgetStatePropertyAll<Color>(Colors.white),
         overlayColor: WidgetStateProperty.resolveWith((Set<WidgetState> states) {
           if (states.contains(WidgetState.pressed)) {
-            return Color.fromRGBO(0, 55, 180, 1);
+            return const Color.fromRGBO(0, 55, 180, 1);
           }
-          return Color.fromRGBO(40, 95, 220, 1);
+          return const Color.fromRGBO(40, 95, 220, 1);
         }),
-        textStyle: WidgetStatePropertyAll<TextStyle>(
+        textStyle: const WidgetStatePropertyAll<TextStyle>(
           TextStyle(
             fontSize: 16.0,
             fontWeight: FontWeight.w400,
@@ -448,9 +448,9 @@ class AppThemeData {
         color: const Color.fromRGBO(225, 225, 225, 1),
         borderRadius: BorderRadius.circular(5),
       ),
-      textStyle: TextStyle(color: Colors.black87),
-      margin: EdgeInsets.all(10.0),
-      padding: EdgeInsets.all(5.0),
+      textStyle: const TextStyle(color: Colors.black87),
+      margin: const EdgeInsets.all(10.0),
+      padding: const EdgeInsets.all(5.0),
       triggerMode: TooltipTriggerMode.tap,
     ),
   );

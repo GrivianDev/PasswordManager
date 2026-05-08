@@ -3,7 +3,7 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart' as foundation;
 import 'package:passwordmanager/engine/db/accessors/accessor.dart';
-import 'package:passwordmanager/engine/db/local_database.dart';
+import 'package:passwordmanager/engine/db/database_content.dart';
 import 'package:pointycastle/api.dart';
 import 'package:pointycastle/digests/sha256.dart';
 import 'package:pointycastle/key_derivators/api.dart';
@@ -30,7 +30,8 @@ import 'package:passwordmanager/engine/cryptography/service.dart';
 /// - [ivIdentifier] (hex-encoded AES initialization vector)
 /// - [hmacIdentifier] (hex-encoded HMAC of key+IV+ciphertext)
 /// - [dataIdentifier] (Base64-encoded AES-encrypted JSON data)
-class DataAccessorV1 implements DataAccessor {
+class DataAccessorV1 extends DataAccessor {
+  static const String versionIdentifier = 'version';
   static const String saltIdentifier = 'Salt';
   static const String ivIdentifier = 'IV';
   static const String hmacIdentifier = 'HMac';
@@ -64,7 +65,7 @@ class DataAccessorV1 implements DataAccessor {
   String get version => 'v1';
 
   @override
-  void definePassword(String password) {
+  void setPassword(String password) {
     _password = password;
 
     // Reset cached keys
@@ -74,11 +75,14 @@ class DataAccessorV1 implements DataAccessor {
   }
 
   @override
-  Future<void> loadAndDecrypt(LocalDatabase targetDatabase, Map<String, String> properties) async {
+  Future<DatabaseContent> unpack(Map<String, String> properties) async {
     if (_password == null) {
       throw Exception('No password was defined in accessor');
     }
 
+    if (properties['version'] != version) {
+      throw Exception('Version mismatch while reading data');
+    }
     final String? saltString = properties[saltIdentifier];
     final String? ivString = properties[ivIdentifier];
     final String? hmacString = properties[hmacIdentifier];
@@ -115,8 +119,7 @@ class DataAccessorV1 implements DataAccessor {
     // Decrypt AES-encrypted data asynchronously
     final String decryptedString = await foundation.compute((message) {
       final AES256 decrypter = AES256();
-      return utf8.decode(decrypter.decrypt(cipher: message[0] as Uint8List, key: (message[1] as Key).bytes, iv: message[2] as IV),
-          allowMalformed: true);
+      return utf8.decode(decrypter.decrypt(cipher: message[0] as Uint8List, key: (message[1] as Key).bytes, iv: message[2] as IV), allowMalformed: true);
     }, [cipherBytes, _aesKey, iv]);
 
     // Extract JSON object from decrypted string
@@ -135,12 +138,11 @@ class DataAccessorV1 implements DataAccessor {
       throw const FormatException('Expected "accounts" to be a List');
     }
 
-    // Populate database with decrypted accounts
-    targetDatabase.addAllAccounts(accountsJson.map((e) => Account.fromJson(e as Map<String, dynamic>)).toList());
+    return DatabaseContent(accounts: accountsJson.map((e) => Account.fromJson(e as Map<String, dynamic>)).toList());
   }
 
   @override
-  Future<String> encryptAndFormat(LocalDatabase sourceDatabase) async {
+  Future<Map<String, String>> pack(DatabaseContent dbContent) async {
     if (_password == null) {
       throw Exception('No password was defined in accessor');
     }
@@ -154,7 +156,7 @@ class DataAccessorV1 implements DataAccessor {
       buffer.write(String.fromCharCode(chars.codeUnitAt(rand.nextInt(chars.length))));
     }
     // Serialize accounts as JSON string
-    buffer.write(jsonEncode({'accounts': sourceDatabase.accounts.map((a) => a.toJson()).toList()}));
+    buffer.write(jsonEncode({'accounts': dbContent.accounts.map((a) => a.toJson()).toList()}));
     length = rand.nextInt(10) + 1;
     for (int j = 0; j < length; j++) {
       buffer.write(String.fromCharCode(chars.codeUnitAt(rand.nextInt(chars.length))));
@@ -190,14 +192,12 @@ class DataAccessorV1 implements DataAccessor {
 
     final Uint8List newHmacBytes = newHmac.process(bBuilder.toBytes());
 
-    // Format the encrypted data and metadata as key=value; pairs
-    StringBuffer outBuffer = StringBuffer();
-    outBuffer.write('version=$version;');
-    outBuffer.write('$saltIdentifier=${base16.encode(_totalKey!.salt!)};');
-    outBuffer.write('$hmacIdentifier=${base16.encode(newHmacBytes)};');
-    outBuffer.write('$ivIdentifier=${base16.encode(iv.bytes)};');
-    outBuffer.write('$dataIdentifier=${base64.encode(cipherBytes)};');
-
-    return outBuffer.toString();
+    return {
+      versionIdentifier: version,
+      saltIdentifier: base16.encode(_totalKey!.salt!),
+      hmacIdentifier: base16.encode(newHmacBytes),
+      ivIdentifier: base16.encode(iv.bytes),
+      dataIdentifier: base64.encode(cipherBytes),
+    };
   }
 }

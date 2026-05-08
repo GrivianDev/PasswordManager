@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:passwordmanager/engine/exceptions/app_exception.dart';
+import 'package:passwordmanager/engine/app_exception.dart';
 
 /// Defines where a setting is stored.
 enum StorageOption {
@@ -54,10 +54,6 @@ class AppStateField<T> {
   void reset() => value = defaultValue;
 }
 
-AndroidOptions _getAndroidOptions() => const AndroidOptions(
-      encryptedSharedPreferences: true,
-    );
-
 /// Holds all application state fields and manages persistent storage.
 class AppState with ChangeNotifier {
   // -------- State Fields --------
@@ -68,15 +64,6 @@ class AppState with ChangeNotifier {
     storage: StorageOption.shared,
     stype: SerilizationType.bool,
     defaultValue: false,
-    onChanged: notifyListeners,
-  );
-
-  /// Path where vaults are stored locally
-  late final localSystemStorageLocation = AppStateField<String?>(
-    key: 'ethercrypt.filesystem.storage_location',
-    storage: StorageOption.shared,
-    stype: SerilizationType.string,
-    defaultValue: null,
     onChanged: notifyListeners,
   );
 
@@ -132,11 +119,36 @@ class AppState with ChangeNotifier {
     onChanged: notifyListeners,
   );
 
-  late final ntpTimeSyncServer = AppStateField<String?>(
+  late final ntpTimeSyncServer = AppStateField<String>(
     key: 'ethercrypt.ntp.server_adress',
     storage: StorageOption.shared,
     stype: SerilizationType.string,
     defaultValue: 'time.google.com',
+    onChanged: notifyListeners,
+  );
+
+  /// Path where vaults are stored locally
+  late final localSystemStorageLocation = AppStateField<String>(
+    key: 'ethercrypt.filesystem.storage_location',
+    storage: StorageOption.shared,
+    stype: SerilizationType.string,
+    defaultValue: '',
+    onChanged: notifyListeners,
+  );
+
+  late final firebaseProjectId = AppStateField<String?>(
+    key: 'ethercrypt.firebase.project_id',
+    storage: StorageOption.secure,
+    stype: SerilizationType.string,
+    defaultValue: null,
+    onChanged: notifyListeners,
+  );
+
+  late final firebaseApiKey = AppStateField<String?>(
+    key: 'ethercrypt.firebase.api_key',
+    storage: StorageOption.secure,
+    stype: SerilizationType.string,
+    defaultValue: null,
     onChanged: notifyListeners,
   );
 
@@ -165,6 +177,10 @@ class AppState with ChangeNotifier {
   late final SharedPreferences _prefs;
   late final FlutterSecureStorage _secure;
 
+  Future<void>? _ongoingSave;
+  bool _saveQueued = false;
+  bool get isSaveQueued => _saveQueued;
+
   /// Creates a new [AppState] and registers all state fields.
   AppState() {
     // All property fields should be also inserted in this total list !!!
@@ -176,7 +192,10 @@ class AppState with ChangeNotifier {
       pwGenUseLetters,
       pwGenUseNumbers,
       pwGenUseSpecialChars,
+      ntpTimeSyncServer,
       localSystemStorageLocation,
+      firebaseProjectId,
+      firebaseApiKey,
       firebaseAuthLastUserEmail,
       firebaseAuthRefreshToken,
     ];
@@ -186,9 +205,20 @@ class AppState with ChangeNotifier {
   Future<void> init() async {
     try {
       _prefs = await SharedPreferences.getInstance();
-      _secure = FlutterSecureStorage(aOptions: _getAndroidOptions());
+      _secure = FlutterSecureStorage(aOptions: const AndroidOptions(encryptedSharedPreferences: true));
+    } catch (e, s) {
+      throw AppException(
+        'Could not initialise app state',
+        debugContext: 'Init Appstate',
+        cause: e,
+        stackTrace: s,
+      );
+    }
+  }
 
-      for (final AppStateField<dynamic> field in _fields) {
+  Future<void> load() async {
+    for (final AppStateField<dynamic> field in _fields) {
+      try {
         switch (field.storage) {
           case StorageOption.shared:
             field._value = _loadFromSharedPreferences(field);
@@ -197,21 +227,38 @@ class AppState with ChangeNotifier {
             field._value = await _loadFromSecureStorage(field);
             break;
         }
+      } catch (e) {
+        if (kDebugMode) {
+          debugPrint('Error reading property "${field.key}": $e');
+        }
+        field._value = field.defaultValue;
       }
-    } catch (e, stackTrace) {
-      throw AppException(
-        'Could not initialise app state',
-        debugContext: 'Init Appstate',
-        cause: e,
-        stackTrace: stackTrace,
-      );
-    } finally {
-      notifyListeners();
     }
+    notifyListeners();
   }
 
   /// Saves all state fields to persistent storage.
   Future<void> save() async {
+    // If a save is already running -> queue another one
+    if (_ongoingSave != null) {
+      _saveQueued = true;
+      return _ongoingSave;
+    }
+
+    try {
+      _ongoingSave = _persistFields();
+      await _ongoingSave;
+    } finally {
+      _ongoingSave = null;
+    }
+
+    if (_saveQueued) {
+      _saveQueued = false;
+      return save(); // Run again
+    }
+  }
+
+  Future<void> _persistFields() async {
     try {
       for (final field in _fields) {
         switch (field.storage) {
@@ -231,12 +278,12 @@ class AppState with ChangeNotifier {
             break;
         }
       }
-    } catch (e, stackTrace) {
+    } catch (e, s) {
       throw AppException(
         'Could not save app state',
         debugContext: 'Save AppState',
         cause: e,
-        stackTrace: stackTrace,
+        stackTrace: s,
       );
     }
   }
@@ -251,12 +298,12 @@ class AppState with ChangeNotifier {
       // Clear all persistent storages
       await _prefs.clear();
       await _secure.deleteAll();
-    } catch (e, stackTrace) {
+    } catch (e, s) {
       throw AppException(
         'Could not clear app state',
         debugContext: 'Clear AppState',
         cause: e,
-        stackTrace: stackTrace,
+        stackTrace: s,
       );
     } finally {
       notifyListeners();

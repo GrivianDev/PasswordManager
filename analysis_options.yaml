@@ -2,7 +2,13 @@ include: package:flutter_lints/flutter.yaml
 
 linter:
   rules:
+    prefer_const_constructors: true
+    prefer_const_literals_to_create_immutables: true
+    prefer_const_constructors_in_immutables: true
     prefer_single_quotes: true
 
 formatter:
   page_width: 200
+analyzer:
+  errors:
+    constant_identifier_names: ignore

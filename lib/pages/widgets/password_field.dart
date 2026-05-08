@@ -24,13 +24,11 @@ class _PasswordFieldState extends State<PasswordField> {
 
     await Clipboard.setData(ClipboardData(text: widget.password!));
 
-    scaffoldMessenger.showSnackBar(
-      SnackBar(
-        duration: const Duration(seconds: 2),
-        backgroundColor: bgColor,
-        content: Text('Copied password to clipboard'),
-      ),
-    );
+    scaffoldMessenger.showSnackBar(SnackBar(
+      duration: const Duration(seconds: 2),
+      backgroundColor: bgColor,
+      content: const Text('Copied password to clipboard'),
+    ));
   }
 
   Widget get obscuredDots => Wrap(
@@ -82,7 +80,7 @@ class _PasswordFieldState extends State<PasswordField> {
           child: IconButton(
             icon: const Icon(Icons.copy),
             tooltip: 'Copy to clipboad',
-            onPressed: _copyClicked
+            onPressed: _copyClicked,
           ),
         ),
         Center(
