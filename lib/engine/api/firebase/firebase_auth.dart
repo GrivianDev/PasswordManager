@@ -23,6 +23,7 @@ class FirebaseAuth {
   Uri? _authRefreshTokenUrl;
   Uri? _authSignUpUrl;
   Uri? _authLoginUrl;
+  Uri? _authDeleteAccountUrl;
 
   final StreamController<FirebaseUser?> _authController;
   FirebaseUser? _user;
@@ -42,6 +43,7 @@ class FirebaseAuth {
     _authRefreshTokenUrl = Uri.parse('https://securetoken.googleapis.com/v1/token?key=$apiKey');
     _authSignUpUrl = Uri.parse('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=$apiKey');
     _authLoginUrl = Uri.parse('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=$apiKey');
+    _authDeleteAccountUrl = Uri.parse('https://identitytoolkit.googleapis.com/v1/accounts:delete?key=$_apiKey');
     logout();
   }
 
@@ -145,6 +147,29 @@ class FirebaseAuth {
       final String userId = data['user_id'];
       final String idToken = data['id_token'];
       _setUser(FirebaseUser(email, refreshToken, userId, idToken));
+    } finally {
+      httpClient.close();
+    }
+  }
+
+  // Delets an account from firebase
+  Future<void> deleteAccount() async {
+    final http.Client httpClient = LoggingHttpClient();
+
+    try {
+      final response = await httpClient.post(
+        _authDeleteAccountUrl!,
+        headers: {HttpHeaders.contentTypeHeader: ContentType.json.value},
+        body: json.encode({
+          'idToken': _user!.idToken,
+        }),
+      );
+
+      if (response.statusCode != HttpStatus.ok) {
+        _extractAndThrowAuthError(response);
+      }
+
+      logout();
     } finally {
       httpClient.close();
     }
