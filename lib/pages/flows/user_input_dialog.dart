@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
+import 'package:passwordmanager/pages/widgets/validation_controller.dart';
 
 /// Displays a confirmation dialog with a text input field and returns the entered value.
 /// Supports live validation of the input as the user types.
@@ -31,14 +34,18 @@ Future<String?> getUserInputDialog({
   String? description,
   String? labelText,
   String? hintText,
-  String? Function(String input)? validator,
+  FutureOr<String?> Function(String input)? validator,
   bool obscured = false,
   bool allowEmptyInput = false,
 }) async {
   bool currentlyObscured = obscured;
   String? userInput;
   String currentInput = '';
-  String? errorText;
+
+  final ValidationController controller = ValidationController(
+    validator: validator,
+    debounceDuration: const Duration(seconds: 1),
+  );
 
   await Notify.dialog(
     context: context,
@@ -48,61 +55,87 @@ Future<String?> getUserInputDialog({
       width: double.maxFinite,
       child: StatefulBuilder(
         builder: (context, setState) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (description != null) Text(description),
-              Padding(
-                padding: const EdgeInsets.only(top: 15.0),
-                child: TextField(
-                  autofocus: true,
-                  obscureText: obscured,
-                  onChanged: (value) {
-                    setState(() {
-                      currentInput = value;
-                      errorText = validator?.call(currentInput);
-                    });
-                  },
-                  onSubmitted: (value) {
-                    currentInput = value;
-                    final String? error = validator?.call(currentInput);
-                    if (error == null && (currentInput.isNotEmpty || allowEmptyInput)) {
-                      userInput = currentInput;
-                      Navigator.pop(context);
-                    }
-                  },
-                  decoration: InputDecoration(
-                    prefixIcon: obscured
-                        ? const Padding(
-                            padding: EdgeInsets.only(left: 5.0),
-                            child: Icon(Icons.key),
-                          )
-                        : null,
-                    suffixIcon: obscured
-                        ? Padding(
-                            padding: const EdgeInsets.only(right: 5.0),
-                            child: IconButton(
-                              onPressed: () => setState(() => currentlyObscured = !currentlyObscured),
-                              icon: Icon(currentlyObscured ? Icons.visibility : Icons.visibility_off),
-                            ),
-                          )
-                        : null,
-                    labelText: labelText,
-                    errorText: errorText,
-                    hintText: hintText,
-                    errorMaxLines: 10,
-                    constraints: const BoxConstraints(maxWidth: 100),
+          return ListenableBuilder(
+            listenable: controller,
+            builder: (context, _) {
+              final ValidationState state = controller.state;
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (description != null) Text(description),
+
+                  Padding(
+                    padding: const EdgeInsets.only(top: 15.0),
+                    child: TextField(
+                      autofocus: true,
+                      obscureText: currentlyObscured,
+                      onChanged: (value) {
+                        currentInput = value;
+                        controller.validate(value);
+                      },
+                      onSubmitted: (value) {
+                        currentInput = value;
+                        if (state.error == null && (currentInput.isNotEmpty || allowEmptyInput) && !state.isValidating) {
+                          userInput = currentInput;
+                          Navigator.pop(context);
+                        }
+                      },
+                      decoration: InputDecoration(
+                        prefixIcon: obscured
+                            ? const Padding(
+                                padding: EdgeInsets.only(left: 5.0),
+                                child: Icon(Icons.key),
+                              )
+                            : null,
+                        suffixIcon: obscured
+                            ? Padding(
+                                padding: const EdgeInsets.only(right: 5.0),
+                                child: IconButton(
+                                  onPressed: () => setState(() {
+                                    currentlyObscured = !currentlyObscured;
+                                  }),
+                                  icon: Icon(
+                                    currentlyObscured ? Icons.visibility : Icons.visibility_off,
+                                  ),
+                                ),
+                              )
+                            : null,
+                        labelText: labelText,
+                        hintText: hintText,
+                        errorText: state.error,
+                        errorMaxLines: 10,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ],
+                  if (validator != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Row(
+                        children: [
+                          if (state.isValidating)
+                            const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          else if (state.isValid)
+                            const Icon(Icons.check, color: Colors.green)
+                          else if (state.hasError)
+                            const Icon(Icons.error, color: Colors.redAccent),
+                        ],
+                      ),
+                    ),
+                ],
+              );
+            },
           );
         },
       ),
     ),
     onConfirm: () {
-      final error = validator?.call(currentInput);
-      if (error == null && (currentInput.isNotEmpty || allowEmptyInput)) {
+      final ValidationState state = controller.state;
+      if (state.error == null && (currentInput.isNotEmpty || allowEmptyInput) && !state.isValidating) {
         userInput = currentInput;
         Navigator.pop(context);
       }

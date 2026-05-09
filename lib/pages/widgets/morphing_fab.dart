@@ -82,7 +82,10 @@ class _MorphingFabState extends State<MorphingFab> with SingleTickerProviderStat
           child: ElevatedButton.icon(
             label: Text(fabOption.label),
             icon: Icon(fabOption.icon),
-            onPressed: fabOption.onPressed,
+            onPressed: () {
+              _toggle();
+              fabOption.onPressed();
+            },
           ),
         ),
       );
@@ -95,7 +98,7 @@ class _MorphingFabState extends State<MorphingFab> with SingleTickerProviderStat
     super.initState();
 
     _animController = AnimationController(
-      duration: Duration(milliseconds: 200),
+      duration: const Duration(milliseconds: 200),
       vsync: this,
     );
   }
@@ -108,42 +111,19 @@ class _MorphingFabState extends State<MorphingFab> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      spacing: 20,
       children: [
-        AnimatedBuilder(
-          animation: _animController,
-          builder: (context, child) {
-            return IgnorePointer(
-              ignoring: _animController.value < 0.01,
-              child: GestureDetector(
-                onTap: _isOpen ? _toggle : null,
-                child: Opacity(
-                  opacity: _animController.value * 0.5,
-                  child: Container(color: Colors.black),
-                ),
-              ),
-            );
-          },
-        ),
-        Positioned(
-          bottom: 20,
-          right: 20,
+        IgnorePointer(
+          ignoring: !_isOpen,
           child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            spacing: 20,
-            children: [
-              IgnorePointer(
-                ignoring: !_isOpen,
-                child: Column(
-                  spacing: 10,
-                  children: _buildOptions(),
-                ),
-              ),
-              _buildFab(),
-            ],
+            spacing: 10,
+            children: _buildOptions(),
           ),
         ),
+        _buildFab(),
       ],
     );
   }

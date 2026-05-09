@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:passwordmanager/pages/flows/app_flows.dart';
 import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/persistence/appstate.dart';
 import 'package:passwordmanager/engine/db/local_database.dart';
@@ -33,68 +34,60 @@ class _AccountEditingPageState extends State<AccountEditingPage> {
   Future<void> _save() async {
     final NavigatorState navigator = Navigator.of(context);
     final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
-    final Color backgroundColor = Theme.of(context).colorScheme.primary;
     final LocalDatabase database = context.read();
 
-    try {
-      Notify.showLoading(context: context);
-      if (widget._account == null) { // Create new
-        database.addAccount(
-          Account(
-            name: _nameController.text.isEmpty ? null : _nameController.text,
-            tag: _tagController.text.isEmpty ? null : _tagController.text,
-            info: _infoController.text.isEmpty ? null : _infoController.text,
-            email: _emailController.text.isEmpty ? null : _emailController.text,
-            password: _pwController.text.isEmpty ? null : _pwController.text,
-          ),
-        );
-      } else { // Update existing
-        widget._account!.name = _nameController.text.isEmpty ? null : _nameController.text;
-        widget._account!.tag = _tagController.text.isEmpty ? null : _tagController.text;
-        widget._account!.info = _infoController.text.isEmpty ? null : _infoController.text;
-        widget._account!.email = _emailController.text.isEmpty ? null : _emailController.text;
-        widget._account!.password = _pwController.text.isEmpty ? null : _pwController.text;
-        database.replaceAccount(widget._account!.id, widget._account!);
-      }
-
-      if(context.read<AppState>().autosaving.value) {
-        await database.save();
-      }
-
-      navigator.pop(); // Pop loading
-      navigator.pop(); // Go back
-      scaffoldMessenger.showSnackBar(SnackBar(
-        duration: const Duration(milliseconds: 1500),
-        backgroundColor: backgroundColor,
-        content: const Row(
-          children: [
-            Text('Saved changes'),
-            Padding(
-              padding: EdgeInsets.only(left: 5.0),
-              child: Icon(
-                Icons.sync,
-                size: 15,
-                color: Colors.white,
-              ),
+    await runAppFlow(context, () async {
+      try {
+        Notify.showLoading(context: context);
+        if (widget._account == null) {
+          // Create new
+          database.addAccount(
+            Account(
+              name: _nameController.text.isEmpty ? null : _nameController.text,
+              tag: _tagController.text.isEmpty ? null : _tagController.text,
+              info: _infoController.text.isEmpty ? null : _infoController.text,
+              email: _emailController.text.isEmpty ? null : _emailController.text,
+              password: _pwController.text.isEmpty ? null : _pwController.text,
             ),
+          );
+        } else {
+          // Update existing
+          widget._account!.name = _nameController.text.isEmpty ? null : _nameController.text;
+          widget._account!.tag = _tagController.text.isEmpty ? null : _tagController.text;
+          widget._account!.info = _infoController.text.isEmpty ? null : _infoController.text;
+          widget._account!.email = _emailController.text.isEmpty ? null : _emailController.text;
+          widget._account!.password = _pwController.text.isEmpty ? null : _pwController.text;
+          database.replaceAccount(widget._account!.id, widget._account!);
+        }
+
+        if (context.read<AppState>().autosaving.value) {
+          await database.save();
+        }
+      } finally {
+        navigator.pop();
+      }
+
+      navigator.pop();
+      scaffoldMessenger.showSnackBar(const SnackBar(
+        duration: Duration(seconds: 2),
+        content: Wrap(
+          spacing: 5,
+          children: [
+            Icon(
+              Icons.sync,
+              size: 15,
+              color: Colors.white,
+            ),
+            Text('Saved changes'),
           ],
         ),
       ));
-    } catch (e) {
-      navigator.pop(); // Pop loading
-      if (!mounted) return;
-      Notify.dialog(
-        context: context,
-        type: NotificationType.error,
-        title: 'Error occured!',
-        content: Text(e.toString()),
-      );
-    }
+    });
   }
 
   List<DropdownMenuEntry<String>> _collectEmailSuggestions() {
     final Set<String> emails = context.read<LocalDatabase>().accounts.where((a) => a.email != null).map((a) => a.email!).toSet();
-    return emails.map((e) => DropdownMenuEntry(value: e, label: e, leadingIcon: Icon(Icons.email))).toList();
+    return emails.map((e) => DropdownMenuEntry(value: e, label: e, leadingIcon: const Icon(Icons.email))).toList();
   }
 
   @override
@@ -125,7 +118,7 @@ class _AccountEditingPageState extends State<AccountEditingPage> {
       ),
       body: DefaultPageBody(
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(25),
+          padding: const EdgeInsets.all(25),
           child: Column(
             spacing: 25,
             children: [
@@ -143,8 +136,7 @@ class _AccountEditingPageState extends State<AccountEditingPage> {
                 menuHeight: 250,
                 label: const Text('Tag'),
                 controller: _tagController,
-                dropdownMenuEntries:
-                    context.read<LocalDatabase>().tags.map((t) => DropdownMenuEntry(value: t, label: t, leadingIcon: Icon(Icons.sell))).toList(),
+                dropdownMenuEntries: context.read<LocalDatabase>().tags.map((t) => DropdownMenuEntry(value: t, label: t, leadingIcon: const Icon(Icons.sell))).toList(),
               ),
               TextField(
                 controller: _infoController,
@@ -172,7 +164,7 @@ class _AccountEditingPageState extends State<AccountEditingPage> {
                     child: IconButton(
                       onPressed: () {
                         final AppState appstate = context.read();
-                        _pwController.text = SafetyAnalyser.generateSavePassword(
+                        _pwController.text = SafetyAnalyser.generatePassword(
                           min: appstate.pwGenMinCharacters.value,
                           max: appstate.pwGenMaxCharacters.value,
                           useLetters: appstate.pwGenUseLetters.value,

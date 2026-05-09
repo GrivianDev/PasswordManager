@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:passwordmanager/pages/accounts/twofactor/two_factor_master_page.dart';
 import 'package:passwordmanager/pages/widgets/password_field.dart';
-import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/db/local_database.dart';
 import 'package:passwordmanager/engine/account.dart';
 import 'package:passwordmanager/pages/accounts/account_editing_page.dart';
 
-/// Simple widget for displaying all data of an [Account]. Can navigate to the [EditPage] for editing
-/// the displayed account or to [TwoFactorManagePage] to add / edit the 2FA setup.
 class AccountDetailPage extends StatelessWidget {
   const AccountDetailPage({super.key, required Account account, bool accessedThroughSearch = false}) : _account = account;
 
@@ -43,7 +41,7 @@ class AccountDetailPage extends StatelessWidget {
         ),
         child: Consumer<LocalDatabase>(
           builder: (context, database, child) => SingleChildScrollView(
-            padding: EdgeInsets.all(20),
+            padding: const EdgeInsets.all(20),
             child: Column(
               spacing: 20,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -71,7 +69,7 @@ class AccountDetailPage extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(_account.twoFactorSecret == null ? Icons.add_moderator : Icons.security),
-                      SizedBox(width: 10),
+                      const SizedBox(width: 10),
                       Text(_account.twoFactorSecret == null ? 'Add 2FA' : 'Show 2FA'),
                     ],
                   ),

@@ -2,62 +2,49 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:passwordmanager/pages/other/notifications.dart';
+import 'package:passwordmanager/pages/flows/app_flows.dart';
+import 'package:passwordmanager/pages/flows/typed_confirmation_dialog.dart';
 import 'package:passwordmanager/engine/other/util.dart';
 import 'package:passwordmanager/engine/persistence/appstate.dart';
 import 'package:passwordmanager/pages/widgets/hoverbuilder.dart';
 import 'package:passwordmanager/engine/account.dart';
 import 'package:passwordmanager/engine/db/local_database.dart';
-import 'package:passwordmanager/pages//other/notifications.dart';
 import 'package:passwordmanager/pages/accounts/account_detail_page.dart';
 
-/// An element in the account list. The Widget itself is clickable wich navigates to the [AccountDisplayPage] of the stored [Account] instance.
-/// Hovewer, this widget also provides the option to copy the password of the stored account to the clipboard or delete the account.
 class AccountListElement extends StatelessWidget {
   const AccountListElement({super.key, required Account account}) : _account = account;
 
   final Account _account;
 
-  /// Asynchronous method to save the fact that the account has been deleted.
-  /// Displays a snackbar if succeded.
-  Future<void> _save(BuildContext context) async {
+  Future<void> _save(BuildContext context) {
     final NavigatorState navigator = Navigator.of(context);
     final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
     final LocalDatabase database = context.read();
 
-    try {
-      Notify.showLoading(context: context);
-      await database.save();
-    } catch (e) {
-      navigator.pop();
-      if (!context.mounted) return;
-      Notify.dialog(
-        context: context,
-        type: NotificationType.error,
-        title: 'Could not save changes!',
-        content: Text(e.toString()),
-      );
-      return;
-    }
-    navigator.pop();
+    return runAppFlow(context, () async {
+      try {
+        Notify.showLoading(context: context);
+        await database.save();
 
-    scaffoldMessenger.showSnackBar(
-      SnackBar(
-        duration: const Duration(milliseconds: 1500),
-        content: const Row(
-          children: [
-            Text('Saved changes'),
-            Padding(
-              padding: EdgeInsets.only(left: 5.0),
-              child: Icon(
+        scaffoldMessenger.showSnackBar(const SnackBar(
+          duration: Duration(seconds: 2),
+          content: Wrap(
+            spacing: 5,
+            children: [
+              Icon(
                 Icons.sync,
                 size: 15,
                 color: Colors.white,
               ),
-            ),
-          ],
-        ),
-      ),
-    );
+              Text('Saved changes'),
+            ],
+          ),
+        ));
+      } finally {
+        navigator.pop();
+      }
+    });
   }
 
   /// Copies password to the clipboard.
@@ -66,37 +53,32 @@ class AccountListElement extends StatelessWidget {
     await Clipboard.setData(ClipboardData(text: _account.password!));
 
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        duration: const Duration(seconds: 2),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        content: Text('Copied password of "${_account.name}" to clipboard'),
-      ),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      duration: const Duration(seconds: 2),
+      content: Text('Copied password of "${_account.name}" to clipboard'),
+    ));
   }
 
-  /// Displays a dialog to avoid accidentally deleting accounts. If autosaving is active
-  /// then the [_save] method is called.
+  // If autosaving is active then the [_save] method is called.
   Future<void> _deleteClicked(BuildContext context) async {
     final LocalDatabase database = context.read();
 
-    await Notify.dialog(
-      context: context,
+    final bool doDelete = await typedConfirmDialog(
+      context,
+      NotificationType.deleteDialog,
       title: 'Are you sure?',
-      type: NotificationType.deleteDialog,
-      content: Text(
-        'Are you sure that you want to delete all information about your '
-        '${(_account.name?.isNotEmpty ?? false) ? '"${_account.name}"' : 'unnamed'} account?\n'
-        'Action can not be undone!'
-      ),
-      onConfirm: () async {
-        Navigator.pop(context);
-        database.removeAccount(_account.id);
-        if (context.read<AppState>().autosaving.value) {
-          await _save(context);
-        }
-      },
+      description: 'Are you sure that you want to delete all information about your '
+          '${(_account.name?.isNotEmpty ?? false) ? '"${_account.name}"' : 'unnamed'} account?\n'
+          'Action can not be undone!',
+      expectedInput: 'DELETE',
     );
+
+    if (!doDelete || !context.mounted) return;
+
+    database.removeAccount(_account.id);
+    if (context.read<AppState>().autosaving.value) {
+      await _save(context);
+    }
   }
 
   @override
@@ -154,7 +136,7 @@ class AccountListElement extends StatelessWidget {
                     onPressed: () => _deleteClicked(context),
                     icon: const Icon(
                       Icons.delete_outline,
-                      color: Colors.red,
+                      color: Colors.redAccent,
                     ),
                   ),
                 ],

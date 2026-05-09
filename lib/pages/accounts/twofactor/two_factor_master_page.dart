@@ -40,24 +40,20 @@ class TwoFactorManagePage extends StatelessWidget {
     }
     navigator.pop();
 
-    scaffoldMessenger.showSnackBar(
-      SnackBar(
-        duration: const Duration(milliseconds: 1500),
-        content: const Row(
-          children: [
-            Text('Saved changes'),
-            Padding(
-              padding: EdgeInsets.only(left: 5.0),
-              child: Icon(
-                Icons.sync,
-                size: 15,
-                color: Colors.white,
-              ),
-            ),
-          ],
-        ),
+    scaffoldMessenger.showSnackBar(const SnackBar(
+      duration: Duration(seconds: 2),
+      content: Wrap(
+        spacing: 5,
+        children: [
+          Icon(
+            Icons.sync,
+            size: 15,
+            color: Colors.white,
+          ),
+          Text('Saved changes'),
+        ],
       ),
-    );
+    ));
   }
 
   /// Displays a dialog to avoid accidentally deleting 2FA info. If autosaving is active
@@ -93,7 +89,7 @@ class TwoFactorManagePage extends StatelessWidget {
             return Stack(
               children: [
                 SingleChildScrollView(
-                  padding: EdgeInsets.all(25),
+                  padding: const EdgeInsets.all(25),
                   child: TwoFactorDisplayPage(
                     key: ValueKey(account.twoFactorSecret),
                     twoFactorSecret: account.twoFactorSecret!,
@@ -105,8 +101,8 @@ class TwoFactorManagePage extends StatelessWidget {
                   child: FloatingActionButton(
                     onPressed: () async => await _deleteClicked(context),
                     heroTag: 'deleteFAB',
-                    backgroundColor: Colors.red,
-                    child: Icon(Icons.delete_outline),
+                    backgroundColor: Colors.redAccent,
+                    child: const Icon(Icons.delete_outline),
                   ),
                 ),
                 Positioned(
@@ -126,7 +122,7 @@ class TwoFactorManagePage extends StatelessWidget {
                               borderRadius: BorderRadius.circular(15.0),
                               child: Container(
                                 color: Colors.white,
-                                padding: EdgeInsets.all(10.0),
+                                padding: const EdgeInsets.all(10.0),
                                 child: QrImageView(
                                   data: account.twoFactorSecret!.getAuthUrl(),
                                   // The data you want to encode
@@ -155,14 +151,14 @@ class TwoFactorManagePage extends StatelessWidget {
                       ),
                     ),
                     heroTag: 'editFAB',
-                    child: Icon(Icons.edit),
+                    child: const Icon(Icons.edit),
                   ),
                 ),
               ],
             );
           } else {
             return SingleChildScrollView(
-              padding: EdgeInsets.all(25),
+              padding: const EdgeInsets.all(25),
               child: TwoFactorSetupPage(
                 account: account,
               ),

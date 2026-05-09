@@ -52,19 +52,17 @@ class _TwoFactorEditPageState extends State<TwoFactorEditPage> {
     }
     navigator.pop();
 
-    scaffoldMessenger.showSnackBar(SnackBar(
-      duration: const Duration(milliseconds: 1500),
-      content: const Row(
+    scaffoldMessenger.showSnackBar(const SnackBar(
+      duration: Duration(milliseconds: 1500),
+      content: Wrap(
+        spacing: 5,
         children: [
-          Text('Saved changes'),
-          Padding(
-            padding: EdgeInsets.only(left: 5.0),
-            child: Icon(
-              Icons.sync,
-              size: 15,
-              color: Colors.white,
-            ),
+          Icon(
+            Icons.sync,
+            size: 15,
+            color: Colors.white,
           ),
+          Text('Saved changes'),
         ],
       ),
     ));
@@ -133,7 +131,7 @@ class _TwoFactorEditPageState extends State<TwoFactorEditPage> {
       appBar: AppBar(title: Text(widget.title)),
       body: DefaultPageBody(
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(25),
+          padding: const EdgeInsets.all(25),
           child: Column(
             spacing: 20.0,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -142,18 +140,20 @@ class _TwoFactorEditPageState extends State<TwoFactorEditPage> {
                 inputFormatters: [Base32InputFormatter()],
                 controller: _secretController,
                 decoration: InputDecoration(
-                  suffixIcon: _isUnusualSecret ? Padding(
-                    padding: EdgeInsets.only(right: 5.0),
-                    child: Tooltip(
-                      showDuration: Duration(seconds: 5),
-                      message: 'Secret is not a multiple of 8 characters. It works here, but may be incompatible for export into some authenticator apps.',
-                      textStyle: TextStyle(color: Colors.orange),
-                      child: Icon(
-                        Icons.warning_amber_rounded,
-                        color: Colors.orange,
-                      ),
-                    ),
-                  ) : null,
+                  suffixIcon: _isUnusualSecret
+                      ? const Padding(
+                          padding: EdgeInsets.only(right: 5.0),
+                          child: Tooltip(
+                            showDuration: Duration(seconds: 5),
+                            message: 'Secret is not a multiple of 8 characters. It works here, but may be incompatible for export into some authenticator apps.',
+                            textStyle: TextStyle(color: Colors.orange),
+                            child: Icon(
+                              Icons.warning_amber_rounded,
+                              color: Colors.orange,
+                            ),
+                          ),
+                        )
+                      : null,
                   labelText: 'Setup Key (Secret)',
                 ),
                 onSubmitted: (_) => _confirmClicked(),
@@ -179,7 +179,7 @@ class _TwoFactorEditPageState extends State<TwoFactorEditPage> {
                       'Only change this if you know what you are doing or your provider explicitly tells you to specify these parameters.',
                       style: TextStyle(fontSize: 14, color: Colors.orange),
                     ),
-                    childrenPadding: EdgeInsets.all(20.0),
+                    childrenPadding: const EdgeInsets.all(20.0),
                     expandedAlignment: Alignment.center,
                     children: [
                       TextField(
@@ -195,8 +195,8 @@ class _TwoFactorEditPageState extends State<TwoFactorEditPage> {
                           labelText: 'Issuer',
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 15.0),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 15.0),
                         child: Divider(thickness: 1.5),
                       ),
                       TextField(
@@ -216,8 +216,8 @@ class _TwoFactorEditPageState extends State<TwoFactorEditPage> {
                         keyboardType: TextInputType.number,
                         inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 15.0),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 15.0),
                         child: Divider(thickness: 1.5),
                       ),
                       DropdownButtonFormField<String>(
@@ -244,7 +244,7 @@ class _TwoFactorEditPageState extends State<TwoFactorEditPage> {
               const SizedBox(height: 25.0),
               ElevatedButton(
                 style: _secretController.text.isEmpty
-                    ? ButtonStyle(
+                    ? const ButtonStyle(
                         backgroundColor: WidgetStatePropertyAll<Color>(Colors.blueGrey),
                       )
                     : null,

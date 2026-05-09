@@ -1,44 +1,66 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:passwordmanager/engine/config/app_config.dart';
+import 'package:passwordmanager/engine/persistence/storage/controller/local_file_controller.dart';
+import 'package:passwordmanager/engine/persistence/storage/controller/firestore_controller.dart';
+import 'package:passwordmanager/engine/persistence/storage/storage_file.dart';
+import 'package:passwordmanager/engine/persistence/storage/storage_provider.dart';
 import 'package:passwordmanager/engine/other/themes.dart';
-import 'package:passwordmanager/pages/home_page.dart';
+import 'package:passwordmanager/pages/vaults/vaults_master_view.dart';
 import 'package:passwordmanager/engine/persistence/appstate.dart';
 import 'package:passwordmanager/engine/db/local_database.dart';
-import 'package:passwordmanager/engine/api/firebase/firebase.dart';
+import 'package:passwordmanager/engine/api/firebase/firestore.dart';
 
-/// The main function. It ensures that Flutter Widget bindings are initialised before app setup.
 Future<void> main() async {
+  // Ensure Flutter Widget bindings are initialised before app setup
   WidgetsFlutterBinding.ensureInitialized();
 
   final AppState appState = AppState();
-  final LocalDatabase database = LocalDatabase();
-  final Firestore firestore = Firestore(Config.firestoreProjectId, Config.firestoreApiKey, appState);
-
-  // Init app state by restoring from disk
   await appState.init();
+  await appState.load(); // Reload from disk / preferences
 
-  runApp(Application(appState: appState, localDatabase: database, firestoreService: firestore));
+  runApp(Application(appState: appState));
 }
 
-/// Application, that is the root of the widget tree. [MultiProvider] is used to provide objects throughout the widget tree.
-/// Those can be accessed via [context.read()].
+/// Application, that is the root of the widget tree.
 class Application extends StatelessWidget {
-  const Application({super.key, required this.appState, required this.localDatabase, required this.firestoreService});
+  const Application({super.key, required this.appState});
 
   final AppState appState;
-  final LocalDatabase localDatabase;
-  final Firestore firestoreService;
 
-  /// Here nearly all widgets will be rebuild after changing the theme because the [themeMode] property
-  /// of the MaterialApp listens to Settings changes.
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<LocalDatabase>(create: (context) => localDatabase),
-        ChangeNotifierProvider<AppState>(create: (context) => appState),
-        Provider<Firestore>(create: (context) => firestoreService),
+        ChangeNotifierProvider<AppState>(
+          create: (context) => appState,
+        ),
+        ChangeNotifierProvider<LocalDatabase>(
+          create: (context) => LocalDatabase(),
+        ),
+        Provider<Firestore>(
+          create: (context) => Firestore(),
+        ),
+        ChangeNotifierProvider<FirestoreController>(
+          create: (context) => FirestoreController(
+            appState: context.read(),
+            api: context.read(),
+          ),
+        ),
+        ChangeNotifierProvider<LocalFileController>(
+          create: (context) => LocalFileController(
+            appState: context.read(),
+          ),
+        ),
+        ChangeNotifierProvider<StorageProvider>(create: (context) {
+          final StorageProvider provider = StorageProvider(
+            controllers: {
+              StorageType.LocalFilesystem: context.read<LocalFileController>(),
+              StorageType.CloudFirestore: context.read<FirestoreController>(),
+            },
+          );
+          Future.microtask(provider.loadAll); // Initial load
+          return provider;
+        }),
       ],
       builder: (context, child) {
         return MaterialApp(
@@ -47,7 +69,7 @@ class Application extends StatelessWidget {
           themeMode: context.watch<AppState>().darkMode.value ? ThemeMode.dark : ThemeMode.light,
           theme: AppThemeData.lightTheme,
           darkTheme: AppThemeData.darkTheme,
-          home: const HomePage(),
+          home: const VaultsMasterView(),
         );
       },
     );

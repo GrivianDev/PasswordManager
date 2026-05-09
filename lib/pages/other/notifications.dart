@@ -78,7 +78,7 @@ class _CustomDialog extends StatelessWidget {
               ? Text(
                   title!,
                   style: Theme.of(context).textTheme.headlineLarge!.copyWith(
-                    color: type == NotificationType.error ? Colors.red : null,
+                    color: type == NotificationType.error ? Colors.redAccent : null,
                   ),
                 )
               : null,
@@ -101,8 +101,8 @@ class _CustomDialog extends StatelessWidget {
             if (type == NotificationType.confirmDialog)
               ElevatedButton(
                 onPressed: onConfirm,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 10.0),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 10.0),
                   child: Text('Confirm'),
                 ),
               ),
@@ -110,15 +110,17 @@ class _CustomDialog extends StatelessWidget {
               ElevatedButton(
                 onPressed: onConfirm,
                 style: ButtonStyle(
-                    backgroundColor: WidgetStatePropertyAll<Color>(Colors.red),
+                    backgroundColor: const WidgetStatePropertyAll<Color>(Colors.redAccent),
                     overlayColor: WidgetStateProperty.resolveWith((Set<WidgetState> states) {
                       if (states.contains(WidgetState.pressed)) {
-                        return Colors.red.shade600;
+                        return Colors.redAccent.shade100;
+                      } else if (states.contains(WidgetState.hovered)) {
+                        return Colors.red;
                       }
-                      return Colors.red.shade400;
+                      return Colors.redAccent;
                     })),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 10.0),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 10.0),
                   child: Text('DELETE'),
                 ),
               ),

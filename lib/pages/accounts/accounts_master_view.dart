@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:passwordmanager/pages/flows/app_flows.dart';
+import 'package:passwordmanager/pages/other/storage_type_ui.dart';
+import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/persistence/appstate.dart';
 import 'package:passwordmanager/pages/widgets/default_page_body.dart';
-import 'package:provider/provider.dart';
 import 'package:passwordmanager/engine/db/local_database.dart';
 import 'package:passwordmanager/engine/persistence/source.dart';
 import 'package:passwordmanager/engine/account.dart';
@@ -9,8 +11,6 @@ import 'package:passwordmanager/pages/accounts/account_list_view.dart';
 import 'package:passwordmanager/pages/accounts/account_master_view_navbar.dart';
 import 'package:passwordmanager/pages/accounts/account_editing_page.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
-
-import '../../engine/db/accessors/accessor_registry.dart';
 
 class AccountsMasterView extends StatefulWidget {
   const AccountsMasterView({super.key});
@@ -46,103 +46,41 @@ class _AccountsMasterViewState extends State<AccountsMasterView> {
     final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
     final LocalDatabase database = context.read();
 
-    try {
-      Notify.showLoading(context: context);
-      await database.save();
-    } catch (e) {
-      navigator.pop();
-      if (!mounted) return;
-      Notify.dialog(
-        context: context,
-        type: NotificationType.error,
-        title: 'Could not save changes!',
-        content: Text(e.toString()),
-      );
-      return;
-    }
-    navigator.pop();
+    runAppFlow(context, () async {
+      try {
+        Notify.showLoading(context: context);
+        await database.save();
 
-    scaffoldMessenger.showSnackBar(SnackBar(
-      duration: const Duration(milliseconds: 1500),
-      content: const Row(
-        children: [
-          Text('Saved changes'),
-          Padding(
-            padding: EdgeInsets.only(left: 5.0),
-            child: Icon(
-              Icons.sync,
-              size: 15,
-              color: Colors.white,
-            ),
+        scaffoldMessenger.showSnackBar(const SnackBar(
+          duration: Duration(seconds: 2),
+          content: Wrap(
+            spacing: 5,
+            children: [
+              Icon(
+                Icons.sync,
+                size: 15,
+                color: Colors.white,
+              ),
+              Text('Saved changes'),
+            ],
           ),
-        ],
-      ),
-    ));
-  }
-
-  Future<void> _askToMigrate() async {
-    final NavigatorState navigator = Navigator.of(context);
-    final LocalDatabase database = context.read();
-    final String currentVersion = database.source?.accessorVersion ?? 'not-specified';
-
-    bool migrate = false;
-    await Notify.dialog(
-      context: context,
-      type: NotificationType.confirmDialog,
-      title: 'Outdated storage!',
-      content: Text(
-        'Your current storage version is "$currentVersion", but the most recent version is "${DataAccessorRegistry.latestVersion}". Do you wish to upgrade?\n',
-      ),
-      onConfirm: () {
-        migrate = true;
-        Navigator.pop(context);
+        ));
+      } finally {
+        navigator.pop();
       }
-    );
-
-    if (!migrate) return;
-
-    try {
-      if (!mounted) return;
-      Notify.showLoading(context: context);
-      await database.source?.upgradeSource();
-      setState(() {}); // Rebuild
-      navigator.pop();
-      if (!mounted) return;
-      Notify.dialog(
-        context: context,
-        type: NotificationType.notification,
-        title: 'Successfully upgraded storage!',
-        content: Text('All new features and are now available.'),
-      );
-    } catch (e) {
-      navigator.pop();
-      if (!mounted) return;
-      Notify.dialog(
-        context: context,
-        type: NotificationType.error,
-        title: 'Could not migrate!',
-        content: Text(e.toString()),
-      );
-    }
+    });
   }
 
   Future<void> _showDetails() async {
     final LocalDatabase database = context.read();
     final Source source = database.source!;
 
-    String type = 'Unknown';
-    if (source.usesLocalFile) {
-      type = 'Local file';
-    } else if (source.usesOnlineStorage) {
-      type = 'Firestore cloud document';
-    }
-
     return Notify.dialog(
       context: context,
       type: NotificationType.notification,
       title: 'Details',
       content: Text(
-        'Type: $type\nName: "${source.file.name}"\nStorage version: ${source.accessorVersion ?? 'Not specified'}\nAccounts: ${database.accounts.length}\nTags: ${database.tags.length}',
+        'Type: ${source.file.type.label}\nName: "${source.file.name}"\nStorage version: ${source.accessorVersion ?? 'Not specified'}\nAccounts: ${database.accounts.length}\nTags: ${database.tags.length}',
       ),
     );
   }
@@ -156,14 +94,6 @@ class _AccountsMasterViewState extends State<AccountsMasterView> {
         appBar: AppBar(
           automaticallyImplyLeading: false,
           actions: [
-            if (context.read<LocalDatabase>().source?.accessorVersion != DataAccessorRegistry.latestVersion)
-              Padding(
-                padding: EdgeInsets.only(right: 10.0),
-                child: IconButton(
-                  icon: const Icon(Icons.warning_amber_rounded , color: Colors.orange),
-                  onPressed: _askToMigrate,
-                ),
-              ),
             Padding(
               padding: const EdgeInsets.only(right: 10.0),
               child: IconButton(
@@ -202,7 +132,7 @@ class _AccountsMasterViewState extends State<AccountsMasterView> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Padding(
-                  padding: EdgeInsets.only(bottom: 15),
+                  padding: const EdgeInsets.only(bottom: 15),
                   child: Row(
                     children: [
                       Expanded(
@@ -216,46 +146,42 @@ class _AccountsMasterViewState extends State<AccountsMasterView> {
                           return appstate.autosaving.value
                               ? Container()
                               : Consumer<LocalDatabase>(
-                            builder: (context, localDb, child) => Padding(
-                              padding: const EdgeInsets.only(left: 15.0),
-                              child: Stack(
-                                clipBehavior: Clip.none,
-                                children: [
-                                  ElevatedButton(
-                                    onPressed: _save,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(12.0),
-                                      child: Row(
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.only(right: 10.0),
-                                            child: Icon(
-                                              localDb.source?.usesLocalFile == false ? Icons.sync : Icons.save_rounded,
+                                  builder: (context, localDb, child) => Padding(
+                                    padding: const EdgeInsets.only(left: 15.0),
+                                    child: Stack(
+                                      clipBehavior: Clip.none,
+                                      children: [
+                                        ElevatedButton(
+                                          onPressed: _save,
+                                          child: const Padding(
+                                            padding: EdgeInsets.all(12.0),
+                                            child: Row(
+                                              spacing: 10,
+                                              children: [
+                                                Icon(Icons.save_rounded),
+                                                Text('Save'),
+                                              ],
                                             ),
                                           ),
-                                          Text('Save'),
-                                        ],
-                                      ),
+                                        ),
+                                        if (localDb.hasUnsavedChanges)
+                                          Positioned(
+                                            right: -4,
+                                            top: -4,
+                                            child: Container(
+                                              width: 12,
+                                              height: 12,
+                                              decoration: BoxDecoration(
+                                                color: Colors.redAccent,
+                                                shape: BoxShape.circle,
+                                                border: Border.all(color: Colors.orange, width: 2),
+                                              ),
+                                            ),
+                                          ),
+                                      ],
                                     ),
                                   ),
-                                  if (localDb.hasUnsavedChanges)
-                                    Positioned(
-                                      right: -4,
-                                      top: -4,
-                                      child: Container(
-                                        width: 12,
-                                        height: 12,
-                                        decoration: BoxDecoration(
-                                          color: Colors.red,
-                                          shape: BoxShape.circle,
-                                          border: Border.all(color: Colors.orange, width: 2),
-                                        ),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                          );
+                                );
                         },
                       ),
                     ],
@@ -324,9 +250,7 @@ class _CustomAutocompleteState extends State<_CustomAutocomplete> {
     if (!_switch) {
       return database.accounts
           .where((acc) =>
-              (acc.name?.toLowerCase().contains(searchValue) ?? false) ||
-              (acc.info?.toLowerCase().contains(searchValue) ?? false) ||
-              (acc.email?.toLowerCase().contains(searchValue) ?? false))
+              (acc.name?.toLowerCase().contains(searchValue) ?? false) || (acc.info?.toLowerCase().contains(searchValue) ?? false) || (acc.email?.toLowerCase().contains(searchValue) ?? false))
           .take(10)
           .map((e) => _TwoValueContainer(e.name ?? '<no-name>', e.tag ?? '<no-tag>'));
     }

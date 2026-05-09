@@ -22,7 +22,7 @@ class TwoFactorSetupPage extends StatelessWidget {
 
     final String? code = await navigator.push(
       MaterialPageRoute(
-        builder: (context) => QrScannerPage(),
+        builder: (context) => const QrScannerPage(),
       ),
     );
 
@@ -50,24 +50,20 @@ class TwoFactorSetupPage extends StatelessWidget {
     }
     navigator.pop();
 
-    scaffoldMessenger.showSnackBar(
-      SnackBar(
-        duration: const Duration(milliseconds: 1500),
-        content: const Row(
-          children: [
-            Text('Saved changes'),
-            Padding(
-              padding: EdgeInsets.only(left: 5.0),
-              child: Icon(
-                Icons.sync,
-                size: 15,
-                color: Colors.white,
-              ),
-            ),
-          ],
-        ),
+    scaffoldMessenger.showSnackBar(const SnackBar(
+      duration: Duration(seconds: 2),
+      content: Wrap(
+        spacing: 5,
+        children: [
+          Icon(
+            Icons.sync,
+            size: 15,
+            color: Colors.white,
+          ),
+          Text('Saved changes'),
+        ],
       ),
-    );
+    ));
   }
 
   @override
@@ -85,7 +81,7 @@ class TwoFactorSetupPage extends StatelessWidget {
           if (Platform.isAndroid || Platform.isIOS) ...[
             ElevatedButton(
               onPressed: () => _getQRCode(context),
-              child: Padding(
+              child: const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 25.0, vertical: 10.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -113,7 +109,7 @@ class TwoFactorSetupPage extends StatelessWidget {
                 ),
               ),
             ),
-            child: Padding(
+            child: const Padding(
               padding: EdgeInsets.symmetric(horizontal: 25.0, vertical: 10.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,

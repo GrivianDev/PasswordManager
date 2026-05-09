@@ -33,11 +33,11 @@ class _TwoFactorDisplayPageState extends State<TwoFactorDisplayPage> with Single
   /// Async getter and setup function for fetching time offset of local device.
   Future<void> _initWithNtp() async {
     final AppState appState = context.read();
-    final String? ntpTimeSyncServer = appState.ntpTimeSyncServer.value;
+    final String ntpTimeSyncServer = appState.ntpTimeSyncServer.value;
 
-    if (_ntpOffset == null && ntpTimeSyncServer != null) {
+    if (_ntpOffset == null && ntpTimeSyncServer.isNotEmpty) {
       try {
-        DateTime ntpDate = await NTP.now(lookUpAddress: ntpTimeSyncServer, timeout: Duration(seconds: 5));
+        DateTime ntpDate = await NTP.now(lookUpAddress: ntpTimeSyncServer, timeout: const Duration(seconds: 5));
         DateTime localDate = DateTime.now().toUtc();
         _ntpOffset = localDate.difference(ntpDate.toUtc());
       } catch (_) {
@@ -60,15 +60,13 @@ class _TwoFactorDisplayPageState extends State<TwoFactorDisplayPage> with Single
 
   // Copies 2FA code to the clipboard.
   Future<void> _copyClicked(BuildContext context) async {
+    final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
     await Clipboard.setData(ClipboardData(text: _currentCode));
 
-    if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        duration: const Duration(seconds: 2),
-        content: Text('Copied 2FA code to clipboard'),
-      ),
-    );
+    scaffoldMessenger.showSnackBar(const SnackBar(
+      duration: Duration(seconds: 2),
+      content: Text('Copied 2FA code to clipboard'),
+    ));
   }
 
   @override
@@ -117,7 +115,7 @@ class _TwoFactorDisplayPageState extends State<TwoFactorDisplayPage> with Single
                 padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 10.0),
                 child: Text(
                   _currentCode.replaceAllMapped(RegExp(r'.{1,3}'), (match) => '${match.group(0)} ').trimRight(),
-                  style: TextStyle(fontSize: 35.0, letterSpacing: 1.0),
+                  style: const TextStyle(fontSize: 35.0, letterSpacing: 1.0),
                 ),
               )),
           SizedBox(
@@ -129,7 +127,7 @@ class _TwoFactorDisplayPageState extends State<TwoFactorDisplayPage> with Single
                 value: 1.0 - _animController.value,
                 minHeight: 10,
                 backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                color: 1.0 - _animController.value < 0.2 ? Colors.red : Colors.green,
+                color: 1.0 - _animController.value < 0.2 ? Colors.redAccent : Colors.green,
               ),
             ),
           ),

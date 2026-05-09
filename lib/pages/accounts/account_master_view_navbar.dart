@@ -1,49 +1,35 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:passwordmanager/engine/persistence/storage/storage_controller.dart';
+import 'package:passwordmanager/engine/persistence/storage/storage_file.dart';
+import 'package:passwordmanager/engine/persistence/storage/storage_provider.dart';
+import 'package:passwordmanager/pages/flows/app_flows.dart';
 import 'package:passwordmanager/engine/other/util.dart';
 import 'package:passwordmanager/pages/flows/user_input_dialog.dart';
-import 'package:provider/provider.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:passwordmanager/pages/password_getter_page.dart';
-import 'package:passwordmanager/pages/home_page.dart';
 import 'package:passwordmanager/pages/settings/settings_page.dart';
-import 'package:passwordmanager/pages/accounts/accounts_master_view.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 import 'package:passwordmanager/engine/db/local_database.dart';
 
-/// Navbar that gives more options, in particular the option to activate and deactivate autosaving.
-/// Also this widget is the only option to exit the [AccountsMasterView]. External tries to exit the page for example
-/// through the Android back button are suppressed. You have to explicitly leave the page through clicking logout.
-/// Additional option when using local files is to upload current data.
-/// Online ser also allows backup saves.
 class AccountMasterViewNavbar extends StatelessWidget {
   const AccountMasterViewNavbar({super.key});
 
-  /// Exits the [AccountsMasterView] and completly wipes the database by calling [LocalDatabase.clear].
   Future<void> _exit(BuildContext context) async {
     final LocalDatabase database = context.read();
-
-    void cleaDatabaseAndGoBack() {
-      database.clear();
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(
-          builder: (context) => const HomePage(),
-        ),
-        (route) => false,
-      );
-    }
 
     if (database.hasUnsavedChanges) {
       await Notify.dialog(
         context: context,
         type: NotificationType.confirmDialog,
         title: 'Unsaved changes!',
-        content: Text('Do you really want to quit without saving? Unsaved changes will be lost.'),
-        onConfirm: cleaDatabaseAndGoBack,
+        content: const Text('Do you really want to quit without saving? Unsaved changes will be lost.'),
+        onConfirm: () {
+          database.clear();
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        },
       );
     } else {
-      cleaDatabaseAndGoBack();
+      database.clear();
+      Navigator.of(context).popUntil((route) => route.isFirst);
     }
   }
 
@@ -51,164 +37,64 @@ class AccountMasterViewNavbar extends StatelessWidget {
     final NavigatorState navigator = Navigator.of(context);
     final LocalDatabase database = context.read();
 
-    try {
-      final String? newPassword = await navigator.push(MaterialPageRoute(
-        builder: (context) => PasswordGetterPage(
-          path: null,
-          title: 'Enter new password',
-          showPwStrengthIndicator: true,
-        ),
-      ));
+    final String? newPassword = await getUserInputDialog(
+      context: context,
+      title: 'Enter new password',
+      labelText: 'Password',
+      obscured: true,
+      allowEmptyInput: false,
+    );
 
-      if (newPassword == null) return;
-      if (!context.mounted) return;
+    if (newPassword == null || !context.mounted) return;
 
-      Notify.showLoading(context: context);
-      database.source!.changePassword(newPassword);
-      await database.save();
-      navigator.pop();
+    runAppFlow(context, () async {
+      try {
+        Notify.showLoading(context: context);
+        database.source!.changePassword(newPassword);
+        await database.save();
+      } finally {
+        navigator.pop();
+      }
+
       if (!context.mounted) return;
       await Notify.dialog(
         context: context,
         type: NotificationType.notification,
         title: 'Successfully changed password!',
-        content: Text('Accessing this storage again will now require the new password.'),
+        content: const Text('Accessing this storage again will now require the new password.'),
       );
-    } catch (e) {
-      navigator.pop();
-      if (!context.mounted) return;
-      await Notify.dialog(
-        context: context,
-        type: NotificationType.error,
-        title: 'Error occurred!',
-        content: Text(e.toString()),
-      );
-    }
+    });
   }
 
-  // Future<void> _uploadFile(BuildContext context) async {
-  //   final NavigatorState navigator = Navigator.of(context);
-  //   final LocalDatabase database = context.read();
-  //   final Firestore firestoreService = context.read();
-
-  //   try {
-  //     final LoginResult? result = await navigator.push(MaterialPageRoute(
-  //       builder: (context) => OnlineProviderSelectPage(),
-  //     ));
-
-  //     if (result == null) return;
-
-  //     if (!context.mounted) return;
-  //     Notify.showLoading(context: context);
-  //     late final PersistenceConnector connector;
-  //     final String uploadName = database.source!.displayName!;
-  //     if (result.type == OnlineProvidertype.firestore) {
-  //       connector = FirebaseConnector(
-  //         cloudDocId: '',
-  //         cloudDocName: uploadName,
-  //         firestoreServiceRef: firestoreService,
-  //       );
-  //     } else {
-  //       throw Exception('This online provider is not supported for uploading.');
-  //     }
-  //     await connector.create(await database.formattedData);
-  //     navigator.pop();
-  //     if (!context.mounted) return;
-  //     await Notify.dialog(
-  //       context: context,
-  //       type: NotificationType.notification,
-  //       title: 'Upload success!',
-  //       content: Text('"$uploadName" has been uploaded.\nPlease note: Changes made in this session will not '
-  //           'affect the uploaded file unless you re-upload it. To work with the uploaded version, go back to the home page and select it from there.'),
-  //     );
-  //   } catch (e) {
-  //     navigator.pop();
-  //     if (!context.mounted) return;
-  //     await Notify.dialog(
-  //       context: context,
-  //       type: NotificationType.error,
-  //       title: 'Error occurred!',
-  //       content: Text(e.toString()),
-  //     );
-  //   }
-  // }
-
-  /// Saves a backup of the currently loaded accounts into the selected file or the designated directory on mobile.
-  /// Allows overwriting files.
   Future<void> _storeBackup(BuildContext context) async {
     final NavigatorState navigator = Navigator.of(context);
     final LocalDatabase database = context.read();
+    final StorageController controller = context.read<StorageProvider>().controller(StorageType.LocalFilesystem);
 
-    try {
-      String? path;
-      if (Platform.isWindows || Platform.isLinux) {
-        path = await FilePicker.platform.saveFile(
-          lockParentWindow: true,
-          fileName: '${database.source!.file.name}-backup.x',
-          dialogTitle: 'Save your data',
-          type: FileType.custom,
-          allowedExtensions: ['x'],
-        );
-        if (path == null) return;
-      } else {
-        final Directory? dir = await getExternalStorageDirectory();
-        if (dir == null) throw Exception('Could not receive storage directory');
-
-        if (!context.mounted) return;
-        String? filename = await getUserInputDialog(
-          context: context,
-          title: 'Name your backup',
-          description: 'What name do you want for your backup?',
-          labelText: 'Name',
-          validator: (value) {
-            final File fileCheck = File('${dir.path}${Platform.pathSeparator}$value.x');
-            if (fileCheck.existsSync()) {
-              return 'File with this name already exists!';
-            } if (!isValidFilename(value)) {
-              return 'Discouraged filename!';
-            }
-            return null;
-          }
-        );
-        if (filename == null) return;
-        path = '${dir.path}${Platform.pathSeparator}$filename.x';
-      }
-
-      File file = File(path);
-      if (!file.path.endsWith('.x')) {
-        throw Exception('File extension is not supported');
-      }
-
-      if (!context.mounted) return;
-      Notify.showLoading(context: context);
-      bool error = false;
+    runAppFlow(context, () async {
+      String? freeFileName;
       try {
-        await file.create(recursive: true);
-        await file.writeAsString(await database.formattedData);
-      } catch (e) {
-        error = true;
+        Notify.showLoading(context: context);
+        final String storageLocation = await controller.getUserStorageLocation();
+        freeFileName = await findAvailableFilename(storageLocation, '${database.source!.file.name}.x');
+        controller.repository.create(
+          name: getBasename(freeFileName),
+          location: storageLocation,
+          initialData: await database.asFormattedData,
+        );
+        controller.load();
+      } finally {
+        navigator.pop();
       }
-      navigator.pop();
-      if (error) throw Exception('Could not save backup');
 
-      navigator.pop();
       if (!context.mounted) return;
       await Notify.dialog(
         context: context,
         type: NotificationType.notification,
-        title: 'Successfully saved backup',
-        content: Text('Saved file under:\n${file.path}'),
+        title: 'Successfully saved backup!',
+        content: Text('Your backup has been stored locally as "$freeFileName".'),
       );
-    } catch (e) {
-      navigator.pop();
-      if (!context.mounted) return;
-      await Notify.dialog(
-        context: context,
-        type: NotificationType.error,
-        title: 'Error occurred!',
-        content: Text(e.toString()),
-      );
-    }
+    });
   }
 
   @override
@@ -247,54 +133,28 @@ class AccountMasterViewNavbar extends StatelessWidget {
               ),
             ),
           ),
-          if (context.read<LocalDatabase>().source?.usesLocalFile == false) ...[
-            const Divider(),
-            TextButton(
-              onPressed: () => _storeBackup(context),
-              child: const Padding(
-                padding: EdgeInsets.symmetric(vertical: 5.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Icon(Icons.cloud_download_outlined),
-                    Flexible(
-                      child: Padding(
-                        padding: EdgeInsets.only(left: 15.0),
-                        child: Text(
-                          'Save backup',
-                          style: TextStyle(fontSize: 20),
-                        ),
+          const Divider(),
+          TextButton(
+            onPressed: () => _storeBackup(context),
+            child: const Padding(
+              padding: EdgeInsets.symmetric(vertical: 5.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Icon(Icons.cloud_download_outlined),
+                  Flexible(
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 15.0),
+                      child: Text(
+                        'Save backup',
+                        style: TextStyle(fontSize: 20),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-          ],
-          if (context.read<LocalDatabase>().source?.usesLocalFile == true) ...[
-            const Divider(),
-            TextButton(
-              onPressed: () {},
-              child: const Padding(
-                padding: EdgeInsets.symmetric(vertical: 5.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Icon(Icons.cloud_upload),
-                    Flexible(
-                      child: Padding(
-                        padding: EdgeInsets.only(left: 15.0),
-                        child: Text(
-                          'Upload data',
-                          style: TextStyle(fontSize: 20),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
+          ),
           const Divider(),
           TextButton(
             onPressed: () => _changePassword(context),
@@ -325,8 +185,8 @@ class AccountMasterViewNavbar extends StatelessWidget {
               iconSize: 35.0,
               onPressed: () => _exit(context),
               icon: const Icon(
-                Icons.logout,
-                color: Colors.red,
+                Icons.arrow_back,
+                color: Colors.redAccent,
               ),
             ),
           ),

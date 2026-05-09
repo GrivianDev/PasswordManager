@@ -4,9 +4,6 @@ import 'package:passwordmanager/engine/account.dart';
 import 'package:passwordmanager/engine/db/local_database.dart';
 import 'package:passwordmanager/pages/accounts/account_list_element.dart';
 
-/// The ListView displaying all [Account] instances based on the tag and order in the alphabet.
-/// "Relativly" expensive because changes need to call the [_buildTiles] everytime the database adds,
-/// edits or removes accounts.
 class AccountListView extends StatelessWidget {
   const AccountListView({super.key, this.searchTag, this.searchQuery, required this.queryCaseInsensitiveSearch});
   final String? searchTag;
