@@ -191,7 +191,7 @@ class AppThemeData {
       ),
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(25.0),
-        borderSide: const BorderSide(width: 2, color: Colors.red),
+        borderSide: const BorderSide(width: 2, color: Colors.redAccent),
       ),
       errorStyle: const TextStyle(
         fontSize: 16.0,
@@ -199,6 +199,12 @@ class AppThemeData {
         color: Colors.redAccent,
         overflow: TextOverflow.clip,
       ),
+      labelStyle: WidgetStateTextStyle.resolveWith((states) {
+        if (states.contains(WidgetState.error)) {
+          return const TextStyle(color: Colors.redAccent);
+        }
+        return const TextStyle(color: Colors.white);
+      }),
       hintStyle: const TextStyle(color: Colors.white60),
     ),
     switchTheme: const SwitchThemeData(
@@ -418,8 +424,14 @@ class AppThemeData {
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(25.0),
-          borderSide: const BorderSide(width: 2, color: Colors.red),
+          borderSide: const BorderSide(width: 2, color: Colors.redAccent),
         ),
+        labelStyle: WidgetStateTextStyle.resolveWith((states) {
+          if (states.contains(WidgetState.error)) {
+            return const TextStyle(color: Colors.redAccent);
+          }
+          return const TextStyle(color: Colors.black87);
+        }),
         errorStyle: const TextStyle(
           fontSize: 16.0,
           fontWeight: FontWeight.w800,

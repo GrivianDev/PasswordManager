@@ -131,7 +131,7 @@ class DataAccessorV1 extends DataAccessor {
     }
 
     final jsonStr = decryptedString.substring(start, end + 1);
-    final Map<String, dynamic> decoded = jsonDecode(jsonStr);
+    final Map<String, dynamic> decoded = json.decode(jsonStr);
     final accountsJson = decoded['accounts'];
 
     if (accountsJson is! List) {
@@ -156,7 +156,7 @@ class DataAccessorV1 extends DataAccessor {
       buffer.write(String.fromCharCode(chars.codeUnitAt(rand.nextInt(chars.length))));
     }
     // Serialize accounts as JSON string
-    buffer.write(jsonEncode({'accounts': dbContent.accounts.map((a) => a.toJson()).toList()}));
+    buffer.write(json.encode({'accounts': dbContent.accounts.map((a) => a.toJson()).toList()}));
     length = rand.nextInt(10) + 1;
     for (int j = 0; j < length; j++) {
       buffer.write(String.fromCharCode(chars.codeUnitAt(rand.nextInt(chars.length))));

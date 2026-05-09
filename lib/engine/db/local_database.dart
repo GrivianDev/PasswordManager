@@ -38,8 +38,8 @@ final class LocalDatabase with ChangeNotifier {
     try {
       final DatabaseContent content = await source.loadData();
       _source = source;
-      _hasUnsavedChanges = false;
       addAllAccounts(content.accounts);
+      _hasUnsavedChanges = false;
     } catch (e) {
       clear();
       rethrow;

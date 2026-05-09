@@ -47,6 +47,12 @@ class FirebaseAuth {
     logout();
   }
 
+  void _throwIfNotSuccessResponse(http.Response response) {
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+        _extractAndThrowAuthError(response);
+      }
+  }
+
   void _extractAndThrowAuthError(http.Response response) {
     dynamic data;
     try {
@@ -83,9 +89,7 @@ class FirebaseAuth {
         }),
       );
 
-      if (response.statusCode != HttpStatus.ok) {
-        _extractAndThrowAuthError(response);
-      }
+      _throwIfNotSuccessResponse(response);
 
       final data = json.decode(response.body);
       final String userId = data['localId'];
@@ -111,9 +115,7 @@ class FirebaseAuth {
         }),
       );
 
-      if (response.statusCode != HttpStatus.ok) {
-        _extractAndThrowAuthError(response);
-      }
+      _throwIfNotSuccessResponse(response);
 
       final data = json.decode(response.body);
       final String userId = data['localId'];
@@ -138,9 +140,7 @@ class FirebaseAuth {
         }),
       );
 
-      if (response.statusCode != HttpStatus.ok) {
-        _extractAndThrowAuthError(response);
-      }
+      _throwIfNotSuccessResponse(response);
 
       final data = json.decode(response.body);
       // (Different keys compared to sign up / login)
@@ -165,9 +165,7 @@ class FirebaseAuth {
         }),
       );
 
-      if (response.statusCode != HttpStatus.ok) {
-        _extractAndThrowAuthError(response);
-      }
+      _throwIfNotSuccessResponse(response);
 
       logout();
     } finally {
