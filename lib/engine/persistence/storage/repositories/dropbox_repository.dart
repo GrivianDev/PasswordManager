@@ -1,0 +1,3 @@
+class DropboxRepository {
+  // TODO: Implement
+}
