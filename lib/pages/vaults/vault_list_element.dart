@@ -14,6 +14,7 @@ import 'package:passwordmanager/pages/flows/app_flows.dart';
 import 'package:passwordmanager/pages/flows/typed_confirmation_dialog.dart';
 import 'package:passwordmanager/pages/flows/user_input_dialog.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
+import 'package:passwordmanager/pages/vaults/vault_create_page.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -55,37 +56,33 @@ class VaultListElement extends StatelessWidget {
     });
   }
 
-  Future<String?> _validateNameInput(String input, BuildContext context) async {
-    // TODO fix this is always early return
-    if (!context.mounted) return null;
-    if (input.isEmpty) return 'Cannot be empty';
-    if (!isValidFilename(input)) return 'Discouraged vault name';
-
-    final StorageController controller = context.read<StorageProvider>().controller(vault.type);
-    if (await controller.repository.nameExists(name: input)) return 'Name already exists';
+  Future<String?> _validateNameInput(String input, StorageController controller) async {
+    try {
+      if (input.isEmpty) return 'Cannot be empty';
+      if (!isValidFilename(input)) return 'Discouraged vault name';
+      final String location = await controller.getUserStorageLocation();
+      if (await controller.repository.nameExists(name: input, location: location)) return 'Name already exists';
+    } catch (_) {
+      return 'Error occured';
+    }
     return null;
   }
 
   Future<void> _renameStorage(BuildContext context) async {
-    final NavigatorState navigator = Navigator.of(context);
     final StorageController controller = context.read<StorageProvider>().controller(vault.type);
 
     final String? newName = await getUserInputDialog(
       context: context,
       title: 'Rename storage',
       labelText: 'New name',
-      validator: (value) => _validateNameInput(value, context),
+      validator: (value) => _validateNameInput(value, controller),
     );
 
     if (newName == null || !context.mounted) return;
 
     await runAppFlow(context, () async {
-      try {
-        await controller.repository.rename(vault, newName);
-        controller.load();
-      } finally {
-        navigator.pop();
-      }
+      await controller.repository.rename(vault, newName);
+      controller.load();
     });
   }
 
@@ -189,20 +186,16 @@ class VaultListElement extends StatelessWidget {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.copy),
-                title: const Text('Duplicate'),
-                onTap: () {
-                  final NavigatorState navigator = Navigator.of(context);
-                  navigator.pop();
-                },
-              ),
-              ListTile(
                 leading: const Icon(Icons.drive_file_move),
-                title: const Text('Move'),
+                title: const Text('Copy to'),
                 onTap: () {
                   final NavigatorState navigator = Navigator.of(context);
                   navigator.pop();
-                  // TODO: move to another storage/provider
+                  navigator.push(
+                    MaterialPageRoute(
+                      builder: (context) => VaultCreatePage(sourceFile: vault),
+                    ),
+                  );
                 },
               ),
               ListTile(

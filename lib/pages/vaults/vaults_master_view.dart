@@ -80,7 +80,7 @@ class VaultsMasterView extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const VaultCreatePage(mode: VaultFlowMode.create),
+                  builder: (context) => const VaultCreatePage(),
                 ),
               );
             },

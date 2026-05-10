@@ -61,71 +61,89 @@ Future<String?> getUserInputDialog({
               final ValidationState state = controller.state;
 
               return Column(
+                spacing: 15,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   if (description != null) Text(description),
+                  Row(
+                    spacing: 10,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          autofocus: true,
+                          obscureText: currentlyObscured,
+                          onChanged: (value) {
+                            currentInput = value;
+                            controller.validate(value);
+                          },
+                          onSubmitted: (value) {
+                            currentInput = value;
+                            if (state.error == null && (currentInput.isNotEmpty || allowEmptyInput) && !state.isValidating) {
+                              userInput = currentInput;
+                              Navigator.pop(context);
+                            }
+                          },
+                          decoration: InputDecoration(
+                            prefixIcon: obscured
+                                ? const Padding(
+                                    padding: EdgeInsets.only(left: 5.0),
+                                    child: Icon(Icons.key),
+                                  )
+                                : null,
+                            suffixIcon: obscured
+                                ? Padding(
+                                    padding: const EdgeInsets.only(right: 5.0),
+                                    child: IconButton(
+                                      onPressed: () => setState(() {
+                                        currentlyObscured = !currentlyObscured;
+                                      }),
+                                      icon: Icon(
+                                        currentlyObscured ? Icons.visibility : Icons.visibility_off,
+                                      ),
+                                    ),
+                                  )
+                                : null,
+                            labelText: labelText,
+                            hintText: hintText,
+                            errorText: state.error,
+                            errorMaxLines: 10,
+                          ),
+                        ),
+                      ),
+                      if (validator != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 7),
+                          child: SizedBox(
+                            width: 30,
+                            height: 30,
+                            child: Builder(
+                              builder: (context) {
+                                if (state.isValidating) {
+                                  return const CircularProgressIndicator(strokeWidth: 2);
+                                }
+                                if (state.isValid) {
+                                  return const Icon(
+                                    Icons.check,
+                                    size: 25,
+                                    color: Colors.green,
+                                  );
+                                }
+                                if (state.hasError) {
+                                  return const Icon(
+                                    Icons.error,
+                                    size: 25,
+                                    color: Colors.redAccent,
+                                  );
+                                }
 
-                  Padding(
-                    padding: const EdgeInsets.only(top: 15.0),
-                    child: TextField(
-                      autofocus: true,
-                      obscureText: currentlyObscured,
-                      onChanged: (value) {
-                        currentInput = value;
-                        controller.validate(value);
-                      },
-                      onSubmitted: (value) {
-                        currentInput = value;
-                        if (state.error == null && (currentInput.isNotEmpty || allowEmptyInput) && !state.isValidating) {
-                          userInput = currentInput;
-                          Navigator.pop(context);
-                        }
-                      },
-                      decoration: InputDecoration(
-                        prefixIcon: obscured
-                            ? const Padding(
-                                padding: EdgeInsets.only(left: 5.0),
-                                child: Icon(Icons.key),
-                              )
-                            : null,
-                        suffixIcon: obscured
-                            ? Padding(
-                                padding: const EdgeInsets.only(right: 5.0),
-                                child: IconButton(
-                                  onPressed: () => setState(() {
-                                    currentlyObscured = !currentlyObscured;
-                                  }),
-                                  icon: Icon(
-                                    currentlyObscured ? Icons.visibility : Icons.visibility_off,
-                                  ),
-                                ),
-                              )
-                            : null,
-                        labelText: labelText,
-                        hintText: hintText,
-                        errorText: state.error,
-                        errorMaxLines: 10,
-                      ),
-                    ),
+                                return const SizedBox();
+                              },
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
-                  if (validator != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 10),
-                      child: Row(
-                        children: [
-                          if (state.isValidating)
-                            const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          else if (state.isValid)
-                            const Icon(Icons.check, color: Colors.green)
-                          else if (state.hasError)
-                            const Icon(Icons.error, color: Colors.redAccent),
-                        ],
-                      ),
-                    ),
                 ],
               );
             },

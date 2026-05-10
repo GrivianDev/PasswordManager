@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:passwordmanager/engine/db/local_database.dart';
 import 'package:passwordmanager/engine/other/util.dart';
-import 'package:passwordmanager/pages/accounts/accounts_master_view.dart';
 import 'package:passwordmanager/engine/persistence/source.dart';
 import 'package:passwordmanager/engine/persistence/storage/storage_controller.dart';
 import 'package:passwordmanager/pages/flows/app_flows.dart';
@@ -16,15 +14,9 @@ import 'package:passwordmanager/pages/widgets/obscured_text_field.dart';
 import 'package:passwordmanager/pages/widgets/password_strength_indicator.dart';
 import 'package:passwordmanager/pages/widgets/validation_controller.dart';
 
-enum VaultFlowMode {
-  create,
-  fromExisting,
-}
-
 class VaultCreatePage extends StatefulWidget {
-  const VaultCreatePage({super.key, required this.mode, this.sourceFile});
+  const VaultCreatePage({super.key, this.sourceFile});
 
-  final VaultFlowMode mode;
   final StorageFile? sourceFile;
 
   @override
@@ -39,14 +31,20 @@ class _VaultCreatePageState extends State<VaultCreatePage> {
   StorageType _selectedStorageType = StorageType.LocalFilesystem;
   double _rating = 0.0;
 
-  Future<String?> _validateNameInput(String input) async {
-    if (!mounted) return null;
-    if (input.isEmpty) return 'Cannot be empty';
-    if (!isValidFilename(input)) return 'Discouraged vault name';
+  bool _canCreate() => _nameValidator.state.isValid && _pwController.text.isNotEmpty;
 
-    final StorageController controller = context.read<StorageProvider>().controller(_selectedStorageType);
-    final String location = await controller.getUserStorageLocation();
-    if (await controller.repository.nameExists(name: input, location: location)) return 'Name already exists';
+  Future<String?> _validateNameInput(String input) async {
+    try {
+      if (!mounted) return null;
+      if (input.isEmpty) return 'Cannot be empty';
+      if (!isValidFilename(input)) return 'Discouraged vault name';
+
+      final StorageController controller = context.read<StorageProvider>().controller(_selectedStorageType);
+      final String location = await controller.getUserStorageLocation();
+      if (await controller.repository.nameExists(name: input, location: location)) return 'Name already exists';
+    } catch (_) {
+      return 'Error occured';
+    }
     return null;
   }
 
@@ -77,7 +75,9 @@ class _VaultCreatePageState extends State<VaultCreatePage> {
   @override
   void initState() {
     super.initState();
+    _nameController.text = widget.sourceFile?.name ?? '';
     _nameValidator = ValidationController(validator: _validateNameInput, debounceDuration: const Duration(seconds: 1));
+    _nameValidator.validate(_nameController.text);
   }
 
   @override
@@ -91,11 +91,17 @@ class _VaultCreatePageState extends State<VaultCreatePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.mode == VaultFlowMode.create ? 'Create vault' : 'Export vault'),
+        title: Text(widget.sourceFile == null ? 'Create vault' : 'Create vault copy'),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _createVault,
-        child: const Icon(Icons.check),
+      floatingActionButton: ListenableBuilder(
+        listenable: _nameValidator,
+        builder: (context, child) {
+          return FloatingActionButton(
+            onPressed: _canCreate() ? _createVault : null,
+            backgroundColor: _canCreate() ? Theme.of(context).floatingActionButtonTheme.backgroundColor : Colors.blueGrey,
+            child: const Icon(Icons.check),
+          );
+        },
       ),
       body: DefaultPageBody(
         child: SingleChildScrollView(
@@ -118,7 +124,7 @@ class _VaultCreatePageState extends State<VaultCreatePage> {
                             controller: _nameController,
                             decoration: InputDecoration(
                               labelText: 'Vault name',
-                              errorText: _nameValidator.state.error,
+                              errorText: state.error,
                             ),
                             onChanged: _nameValidator.validate,
                           ),
@@ -181,16 +187,17 @@ class _VaultCreatePageState extends State<VaultCreatePage> {
                     );
                   }).toList(),
                 ),
-                ObscuredTextField(
-                  label: 'Password',
-                  controller: _pwController,
-                  onChanged: (value) {
-                    setState(() {
-                      _rating = SafetyAnalyser.rateSafety(password: value);
-                    });
-                  },
-                ),
-                PasswordStrengthIndicator(rating: _rating),
+                if (widget.sourceFile == null)
+                  ObscuredTextField(
+                    label: 'Password',
+                    controller: _pwController,
+                    onChanged: (value) {
+                      setState(() {
+                        _rating = SafetyAnalyser.rateSafety(password: value);
+                      });
+                    },
+                  ),
+                if (widget.sourceFile == null) PasswordStrengthIndicator(rating: _rating),
               ],
             ),
           ),
