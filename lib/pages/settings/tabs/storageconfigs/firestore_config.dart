@@ -130,55 +130,55 @@ class _FirestoreConfigState extends State<FirestoreConfig> {
           onPressed: _handleSaveConfig,
           child: const Text('Apply configuration'),
         ),
-        if (firestore.isConfigValid) ...[
-          const Divider(),
-          Text(
-            'Authentication',
-            style: Theme.of(context).textTheme.headlineLarge,
-          ),
-        ],
         StreamBuilder<FirebaseUser?>(
           stream: context.read<Firestore>().auth.authChanges,
           initialData: context.read<Firestore>().auth.user,
           builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return EmailPasswordLoginForm(
-                onLogin: _handleLogin,
-                onSignUp: _handleSignUp,
-                initialEmail: context.read<AppState>().firebaseAuthLastUserEmail.value,
-              );
-            }
-
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: 10,
               children: [
-                Text(
-                  'Logged in as ${mailPreview(snapshot.data!.email)}',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                Wrap(
-                  children: [
-                    TextButton.icon(
-                      onPressed: _handleLogout,
-                      label: const Text('Logout'),
-                      icon: const Icon(Icons.logout),
-                      style: const ButtonStyle(
-                        foregroundColor: WidgetStatePropertyAll<Color>(Colors.redAccent),
-                        iconColor: WidgetStatePropertyAll<Color>(Colors.redAccent),
-                      ),
+                if (firestore.isConfigValid) ...[
+                  const Divider(),
+                  Text(
+                    'Authentication',
+                    style: Theme.of(context).textTheme.headlineLarge,
+                  ),
+                  if (!snapshot.hasData)
+                    EmailPasswordLoginForm(
+                      onLogin: _handleLogin,
+                      onSignUp: _handleSignUp,
+                      initialEmail: context.read<AppState>().firebaseAuthLastUserEmail.value,
                     ),
-                    TextButton.icon(
-                      onPressed: _handleDeleteUser,
-                      label: const Text('Delete user'),
-                      icon: const Icon(Icons.delete_outline),
-                      style: const ButtonStyle(
-                        foregroundColor: WidgetStatePropertyAll<Color>(Colors.redAccent),
-                        iconColor: WidgetStatePropertyAll<Color>(Colors.redAccent),
-                      ),
+                  if (snapshot.hasData) ...[
+                    Text(
+                      'Logged in as ${mailPreview(snapshot.data!.email)}',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    Wrap(
+                      children: [
+                        TextButton.icon(
+                          onPressed: _handleLogout,
+                          label: const Text('Logout'),
+                          icon: const Icon(Icons.logout),
+                          style: const ButtonStyle(
+                            foregroundColor: WidgetStatePropertyAll<Color>(Colors.redAccent),
+                            iconColor: WidgetStatePropertyAll<Color>(Colors.redAccent),
+                          ),
+                        ),
+                        TextButton.icon(
+                          onPressed: _handleDeleteUser,
+                          label: const Text('Delete user'),
+                          icon: const Icon(Icons.delete_outline),
+                          style: const ButtonStyle(
+                            foregroundColor: WidgetStatePropertyAll<Color>(Colors.redAccent),
+                            iconColor: WidgetStatePropertyAll<Color>(Colors.redAccent),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
-                ),
+                ],
               ],
             );
           },

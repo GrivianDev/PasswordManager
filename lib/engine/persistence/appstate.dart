@@ -227,6 +227,9 @@ class AppState with ChangeNotifier {
             field._value = await _loadFromSecureStorage(field);
             break;
         }
+        if (kDebugMode) {
+          debugPrint('Read property "${field.key}": ${field._value}');
+        }
       } catch (e) {
         if (kDebugMode) {
           debugPrint('Error reading property "${field.key}": $e');

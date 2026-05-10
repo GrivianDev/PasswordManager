@@ -68,6 +68,12 @@ class FirestoreController extends StorageController {
 
   @override
   Future<void> performLoad() async {
+    if (!api.isConfigValid) {
+      _state = const StorageState();
+      notifyListeners();
+      return;
+    }
+
     _state = const StorageState(isLoading: true);
     notifyListeners();
     try {

@@ -31,7 +31,7 @@ class _VaultCreatePageState extends State<VaultCreatePage> {
   StorageType _selectedStorageType = StorageType.LocalFilesystem;
   double _rating = 0.0;
 
-  bool _canCreate() => _nameValidator.state.isValid && _pwController.text.isNotEmpty;
+  bool _canCreate() => _nameValidator.state.isValid && (_pwController.text.isNotEmpty || widget.sourceFile != null);
 
   Future<String?> _validateNameInput(String input) async {
     try {
