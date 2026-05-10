@@ -14,7 +14,7 @@ import 'package:passwordmanager/pages/other/notifications.dart';
 /// - [expectedInput]: The exact string the user must type to confirm.
 Future<bool> typedConfirmDialog(BuildContext context, NotificationType type, {required String title, required String description, required String expectedInput}) async {
   if (type != NotificationType.confirmDialog && type != NotificationType.deleteDialog) {
-    throw Exception('Dialog type $type is not supported for the typedConfirmDialog function');
+    throw UnimplementedError('Dialog type $type is not supported for the typedConfirmDialog function');
   }
 
   String currentInput = '';

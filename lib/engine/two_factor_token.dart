@@ -36,11 +36,6 @@ class TOTPSecret {
   /// - **[algorithm]**: The HMAC algorithm to use (`SHA-1`, `SHA-256`, `SHA-512`).
   /// - **[period]**: The time step in seconds (commonly 30).
   /// - **[digits]**: The number of output digits (commonly 6 or 8).
-  ///
-  /// Throws:
-  /// - [ArgumentError] if the algorithm is not one of the allowed values.
-  /// - [ArgumentError] if the secret is not a valid RFC 4648 Base32 string after normalization to uppercase.
-  /// - [ArgumentError] if [period] or [digits] are negative.
   TOTPSecret(
       {required this.issuer,
       required this.accountName,

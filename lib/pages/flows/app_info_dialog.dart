@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:provider/provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:passwordmanager/engine/persistence/appstate.dart';
-import 'package:passwordmanager/pages/other/notifications.dart';
 
 /// Displays the current app information such as the version number.
 /// Additionally shows a link to the github repository.
@@ -12,73 +8,35 @@ Future<void> displayInfoDialog(BuildContext context) async {
   final PackageInfo info = await PackageInfo.fromPlatform();
 
   if (!context.mounted) return;
-  Notify.dialog(
+  showAdaptiveDialog(
     context: context,
-    type: NotificationType.notification,
-    content: Column(
-      spacing: 10.0,
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        SizedBox(
-          width: 560,
-          height: 80,
-          child: context.read<AppState>().darkMode.value ? SvgPicture.asset('assets/darkLogo.svg') : SvgPicture.asset('assets/lightLogo.svg'),
+    builder: (context) {
+      return Theme(
+        data: Theme.of(context).copyWith(
+          listTileTheme: Theme.of(context).listTileTheme.copyWith(shape: const ContinuousRectangleBorder(),),
         ),
-        Text(
-          'Version: ${info.version}',
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
-        Column(
+        child: AboutDialog.adaptive(
+          applicationVersion: info.version,
+          applicationIcon: const Icon(
+            Icons.shield_outlined,
+            size: 45,
+          ),
           children: [
+            const SizedBox(height: 15),
             TextButton(
               onPressed: () async => await launchUrl(Uri.parse('https://github.com/GrivianDev/PasswordManager')),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              child: const Wrap(
+                spacing: 5,
                 children: [
-                  const Icon(Icons.open_in_new),
-                  Flexible(
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 5.0),
-                      child: Text('View code'),
-                    ),
-                  ),
+                  Icon(Icons.open_in_new),
+                  Text('View code'),
                 ],
               ),
             ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                showLicensePage(
-                  context: context,
-                  applicationName: 'Ethercrypt',
-                  applicationIcon: const Padding(
-                    padding: EdgeInsets.only(top: 10.0),
-                    child: Icon(Icons.shield_outlined),
-                  ),
-                );
-              },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.copyright),
-                  Flexible(
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 5.0),
-                      child: Text('Licenses'),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            const Divider(),
           ],
         ),
-        Text(
-          'created by:\nJoel Lutz',
-          style: Theme.of(context).textTheme.bodySmall,
-          textAlign: TextAlign.center,
-        ),
-      ],
-    ),
+      );
+    },
   );
 }

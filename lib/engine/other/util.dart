@@ -158,6 +158,27 @@ bool isValidFilename(String name, {bool crossPlatformSafe = true}) {
   return true;
 }
 
+Future<String> findAvailableFilename(String directory, String filename) async {
+  final int dotIndex = filename.lastIndexOf('.');
+  final bool hasExtension = dotIndex > 0;
+
+  final String baseName = hasExtension ? filename.substring(0, dotIndex) : filename;
+
+  final String extension = hasExtension ? filename.substring(dotIndex) : '';
+
+  int counter = 0;
+  while (true) {
+    final String candidateName = counter == 0 ? filename : '$baseName-$counter$extension';
+    final String candidatePath = '$directory${Platform.pathSeparator}$candidateName';
+
+    if (!await File(candidatePath).exists()) {
+      return candidateName;
+    }
+
+    counter++;
+  }
+}
+
 /// Checks that the input is a valid email address (Does not fully validate all RFC-compliant email formats):
 /// - Contains exactly one `@` character
 /// - Has non-whitespace characters before and after the `@`

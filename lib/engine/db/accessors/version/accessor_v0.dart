@@ -2,9 +2,10 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart' as foundation;
+import 'package:passwordmanager/engine/app_exception.dart';
 import 'package:passwordmanager/engine/db/accessors/accessor.dart';
 import 'package:passwordmanager/engine/cryptography/implementation/aes_encryption.dart';
-import 'package:passwordmanager/engine/db/local_database.dart';
+import 'package:passwordmanager/engine/db/database_content.dart';
 import 'package:pointycastle/api.dart';
 import 'package:pointycastle/digests/sha256.dart';
 import 'package:pointycastle/key_derivators/api.dart';
@@ -24,7 +25,10 @@ import 'package:passwordmanager/engine/cryptography/base16_codec.dart';
 /// Data format includes base16-encoded salt, IV, HMAC, and base64-encoded encrypted data.
 ///
 /// The decrypted data is parsed from a legacy regex-based format into [Account] entries.
-class DataAccessorV0 implements DataAccessor {
+class DataAccessorV0 extends DataAccessor {
+  static const String disallowedCharacter = '\u0407';
+
+  static const String versionIdentifier = 'version';
   static const String saltIdentifier = 'Salt';
   static const String ivIdentifier = 'IV';
   static const String hmacIdentifier = 'HMac';
@@ -55,13 +59,13 @@ class DataAccessorV0 implements DataAccessor {
   String get version => 'v0';
 
   @override
-  void definePassword(String password) {
+  void setPassword(String password) {
     _password = password;
     _key = null; // Reset cached key
   }
 
   @override
-  Future<void> loadAndDecrypt(LocalDatabase targetDatabase, Map<String, String> properties) async {
+  Future<DatabaseContent> unpack(Map<String, String> properties) async {
     if (_password == null) {
       throw Exception('No password was defined in accessor');
     }
@@ -89,13 +93,13 @@ class DataAccessorV0 implements DataAccessor {
     final String testHMac = base16.encode(hmac.process(presumedData));
 
     if (testHMac != hmacString) {
-      throw Exception('Wrong password');
+      throw AppException('Wrong password', debugContext: 'Accessor v0 Decrypt');
     }
 
     final String decryptedString = utf8.decode(presumedData, allowMalformed: true);
 
     // Parse legacy regex-based format and populate the database
-    const String c = LocalDatabase.disallowedCharacter;
+    const String c = disallowedCharacter;
 
     List<List<String>> foundAccounts = [];
     RegExp regex = RegExp('\\$c([^\\$c]+\\$c){5}');
@@ -108,21 +112,20 @@ class DataAccessorV0 implements DataAccessor {
       }
     }
 
-    targetDatabase.addAllAccounts(
-      foundAccounts
-          .map((parts) => Account(
-                tag: parts[0] == 'none' ? null : parts[0],
-                name: parts[1] == 'none' ? null : parts[1],
-                info: parts[2] == 'none' ? null : parts[2],
-                email: parts[3] == 'none' ? null : parts[3],
-                password: parts[4] == 'none' ? null : parts[4],
-              ))
-          .toList(),
-    );
+    return DatabaseContent(
+        accounts: foundAccounts
+            .map((parts) => Account(
+                  tag: parts[0] == 'none' ? null : parts[0],
+                  name: parts[1] == 'none' ? null : parts[1],
+                  info: parts[2] == 'none' ? null : parts[2],
+                  email: parts[3] == 'none' ? null : parts[3],
+                  password: parts[4] == 'none' ? null : parts[4],
+                ))
+            .toList());
   }
 
   @override
-  Future<String> encryptAndFormat(LocalDatabase sourceDatabase) async {
+  Future<Map<String, String>> pack(DatabaseContent dbContent) async {
     if (_password == null) {
       throw Exception('No password was defined in accessor');
     }
@@ -137,8 +140,8 @@ class DataAccessorV0 implements DataAccessor {
     }
 
     // Serialize accounts into the legacy format separated by disallowed character
-    const String c = LocalDatabase.disallowedCharacter;
-    for (Account acc in sourceDatabase.accounts) {
+    const String c = disallowedCharacter;
+    for (Account acc in dbContent.accounts) {
       buffer.write('$c${acc.tag ?? 'none'}$c${acc.name ?? 'none'}$c${acc.info ?? 'none'}$c${acc.email ?? 'none'}$c${acc.password ?? 'none'}$c');
       length = rand.nextInt(10) + 1;
       for (int j = 0; j < length; j++) {
@@ -165,14 +168,12 @@ class DataAccessorV0 implements DataAccessor {
       return encrypter.encrypt(data: message[0] as Uint8List, key: (message[1] as Key).bytes, iv: message[2] as IV);
     }, [expandedData, _key, iv]);
 
-    // Format the encrypted data and metadata as key=value; pairs
-    StringBuffer outBuffer = StringBuffer();
-    outBuffer.write('version=$version;');
-    outBuffer.write('$saltIdentifier=${base16.encode(_key!.salt!)};');
-    outBuffer.write('$hmacIdentifier=${base16.encode(newHmacBytes)};');
-    outBuffer.write('$ivIdentifier=${base16.encode(iv.bytes)};');
-    outBuffer.write('$dataIdentifier=${base64.encode(cipher)};');
-
-    return outBuffer.toString();
+    return {
+      versionIdentifier: version,
+      saltIdentifier: base16.encode(_key!.salt!),
+      hmacIdentifier: base16.encode(newHmacBytes),
+      ivIdentifier: base16.encode(iv.bytes),
+      dataIdentifier:  base64.encode(cipher),
+    };
   }
 }

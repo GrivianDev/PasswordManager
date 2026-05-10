@@ -13,8 +13,24 @@ class AppThemeData {
     listTileTheme: const ListTileThemeData(
       tileColor: Color.fromRGBO(77, 83, 84, 1),
       selectedTileColor: Color.fromRGBO(77, 83, 84, 1),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(12)),
+      ),
+      titleTextStyle: TextStyle(
+        fontSize: 20.0,
+        fontWeight: FontWeight.w400,
+        color: Colors.white,
+        overflow: TextOverflow.clip,
+      ),
+      subtitleTextStyle: TextStyle(
+        fontSize: 14.0,
+        fontWeight: FontWeight.w400,
+        color: Colors.grey,
+        height: 1.4,
+        overflow: TextOverflow.clip,
+      ),
     ),
-    dropdownMenuTheme: DropdownMenuThemeData(
+    dropdownMenuTheme: const DropdownMenuThemeData(
       menuStyle: MenuStyle(
         backgroundColor: WidgetStatePropertyAll<Color>(Color.fromRGBO(46, 50, 51, 1)),
       ),
@@ -33,14 +49,14 @@ class AppThemeData {
         overflow: TextOverflow.ellipsis,
       ),
     ),
-    snackBarTheme: SnackBarThemeData(
+    snackBarTheme: const SnackBarThemeData(
       backgroundColor: Colors.blue,
       contentTextStyle: TextStyle(
         color: Colors.white,
         fontSize: 14,
       ),
     ),
-    dialogTheme: DialogThemeData(
+    dialogTheme: const DialogThemeData(
       backgroundColor: Color.fromRGBO(77, 83, 84, 1),
       titleTextStyle: TextStyle(
         fontSize: 25.0,
@@ -55,14 +71,14 @@ class AppThemeData {
         overflow: TextOverflow.clip,
       ),
     ),
-    iconButtonTheme: IconButtonThemeData(
+    iconButtonTheme: const IconButtonThemeData(
       style: ButtonStyle(
         iconSize: WidgetStatePropertyAll<double?>(20.0),
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ButtonStyle(
-        iconSize: WidgetStatePropertyAll<double?>(20.0),
+        iconSize: const WidgetStatePropertyAll<double?>(20.0),
         foregroundColor: const WidgetStatePropertyAll<Color>(Colors.white),
         backgroundColor: const WidgetStatePropertyAll<Color>(Colors.blue),
         iconColor: const WidgetStatePropertyAll<Color>(Colors.white),
@@ -72,7 +88,7 @@ class AppThemeData {
           }
           return Colors.blue.shade400;
         }),
-        textStyle: WidgetStatePropertyAll<TextStyle>(
+        textStyle: const WidgetStatePropertyAll<TextStyle>(
           TextStyle(
             fontSize: 16.0,
             fontWeight: FontWeight.w400,
@@ -175,15 +191,21 @@ class AppThemeData {
       ),
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(25.0),
-        borderSide: const BorderSide(width: 2, color: Colors.red),
+        borderSide: const BorderSide(width: 2, color: Colors.redAccent),
       ),
-      hintStyle: TextStyle(color: Colors.white60),
-      errorStyle: TextStyle(
+      errorStyle: const TextStyle(
         fontSize: 16.0,
         fontWeight: FontWeight.w800,
         color: Colors.redAccent,
         overflow: TextOverflow.clip,
       ),
+      labelStyle: WidgetStateTextStyle.resolveWith((states) {
+        if (states.contains(WidgetState.error)) {
+          return const TextStyle(color: Colors.redAccent);
+        }
+        return const TextStyle(color: Colors.white);
+      }),
+      hintStyle: const TextStyle(color: Colors.white60),
     ),
     switchTheme: const SwitchThemeData(
       thumbColor: WidgetStatePropertyAll<Color>(Colors.blue),
@@ -206,9 +228,9 @@ class AppThemeData {
         color: const Color.fromRGBO(46, 50, 51, 1),
         borderRadius: BorderRadius.circular(5),
       ),
-      textStyle: TextStyle(color: Colors.white),
-      margin: EdgeInsets.all(10.0),
-      padding: EdgeInsets.all(5.0),
+      textStyle: const TextStyle(color: Colors.white),
+      margin: const EdgeInsets.all(10.0),
+      padding: const EdgeInsets.all(5.0),
       triggerMode: TooltipTriggerMode.tap,
     ),
   );
@@ -224,8 +246,24 @@ class AppThemeData {
     listTileTheme: const ListTileThemeData(
       tileColor: Colors.white,
       selectedTileColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(12)),
+      ),
+      titleTextStyle: TextStyle(
+        fontSize: 20.0,
+        fontWeight: FontWeight.w400,
+        color: Colors.black87,
+        overflow: TextOverflow.clip,
+      ),
+      subtitleTextStyle: TextStyle(
+        fontSize: 14.0,
+        fontWeight: FontWeight.w400,
+        color: Colors.grey,
+        height: 1.4,
+        overflow: TextOverflow.clip,
+      ),
     ),
-    dropdownMenuTheme: DropdownMenuThemeData(
+    dropdownMenuTheme: const DropdownMenuThemeData(
       menuStyle: MenuStyle(
         backgroundColor: WidgetStatePropertyAll<Color>(Color.fromRGBO(225, 225, 225, 1)),
       ),
@@ -244,14 +282,14 @@ class AppThemeData {
         overflow: TextOverflow.ellipsis,
       ),
     ),
-    snackBarTheme: SnackBarThemeData(
+    snackBarTheme: const SnackBarThemeData(
       backgroundColor: Color.fromRGBO(20, 75, 200, 1),
       contentTextStyle: TextStyle(
         color: Colors.white,
         fontSize: 14,
       ),
     ),
-    dialogTheme: DialogThemeData(
+    dialogTheme: const DialogThemeData(
       backgroundColor: Colors.white,
       titleTextStyle: TextStyle(
         fontSize: 25.0,
@@ -266,24 +304,24 @@ class AppThemeData {
         overflow: TextOverflow.clip,
       ),
     ),
-    iconButtonTheme: IconButtonThemeData(
+    iconButtonTheme: const IconButtonThemeData(
       style: ButtonStyle(
         iconSize: WidgetStatePropertyAll<double?>(20.0),
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ButtonStyle(
-        iconSize: WidgetStatePropertyAll<double?>(20.0),
+        iconSize: const WidgetStatePropertyAll<double?>(20.0),
         foregroundColor: const WidgetStatePropertyAll<Color>(Colors.white),
         backgroundColor: const WidgetStatePropertyAll<Color>(Color.fromRGBO(20, 75, 200, 1)),
         iconColor: const WidgetStatePropertyAll<Color>(Colors.white),
         overlayColor: WidgetStateProperty.resolveWith((Set<WidgetState> states) {
           if (states.contains(WidgetState.pressed)) {
-            return Color.fromRGBO(0, 55, 180, 1);
+            return const Color.fromRGBO(0, 55, 180, 1);
           }
-          return Color.fromRGBO(40, 95, 220, 1);
+          return const Color.fromRGBO(40, 95, 220, 1);
         }),
-        textStyle: WidgetStatePropertyAll<TextStyle>(
+        textStyle: const WidgetStatePropertyAll<TextStyle>(
           TextStyle(
             fontSize: 16.0,
             fontWeight: FontWeight.w400,
@@ -371,31 +409,36 @@ class AppThemeData {
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
-      contentPadding: const EdgeInsets.all(15),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(25.0),
-        borderSide: BorderSide(width: 2, color: Colors.grey.shade900),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(25.0),
-        borderSide: const BorderSide(width: 2, color: Color.fromRGBO(20, 75, 200, 1)),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(25.0),
-        borderSide: BorderSide(width: 2, color: Colors.grey.shade900),
-      ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(25.0),
-        borderSide: const BorderSide(width: 2, color: Colors.red),
-      ),
-      errorStyle: TextStyle(
-        fontSize: 16.0,
-        fontWeight: FontWeight.w800,
-        color: Colors.redAccent,
-        overflow: TextOverflow.clip,
-      ),
-      hintStyle: TextStyle(color: Colors.black54)
-    ),
+        contentPadding: const EdgeInsets.all(15),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25.0),
+          borderSide: BorderSide(width: 2, color: Colors.grey.shade900),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25.0),
+          borderSide: const BorderSide(width: 2, color: Color.fromRGBO(20, 75, 200, 1)),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25.0),
+          borderSide: BorderSide(width: 2, color: Colors.grey.shade900),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25.0),
+          borderSide: const BorderSide(width: 2, color: Colors.redAccent),
+        ),
+        labelStyle: WidgetStateTextStyle.resolveWith((states) {
+          if (states.contains(WidgetState.error)) {
+            return const TextStyle(color: Colors.redAccent);
+          }
+          return const TextStyle(color: Colors.black87);
+        }),
+        errorStyle: const TextStyle(
+          fontSize: 16.0,
+          fontWeight: FontWeight.w800,
+          color: Colors.redAccent,
+          overflow: TextOverflow.clip,
+        ),
+        hintStyle: const TextStyle(color: Colors.black54)),
     switchTheme: const SwitchThemeData(
       thumbColor: WidgetStatePropertyAll<Color>(Color.fromRGBO(20, 75, 200, 1)),
       trackColor: WidgetStatePropertyAll<Color>(Colors.black),
@@ -417,9 +460,9 @@ class AppThemeData {
         color: const Color.fromRGBO(225, 225, 225, 1),
         borderRadius: BorderRadius.circular(5),
       ),
-      textStyle: TextStyle(color: Colors.black87),
-      margin: EdgeInsets.all(10.0),
-      padding: EdgeInsets.all(5.0),
+      textStyle: const TextStyle(color: Colors.black87),
+      margin: const EdgeInsets.all(10.0),
+      padding: const EdgeInsets.all(5.0),
       triggerMode: TooltipTriggerMode.tap,
     ),
   );

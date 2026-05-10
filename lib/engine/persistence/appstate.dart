@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:passwordmanager/engine/exceptions/app_exception.dart';
+import 'package:passwordmanager/engine/app_exception.dart';
 
 /// Defines where a setting is stored.
-enum StorageType {
+enum StorageOption {
   /// Stored in unencrypted shared preferences (accessible to the app).
   shared,
 
@@ -23,7 +23,7 @@ enum SerilizationType {
 /// serialization type, and default value.
 class AppStateField<T> {
   final String key;
-  final StorageType storage;
+  final StorageOption storage;
   final SerilizationType _stype;
   final T defaultValue;
   T _value;
@@ -50,38 +50,27 @@ class AppStateField<T> {
   }
 
   bool get isDefault => value == defaultValue;
+
+  void reset() => value = defaultValue;
 }
 
-AndroidOptions _getAndroidOptions() => const AndroidOptions(
-      encryptedSharedPreferences: true,
-    );
-
 /// Holds all application state fields and manages persistent storage.
-class AppState extends ChangeNotifier {
+class AppState with ChangeNotifier {
   // -------- State Fields --------
 
   /// Whether dark mode is enabled.
   late final darkMode = AppStateField<bool>(
     key: 'ethercrypt.dark_mode',
-    storage: StorageType.shared,
+    storage: StorageOption.shared,
     stype: SerilizationType.bool,
     defaultValue: false,
-    onChanged: notifyListeners,
-  );
-
-  /// Path to the last opened file.
-  late final lastOpenedFilePath = AppStateField<String?>(
-    key: 'ethercrypt.last_opened_filepath',
-    storage: StorageType.shared,
-    stype: SerilizationType.string,
-    defaultValue: null,
     onChanged: notifyListeners,
   );
 
   /// Whether autosaving is enabled.
   late final autosaving = AppStateField<bool>(
     key: 'ethercrypt.autosaving',
-    storage: StorageType.shared,
+    storage: StorageOption.shared,
     stype: SerilizationType.bool,
     defaultValue: false,
     onChanged: notifyListeners,
@@ -89,7 +78,7 @@ class AppState extends ChangeNotifier {
 
   late final pwGenMinCharacters = AppStateField<int>(
     key: 'ethercrypt.passwordgeneration.min_chars',
-    storage: StorageType.shared,
+    storage: StorageOption.shared,
     stype: SerilizationType.int,
     defaultValue: 8,
     onChanged: notifyListeners,
@@ -97,7 +86,7 @@ class AppState extends ChangeNotifier {
 
   late final pwGenMaxCharacters = AppStateField<int>(
     key: 'ethercrypt.passwordgeneration.max_chars',
-    storage: StorageType.shared,
+    storage: StorageOption.shared,
     stype: SerilizationType.int,
     defaultValue: 32,
     onChanged: notifyListeners,
@@ -106,7 +95,7 @@ class AppState extends ChangeNotifier {
   /// Whether password generation includes letters.
   late final pwGenUseLetters = AppStateField<bool>(
     key: 'ethercrypt.passwordgeneration.use_letters',
-    storage: StorageType.shared,
+    storage: StorageOption.shared,
     stype: SerilizationType.bool,
     defaultValue: true,
     onChanged: notifyListeners,
@@ -115,7 +104,7 @@ class AppState extends ChangeNotifier {
   /// Whether password generation includes numbers.
   late final pwGenUseNumbers = AppStateField<bool>(
     key: 'ethercrypt.passwordgeneration.use_numbers',
-    storage: StorageType.shared,
+    storage: StorageOption.shared,
     stype: SerilizationType.bool,
     defaultValue: true,
     onChanged: notifyListeners,
@@ -124,24 +113,49 @@ class AppState extends ChangeNotifier {
   /// Whether password generation includes special characters.
   late final pwGenUseSpecialChars = AppStateField<bool>(
     key: 'ethercrypt.passwordgeneration.use_special_chars',
-    storage: StorageType.shared,
+    storage: StorageOption.shared,
     stype: SerilizationType.bool,
     defaultValue: true,
     onChanged: notifyListeners,
   );
 
-  late final ntpTimeSyncServer = AppStateField<String?>(
+  late final ntpTimeSyncServer = AppStateField<String>(
     key: 'ethercrypt.ntp.server_adress',
-    storage: StorageType.shared,
+    storage: StorageOption.shared,
     stype: SerilizationType.string,
     defaultValue: 'time.google.com',
+    onChanged: notifyListeners,
+  );
+
+  /// Path where vaults are stored locally
+  late final localSystemStorageLocation = AppStateField<String>(
+    key: 'ethercrypt.filesystem.storage_location',
+    storage: StorageOption.shared,
+    stype: SerilizationType.string,
+    defaultValue: '',
+    onChanged: notifyListeners,
+  );
+
+  late final firebaseProjectId = AppStateField<String?>(
+    key: 'ethercrypt.firebase.project_id',
+    storage: StorageOption.secure,
+    stype: SerilizationType.string,
+    defaultValue: null,
+    onChanged: notifyListeners,
+  );
+
+  late final firebaseApiKey = AppStateField<String?>(
+    key: 'ethercrypt.firebase.api_key',
+    storage: StorageOption.secure,
+    stype: SerilizationType.string,
+    defaultValue: null,
     onChanged: notifyListeners,
   );
 
   /// Email of the last Firebase-authenticated user.
   late final firebaseAuthLastUserEmail = AppStateField<String?>(
     key: 'ethercrypt.firebase.auth.last_user_email',
-    storage: StorageType.secure,
+    storage: StorageOption.secure,
     stype: SerilizationType.string,
     defaultValue: null,
     onChanged: notifyListeners,
@@ -150,7 +164,7 @@ class AppState extends ChangeNotifier {
   /// Refresh token for the last Firebase-authenticated user.
   late final firebaseAuthRefreshToken = AppStateField<String?>(
     key: 'ethercrypt.firebase.auth.user_refresh_token',
-    storage: StorageType.secure,
+    storage: StorageOption.secure,
     stype: SerilizationType.string,
     defaultValue: null,
     onChanged: notifyListeners,
@@ -163,18 +177,25 @@ class AppState extends ChangeNotifier {
   late final SharedPreferences _prefs;
   late final FlutterSecureStorage _secure;
 
+  Future<void>? _ongoingSave;
+  bool _saveQueued = false;
+  bool get isSaveQueued => _saveQueued;
+
   /// Creates a new [AppState] and registers all state fields.
   AppState() {
     // All property fields should be also inserted in this total list !!!
     _fields = [
       darkMode,
-      lastOpenedFilePath,
       autosaving,
       pwGenMinCharacters,
       pwGenMaxCharacters,
       pwGenUseLetters,
       pwGenUseNumbers,
       pwGenUseSpecialChars,
+      ntpTimeSyncServer,
+      localSystemStorageLocation,
+      firebaseProjectId,
+      firebaseApiKey,
       firebaseAuthLastUserEmail,
       firebaseAuthRefreshToken,
     ];
@@ -184,43 +205,71 @@ class AppState extends ChangeNotifier {
   Future<void> init() async {
     try {
       _prefs = await SharedPreferences.getInstance();
-      _secure = FlutterSecureStorage(aOptions: _getAndroidOptions());
-
-      for (final AppStateField<dynamic> field in _fields) {
-        switch (field.storage) {
-          case StorageType.shared:
-            field._value = _loadFromSharedPreferences(field);
-            break;
-          case StorageType.secure:
-            field._value = await _loadFromSecureStorage(field);
-            break;
-        }
-      }
-    } catch (e, stackTrace) {
+      _secure = const FlutterSecureStorage(aOptions: AndroidOptions(encryptedSharedPreferences: true));
+    } catch (e, s) {
       throw AppException(
         'Could not initialise app state',
         debugContext: 'Init Appstate',
         cause: e,
-        stackTrace: stackTrace,
+        stackTrace: s,
       );
-    } finally {
-      notifyListeners();
     }
+  }
+
+  Future<void> load() async {
+    for (final AppStateField<dynamic> field in _fields) {
+      try {
+        switch (field.storage) {
+          case StorageOption.shared:
+            field._value = _loadFromSharedPreferences(field);
+            break;
+          case StorageOption.secure:
+            field._value = await _loadFromSecureStorage(field);
+            break;
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          debugPrint('Error reading property "${field.key}": $e');
+        }
+        field._value = field.defaultValue;
+      }
+    }
+    notifyListeners();
   }
 
   /// Saves all state fields to persistent storage.
   Future<void> save() async {
+    // If a save is already running -> queue another one
+    if (_ongoingSave != null) {
+      _saveQueued = true;
+      return _ongoingSave;
+    }
+
+    try {
+      _ongoingSave = _persistFields();
+      await _ongoingSave;
+    } finally {
+      _ongoingSave = null;
+    }
+
+    if (_saveQueued) {
+      _saveQueued = false;
+      return save(); // Run again
+    }
+  }
+
+  Future<void> _persistFields() async {
     try {
       for (final field in _fields) {
         switch (field.storage) {
-          case StorageType.shared:
+          case StorageOption.shared:
             if (field.value == null) {
               await _prefs.remove(field.key);
             } else {
               await _saveToSharedPreferences(field);
             }
             break;
-          case StorageType.secure:
+          case StorageOption.secure:
             if (field.value == null) {
               await _secure.delete(key: field.key);
             } else {
@@ -229,12 +278,12 @@ class AppState extends ChangeNotifier {
             break;
         }
       }
-    } catch (e, stackTrace) {
+    } catch (e, s) {
       throw AppException(
         'Could not save app state',
         debugContext: 'Save AppState',
         cause: e,
-        stackTrace: stackTrace,
+        stackTrace: s,
       );
     }
   }
@@ -249,12 +298,12 @@ class AppState extends ChangeNotifier {
       // Clear all persistent storages
       await _prefs.clear();
       await _secure.deleteAll();
-    } catch (e, stackTrace) {
+    } catch (e, s) {
       throw AppException(
         'Could not clear app state',
         debugContext: 'Clear AppState',
         cause: e,
-        stackTrace: stackTrace,
+        stackTrace: s,
       );
     } finally {
       notifyListeners();

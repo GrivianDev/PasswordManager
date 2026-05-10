@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// A reusable page root, with a rounded appbar and automatic scroll.
 class DefaultPageBody extends StatelessWidget {
   const DefaultPageBody({super.key, required this.child});
 
@@ -10,15 +9,15 @@ class DefaultPageBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: SizedBox.expand(
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(20.0),
-              topRight: Radius.circular(20.0),
-            ),
-            color: Theme.of(context).colorScheme.surface,
+        child: ClipRRect(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20.0),
+            topRight: Radius.circular(20.0),
           ),
-          child: child,
+          child: Material( // Needed so ListTile selectedTileColor renders inside the rounded clip
+            color: Theme.of(context).colorScheme.surface,
+            child: child,
+          ),
         ),
       ),
     );
