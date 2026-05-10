@@ -53,16 +53,14 @@ final class Source {
   }
 
   Future<void> saveData(DatabaseContent dbContent) async {
+    // Auto upgrade
+    if (_accessor?.version != DataAccessorRegistry.latestVersion) {
+      _accessor = DataAccessorRegistry.create(DataAccessorRegistry.latestVersion);
+      _accessor!.setPassword(_password);
+    }
+
     final String formattedData = await getFormattedData(dbContent);
     await _repository.update(file, formattedData);
-  }
-
-  /// Upgrades the source to use the latest [DataAccessor] format and saves it.
-  Future<void> upgradeSource(DatabaseContent dbContent) {
-    _accessor = DataAccessorRegistry.create(DataAccessorRegistry.latestVersion);
-    _accessor!.setPassword(_password);
-
-    return saveData(dbContent);
   }
 
   Future<String> getFormattedData(DatabaseContent dbContent) async {
