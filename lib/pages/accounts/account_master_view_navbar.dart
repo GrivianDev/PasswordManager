@@ -47,7 +47,7 @@ class AccountMasterViewNavbar extends StatelessWidget {
 
     if (newPassword == null || !context.mounted) return;
 
-    runAppFlow(context, () async {
+    await runAppFlow(context, () async {
       try {
         Notify.showLoading(context: context);
         database.source!.changePassword(newPassword);
@@ -71,13 +71,13 @@ class AccountMasterViewNavbar extends StatelessWidget {
     final LocalDatabase database = context.read();
     final StorageController controller = context.read<StorageProvider>().controller(StorageType.LocalFilesystem);
 
-    runAppFlow(context, () async {
+    await runAppFlow(context, () async {
       String? freeFileName;
       try {
         Notify.showLoading(context: context);
         final String storageLocation = await controller.getUserStorageLocation();
         freeFileName = await findAvailableFilename(storageLocation, '${database.source!.file.name}.x');
-        controller.repository.create(
+        await controller.repository.create(
           name: getBasename(freeFileName),
           location: storageLocation,
           initialData: await database.asFormattedData,

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:passwordmanager/engine/app_exception.dart';
+import 'package:passwordmanager/engine/persistence/storage/storage_controller.dart';
 import 'package:passwordmanager/engine/persistence/appstate.dart';
 import 'package:passwordmanager/engine/persistence/storage/controller/local_file_controller.dart';
 import 'package:passwordmanager/engine/persistence/storage/storage_file.dart';
@@ -18,6 +21,21 @@ class LocalFileSystemConfig extends StatefulWidget {
 class _LocalFileSystemConfigState extends State<LocalFileSystemConfig> {
   late final TextEditingController _storagePathController;
 
+  Future<void> _openCurrentStoragePath() async {
+    final AppState appState = context.read();
+    final StorageController controller = context.read<StorageProvider>().controller(StorageType.LocalFilesystem);
+
+    await runAppFlow(context, () async {
+      String path = appState.localSystemStorageLocation.value;
+      if (path.isEmpty) {
+        path = await controller.getUserStorageLocation();
+      }
+      if (await launchUrl(Uri.directory(path))) {
+        throw AppException('Could not open directory "$path"', debugContext: 'Open Local Storage Path');
+      }
+    });
+  }
+
   Future<void> _changeStoragePathViaDirectoryPicker() async {
     final NavigatorState navigator = Navigator.of(context);
     final AppState appState = context.read();
@@ -28,7 +46,6 @@ class _LocalFileSystemConfigState extends State<LocalFileSystemConfig> {
         Notify.showLoading(context: context);
         String? path = await FilePicker.platform.getDirectoryPath(
           dialogTitle: 'Select directory for vaults',
-          lockParentWindow: true,
         );
 
         if (path == null || !mounted) return;
@@ -83,9 +100,20 @@ class _LocalFileSystemConfigState extends State<LocalFileSystemConfig> {
             labelText: 'Storage path',
             suffixIcon: Padding(
               padding: const EdgeInsets.only(right: 5.0),
-              child: IconButton(
-                onPressed: _changeStoragePathViaDirectoryPicker,
-                icon: const Icon(Icons.folder_open),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    onPressed: _openCurrentStoragePath,
+                    icon: const Icon(Icons.open_in_new),
+                    tooltip: 'Open folder',
+                  ),
+                  IconButton(
+                    onPressed: _changeStoragePathViaDirectoryPicker,
+                    icon: const Icon(Icons.folder_open),
+                    tooltip: 'Change folder',
+                  ),
+                ],
               ),
             ),
           ),

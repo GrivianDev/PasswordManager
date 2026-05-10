@@ -62,26 +62,25 @@ class _AccountEditingPageState extends State<AccountEditingPage> {
 
         if (context.read<AppState>().autosaving.value) {
           await database.save();
+          scaffoldMessenger.showSnackBar(const SnackBar(
+            duration: Duration(seconds: 2),
+            content: Wrap(
+              spacing: 5,
+              children: [
+                Icon(
+                  Icons.sync,
+                  size: 15,
+                  color: Colors.white,
+                ),
+                Text('Saved changes'),
+              ],
+            ),
+          ));
         }
       } finally {
         navigator.pop();
       }
-
       navigator.pop();
-      scaffoldMessenger.showSnackBar(const SnackBar(
-        duration: Duration(seconds: 2),
-        content: Wrap(
-          spacing: 5,
-          children: [
-            Icon(
-              Icons.sync,
-              size: 15,
-              color: Colors.white,
-            ),
-            Text('Saved changes'),
-          ],
-        ),
-      ));
     });
   }
 

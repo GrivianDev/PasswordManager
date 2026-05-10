@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart' as foundation;
+import 'package:passwordmanager/engine/app_exception.dart';
 import 'package:passwordmanager/engine/db/accessors/accessor.dart';
 import 'package:passwordmanager/engine/cryptography/implementation/aes_encryption.dart';
 import 'package:passwordmanager/engine/db/database_content.dart';
@@ -92,7 +93,7 @@ class DataAccessorV0 extends DataAccessor {
     final String testHMac = base16.encode(hmac.process(presumedData));
 
     if (testHMac != hmacString) {
-      throw Exception('Wrong password');
+      throw AppException('Wrong password', debugContext: 'Accessor v0 Decrypt');
     }
 
     final String decryptedString = utf8.decode(presumedData, allowMalformed: true);

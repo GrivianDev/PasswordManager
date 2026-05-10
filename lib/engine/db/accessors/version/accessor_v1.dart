@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart' as foundation;
+import 'package:passwordmanager/engine/app_exception.dart';
 import 'package:passwordmanager/engine/db/accessors/accessor.dart';
 import 'package:passwordmanager/engine/db/database_content.dart';
 import 'package:pointycastle/api.dart';
@@ -113,7 +114,7 @@ class DataAccessorV1 extends DataAccessor {
     final String testHMac = base16.encode(hmac.process(bBuilder.toBytes()));
 
     if (testHMac != hmacString) {
-      throw Exception('Wrong password');
+       throw AppException('Wrong password', debugContext: 'Accessor v1 Decrypt');
     }
 
     // Decrypt AES-encrypted data asynchronously

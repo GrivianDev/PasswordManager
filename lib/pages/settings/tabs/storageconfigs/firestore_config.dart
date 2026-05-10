@@ -80,7 +80,7 @@ class _FirestoreConfigState extends State<FirestoreConfig> {
     );
 
     if (!doDelete || !mounted) return;
-    return runAppFlow(context, () async {
+    await runAppFlow(context, () async {
       try {
         Notify.showLoading(context: context);
         await firestore.auth.deleteAccount();
