@@ -54,7 +54,7 @@ class LocalFileController extends StorageController {
   bool get requiresAuth => false;
 
   @override
-  Future<void> load() async {
+  Future<void> performLoad() async {
     _state = const StorageState(isLoading: true);
     notifyListeners();
     try {
@@ -67,8 +67,8 @@ class LocalFileController extends StorageController {
         isLoading: false,
         files: files,
       );
-    } catch (e) {
-      _state = StorageState(error: e);
+    } catch (e, s) {
+      _state = StorageState(error: e is AppException ? e : AppException.unknown(cause: e, stackTrace: s));
     }
     notifyListeners();
   }

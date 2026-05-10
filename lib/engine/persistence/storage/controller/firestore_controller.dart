@@ -30,7 +30,10 @@ class FirestoreController extends StorageController {
   @override
   Future<String> getUserStorageLocation() {
     if (!api.isConfigValid || !api.auth.isUserLoggedIn) {
-      throw AppException('Cloud Firestore - User is not logged in. Cannot get storage location.', debugContext: 'Firestore Controller');
+      throw AppException(
+        'Cloud Firestore - User is not logged in. Cannot get storage location.',
+        debugContext: 'Firestore Controller',
+      );
     }
     return Future.value('/ethercrypt-users/${api.auth.user!.userId}/vault');
   }
@@ -64,7 +67,7 @@ class FirestoreController extends StorageController {
   }
 
   @override
-  Future<void> load() async {
+  Future<void> performLoad() async {
     _state = const StorageState(isLoading: true);
     notifyListeners();
     try {
@@ -84,8 +87,8 @@ class FirestoreController extends StorageController {
         isLoading: false,
         files: files,
       );
-    } catch (e) {
-      _state = StorageState(error: e);
+    } catch (e, s) {
+      _state = StorageState(error: e is AppException ? e : AppException.unknown(cause: e, stackTrace: s));
     }
     notifyListeners();
   }
