@@ -24,6 +24,7 @@ class VaultsMasterView extends StatelessWidget {
 
   Future<void> _selectFromFileSystem(BuildContext context) async {
     final NavigatorState navigator = Navigator.of(context);
+    final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
     final StorageController controller = context.read<StorageProvider>().controller(StorageType.LocalFilesystem);
 
     await runAppFlow(context, () async {
@@ -46,6 +47,21 @@ class VaultsMasterView extends StatelessWidget {
 
       await externalFile.copy(targetFile.path);
       controller.load();
+
+      scaffoldMessenger.showSnackBar(SnackBar(
+        duration: const Duration(seconds: 2),
+        content: Wrap(
+          spacing: 5,
+          children: [
+            const Icon(
+              Icons.download_done,
+              size: 15,
+              color: Colors.white,
+            ),
+            Text('Imported as "$fileName"'),
+          ],
+        ),
+      ));
     });
   }
 

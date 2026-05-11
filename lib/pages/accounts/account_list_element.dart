@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -7,7 +6,6 @@ import 'package:passwordmanager/pages/flows/app_flows.dart';
 import 'package:passwordmanager/pages/flows/typed_confirmation_dialog.dart';
 import 'package:passwordmanager/engine/other/util.dart';
 import 'package:passwordmanager/engine/persistence/appstate.dart';
-import 'package:passwordmanager/pages/widgets/hoverbuilder.dart';
 import 'package:passwordmanager/engine/account.dart';
 import 'package:passwordmanager/engine/db/local_database.dart';
 import 'package:passwordmanager/pages/accounts/account_detail_page.dart';
@@ -83,77 +81,31 @@ class AccountListElement extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 15.0),
-      child: HoverBuilder(
-        builder: (isHovered) => ElevatedButton(
-          style: ButtonStyle(
-            shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
+    final String? mail = mailPreview(_account.email ?? '');
+
+    return ListTile(
+      title: Text(_account.name ?? '<no-name>'),
+      subtitle: mail != null ? Text(mail) : null,
+      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => AccountDetailPage(account: _account))),
+      tileColor: Theme.of(context).scaffoldBackgroundColor,
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            onPressed: () => _copyClicked(context),
+            icon: Icon(
+              Icons.copy,
+              color: Theme.of(context).iconTheme.color,
             ),
-            backgroundColor: WidgetStatePropertyAll<Color>(Theme.of(context).primaryColor),
           ),
-          child: Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Padding(
-                        padding: EdgeInsets.only(top: Platform.isWindows || Platform.isLinux ? 0.0 : 5.0),
-                        child: Text(
-                          _account.name ?? '<no-name>',
-                          style: Theme.of(context).textTheme.displaySmall,
-                        ),
-                      ),
-                    ),
-                    if (isHovered)
-                      Expanded(
-                        child: Text(
-                          isHovered ? mailPreview(_account.email ?? '') ?? '' : '',
-                          style: Theme.of(context).textTheme.displaySmall,
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    const Spacer(),
-                  ],
-                ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  IconButton(
-                    onPressed: () => _copyClicked(context),
-                    icon: Icon(
-                      Icons.copy,
-                      color: Theme.of(context).iconTheme.color,
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () => _deleteClicked(context),
-                    icon: const Icon(
-                      Icons.delete_outline,
-                      color: Colors.redAccent,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+          IconButton(
+            onPressed: () => _deleteClicked(context),
+            icon: const Icon(
+              Icons.delete_outline,
+              color: Colors.redAccent,
+            ),
           ),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => AccountDetailPage(
-                  account: _account,
-                ),
-              ),
-            );
-          },
-        ),
+        ],
       ),
     );
   }

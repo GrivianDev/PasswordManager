@@ -11,16 +11,12 @@ class AccountListView extends StatelessWidget {
   final bool queryCaseInsensitiveSearch;
 
   bool _matchesQuery(Account acc, String query) {
-    return _contains(acc.name, query) ||
-        _contains(acc.info, query) ||
-        _contains(acc.email, query);
+    return _contains(acc.name, query) || _contains(acc.info, query) || _contains(acc.email, query);
   }
 
   bool _contains(String? source, String query) {
     if (source == null) return false;
-    return queryCaseInsensitiveSearch
-        ? source.toLowerCase().contains(query)
-        : source.contains(query);
+    return queryCaseInsensitiveSearch ? source.toLowerCase().contains(query) : source.contains(query);
   }
 
   Widget _buildTagHeader(BuildContext context, String tag) {
@@ -35,6 +31,13 @@ class AccountListView extends StatelessWidget {
       ),
       const Expanded(child: Divider(thickness: 1.5)),
     ]);
+  }
+
+  Widget _buildAccountTile(BuildContext context, Account acc) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: AccountListElement(account: acc),
+    );
   }
 
   /// Builds Widget tiles based on search cirteria.
@@ -61,7 +64,7 @@ class AccountListView extends StatelessWidget {
       if (accounts.isEmpty) continue;
 
       result.add(_buildTagHeader(context, tag ?? '<no-tag>'));
-      result.addAll(accounts.map((acc) => AccountListElement(account: acc)));
+      result.addAll(accounts.map((acc) => _buildAccountTile(context, acc)));
     }
 
     // If no accounts present make return a placeholder widget
@@ -79,9 +82,13 @@ class AccountListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      shrinkWrap: true,
-      children: _buildTiles(context),
+    return Material(
+      clipBehavior: Clip.hardEdge,
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(25, 10, 25, 100),
+        shrinkWrap: true,
+        children: _buildTiles(context),
+      ),
     );
   }
 }

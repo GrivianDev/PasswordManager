@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:passwordmanager/pages/other/notifications.dart';
 import 'package:provider/provider.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:passwordmanager/pages/other/notifications.dart';
 import 'package:passwordmanager/engine/persistence/appstate.dart';
 import 'package:passwordmanager/pages/flows/app_flows.dart';
 
@@ -35,6 +36,7 @@ class _GeneralSettingsState extends State<GeneralSettings> {
     await runAppFlow(context, () async {
       final AppState appState = context.read();
       await appState.clearAllData();
+      await FilePicker.clearTemporaryFiles();
 
       scaffoldMessenger.showSnackBar(const SnackBar(
         duration: Duration(seconds: 2),

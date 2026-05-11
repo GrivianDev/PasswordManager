@@ -19,7 +19,7 @@ class VaultListElement extends StatelessWidget {
 
   final StorageFile vault;
 
-  Future<void> _pressed(BuildContext context) async {
+  Future<void> _accessStorage(BuildContext context) async {
     final NavigatorState navigator = Navigator.of(context);
     final StorageProvider provider = context.read();
 
@@ -104,7 +104,7 @@ class VaultListElement extends StatelessWidget {
                 size: 15,
                 color: Colors.white,
               ),
-              Text('Saved "${vault.name}" as local file ${shortenPath(resultPath)}'),
+              Text('Saved "${vault.name}" as local file'),
             ],
           ),
         ));
@@ -170,8 +170,7 @@ class VaultListElement extends StatelessWidget {
                 leading: const Icon(Icons.edit),
                 title: const Text('Rename'),
                 onTap: () {
-                  final NavigatorState navigator = Navigator.of(context);
-                  navigator.pop();
+                  Navigator.pop(context);
                   _renameStorage(context);
                 },
               ),
@@ -281,7 +280,7 @@ class VaultListElement extends StatelessWidget {
         icon: const Icon(Icons.more_vert),
         onPressed: () => _morePressed(context),
       ),
-      onTap: () => _pressed(context),
+      onTap: () => _accessStorage(context),
     );
   }
 }

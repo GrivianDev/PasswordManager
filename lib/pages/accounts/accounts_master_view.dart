@@ -126,79 +126,80 @@ class _AccountsMasterViewState extends State<AccountsMasterView> {
           ),
         ),
         body: DefaultPageBody(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(25.0, 25.0, 25.0, 85.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 15),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: _CustomAutocomplete(
-                          onSwitchTrue: _searchTag,
-                          onSwitchFalse: _searchAccountDetails,
-                        ),
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 25),
+                decoration: const BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(color: Colors.grey, width: 1.5),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _CustomAutocomplete(
+                        onSwitchTrue: _searchTag,
+                        onSwitchFalse: _searchAccountDetails,
                       ),
-                      Consumer<AppState>(
-                        builder: (context, appstate, child) {
-                          return appstate.autosaving.value
-                              ? Container()
-                              : Consumer<LocalDatabase>(
-                                  builder: (context, localDb, child) => Padding(
-                                    padding: const EdgeInsets.only(left: 15.0),
-                                    child: Stack(
-                                      clipBehavior: Clip.none,
-                                      children: [
-                                        ElevatedButton(
-                                          onPressed: _save,
-                                          child: const Padding(
-                                            padding: EdgeInsets.all(12.0),
-                                            child: Row(
-                                              spacing: 10,
-                                              children: [
-                                                Icon(Icons.save_rounded),
-                                                Text('Save'),
-                                              ],
+                    ),
+                    Consumer<AppState>(
+                      builder: (context, appstate, child) {
+                        return appstate.autosaving.value
+                            ? Container()
+                            : Consumer<LocalDatabase>(
+                                builder: (context, localDb, child) => Padding(
+                                  padding: const EdgeInsets.only(left: 15.0),
+                                  child: Stack(
+                                    clipBehavior: Clip.none,
+                                    children: [
+                                      ElevatedButton(
+                                        onPressed: _save,
+                                        child: const Padding(
+                                          padding: EdgeInsets.all(12.0),
+                                          child: Row(
+                                            spacing: 10,
+                                            children: [
+                                              Icon(Icons.save_rounded),
+                                              Text('Save'),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      if (localDb.hasUnsavedChanges)
+                                        Positioned(
+                                          right: -4,
+                                          top: -4,
+                                          child: Container(
+                                            width: 12,
+                                            height: 12,
+                                            decoration: BoxDecoration(
+                                              color: Colors.redAccent,
+                                              shape: BoxShape.circle,
+                                              border: Border.all(color: Colors.orange, width: 2),
                                             ),
                                           ),
                                         ),
-                                        if (localDb.hasUnsavedChanges)
-                                          Positioned(
-                                            right: -4,
-                                            top: -4,
-                                            child: Container(
-                                              width: 12,
-                                              height: 12,
-                                              decoration: BoxDecoration(
-                                                color: Colors.redAccent,
-                                                shape: BoxShape.circle,
-                                                border: Border.all(color: Colors.orange, width: 2),
-                                              ),
-                                            ),
-                                          ),
-                                      ],
-                                    ),
+                                    ],
                                   ),
-                                );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  flex: 4,
-                  child: Consumer<LocalDatabase>(
-                    builder: (context, database, child) => AccountListView(
-                      searchTag: tagQuery,
-                      searchQuery: searchQuery,
-                      queryCaseInsensitiveSearch: true,
+                                ),
+                              );
+                      },
                     ),
+                  ],
+                ),
+              ),
+              Expanded(
+                flex: 4,
+                child: Consumer<LocalDatabase>(
+                  builder: (context, database, child) => AccountListView(
+                    searchTag: tagQuery,
+                    searchQuery: searchQuery,
+                    queryCaseInsensitiveSearch: true,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

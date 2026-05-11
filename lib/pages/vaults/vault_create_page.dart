@@ -55,16 +55,26 @@ class _VaultCreatePageState extends State<VaultCreatePage> {
     await runAppFlow(context, () async {
       try {
         Notify.showLoading(context: context);
-        final StorageController controller = provider.controller(_selectedStorageType);
-        final String location = await controller.getUserStorageLocation();
+        final StorageController targetStorageController = provider.controller(_selectedStorageType);
+        final String location = await targetStorageController.getUserStorageLocation();
 
-        await Source.initialiseNew(
-          controller.repository,
-          name: _nameController.text,
-          location: location,
-          password: _pwController.text,
-        );
-        controller.load();
+        if (widget.sourceFile == null) {
+          await Source.initialiseNew(
+            targetStorageController.repository,
+            name: _nameController.text,
+            location: location,
+            password: _pwController.text,
+          );
+        } else {
+          final StorageController sourceFileController = provider.controller(widget.sourceFile!.type);
+          final String sourceData = await sourceFileController.repository.read(widget.sourceFile!);
+          targetStorageController.repository.create(
+            name: _nameController.text,
+            location: location,
+            initialData: sourceData,
+          );
+        }
+        targetStorageController.load();
       } finally {
         navigator.pop();
       }

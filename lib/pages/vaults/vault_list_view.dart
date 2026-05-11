@@ -35,14 +35,17 @@ class VaultListView extends StatelessWidget {
       );
     }
 
-    return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(25, 25, 25, 150),
-      itemCount: files.length,
-      itemBuilder: (context, index) {
-        final StorageFile file = files[index];
-        return VaultListElement(vault: file);
-      },
-      separatorBuilder:(context, index) => const SizedBox(height: 15),
+    return Material(
+      clipBehavior: Clip.hardEdge,
+      child: ListView.separated(
+        padding: const EdgeInsets.fromLTRB(25, 25, 25, 150),
+        itemCount: files.length,
+        itemBuilder: (context, index) {
+          final StorageFile file = files[index];
+          return VaultListElement(vault: file);
+        },
+        separatorBuilder: (context, index) => const SizedBox(height: 15),
+      ),
     );
   }
 }
