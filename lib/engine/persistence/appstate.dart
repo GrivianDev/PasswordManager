@@ -205,7 +205,11 @@ class AppState with ChangeNotifier {
   Future<void> init() async {
     try {
       _prefs = await SharedPreferences.getInstance();
-      _secure = const FlutterSecureStorage(aOptions: AndroidOptions(encryptedSharedPreferences: true));
+      _secure = const FlutterSecureStorage(
+        aOptions: AndroidOptions(
+          migrateWithBackup: true, // Enable crash-resistant migration
+        ),
+      );
     } catch (e, s) {
       throw AppException(
         'Could not initialise app state',

@@ -1,8 +1,8 @@
 import 'dart:io';
-import 'package:file_picker/file_picker.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:passwordmanager/engine/other/file_utility.dart';
 import 'package:passwordmanager/engine/app_exception.dart';
 import 'package:passwordmanager/engine/persistence/storage/storage_controller.dart';
 import 'package:passwordmanager/engine/persistence/storage/storage_file.dart';
@@ -27,28 +27,15 @@ class VaultsMasterView extends StatelessWidget {
     final StorageController controller = context.read<StorageProvider>().controller(StorageType.LocalFilesystem);
 
     await runAppFlow(context, () async {
-      FilePickerResult? result;
+      File? externalFile;
       try {
         Notify.showLoading(context: context);
-        if (Platform.isAndroid || Platform.isIOS) {
-          // Clear up tmp files. This is nessecary cause android might cache file selections, if now the file
-          // has been changed and reselected, then the cached unchanged variant will be used instead, which is not desired.
-          await FilePicker.platform.clearTemporaryFiles();
-        }
-
-        result = await FilePicker.platform.pickFiles(
-          lockParentWindow: true,
-          dialogTitle: 'Select your save file',
-          type: FileType.any,
-          //allowedExtensions: ['x'],
-          allowMultiple: false,
-        );
-        if (result == null) return;
+        externalFile = await pickExternalFile(dialogTitle: 'Select your vault file');
       } finally {
         navigator.pop();
       }
 
-      final File externalFile = File(result.files.single.path ?? '');
+      if (externalFile == null) return;
       if (!externalFile.path.endsWith('.x')) {
         throw AppException('File extension is not supported');
       }

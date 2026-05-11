@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
@@ -44,7 +46,7 @@ class _LocalFileSystemConfigState extends State<LocalFileSystemConfig> {
     await runAppFlow(context, () async {
       try {
         Notify.showLoading(context: context);
-        String? path = await FilePicker.platform.getDirectoryPath(
+        String? path = await FilePicker.getDirectoryPath(
           dialogTitle: 'Select directory for vaults',
         );
 
@@ -94,31 +96,32 @@ class _LocalFileSystemConfigState extends State<LocalFileSystemConfig> {
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 10,
       children: [
-        TextField(
-          controller: _storagePathController,
-          decoration: InputDecoration(
-            labelText: 'Storage path',
-            suffixIcon: Padding(
-              padding: const EdgeInsets.only(right: 5.0),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    onPressed: _openCurrentStoragePath,
-                    icon: const Icon(Icons.open_in_new),
-                    tooltip: 'Open folder',
-                  ),
-                  IconButton(
-                    onPressed: _changeStoragePathViaDirectoryPicker,
-                    icon: const Icon(Icons.folder_open),
-                    tooltip: 'Change folder',
-                  ),
-                ],
+        if (!Platform.isAndroid && !Platform.isIOS)
+          TextField(
+            controller: _storagePathController,
+            decoration: InputDecoration(
+              labelText: 'Storage path',
+              suffixIcon: Padding(
+                padding: const EdgeInsets.only(right: 5.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      onPressed: _openCurrentStoragePath,
+                      icon: const Icon(Icons.open_in_new),
+                      tooltip: 'Open folder',
+                    ),
+                    IconButton(
+                      onPressed: _changeStoragePathViaDirectoryPicker,
+                      icon: const Icon(Icons.folder_open),
+                      tooltip: 'Change folder',
+                    ),
+                  ],
+                ),
               ),
             ),
+            onSubmitted: (value) => _changeStoragePathManually(),
           ),
-          onSubmitted: (value) => _changeStoragePathManually(),
-        ),
         if (appState.localSystemStorageLocation.value.isEmpty)
           FutureBuilder(
             future: context.read<LocalFileController>().getUserStorageLocation(),

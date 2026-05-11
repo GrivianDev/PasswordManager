@@ -1,8 +1,6 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:passwordmanager/engine/app_exception.dart';
+import 'package:provider/provider.dart';
+import 'package:passwordmanager/engine/other/file_utility.dart';
 import 'package:passwordmanager/engine/db/local_database.dart';
 import 'package:passwordmanager/engine/other/util.dart';
 import 'package:passwordmanager/engine/persistence/source.dart';
@@ -15,8 +13,6 @@ import 'package:passwordmanager/pages/flows/typed_confirmation_dialog.dart';
 import 'package:passwordmanager/pages/flows/user_input_dialog.dart';
 import 'package:passwordmanager/pages/other/notifications.dart';
 import 'package:passwordmanager/pages/vaults/vault_create_page.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:provider/provider.dart';
 
 class VaultListElement extends StatelessWidget {
   const VaultListElement({super.key, required this.vault});
@@ -86,7 +82,7 @@ class VaultListElement extends StatelessWidget {
     });
   }
 
-  Future<void> _downloadCopy(BuildContext context) async {
+  Future<void> _storeBackup(BuildContext context) async {
     final NavigatorState navigator = Navigator.of(context);
     final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
     final StorageController controller = context.read<StorageProvider>().controller(vault.type);
@@ -94,15 +90,9 @@ class VaultListElement extends StatelessWidget {
     await runAppFlow(context, () async {
       try {
         Notify.showLoading(context: context);
-        final Directory? downloadsDir = await getDownloadsDirectory();
-        if (downloadsDir == null) {
-          throw AppException('Failed to look up Downloads directory');
-        }
-
-        final String fielname = await findAvailableFilename(downloadsDir.path, '${vault.name}.x');
         final String content = await controller.repository.read(vault);
-        final File file = File('${downloadsDir.path}${Platform.pathSeparator}$fielname');
-        await file.writeAsString(content, encoding: utf8);
+        final String? resultPath = await saveFileExternal(filename: '${vault.name}.x', content: content);
+        if (resultPath == null) return;
 
         scaffoldMessenger.showSnackBar(SnackBar(
           duration: const Duration(seconds: 2),
@@ -114,7 +104,7 @@ class VaultListElement extends StatelessWidget {
                 size: 15,
                 color: Colors.white,
               ),
-              Text('Saved to Downloads as "$fielname"'),
+              Text('Saved "${vault.name}" as local file ${shortenPath(resultPath)}'),
             ],
           ),
         ));
@@ -187,7 +177,7 @@ class VaultListElement extends StatelessWidget {
               ),
               ListTile(
                 leading: const Icon(Icons.drive_file_move),
-                title: const Text('Copy to'),
+                title: const Text('Copy to storage'),
                 onTap: () {
                   final NavigatorState navigator = Navigator.of(context);
                   navigator.pop();
@@ -200,11 +190,11 @@ class VaultListElement extends StatelessWidget {
               ),
               ListTile(
                 leading: const Icon(Icons.download),
-                title: const Text('Download copy'),
+                title: const Text('Export backup'),
                 onTap: () {
                   final NavigatorState navigator = Navigator.of(context);
                   navigator.pop();
-                  _downloadCopy(context);
+                  _storeBackup(context);
                 },
               ),
               const Divider(),

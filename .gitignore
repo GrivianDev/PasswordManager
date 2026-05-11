@@ -44,8 +44,5 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# Access config
-/lib/engine/config/app_config.dart
-
 # Custom
 devtools_options.yaml

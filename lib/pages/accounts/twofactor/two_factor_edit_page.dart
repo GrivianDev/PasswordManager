@@ -221,7 +221,7 @@ class _TwoFactorEditPageState extends State<TwoFactorEditPage> {
                         child: Divider(thickness: 1.5),
                       ),
                       DropdownButtonFormField<String>(
-                        value: _selectedAlgorithm,
+                        initialValue: _selectedAlgorithm,
                         decoration: const InputDecoration(
                           labelText: 'Algorithm',
                         ),
