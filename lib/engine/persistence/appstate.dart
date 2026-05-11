@@ -72,7 +72,7 @@ class AppState with ChangeNotifier {
     key: 'ethercrypt.autosaving',
     storage: StorageOption.shared,
     stype: SerilizationType.bool,
-    defaultValue: false,
+    defaultValue: true,
     onChanged: notifyListeners,
   );
 
