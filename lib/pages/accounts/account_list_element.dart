@@ -84,8 +84,10 @@ class AccountListElement extends StatelessWidget {
     final String? mail = mailPreview(_account.email ?? '');
 
     return ListTile(
-      title: Text(_account.name ?? '<no-name>'),
-      subtitle: mail != null ? Text(mail) : null,
+      dense: true,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+      title: Text(_account.name ?? '<no-name>', style: Theme.of(context).textTheme.displaySmall),
+      subtitle: mail != null ? Text(mail, style: Theme.of(context).listTileTheme.subtitleTextStyle!.copyWith(overflow: TextOverflow.ellipsis)) : null,
       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => AccountDetailPage(account: _account))),
       tileColor: Theme.of(context).scaffoldBackgroundColor,
       trailing: Row(

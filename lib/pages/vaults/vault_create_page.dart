@@ -68,7 +68,7 @@ class _VaultCreatePageState extends State<VaultCreatePage> {
         } else {
           final StorageController sourceFileController = provider.controller(widget.sourceFile!.type);
           final String sourceData = await sourceFileController.repository.read(widget.sourceFile!);
-          targetStorageController.repository.create(
+          await targetStorageController.repository.create(
             name: _nameController.text,
             location: location,
             initialData: sourceData,

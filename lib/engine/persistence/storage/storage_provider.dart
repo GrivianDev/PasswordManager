@@ -14,6 +14,7 @@ class StorageProvider with ChangeNotifier {
 
   void _onControllerChanged() {
     _allFiles = _controllers.values.expand((c) => c.state.files).toList();
+    _allFiles.sort((a, b) => a.name.compareTo(b.name));
     notifyListeners();
   }
 

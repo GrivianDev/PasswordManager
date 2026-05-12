@@ -170,8 +170,8 @@ class VaultListElement extends StatelessWidget {
                 leading: const Icon(Icons.edit),
                 title: const Text('Rename'),
                 onTap: () {
-                  Navigator.pop(context);
-                  _renameStorage(context);
+                  final NavigatorState navigator = Navigator.of(context);
+                  _renameStorage(navigator.context);
                 },
               ),
               ListTile(
