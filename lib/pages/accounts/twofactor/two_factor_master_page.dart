@@ -1,16 +1,16 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:passwordmanager/pages/widgets/default_page_body.dart';
+import 'package:ethercrypt/pages/widgets/default_page_body.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:passwordmanager/pages/flows/typed_confirmation_dialog.dart';
-import 'package:passwordmanager/engine/persistence/appstate.dart';
-import 'package:passwordmanager/pages/accounts/twofactor/two_factor_edit_page.dart';
-import 'package:passwordmanager/pages/accounts/twofactor/two_factor_setup.dart';
-import 'package:passwordmanager/pages/accounts/twofactor/two_factor_display.dart';
-import 'package:passwordmanager/engine/account.dart';
-import 'package:passwordmanager/engine/db/local_database.dart';
-import 'package:passwordmanager/pages/other/notifications.dart';
+import 'package:ethercrypt/pages/flows/typed_confirmation_dialog.dart';
+import 'package:ethercrypt/engine/persistence/appstate.dart';
+import 'package:ethercrypt/pages/accounts/twofactor/two_factor_edit_page.dart';
+import 'package:ethercrypt/pages/accounts/twofactor/two_factor_setup.dart';
+import 'package:ethercrypt/pages/accounts/twofactor/two_factor_display.dart';
+import 'package:ethercrypt/engine/account.dart';
+import 'package:ethercrypt/engine/db/local_database.dart';
+import 'package:ethercrypt/pages/other/notifications.dart';
 
 class TwoFactorManagePage extends StatelessWidget {
   const TwoFactorManagePage({super.key, required this.account});

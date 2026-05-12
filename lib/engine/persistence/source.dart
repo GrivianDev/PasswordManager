@@ -1,10 +1,10 @@
-import 'package:passwordmanager/engine/db/accessors/accessor.dart';
-import 'package:passwordmanager/engine/db/accessors/accessor_registry.dart';
-import 'package:passwordmanager/engine/db/database_content.dart';
-import 'package:passwordmanager/engine/db/local_database.dart';
-import 'package:passwordmanager/engine/other/property_codec.dart';
-import 'package:passwordmanager/engine/persistence/storage/storage_file.dart';
-import 'package:passwordmanager/engine/persistence/storage/storage_repository.dart';
+import 'package:ethercrypt/engine/db/accessors/accessor.dart';
+import 'package:ethercrypt/engine/db/accessors/accessor_registry.dart';
+import 'package:ethercrypt/engine/db/database_content.dart';
+import 'package:ethercrypt/engine/db/local_database.dart';
+import 'package:ethercrypt/engine/other/property_codec.dart';
+import 'package:ethercrypt/engine/persistence/storage/storage_file.dart';
+import 'package:ethercrypt/engine/persistence/storage/storage_repository.dart';
 
 /// Represents a single storage source for a [LocalDatabase].
 final class Source {

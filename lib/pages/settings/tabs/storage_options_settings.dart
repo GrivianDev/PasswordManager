@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:passwordmanager/engine/persistence/storage/storage_controller.dart';
-import 'package:passwordmanager/pages/other/storage_type_ui.dart';
-import 'package:passwordmanager/engine/persistence/storage/storage_file.dart';
-import 'package:passwordmanager/engine/persistence/storage/storage_provider.dart';
-import 'package:passwordmanager/pages/settings/tabs/storageconfigs/firestore_config.dart';
-import 'package:passwordmanager/pages/settings/tabs/storageconfigs/local_file_system_config.dart';
+import 'package:ethercrypt/engine/persistence/storage/storage_controller.dart';
+import 'package:ethercrypt/pages/other/storage_type_ui.dart';
+import 'package:ethercrypt/engine/persistence/storage/storage_file.dart';
+import 'package:ethercrypt/engine/persistence/storage/storage_provider.dart';
+import 'package:ethercrypt/pages/settings/tabs/storageconfigs/firestore_config.dart';
+import 'package:ethercrypt/pages/settings/tabs/storageconfigs/local_file_system_config.dart';
 
 class StorageOptionsSettings extends StatefulWidget {
   const StorageOptionsSettings({super.key});

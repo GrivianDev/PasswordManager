@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
-import 'package:passwordmanager/engine/api/firebase/firebase_user.dart';
-import 'package:passwordmanager/engine/api/http_client.dart';
+import 'package:ethercrypt/engine/api/firebase/firebase_user.dart';
+import 'package:ethercrypt/engine/api/http_client.dart';
 
 class FirebaseAuthException implements Exception {
   final String code;

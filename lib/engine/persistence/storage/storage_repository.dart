@@ -1,4 +1,4 @@
-import 'package:passwordmanager/engine/persistence/storage/storage_file.dart';
+import 'package:ethercrypt/engine/persistence/storage/storage_file.dart';
 
 abstract class StorageRepository {
   Future<List<StorageFile>> findAll({String? location});

@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:passwordmanager/pages/flows/app_flows.dart';
-import 'package:passwordmanager/pages/other/storage_type_ui.dart';
+import 'package:ethercrypt/pages/flows/app_flows.dart';
+import 'package:ethercrypt/pages/other/storage_type_ui.dart';
 import 'package:provider/provider.dart';
-import 'package:passwordmanager/engine/persistence/appstate.dart';
-import 'package:passwordmanager/pages/widgets/default_page_body.dart';
-import 'package:passwordmanager/engine/db/local_database.dart';
-import 'package:passwordmanager/engine/persistence/source.dart';
-import 'package:passwordmanager/engine/account.dart';
-import 'package:passwordmanager/pages/accounts/account_list_view.dart';
-import 'package:passwordmanager/pages/accounts/account_master_view_navbar.dart';
-import 'package:passwordmanager/pages/accounts/account_editing_page.dart';
-import 'package:passwordmanager/pages/other/notifications.dart';
+import 'package:ethercrypt/engine/persistence/appstate.dart';
+import 'package:ethercrypt/pages/widgets/default_page_body.dart';
+import 'package:ethercrypt/engine/db/local_database.dart';
+import 'package:ethercrypt/engine/persistence/source.dart';
+import 'package:ethercrypt/engine/account.dart';
+import 'package:ethercrypt/pages/accounts/account_list_view.dart';
+import 'package:ethercrypt/pages/accounts/account_master_view_navbar.dart';
+import 'package:ethercrypt/pages/accounts/account_editing_page.dart';
+import 'package:ethercrypt/pages/other/notifications.dart';
 
 class AccountsMasterView extends StatefulWidget {
   const AccountsMasterView({super.key});

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:passwordmanager/engine/persistence/storage/storage_provider.dart';
+import 'package:ethercrypt/engine/persistence/storage/storage_provider.dart';
 import 'package:provider/provider.dart';
 
 class VaultStatusBar extends StatelessWidget {

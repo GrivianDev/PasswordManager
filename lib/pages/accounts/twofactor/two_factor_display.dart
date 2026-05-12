@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:ntp/ntp.dart';
-import 'package:passwordmanager/engine/persistence/appstate.dart';
-import 'package:passwordmanager/engine/two_factor_token.dart';
-import 'package:passwordmanager/pages/other/notifications.dart';
+import 'package:ethercrypt/engine/persistence/appstate.dart';
+import 'package:ethercrypt/engine/two_factor_token.dart';
+import 'package:ethercrypt/pages/other/notifications.dart';
 
 // This is the NTP time offset to calculate how much off the local system time is.
 Duration? _ntpOffset;

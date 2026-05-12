@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:passwordmanager/pages/widgets/corner_border_widget.dart';
-import 'package:passwordmanager/pages/widgets/default_page_body.dart';
+import 'package:ethercrypt/pages/widgets/corner_border_widget.dart';
+import 'package:ethercrypt/pages/widgets/default_page_body.dart';
 
 /// Page for the view for QR-Code scanning, will return to previous page once a QR-Code has been scanned.
 /// * Flashlight can be enabled

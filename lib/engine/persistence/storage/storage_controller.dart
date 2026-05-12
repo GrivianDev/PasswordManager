@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
-import 'package:passwordmanager/engine/other/rerun_task.dart';
-import 'package:passwordmanager/engine/persistence/storage/storage_repository.dart';
-import 'package:passwordmanager/engine/persistence/storage/storage_state.dart';
+import 'package:ethercrypt/engine/other/rerun_task.dart';
+import 'package:ethercrypt/engine/persistence/storage/storage_repository.dart';
+import 'package:ethercrypt/engine/persistence/storage/storage_state.dart';
 
 abstract class StorageController with ChangeNotifier {
   final RerunTask _loadTask = RerunTask();

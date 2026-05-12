@@ -2,10 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
-import 'package:passwordmanager/engine/api/firebase/firebase_auth.dart';
-import 'package:passwordmanager/engine/api/firebase/firestore_codec.dart';
-import 'package:passwordmanager/engine/api/firebase/firestore_query.dart';
-import 'package:passwordmanager/engine/api/http_client.dart';
+import 'package:ethercrypt/engine/api/firebase/firebase_auth.dart';
+import 'package:ethercrypt/engine/api/firebase/firestore_codec.dart';
+import 'package:ethercrypt/engine/api/firebase/firestore_query.dart';
+import 'package:ethercrypt/engine/api/http_client.dart';
 
 class FirestoreApiException implements Exception {
   final int? unexpectedCode;

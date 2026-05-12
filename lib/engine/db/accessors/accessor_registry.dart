@@ -1,6 +1,6 @@
-import 'package:passwordmanager/engine/db/accessors/version/accessor_v0.dart';
-import 'package:passwordmanager/engine/db/accessors/version/accessor_v1.dart';
-import 'package:passwordmanager/engine/db/accessors/accessor.dart';
+import 'package:ethercrypt/engine/db/accessors/version/accessor_v0.dart';
+import 'package:ethercrypt/engine/db/accessors/version/accessor_v1.dart';
+import 'package:ethercrypt/engine/db/accessors/accessor.dart';
 
 /// Registry for getting different versions of [DataAccessor] implementations.
 class DataAccessorRegistry {

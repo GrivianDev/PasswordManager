@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:passwordmanager/engine/account.dart';
-import 'package:passwordmanager/engine/db/local_database.dart';
+import 'package:ethercrypt/engine/account.dart';
+import 'package:ethercrypt/engine/db/local_database.dart';
 
 void main() {
   group('Database tests', () {

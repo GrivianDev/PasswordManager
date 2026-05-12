@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:passwordmanager/engine/other/file_utility.dart';
-import 'package:passwordmanager/engine/db/local_database.dart';
-import 'package:passwordmanager/engine/other/util.dart';
-import 'package:passwordmanager/engine/persistence/source.dart';
-import 'package:passwordmanager/engine/persistence/storage/storage_controller.dart';
-import 'package:passwordmanager/engine/persistence/storage/storage_file.dart';
-import 'package:passwordmanager/engine/persistence/storage/storage_provider.dart';
-import 'package:passwordmanager/pages/accounts/accounts_master_view.dart';
-import 'package:passwordmanager/pages/flows/app_flows.dart';
-import 'package:passwordmanager/pages/flows/typed_confirmation_dialog.dart';
-import 'package:passwordmanager/pages/flows/user_input_dialog.dart';
-import 'package:passwordmanager/pages/other/notifications.dart';
-import 'package:passwordmanager/pages/vaults/vault_create_page.dart';
+import 'package:ethercrypt/engine/other/file_utility.dart';
+import 'package:ethercrypt/engine/db/local_database.dart';
+import 'package:ethercrypt/engine/other/util.dart';
+import 'package:ethercrypt/engine/persistence/source.dart';
+import 'package:ethercrypt/engine/persistence/storage/storage_controller.dart';
+import 'package:ethercrypt/engine/persistence/storage/storage_file.dart';
+import 'package:ethercrypt/engine/persistence/storage/storage_provider.dart';
+import 'package:ethercrypt/pages/accounts/accounts_master_view.dart';
+import 'package:ethercrypt/pages/flows/app_flows.dart';
+import 'package:ethercrypt/pages/flows/typed_confirmation_dialog.dart';
+import 'package:ethercrypt/pages/flows/user_input_dialog.dart';
+import 'package:ethercrypt/pages/other/notifications.dart';
+import 'package:ethercrypt/pages/vaults/vault_create_page.dart';
 
 class VaultListElement extends StatelessWidget {
   const VaultListElement({super.key, required this.vault});

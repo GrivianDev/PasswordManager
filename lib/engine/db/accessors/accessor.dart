@@ -1,4 +1,4 @@
-import 'package:passwordmanager/engine/db/database_content.dart';
+import 'package:ethercrypt/engine/db/database_content.dart';
 
 /// Abstract base class defining the interface for data access and encryption.
 ///

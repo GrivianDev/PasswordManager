@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:passwordmanager/pages/widgets/default_page_body.dart';
+import 'package:ethercrypt/pages/widgets/default_page_body.dart';
 
 class SettingsTabPage extends StatefulWidget {
   const SettingsTabPage({

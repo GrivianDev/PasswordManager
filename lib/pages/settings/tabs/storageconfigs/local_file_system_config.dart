@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:passwordmanager/engine/app_exception.dart';
-import 'package:passwordmanager/engine/persistence/storage/storage_controller.dart';
-import 'package:passwordmanager/engine/persistence/appstate.dart';
-import 'package:passwordmanager/engine/persistence/storage/controller/local_file_controller.dart';
-import 'package:passwordmanager/engine/persistence/storage/storage_file.dart';
-import 'package:passwordmanager/engine/persistence/storage/storage_provider.dart';
-import 'package:passwordmanager/pages/flows/app_flows.dart';
-import 'package:passwordmanager/pages/other/notifications.dart';
+import 'package:ethercrypt/engine/app_exception.dart';
+import 'package:ethercrypt/engine/persistence/storage/storage_controller.dart';
+import 'package:ethercrypt/engine/persistence/appstate.dart';
+import 'package:ethercrypt/engine/persistence/storage/controller/local_file_controller.dart';
+import 'package:ethercrypt/engine/persistence/storage/storage_file.dart';
+import 'package:ethercrypt/engine/persistence/storage/storage_provider.dart';
+import 'package:ethercrypt/pages/flows/app_flows.dart';
+import 'package:ethercrypt/pages/other/notifications.dart';
 
 class LocalFileSystemConfig extends StatefulWidget {
   const LocalFileSystemConfig({super.key});

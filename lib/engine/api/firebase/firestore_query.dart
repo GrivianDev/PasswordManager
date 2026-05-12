@@ -1,4 +1,4 @@
-import 'package:passwordmanager/engine/api/firebase/firestore_codec.dart';
+import 'package:ethercrypt/engine/api/firebase/firestore_codec.dart';
 
 class FirestoreQuery {
   final String collectionPath;

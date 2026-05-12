@@ -1,4 +1,4 @@
-import 'package:passwordmanager/engine/two_factor_token.dart';
+import 'package:ethercrypt/engine/two_factor_token.dart';
 
 /// Core class that holds information about an account.
 /// Implements the [Comparable] interface. The natural order of

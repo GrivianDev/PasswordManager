@@ -1,13 +1,13 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:passwordmanager/engine/persistence/appstate.dart';
-import 'package:passwordmanager/engine/account.dart';
-import 'package:passwordmanager/engine/db/local_database.dart';
-import 'package:passwordmanager/engine/two_factor_token.dart';
-import 'package:passwordmanager/pages/widgets/qr_scanner_page.dart';
-import 'package:passwordmanager/pages/accounts/twofactor/two_factor_edit_page.dart';
-import 'package:passwordmanager/pages//other/notifications.dart';
+import 'package:ethercrypt/engine/persistence/appstate.dart';
+import 'package:ethercrypt/engine/account.dart';
+import 'package:ethercrypt/engine/db/local_database.dart';
+import 'package:ethercrypt/engine/two_factor_token.dart';
+import 'package:ethercrypt/pages/widgets/qr_scanner_page.dart';
+import 'package:ethercrypt/pages/accounts/twofactor/two_factor_edit_page.dart';
+import 'package:ethercrypt/pages//other/notifications.dart';
 
 class TwoFactorSetupPage extends StatelessWidget {
   const TwoFactorSetupPage({super.key, required this.account});

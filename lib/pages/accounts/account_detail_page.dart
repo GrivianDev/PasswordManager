@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:passwordmanager/pages/accounts/twofactor/two_factor_master_page.dart';
-import 'package:passwordmanager/pages/widgets/password_field.dart';
-import 'package:passwordmanager/engine/db/local_database.dart';
-import 'package:passwordmanager/engine/account.dart';
-import 'package:passwordmanager/pages/accounts/account_editing_page.dart';
+import 'package:ethercrypt/pages/accounts/twofactor/two_factor_master_page.dart';
+import 'package:ethercrypt/pages/widgets/password_field.dart';
+import 'package:ethercrypt/engine/db/local_database.dart';
+import 'package:ethercrypt/engine/account.dart';
+import 'package:ethercrypt/pages/accounts/account_editing_page.dart';
 
 class AccountDetailPage extends StatelessWidget {
   const AccountDetailPage({super.key, required Account account, bool accessedThroughSearch = false}) : _account = account;

@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:passwordmanager/pages/other/notifications.dart';
-import 'package:passwordmanager/pages/widgets/validation_controller.dart';
+import 'package:ethercrypt/pages/other/notifications.dart';
+import 'package:ethercrypt/pages/widgets/validation_controller.dart';
 
 /// Displays a confirmation dialog with a text input field and returns the entered value.
 /// Supports live validation of the input as the user types.

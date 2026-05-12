@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:passwordmanager/engine/persistence/storage/storage_controller.dart';
-import 'package:passwordmanager/engine/persistence/storage/storage_file.dart';
+import 'package:ethercrypt/engine/persistence/storage/storage_controller.dart';
+import 'package:ethercrypt/engine/persistence/storage/storage_file.dart';
 
 class StorageProvider with ChangeNotifier {
   final Map<StorageType, StorageController> _controllers;

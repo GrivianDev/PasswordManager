@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:passwordmanager/pages/other/notifications.dart';
-import 'package:passwordmanager/pages/flows/app_flows.dart';
-import 'package:passwordmanager/pages/flows/typed_confirmation_dialog.dart';
-import 'package:passwordmanager/engine/other/util.dart';
-import 'package:passwordmanager/engine/persistence/appstate.dart';
-import 'package:passwordmanager/engine/account.dart';
-import 'package:passwordmanager/engine/db/local_database.dart';
-import 'package:passwordmanager/pages/accounts/account_detail_page.dart';
+import 'package:ethercrypt/pages/other/notifications.dart';
+import 'package:ethercrypt/pages/flows/app_flows.dart';
+import 'package:ethercrypt/pages/flows/typed_confirmation_dialog.dart';
+import 'package:ethercrypt/engine/other/util.dart';
+import 'package:ethercrypt/engine/persistence/appstate.dart';
+import 'package:ethercrypt/engine/account.dart';
+import 'package:ethercrypt/engine/db/local_database.dart';
+import 'package:ethercrypt/pages/accounts/account_detail_page.dart';
 
 class AccountListElement extends StatelessWidget {
   const AccountListElement({super.key, required Account account}) : _account = account;

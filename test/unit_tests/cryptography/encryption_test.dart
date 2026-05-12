@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:passwordmanager/engine/cryptography/datatypes.dart';
-import 'package:passwordmanager/engine/cryptography/implementation/aes_encryption.dart';
-import 'package:passwordmanager/engine/cryptography/encryption.dart';
-import 'package:passwordmanager/engine/cryptography/base16_codec.dart';
+import 'package:ethercrypt/engine/cryptography/datatypes.dart';
+import 'package:ethercrypt/engine/cryptography/implementation/aes_encryption.dart';
+import 'package:ethercrypt/engine/cryptography/encryption.dart';
+import 'package:ethercrypt/engine/cryptography/base16_codec.dart';
 
 void main() {
 

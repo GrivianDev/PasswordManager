@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:passwordmanager/engine/persistence/storage/storage_provider.dart';
-import 'package:passwordmanager/pages/settings/settings_page.dart';
+import 'package:ethercrypt/engine/persistence/storage/storage_provider.dart';
+import 'package:ethercrypt/pages/settings/settings_page.dart';
 
 class VaultsMasterViewNavbar extends StatelessWidget {
   const VaultsMasterViewNavbar({super.key});

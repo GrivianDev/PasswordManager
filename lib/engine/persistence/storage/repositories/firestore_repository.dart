@@ -1,7 +1,7 @@
-import 'package:passwordmanager/engine/api/firebase/firestore.dart';
-import 'package:passwordmanager/engine/api/firebase/firestore_query.dart';
-import 'package:passwordmanager/engine/persistence/storage/storage_file.dart';
-import 'package:passwordmanager/engine/persistence/storage/storage_repository.dart';
+import 'package:ethercrypt/engine/api/firebase/firestore.dart';
+import 'package:ethercrypt/engine/api/firebase/firestore_query.dart';
+import 'package:ethercrypt/engine/persistence/storage/storage_file.dart';
+import 'package:ethercrypt/engine/persistence/storage/storage_repository.dart';
 
 class FirestoreRepository implements StorageRepository {
   final Firestore firestore;

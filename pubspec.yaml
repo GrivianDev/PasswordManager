@@ -1,4 +1,4 @@
-name: passwordmanager
+name: ethercrypt
 description: A simple password manager
 
 publish_to: 'none'

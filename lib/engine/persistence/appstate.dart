@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:passwordmanager/engine/app_exception.dart';
+import 'package:ethercrypt/engine/app_exception.dart';
 
 /// Defines where a setting is stored.
 enum StorageOption {

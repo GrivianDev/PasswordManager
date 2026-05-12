@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:passwordmanager/pages/flows/app_flows.dart';
+import 'package:ethercrypt/pages/flows/app_flows.dart';
 import 'package:provider/provider.dart';
-import 'package:passwordmanager/engine/persistence/appstate.dart';
-import 'package:passwordmanager/engine/db/local_database.dart';
-import 'package:passwordmanager/engine/other/safety.dart';
-import 'package:passwordmanager/engine/account.dart';
-import 'package:passwordmanager/pages/other/notifications.dart';
-import 'package:passwordmanager/pages/widgets/default_page_body.dart';
+import 'package:ethercrypt/engine/persistence/appstate.dart';
+import 'package:ethercrypt/engine/db/local_database.dart';
+import 'package:ethercrypt/engine/other/safety.dart';
+import 'package:ethercrypt/engine/account.dart';
+import 'package:ethercrypt/pages/other/notifications.dart';
+import 'package:ethercrypt/pages/widgets/default_page_body.dart';
 
 /// The EditingPage is used for editing AND creating [Account] instances despite it beeing named "EditingPage".
 class AccountEditingPage extends StatefulWidget {

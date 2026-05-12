@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:ntp/ntp.dart';
 import 'package:provider/provider.dart';
-import 'package:passwordmanager/engine/persistence/appstate.dart';
-import 'package:passwordmanager/pages/flows/app_flows.dart';
-import 'package:passwordmanager/pages/flows/user_input_dialog.dart';
-import 'package:passwordmanager/pages/other/notifications.dart';
+import 'package:ethercrypt/engine/persistence/appstate.dart';
+import 'package:ethercrypt/pages/flows/app_flows.dart';
+import 'package:ethercrypt/pages/flows/user_input_dialog.dart';
+import 'package:ethercrypt/pages/other/notifications.dart';
 
 class NtpServerSettings extends StatefulWidget {
   const NtpServerSettings({super.key});

@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:passwordmanager/engine/other/util.dart';
-import 'package:passwordmanager/engine/persistence/storage/storage_file.dart';
-import 'package:passwordmanager/engine/persistence/storage/storage_repository.dart';
+import 'package:ethercrypt/engine/other/util.dart';
+import 'package:ethercrypt/engine/persistence/storage/storage_file.dart';
+import 'package:ethercrypt/engine/persistence/storage/storage_repository.dart';
 
 class LocalFileRepository implements StorageRepository {
   Future<StorageFile> _fromFile(File file) async {

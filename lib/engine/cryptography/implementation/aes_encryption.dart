@@ -2,8 +2,8 @@ import 'dart:typed_data';
 import 'package:pointycastle/api.dart';
 import 'package:pointycastle/block/aes.dart';
 import 'package:pointycastle/block/modes/cbc.dart';
-import 'package:passwordmanager/engine/cryptography/datatypes.dart';
-import 'package:passwordmanager/engine/cryptography/encryption.dart';
+import 'package:ethercrypt/engine/cryptography/datatypes.dart';
+import 'package:ethercrypt/engine/cryptography/encryption.dart';
 
 /// An implementation of the AES 256 bit CBC encryption algorithm.
 /// Overrides the [encrypt] and [decrypt] method of the [Encryption] interface.

@@ -1,5 +1,5 @@
 import 'dart:typed_data';
-import 'package:passwordmanager/engine/cryptography/datatypes.dart';
+import 'package:ethercrypt/engine/cryptography/datatypes.dart';
 
 /// This interface provides the [encrypt] and [decrypt] method to allow
 /// symetric encryption and decryption for bytes through a given key and iv.

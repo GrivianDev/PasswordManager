@@ -1,5 +1,5 @@
 import 'dart:typed_data';
-import 'package:passwordmanager/engine/cryptography/service.dart';
+import 'package:ethercrypt/engine/cryptography/service.dart';
 
 /// Datatype for containing the bytes for a key used in cryptography. May additionally hold the salt used for generating said key.
 /// Intern generation method for keys uses PBKDF2 as key derivation function with 4096 iterations.

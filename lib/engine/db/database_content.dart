@@ -1,4 +1,4 @@
-import 'package:passwordmanager/engine/account.dart';
+import 'package:ethercrypt/engine/account.dart';
 
 final class DatabaseContent {
   final List<Account> accounts;
