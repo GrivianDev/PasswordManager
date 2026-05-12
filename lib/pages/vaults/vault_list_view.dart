@@ -36,7 +36,7 @@ class VaultListView extends StatelessWidget {
     }
 
     return Material(
-      clipBehavior: Clip.hardEdge,
+      clipBehavior: Clip.hardEdge, // Solves tile background beeing rendered behind other widgets
       child: ListView.separated(
         padding: const EdgeInsets.fromLTRB(25, 25, 25, 150),
         itemCount: files.length,

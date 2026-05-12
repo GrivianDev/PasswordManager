@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
-/// Displays the current app information such as the version number.
-/// Additionally shows a link to the github repository.
 Future<void> displayInfoDialog(BuildContext context) async {
   final PackageInfo info = await PackageInfo.fromPlatform();
 
@@ -12,9 +10,7 @@ Future<void> displayInfoDialog(BuildContext context) async {
     context: context,
     builder: (context) {
       return Theme(
-        data: Theme.of(context).copyWith(
-          listTileTheme: Theme.of(context).listTileTheme.copyWith(shape: const ContinuousRectangleBorder(),),
-        ),
+        data: Theme.of(context).copyWith(listTileTheme: Theme.of(context).listTileTheme.copyWith(shape: const ContinuousRectangleBorder())),
         child: AboutDialog.adaptive(
           applicationVersion: info.version,
           applicationIcon: const Icon(
@@ -22,6 +18,9 @@ Future<void> displayInfoDialog(BuildContext context) async {
             size: 45,
           ),
           children: [
+            const Text('A simple and secure open-source app to store your passwords and account details.'),
+            const SizedBox(height: 15),
+            Text('Build by Joel Lutz', style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Colors.grey, fontStyle: FontStyle.italic)),
             const SizedBox(height: 15),
             TextButton(
               onPressed: () async => await launchUrl(Uri.parse('https://github.com/GrivianDev/PasswordManager')),

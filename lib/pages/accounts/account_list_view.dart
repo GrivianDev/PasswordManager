@@ -83,7 +83,7 @@ class AccountListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      clipBehavior: Clip.hardEdge,
+      clipBehavior: Clip.hardEdge, // Solves tile background beeing rendered behind other widgets
       child: ListView(
         padding: const EdgeInsets.fromLTRB(25, 10, 25, 100),
         shrinkWrap: true,
