@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:ethercrypt/pages/flows/app_flows.dart';
 import 'package:ethercrypt/engine/persistence/appstate.dart';
 import 'package:ethercrypt/engine/two_factor_token.dart';
 import 'package:ethercrypt/pages/other/base32_input_formatter.dart';
@@ -29,75 +30,47 @@ class _TwoFactorEditPageState extends State<TwoFactorEditPage> {
   late String _selectedAlgorithm;
   bool _isUnusualSecret = false;
 
-  /// Asynchronous method to persist changes.
-  /// Displays a snackbar if succeeded.
-  Future<void> _save(BuildContext context) async {
+  Future<void> _confirmClicked() async {
     final NavigatorState navigator = Navigator.of(context);
     final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
     final LocalDatabase database = context.read();
 
-    try {
-      Notify.showLoading(context: context);
-      await database.save();
-    } catch (e) {
+    await runAppFlow(context, () async {
+      try {
+        Notify.showLoading(context: context);
+
+        widget.account.twoFactorSecret = TOTPSecret(
+          issuer: _issuerController.text,
+          accountName: _accountNameController.text,
+          secret: _secretController.text.replaceAll(' ', ''),
+          algorithm: _selectedAlgorithm,
+          period: int.parse(_periodController.text),
+          digits: int.parse(_digitController.text),
+        );
+        database.replaceAccount(widget.account.id, widget.account);
+
+        if (context.read<AppState>().autosaving.value) {
+          await database.save();
+          scaffoldMessenger.showSnackBar(const SnackBar(
+            duration: Duration(milliseconds: 1500),
+            content: Wrap(
+              spacing: 5,
+              children: [
+                Icon(
+                  Icons.sync,
+                  size: 15,
+                  color: Colors.white,
+                ),
+                Text('Saved changes'),
+              ],
+            ),
+          ));
+        }
+      } finally {
+        navigator.pop();
+      }
       navigator.pop();
-      if (!context.mounted) return;
-      Notify.dialog(
-        context: context,
-        type: NotificationType.error,
-        title: 'Could not save changes!',
-        content: Text(e.toString()),
-      );
-      return;
-    }
-    navigator.pop();
-
-    scaffoldMessenger.showSnackBar(const SnackBar(
-      duration: Duration(milliseconds: 1500),
-      content: Wrap(
-        spacing: 5,
-        children: [
-          Icon(
-            Icons.sync,
-            size: 15,
-            color: Colors.white,
-          ),
-          Text('Saved changes'),
-        ],
-      ),
-    ));
-  }
-
-  /// Callback that inserts the new / edited account into the database.
-  /// Calls [_save] if autosaving is enabled.
-  Future<void> _confirmClicked() async {
-    final NavigatorState navigator = Navigator.of(context);
-    final LocalDatabase database = context.read();
-
-    try {
-      widget.account.twoFactorSecret = TOTPSecret(
-        issuer: _issuerController.text,
-        accountName: _accountNameController.text,
-        secret: _secretController.text.replaceAll(' ', ''),
-        algorithm: _selectedAlgorithm,
-        period: int.parse(_periodController.text),
-        digits: int.parse(_digitController.text),
-      );
-      database.replaceAccount(widget.account.id, widget.account);
-    } catch (e) {
-      Notify.dialog(
-        context: context,
-        type: NotificationType.error,
-        title: 'Error occured!',
-        content: Text(e.toString()),
-      );
-      return;
-    }
-
-    if (context.read<AppState>().autosaving.value) {
-      await _save(context);
-    }
-    navigator.pop();
+    });
   }
 
   @override

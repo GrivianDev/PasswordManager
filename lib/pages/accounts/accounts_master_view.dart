@@ -129,10 +129,10 @@ class _AccountsMasterViewState extends State<AccountsMasterView> {
           child: Column(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 25),
+                padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 25),
                 decoration: const BoxDecoration(
                   border: Border(
-                    bottom: BorderSide(color: Colors.grey, width: 1.5),
+                    bottom: BorderSide(color: Colors.grey, width: 2),
                   ),
                 ),
                 child: Row(
