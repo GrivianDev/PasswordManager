@@ -6,9 +6,11 @@ final class PropertyCodec {
     int start = 0;
     while (start < formattedData.length) {
       final int eq = formattedData.indexOf('=', start);
-      final int end = formattedData.indexOf(';', eq);
+      if (eq == -1) break;
 
-      if (eq == -1 || end == -1) break;
+      final int end = formattedData.indexOf(';', eq);
+      if (end == -1) break;
+      
       if (eq == start || eq == end - 1) {
         throw Exception('Error parsing parameters');
       }

@@ -11,6 +11,17 @@ final class LocalDatabase with ChangeNotifier {
   bool _hasUnsavedChanges = false;
   final List<Account> _accounts = [];
 
+  int _accountSorter(Account a, Account b) {
+    final nameA = a.name?.toLowerCase();
+    final nameB = b.name?.toLowerCase();
+
+    if (nameA == null && nameB == null) return 0;
+    if (nameA == null) return 1;
+    if (nameB == null) return -1;
+
+    return nameA.compareTo(nameB);
+  }
+
   /// Unmodifiable list of all stored [Account]s.
   List<Account> get accounts => List.unmodifiable(_accounts);
 
@@ -62,14 +73,14 @@ final class LocalDatabase with ChangeNotifier {
     if (accounts.isEmpty) return;
 
     _accounts.addAll(accounts);
-    _accounts.sort();
+    _accounts.sort(_accountSorter);
     _hasUnsavedChanges = true;
     notifyListeners();
   }
 
   void addAccount(Account acc) {
     _accounts.add(acc);
-    _accounts.sort();
+    _accounts.sort(_accountSorter);
     _hasUnsavedChanges = true;
     notifyListeners();
   }
@@ -81,7 +92,7 @@ final class LocalDatabase with ChangeNotifier {
     if (index == -1) return false;
 
     _accounts[index] = newAccount;
-    _accounts.sort();
+    _accounts.sort(_accountSorter);
     _hasUnsavedChanges = true;
     notifyListeners();
     return true;

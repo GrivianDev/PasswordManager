@@ -1,9 +1,7 @@
 import 'package:ethercrypt/engine/two_factor_token.dart';
 
 /// Core class that holds information about an account.
-/// Implements the [Comparable] interface. The natural order of
-/// instances is the lowercase alphabetical order.
-final class Account implements Comparable<Account> {
+final class Account {
   static int _idCounter = 0;
   final int id;
 
@@ -34,15 +32,6 @@ final class Account implements Comparable<Account> {
           ? TOTPSecret.fromJson(json['twoFactorSecret'])
           : null,
     );
-  }
-
-  @override
-  int compareTo(Account other) {
-    if (name == null && other.name == null) return 0;
-    if (name == null) return 1; // null > non-null => nulls last
-    if (other.name == null) return -1;
-
-    return name!.toLowerCase().compareTo(other.name!.toLowerCase());
   }
 
   Map<String, dynamic> toJson() {
