@@ -58,8 +58,8 @@ class VaultListElement extends StatelessWidget {
       if (!isValidFilename(input)) return 'Discouraged vault name';
       final String location = await controller.getUserStorageLocation();
       if (await controller.repository.nameExists(name: input, location: location)) return 'Name already exists';
-    } catch (e) {
-      return e.toString();
+    } catch (_) {
+      return 'Error occurred';
     }
     return null;
   }
