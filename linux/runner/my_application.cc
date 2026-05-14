@@ -7,6 +7,21 @@
 
 #include "flutter/generated_plugin_registrant.h"
 
+#include <unistd.h>
+#include <limits.h>
+#include <string>
+
+static std::string getExecutableDir() {
+  char path[PATH_MAX];
+  ssize_t len = readlink("/proc/self/exe", path, sizeof(path) - 1);
+  if (len == -1) return "";
+
+  path[len] = '\0';
+
+  std::string fullPath(path);
+  return fullPath.substr(0, fullPath.find_last_of('/'));
+}
+
 struct _MyApplication {
   GtkApplication parent_instance;
   char** dart_entrypoint_arguments;
@@ -46,13 +61,10 @@ static void my_application_activate(GApplication* application) {
   } else {
     gtk_window_set_title(window, "Ethercrypt");
   }
-  if (g_file_test("assets", G_FILE_TEST_IS_DIR)) {
-    // For debug mode
-    gtk_window_set_icon_from_file(window, "assets/appIcon.png", nullptr);
-  } else {
-    // For release mode
-    gtk_window_set_icon_from_file(window, "data/flutter_assets/assets/appIcon.png", nullptr);
-  }
+
+  // Set app icon
+  std::string iconPath = getExecutableDir() + "/data/flutter_assets/assets/appIcon.png";
+  gtk_window_set_icon_from_file(window, iconPath.c_str(), nullptr);
 
   gtk_window_set_default_size(window, 1280, 720);
   gtk_widget_show(GTK_WIDGET(window));
