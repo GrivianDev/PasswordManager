@@ -32,7 +32,7 @@ class _LocalFileSystemConfigState extends State<LocalFileSystemConfig> {
       if (path.isEmpty) {
         path = await controller.getUserStorageLocation();
       }
-      if (await launchUrl(Uri.directory(path))) {
+      if (!await launchUrl(Uri.directory(path))) {
         throw AppException('Could not open directory "$path"', debugContext: 'Open Local Storage Path');
       }
     });
