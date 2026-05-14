@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:ethercrypt/engine/other/util.dart';
+import 'package:ethercrypt/engine/persistence/storage/storage_conflict_exception.dart';
 import 'package:ethercrypt/engine/persistence/storage/storage_file.dart';
 import 'package:ethercrypt/engine/persistence/storage/storage_repository.dart';
 
@@ -12,6 +13,7 @@ class LocalFileRepository implements StorageRepository {
       location: file.parent.path,
       name: getBasename(extractFilenameFromPath(file.path)),
       type: StorageType.LocalFilesystem,
+      revision: stat.modified.toUtc().toIso8601String(),
       byteSize: stat.size,
       lastModified: stat.modified,
     );
@@ -62,6 +64,10 @@ class LocalFileRepository implements StorageRepository {
   @override
   Future<StorageFile> rename(StorageFile file, String newName) async {
     final File oldFile = File(file.id);
+    final FileStat stat = await oldFile.stat();
+    if (stat.modified.isAfter(DateTime.parse(file.revision))) {
+      throw const StorageConflictException();
+    }
 
     final String newFilePath = '${file.location}${Platform.pathSeparator}$newName.x';
     final File renamed = await oldFile.rename(newFilePath);
@@ -77,6 +83,10 @@ class LocalFileRepository implements StorageRepository {
   @override
   Future<StorageFile> update(StorageFile file, String data) async {
     final File targetFile = File(file.id);
+    final FileStat stat = await targetFile.stat();
+    if (stat.modified.isAfter(DateTime.parse(file.revision))) {
+      throw const StorageConflictException();
+    }
     final File resultFile = await targetFile.writeAsString(data, encoding: utf8, flush: true);
     return _fromFile(resultFile);
   }

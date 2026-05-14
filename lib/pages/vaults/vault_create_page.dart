@@ -60,7 +60,7 @@ class _VaultCreatePageState extends State<VaultCreatePage> {
 
         if (widget.sourceFile == null) {
           await Source.initialiseNew(
-            targetStorageController.repository,
+            targetStorageController,
             name: _nameController.text,
             location: location,
             password: _pwController.text,

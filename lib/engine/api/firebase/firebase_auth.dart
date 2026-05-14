@@ -7,14 +7,14 @@ import 'package:ethercrypt/engine/api/firebase/firebase_user.dart';
 import 'package:ethercrypt/engine/api/http_client.dart';
 
 class FirebaseAuthException implements Exception {
-  final String code;
+  final String message;
+  final String raw;
   final int? statusCode;
-  final dynamic raw;
 
-  FirebaseAuthException(this.code, {this.statusCode, this.raw});
+  FirebaseAuthException(this.message, {required this.raw, this.statusCode});
 
   @override
-  String toString() => 'FirebaseAuthException(error: $code, http status: $statusCode)';
+  String toString() => 'FirebaseAuthException(error: $message, http status: $statusCode)';
 }
 
 /// Handles Firebase Authentication via REST API.
@@ -40,34 +40,30 @@ class FirebaseAuth {
 
   set apiKey(String? apiKey) {
     _apiKey = apiKey;
-    _authRefreshTokenUrl = Uri.parse('https://securetoken.googleapis.com/v1/token?key=$apiKey');
-    _authSignUpUrl = Uri.parse('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=$apiKey');
-    _authLoginUrl = Uri.parse('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=$apiKey');
-    _authDeleteAccountUrl = Uri.parse('https://identitytoolkit.googleapis.com/v1/accounts:delete?key=$_apiKey');
+    _authRefreshTokenUrl = Uri.https('securetoken.googleapis.com', '/v1/token', {'key': apiKey});
+    _authSignUpUrl = Uri.https('identitytoolkit.googleapis.com', '/v1/accounts:signUp', {'key': apiKey});
+    _authLoginUrl = Uri.https('identitytoolkit.googleapis.com', '/v1/accounts:signInWithPassword', {'key': apiKey});
+    _authDeleteAccountUrl = Uri.https('identitytoolkit.googleapis.com', '/v1/accounts:delete', {'key': apiKey});
     logout();
   }
 
   void _throwIfNotSuccessResponse(http.Response response) {
     if (response.statusCode < 200 || response.statusCode >= 300) {
-        _extractAndThrowAuthError(response);
+      dynamic data;
+      try {
+        // Response may have json formatted error info
+        data = json.decode(response.body);
+      } catch (_) {}
+      // Logout if suddenly unauthorized
+      if (response.statusCode == HttpStatus.unauthorized && isUserLoggedIn) {
+        logout();
       }
-  }
-
-  void _extractAndThrowAuthError(http.Response response) {
-    dynamic data;
-    try {
-      // Response may have json formatted error info
-      data = json.decode(response.body);
-    } catch (_) {}
-    // Logout if suddenly unauthorized
-    if (response.statusCode == HttpStatus.unauthorized && isUserLoggedIn) {
-      logout();
+      throw FirebaseAuthException(
+        data?['error']?['message'] ?? 'UNKNOWN',
+        raw: response.body,
+        statusCode: response.statusCode,
+      );
     }
-    throw FirebaseAuthException(
-      data?['error']?['message'] ?? 'UNKNOWN',
-      statusCode: response.statusCode,
-      raw: response.body,
-    );
   }
 
   void _setUser(FirebaseUser? user) {

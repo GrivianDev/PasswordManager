@@ -41,7 +41,7 @@ class VaultListElement extends StatelessWidget {
 
         database.clear();
         await database.loadFromSource(Source(
-          controller.repository,
+          controller,
           file: vault,
           password: passwordInput,
         ));
@@ -58,8 +58,8 @@ class VaultListElement extends StatelessWidget {
       if (!isValidFilename(input)) return 'Discouraged vault name';
       final String location = await controller.getUserStorageLocation();
       if (await controller.repository.nameExists(name: input, location: location)) return 'Name already exists';
-    } catch (_) {
-      return 'Error occured';
+    } catch (e) {
+      return e.toString();
     }
     return null;
   }
@@ -77,8 +77,8 @@ class VaultListElement extends StatelessWidget {
     if (newName == null || !context.mounted) return;
 
     await runAppFlow(context, () async {
-      await controller.repository.rename(vault, newName);
-      controller.load();
+      StorageFile renamed = await controller.repository.rename(vault, newName);
+      controller.applyFileUpdate(renamed);
     });
   }
 
@@ -171,6 +171,7 @@ class VaultListElement extends StatelessWidget {
                 title: const Text('Rename'),
                 onTap: () {
                   final NavigatorState navigator = Navigator.of(context);
+                  navigator.pop();
                   _renameStorage(navigator.context);
                 },
               ),

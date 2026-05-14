@@ -3,35 +3,37 @@ import 'package:ethercrypt/engine/db/accessors/accessor_registry.dart';
 import 'package:ethercrypt/engine/db/database_content.dart';
 import 'package:ethercrypt/engine/db/local_database.dart';
 import 'package:ethercrypt/engine/other/property_codec.dart';
+import 'package:ethercrypt/engine/persistence/storage/storage_controller.dart';
 import 'package:ethercrypt/engine/persistence/storage/storage_file.dart';
-import 'package:ethercrypt/engine/persistence/storage/storage_repository.dart';
 
 /// Represents a single storage source for a [LocalDatabase].
 final class Source {
-  final StorageRepository _repository;
-  final StorageFile file;
+  final StorageController _controller;
+  StorageFile _file;
   DataAccessor? _accessor;
   String _password;
 
-  Source(this._repository, {required this.file, required String password}) : _password = password;
+  Source(this._controller, {required StorageFile file, required String password}) : _file = file, _password = password;
 
   /// Version of the currently active [DataAccessor] used for interpreting and encrypting data.
   String? get accessorVersion => _accessor?.version;
 
+  StorageFile get file => _file;
+
   /// Creates a new source with an initial encrypted value to set up verification.
   ///
   /// Uses the latest [DataAccessor] version for formatting and encryption.
-  static Future<Source> initialiseNew(StorageRepository repository, {required String name, required String location, required String password}) async {
+  static Future<Source> initialiseNew(StorageController controller, {required String name, required String location, required String password}) async {
     DataAccessor accessor = DataAccessorRegistry.create(DataAccessorRegistry.latestVersion); // Auto create new ones with newest version
     accessor.setPassword(password);
 
     final Map<String, String> properties = await accessor.pack(DatabaseContent.empty());
-    final StorageFile file = await repository.create(
+    final StorageFile file = await controller.repository.create(
       name: name,
       location: location,
       initialData: PropertyCodec.encode(properties),
     );
-    return Source(repository, file: file, password: password);
+    return Source(controller, file: file, password: password);
   }
 
   /// Changes the encryption password for the source and applies it to the active [DataAccessor].
@@ -42,7 +44,7 @@ final class Source {
 
   /// Loads and decrypts data from the source.
   Future<DatabaseContent> loadData() async {
-    final String formattedData = await _repository.read(file);
+    final String formattedData = await _controller.repository.read(_file);
     final Map<String, String> properties = PropertyCodec.decode(formattedData);
     final String vaultVersion = properties['version'] ?? 'v0';
 
@@ -60,7 +62,8 @@ final class Source {
     }
 
     final String formattedData = await getFormattedData(dbContent);
-    await _repository.update(file, formattedData);
+    _file = await _controller.repository.update(_file, formattedData);
+    _controller.applyFileUpdate(_file);
   }
 
   Future<String> getFormattedData(DatabaseContent dbContent) async {

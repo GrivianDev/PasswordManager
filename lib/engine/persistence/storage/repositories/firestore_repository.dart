@@ -1,5 +1,6 @@
 import 'package:ethercrypt/engine/api/firebase/firestore.dart';
 import 'package:ethercrypt/engine/api/firebase/firestore_query.dart';
+import 'package:ethercrypt/engine/persistence/storage/storage_conflict_exception.dart';
 import 'package:ethercrypt/engine/persistence/storage/storage_file.dart';
 import 'package:ethercrypt/engine/persistence/storage/storage_repository.dart';
 
@@ -10,6 +11,20 @@ class FirestoreRepository implements StorageRepository {
 
   String _fullyQualifiedPath(StorageFile file) => '${file.location}/${file.id}';
 
+  StorageFile _fromDoc(FirestoreDocument doc, String location) {
+    final String documentId = doc.name.split('/').last;
+    final String documentName = doc.fields['name'] ?? '<no-name>';
+
+    return StorageFile(
+      id: documentId,
+      location: location,
+      name: documentName,
+      type: StorageType.CloudFirestore,
+      revision: doc.updateTime.toUtc().toIso8601String(),
+      lastModified: doc.updateTime,
+    );
+  }
+
   @override
   Future<List<StorageFile>> findAll({String? location}) async {
     final String actualLocation = location ?? '';
@@ -17,18 +32,7 @@ class FirestoreRepository implements StorageRepository {
       actualLocation,
       fieldMask: ['name'],
     );
-    return docs?.map((doc) {
-          final String documentId = doc.name.split('/').last;
-          final String documentName = doc.fields['name'] ?? '<no-name>';
-          return StorageFile(
-            id: documentId,
-            location: actualLocation,
-            name: documentName,
-            type: StorageType.CloudFirestore,
-            lastModified: doc.updateTime,
-          );
-        }).toList() ??
-        [];
+    return docs?.map((doc) => _fromDoc(doc, actualLocation)).toList() ?? [];
   }
 
   @override
@@ -40,15 +44,7 @@ class FirestoreRepository implements StorageRepository {
         'data': initialData ?? '',
       },
     );
-    final String documentId = newDoc.name.split('/').last;
-    return StorageFile(
-      id: documentId,
-      location: location,
-      name: name,
-      type: StorageType.CloudFirestore,
-      byteSize: initialData?.length,
-      lastModified: newDoc.createTime,
-    );
+    return _fromDoc(newDoc, location);
   }
 
   @override
@@ -66,18 +62,18 @@ class FirestoreRepository implements StorageRepository {
 
   @override
   Future<StorageFile> rename(StorageFile file, String newName) async {
-    final FirestoreDocument updatedDoc = await firestore.updateDocument(
-      _fullyQualifiedPath(file),
-      {'name': newName},
-    );
-    return StorageFile(
-      id: file.id,
-      location: file.location,
-      name: newName,
-      type: StorageType.CloudFirestore,
-      byteSize: file.byteSize,
-      lastModified: updatedDoc.updateTime,
-    );
+    try {
+      final FirestoreDocument updatedDoc = await firestore.writeDocument(
+        _fullyQualifiedPath(file),
+        {'name': newName},
+        updateMask: ['name'],
+        precondition: FirestorePrecondition.updateTime(DateTime.parse(file.revision)),
+      );
+      return _fromDoc(updatedDoc, file.location);
+    } on FirestoreApiException catch (e) {
+      if (e.status == 'FAILED_PRECONDITION') throw const StorageConflictException();
+      rethrow;
+    }
   }
 
   @override
@@ -91,18 +87,18 @@ class FirestoreRepository implements StorageRepository {
 
   @override
   Future<StorageFile> update(StorageFile file, String data) async {
-    final FirestoreDocument updatedDoc = await firestore.updateDocument(
-      _fullyQualifiedPath(file),
-      {'data': data},
-    );
-    return StorageFile(
-      id: file.id,
-      location: file.location,
-      name: file.name,
-      type: StorageType.CloudFirestore,
-      byteSize: data.length,
-      lastModified: updatedDoc.updateTime,
-    );
+    try {
+      final FirestoreDocument updatedDoc = await firestore.writeDocument(
+        _fullyQualifiedPath(file),
+        {'data': data},
+        updateMask: ['data'],
+        precondition: FirestorePrecondition.updateTime(DateTime.parse(file.revision)),
+      );
+      return _fromDoc(updatedDoc, file.location);
+    } on FirestoreApiException catch (e) {
+      if (e.status == 'FAILED_PRECONDITION') throw const StorageConflictException();
+      rethrow;
+    }
   }
 
   @override

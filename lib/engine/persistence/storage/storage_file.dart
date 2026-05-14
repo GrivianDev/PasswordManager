@@ -11,6 +11,9 @@ final class StorageFile {
   final String location;
   final String name;
   final StorageType type;
+
+  final String revision;
+
   final int? byteSize;
   final DateTime? lastModified;
 
@@ -19,6 +22,7 @@ final class StorageFile {
     required this.location,
     required this.name,
     required this.type,
+    required this.revision,
     this.byteSize,
     this.lastModified,
   });
