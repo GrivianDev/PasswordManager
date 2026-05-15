@@ -2,17 +2,37 @@
 
 **Powered by Flutter**
 
-A lightweight, open-source, secure, and privacy-focused password manager that also works as a TOTP authenticator. Manage your account credentials locally or in the cloud, and generate 2FA codes — all in one app.
+A lightweight, open-source, and password manager and TOTP authenticator. Ethercrypt allows you to securely store credentials and generate 2FA codes in a single application. It supports multiple storage backends, including local encrypted files and cloud-based providers, giving you flexible access across devices.
+
+## Supported platforms
+
+* Android
+* Windows
+* Linux
+
+## Storage backends
+
+* **Local Storage** - Encrypted files stored directly on the device
+* **Cloud Firestore** - Encrypted data stored online as documents in Google Cloud Firestore. Requires a Firebase project setup.
+* _[Planned] Google Drive_
+* _[Planned] OneDrive_
+* _[Planned] Dropbox_
 
 ## Features
 
-* **Secure Local Storage** – Keep your accounts safe directly on your device.
-* **Cloud Sync (since v1.1.0)** – Optional synchronization with Firebase Firestore for access across devices.
-* **Zero Knowledge** – Your master password is never stored or transmitted; only a hashed verification value is stored to ensure the storage integrity.
-* **Built-in TOTP Generator** – Replace third-party apps like Google Authenticator with integrated 2FA code generation.
+* **Local-first encrypted storage** - Store all data securely on your device using encrypted files.
+* **Multiple storage providers** - Choose where your data is stored.
+* **Cross-device access** - Access the same encrypted storage from different devices via the selected provider.
+* **Built-in TOTP authenticator** - Generate and manage 2FA codes without external apps.
+* **Password generator** - Create secure passwords with configurable length.
+* **Cloud management tools** - Upload, download, and delete remote storage entries when using supported providers.
+* **Optional time synchronisation** - NTP time synchronization over a server can be configured to increase local TOTP generation accuracy.
 
-## Security Overview (For version 2.1.0)
+## Security Overview
 
-* **Key Derivation:** PBKDF2 with a randomly generated salt, password UTF-8 encoded before derivation.
-* **Encryption:** AES-256 in CBC mode, unique IV for each encryption.
-* **Integrity:** HMAC verification to ensure no tampering.
+Ethercrypt follows a zero-knowledge approach where the master password is never stored or transmitted. _**Important:** As a result, if the password is lost, access to encrypted data <u>**cannot be recovered**</u>, as no recovery mechanism exists by design._
+
+* **Key derivation:** PBKDF2 with per-storage random salt and increased iteration count (v2.1.0+)
+* **Encryption:** AES-256 in CBC mode with a unique IV per encryption
+* **Integrity protection:** HMAC verification to detect tampering
+* **Secure credential handling:** Sensitive authentication data is stored locally using Flutter Secure Storage when required for online backends.
