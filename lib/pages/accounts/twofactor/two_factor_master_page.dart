@@ -111,29 +111,37 @@ class TwoFactorManagePage extends StatelessWidget {
                   child: FloatingActionButton(
                     heroTag: 'shareQR',
                     onPressed: () async => await Notify.dialog(
-                        context: context,
-                        type: NotificationType.notification,
-                        title: '2FA Setup QR Code',
-                        content: SizedBox(
-                          width: 225,
-                          height: 225,
-                          child: Center(
-                            child: ClipRRect(
+                      context: context,
+                      type: NotificationType.notification,
+                      title: '2FA Setup QR Code',
+                      content: SizedBox(
+                        width: 250,
+                        height: 300,
+                        child: Column(
+                          spacing: 15,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Scan to get these codes in another authenticator app.',
+                              style: Theme.of(context).textTheme.bodySmall!.copyWith(fontSize: 14),
+                            ),
+                            ClipRRect(
                               borderRadius: BorderRadius.circular(15.0),
                               child: Container(
                                 color: Colors.white,
                                 padding: const EdgeInsets.all(10.0),
                                 child: QrImageView(
                                   data: account.twoFactorSecret!.getAuthUrl(),
-                                  // The data you want to encode
                                   version: QrVersions.auto,
                                   size: 200.0,
                                   backgroundColor: Colors.white,
                                 ),
                               ),
                             ),
-                          ),
-                        )),
+                          ],
+                        ),
+                      ),
+                    ),
                     child: const Icon(Icons.qr_code),
                   ),
                 ),

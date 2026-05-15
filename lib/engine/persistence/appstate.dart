@@ -123,7 +123,7 @@ class AppState with ChangeNotifier {
     key: 'ethercrypt.ntp.server_adress',
     storage: StorageOption.shared,
     stype: SerilizationType.string,
-    defaultValue: 'time.google.com',
+    defaultValue: '',
     onChanged: notifyListeners,
   );
 

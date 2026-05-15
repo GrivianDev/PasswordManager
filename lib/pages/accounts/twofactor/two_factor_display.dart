@@ -140,7 +140,7 @@ class _TwoFactorDisplayPageState extends State<TwoFactorDisplayPage> with Single
                 type: NotificationType.error,
                 title: 'Caution: Using local device time.',
                 content: const Text(
-                  'This app was not able to perform time synchronization. As fallback, local device time is used for 2FA code generation, which can be inaccurate.',
+                  'Unable perform time synchronization. The NTP server may be unavailable or not configured. As fallback, local device time is used for 2FA code generation, which can be inaccurate.',
                 ),
               ),
             )
