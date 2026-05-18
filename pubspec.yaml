@@ -26,6 +26,7 @@ dependencies:
   provider: ^6.1.5
   flutter_svg: ^2.3.0
   package_info_plus: ^9.0.1
+  pub_semver: ^2.2.0
   url_launcher: ^6.3.2
   cupertino_icons: ^1.0.9
 

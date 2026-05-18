@@ -4,7 +4,7 @@ import 'package:ethercrypt/engine/persistence/storage/storage_file.dart';
 
 class StorageProvider with ChangeNotifier {
   final Map<StorageType, StorageController> _controllers;
-  List<StorageFile> _allFiles = [];
+  final List<StorageFile> _allFiles = [];
 
   StorageProvider({required Map<StorageType, StorageController> controllers}) : _controllers = controllers {
     for (StorageController controller in _controllers.values) {
@@ -13,7 +13,8 @@ class StorageProvider with ChangeNotifier {
   }
 
   void _onControllerChanged() {
-    _allFiles = _controllers.values.expand((c) => c.state.files).toList();
+    _allFiles.clear();
+    _allFiles.addAll(_controllers.values.expand((c) => c.state.files).toList());
     _allFiles.sort((a, b) => a.name.compareTo(b.name));
     notifyListeners();
   }
@@ -22,7 +23,7 @@ class StorageProvider with ChangeNotifier {
 
   StorageController controller(StorageType type) => _controllers[type]!;
 
-  List<StorageFile> get allFiles => _allFiles;
+  List<StorageFile> get allFiles => List.unmodifiable(_allFiles);
 
   bool get isLoadingAny => _controllers.values.any((s) => s.state.isLoading);
 
@@ -38,6 +39,7 @@ class StorageProvider with ChangeNotifier {
 
   @override
   void dispose() {
+    // TODO: Dispose correctly
     for (StorageController controller in _controllers.values) {
       controller.removeListener(_onControllerChanged);
     }

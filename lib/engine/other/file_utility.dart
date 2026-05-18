@@ -27,16 +27,24 @@ Future<File?> pickExternalFile({String? dialogTitle}) async {
   return path != null ? File(path) : null;
 }
 
-Future<String?> saveFileExternal({String? dialogTitle, required String filename, required String content}) async {
+Future<String?> saveFileContentExternal({String? dialogTitle, required String filename, required String content}) async {
   final Directory tempDir = await getTemporaryDirectory();
   final File tempFile = File('${tempDir.path}${Platform.pathSeparator}$filename');
 
   await tempFile.writeAsString(content, encoding: utf8);
+  final String? outputPath = await saveFileExternal(
+    dialogTitle: dialogTitle,
+    filename: filename,
+    sourceFile: tempFile,
+  );
+  return outputPath;
+}
 
+Future<String?> saveFileExternal({String? dialogTitle, required String filename, required File sourceFile}) async {
   if (Platform.isAndroid || Platform.isIOS) {
     return FlutterFileDialog.saveFile(
       params: SaveFileDialogParams(
-        sourceFilePath: tempFile.path,
+        sourceFilePath: sourceFile.path,
         fileName: filename,
       ),
     );
@@ -48,8 +56,8 @@ Future<String?> saveFileExternal({String? dialogTitle, required String filename,
     );
 
     if (outputPath != null) {
-      await tempFile.copy(outputPath);
-      return tempFile.path;
+      await sourceFile.copy(outputPath);
+      return outputPath;
     }
   }
   return null;

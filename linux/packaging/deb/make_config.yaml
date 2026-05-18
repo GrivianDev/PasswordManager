@@ -1,0 +1,31 @@
+display_name: Ethercrypt
+package_name: ethercrypt
+maintainer:
+  name: GrivianDev
+  email: grivian-dev@posteo.de
+co_authors: []
+priority: optional
+section: x11
+installed_size: 10000
+essential: false
+icon: assets/appIcon.png
+
+postinstall_scripts:
+  - echo "Installed Ethercrypt!"
+postuninstall_scripts:
+  - echo "Uninstalled Ethercrypt!"
+
+keywords:
+  - ethercrypt
+  - passwords
+
+generic_name: Password Manager
+
+categories:
+  - Security
+  - Utility
+
+startup_notify: true
+# You can also specify [metainfo](https://freedesktop.org/software/appstream/docs/chap-Quickstart.html) file
+# which contains metadata of the app.
+# metainfo: linux/packaging/myappid.appdata.xml

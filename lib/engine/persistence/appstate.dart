@@ -58,7 +58,6 @@ class AppStateField<T> {
 class AppState with ChangeNotifier {
   // -------- State Fields --------
 
-  /// Whether dark mode is enabled.
   late final darkMode = AppStateField<bool>(
     key: 'ethercrypt.dark_mode',
     storage: StorageOption.shared,
@@ -67,12 +66,35 @@ class AppState with ChangeNotifier {
     onChanged: notifyListeners,
   );
 
-  /// Whether autosaving is enabled.
   late final autosaving = AppStateField<bool>(
     key: 'ethercrypt.autosaving',
     storage: StorageOption.shared,
     stype: SerilizationType.bool,
     defaultValue: true,
+    onChanged: notifyListeners,
+  );
+
+  late final updateAutoCheck = AppStateField<bool>(
+    key: 'ethercrypt.update.auto_check',
+    storage: StorageOption.shared,
+    stype: SerilizationType.bool,
+    defaultValue: true,
+    onChanged: notifyListeners,
+  );
+
+  late final updateLastCheckTime = AppStateField<int>(
+    key: 'ethercrypt.update.last_check_time',
+    storage: StorageOption.shared,
+    stype: SerilizationType.int,
+    defaultValue: 0,
+    onChanged: notifyListeners,
+  );
+
+  late final updateLatestKnownVersion = AppStateField<String?>(
+    key: 'ethercrypt.update.latest_known_version',
+    storage: StorageOption.shared,
+    stype: SerilizationType.string,
+    defaultValue: null,
     onChanged: notifyListeners,
   );
 
@@ -92,7 +114,6 @@ class AppState with ChangeNotifier {
     onChanged: notifyListeners,
   );
 
-  /// Whether password generation includes letters.
   late final pwGenUseLetters = AppStateField<bool>(
     key: 'ethercrypt.passwordgeneration.use_letters',
     storage: StorageOption.shared,
@@ -101,7 +122,6 @@ class AppState with ChangeNotifier {
     onChanged: notifyListeners,
   );
 
-  /// Whether password generation includes numbers.
   late final pwGenUseNumbers = AppStateField<bool>(
     key: 'ethercrypt.passwordgeneration.use_numbers',
     storage: StorageOption.shared,
@@ -110,7 +130,6 @@ class AppState with ChangeNotifier {
     onChanged: notifyListeners,
   );
 
-  /// Whether password generation includes special characters.
   late final pwGenUseSpecialChars = AppStateField<bool>(
     key: 'ethercrypt.passwordgeneration.use_special_chars',
     storage: StorageOption.shared,
@@ -127,7 +146,6 @@ class AppState with ChangeNotifier {
     onChanged: notifyListeners,
   );
 
-  /// Path where vaults are stored locally
   late final localSystemStorageLocation = AppStateField<String>(
     key: 'ethercrypt.filesystem.storage_location',
     storage: StorageOption.shared,
@@ -152,7 +170,6 @@ class AppState with ChangeNotifier {
     onChanged: notifyListeners,
   );
 
-  /// Email of the last Firebase-authenticated user.
   late final firebaseAuthLastUserEmail = AppStateField<String?>(
     key: 'ethercrypt.firebase.auth.last_user_email',
     storage: StorageOption.secure,
@@ -161,7 +178,6 @@ class AppState with ChangeNotifier {
     onChanged: notifyListeners,
   );
 
-  /// Refresh token for the last Firebase-authenticated user.
   late final firebaseAuthRefreshToken = AppStateField<String?>(
     key: 'ethercrypt.firebase.auth.user_refresh_token',
     storage: StorageOption.secure,
@@ -187,6 +203,9 @@ class AppState with ChangeNotifier {
     _fields = [
       darkMode,
       autosaving,
+      updateAutoCheck,
+      updateLastCheckTime,
+      updateLatestKnownVersion,
       pwGenMinCharacters,
       pwGenMaxCharacters,
       pwGenUseLetters,

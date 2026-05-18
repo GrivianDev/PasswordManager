@@ -2,8 +2,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:ethercrypt/pages/settings/settings_page.dart';
 import 'package:ethercrypt/engine/other/file_utility.dart';
 import 'package:ethercrypt/engine/app_exception.dart';
+import 'package:ethercrypt/engine/updates/update_service.dart';
 import 'package:ethercrypt/engine/persistence/storage/storage_controller.dart';
 import 'package:ethercrypt/engine/persistence/storage/storage_file.dart';
 import 'package:ethercrypt/engine/persistence/storage/storage_provider.dart';
@@ -14,7 +16,6 @@ import 'package:ethercrypt/pages/vaults/vault_load_statusbar.dart';
 import 'package:ethercrypt/pages/widgets/morphing_fab.dart';
 import 'package:ethercrypt/engine/persistence/appstate.dart';
 import 'package:ethercrypt/engine/other/util.dart';
-import 'package:ethercrypt/pages/flows/app_info_dialog.dart';
 import 'package:ethercrypt/pages/widgets/default_page_body.dart';
 import 'package:ethercrypt/pages/vaults/vaults_master_view_navbar.dart';
 import 'package:ethercrypt/pages/other/notifications.dart';
@@ -93,12 +94,45 @@ class VaultsMasterView extends StatelessWidget {
       endDrawer: const VaultsMasterViewNavbar(),
       appBar: AppBar(
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 10.0),
-            child: IconButton(
-              icon: const Icon(Icons.info_outline),
-              onPressed: () => displayInfoDialog(context),
-            ),
+          Consumer<UpdateService>(
+            builder: (context, updater, child) {
+              if (updater.hasUpdateAvailable) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 10.0),
+                  child: Stack(
+                    children: [
+                      Tooltip(
+                        message: 'Version ${updater.updateInfo.latestVersion ?? '?'} available',
+                        child: IconButton(
+                          icon: const Icon(Icons.download),
+                          onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const SettingsPage(initalTab: SettingsTab.updates),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        right: 5,
+                        top: 5,
+                        child: Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: Colors.redAccent,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.orange, width: 2),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              } else {
+                return const SizedBox.shrink();
+              }
+            },
           ),
           Padding(
             padding: const EdgeInsets.only(right: 20.0),

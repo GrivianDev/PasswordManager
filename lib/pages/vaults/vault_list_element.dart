@@ -91,7 +91,11 @@ class VaultListElement extends StatelessWidget {
       try {
         Notify.showLoading(context: context);
         final String content = await controller.repository.read(vault);
-        final String? resultPath = await saveFileExternal(filename: '${vault.name}.x', content: content);
+        final String? resultPath = await saveFileContentExternal(
+          dialogTitle: 'Save backup',
+          filename: '${vault.name}.x',
+          content: content,
+        );
         if (resultPath == null) return;
 
         scaffoldMessenger.showSnackBar(SnackBar(
