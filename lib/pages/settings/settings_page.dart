@@ -18,11 +18,11 @@ enum SettingsTab {
 }
 
 class SettingsPage extends StatefulWidget {
-  const SettingsPage({super.key, this.initalTab = SettingsTab.general});
+  const SettingsPage({super.key, this.initalTab});
 
   static const double layoutBreakpoint = 600;
 
-  final SettingsTab initalTab;
+  final SettingsTab? initalTab;
 
   @override
   State<SettingsPage> createState() => _SettingsPageState();
@@ -30,6 +30,8 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   int _selectedTabIndex = 0;
+
+  bool _didInitialNavigation = false;
 
   final List<(SettingsTab, String, Widget Function())> settingsTabs = [
     (SettingsTab.general, 'General', () => const GeneralSettings()),
@@ -127,11 +129,24 @@ class _SettingsPageState extends State<SettingsPage> {
           builder: (context, constraints) {
             final bool isWide = constraints.maxWidth >= SettingsPage.layoutBreakpoint;
 
-            if (isWide) {
-              return _buildWideLayout();
-            } else {
-              return _buildNarrowLayout();
+            if (!isWide && !_didInitialNavigation && widget.initalTab != null) {
+              _didInitialNavigation = true;
+
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SettingsTabPage(
+                      layoutBreakpoint: SettingsPage.layoutBreakpoint,
+                      title: settingsTabs[_selectedTabIndex].$2,
+                      child: settingsTabs[_selectedTabIndex].$3(),
+                    ),
+                  ),
+                );
+              });
             }
+
+            return isWide ? _buildWideLayout() : _buildNarrowLayout();
           },
         ),
       ),
