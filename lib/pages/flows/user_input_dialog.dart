@@ -160,5 +160,7 @@ Future<String?> getUserInputDialog({
     },
   );
 
+  controller.dispose();
+
   return userInput;
 }

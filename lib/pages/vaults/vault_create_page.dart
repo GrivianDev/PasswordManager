@@ -94,6 +94,7 @@ class _VaultCreatePageState extends State<VaultCreatePage> {
   void dispose() {
     _nameController.dispose();
     _pwController.dispose();
+    _nameValidator.dispose();
     super.dispose();
   }
 

@@ -39,7 +39,6 @@ class StorageProvider with ChangeNotifier {
 
   @override
   void dispose() {
-    // TODO: Dispose correctly
     for (StorageController controller in _controllers.values) {
       controller.removeListener(_onControllerChanged);
     }
