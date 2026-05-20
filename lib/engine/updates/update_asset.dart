@@ -2,7 +2,6 @@ import 'dart:io';
 
 enum DistributionType {
   windowsExe,
-  windowsMsix,
   androidApk,
   linuxDeb,
   linuxAppImage,
@@ -12,7 +11,6 @@ class RuntimeRules {
   static List<DistributionType> preference() {
     if (Platform.isWindows) {
       return [
-        DistributionType.windowsMsix,
         DistributionType.windowsExe,
       ];
     }

@@ -42,8 +42,6 @@ class GitHubUpdateService extends UpdateService {
 
   @override
   bool get hasUpdateAvailable {
-    // TODO: Remove, just for testing
-    return true;
     final String? latest = _updateInfo.latestVersion;
     if (latest == null) return false;
 
@@ -100,7 +98,6 @@ class GitHubUpdateService extends UpdateService {
 
   DistributionType? _inferTypeFromFileName(String name) {
     final String lower = name.toLowerCase();
-    if (lower.endsWith('.msix')) return DistributionType.windowsMsix;
     if (lower.endsWith('.exe')) return DistributionType.windowsExe;
     if (lower.endsWith('.appimage')) return DistributionType.linuxAppImage;
     if (lower.endsWith('.deb')) return DistributionType.linuxDeb;

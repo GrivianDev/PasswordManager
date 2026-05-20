@@ -16,8 +16,7 @@ import 'package:ethercrypt/engine/updates/update_service.dart';
 class UpdateSettings extends StatelessWidget {
   const UpdateSettings({super.key});
 
-  Future<UpdateAsset?> _showAssetPickerDialog(BuildContext context, List<UpdateAsset> assets) {
-    // TODO: Before asset picker, pull most recent assets forcefully to gurantee best selection
+  Future<UpdateAsset?> _showAssetPickerDialog(BuildContext context, List<UpdateAsset> assets) async {
     final List<UpdateAsset> sortedAssets = [...assets]..sort((a, b) {
         final aSupported = RuntimeRules.supports(a.type);
         final bSupported = RuntimeRules.supports(b.type);
@@ -57,6 +56,10 @@ class UpdateSettings extends StatelessWidget {
   Future<void> _performDownload(BuildContext context) async {
     final NavigatorState navigator = Navigator.of(context);
     final UpdateService updateService = context.read();
+
+    await updateService.checkForUpdates(force: true);
+    if (!context.mounted) return;
+
     final UpdateAsset? asset = await _showAssetPickerDialog(context, updateService.updateInfo.assets);
     if (asset == null || !context.mounted) return;
 
