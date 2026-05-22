@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:ethercrypt/engine/app_exception.dart';
 import 'package:ethercrypt/engine/persistence/appstate.dart';
+import 'package:ethercrypt/engine/persistence/storage/wrapper/app_exception_repo_wrapper.dart';
 import 'package:ethercrypt/engine/persistence/storage/repositories/local_file_repository.dart';
 import 'package:ethercrypt/engine/persistence/storage/storage_controller.dart';
 import 'package:ethercrypt/engine/persistence/storage/storage_file.dart';
@@ -18,7 +19,7 @@ class LocalFileController extends StorageController {
 
   LocalFileController({required AppState appState})
       : _appState = appState,
-        _storageRepository = LocalFileRepository();
+        _storageRepository = AppExceptionRepoWrapper(LocalFileRepository());
 
   @override
   Future<String> getUserStorageLocation() async {

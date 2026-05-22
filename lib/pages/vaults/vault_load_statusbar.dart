@@ -22,7 +22,7 @@ class VaultStatusBar extends StatelessWidget {
                     Expanded(
                       child: Text(
                         e.toString(),
-                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.redAccent),
+                        style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Colors.redAccent),
                       ),
                     ),
                   ],
@@ -49,26 +49,17 @@ class VaultStatusBar extends StatelessWidget {
       ),
       child: Row(
         children: [
-          if (provider.isLoadingAny)
-            Expanded(
-              child: Row(
-                spacing: 12,
-                children: [
-                  const SizedBox(
-                    width: 14,
-                    height: 14,
+          TextButton.icon(
+            onPressed: provider.isLoadingAny ? null : provider.loadAll,
+            icon: provider.isLoadingAny
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
                     child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-                  Flexible(
-                    child: Text(
-                      'Loading...',
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.displaySmall,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+                  )
+                : const Icon(Icons.refresh),
+            label: Text(provider.isLoadingAny ? 'Loading...' : 'Refresh'),
+          ),
           Expanded(
             child: Row(
               spacing: 12,

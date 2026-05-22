@@ -1,3 +1,4 @@
+import 'package:ethercrypt/engine/app_exception.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ethercrypt/engine/api/firebase/firebase_user.dart';
@@ -42,6 +43,13 @@ class _FirestoreConfigState extends State<FirestoreConfig> {
       try {
         Notify.showLoading(context: context);
         await firestore.auth.login(email, password);
+      } catch (e, s) {
+        throw AppException(
+          'Login failed',
+          debugContext: 'Firebase Authentication',
+          cause: e,
+          stackTrace: s,
+        );
       } finally {
         navigator.pop();
       }
@@ -56,6 +64,13 @@ class _FirestoreConfigState extends State<FirestoreConfig> {
       try {
         Notify.showLoading(context: context);
         await firestore.auth.signUp(email, password);
+      } catch (e, s) {
+        throw AppException(
+          'Signing up failed',
+          debugContext: 'Firebase Authentication',
+          cause: e,
+          stackTrace: s,
+        );
       } finally {
         navigator.pop();
       }
@@ -84,6 +99,13 @@ class _FirestoreConfigState extends State<FirestoreConfig> {
       try {
         Notify.showLoading(context: context);
         await firestore.auth.deleteAccount();
+      } catch (e, s) {
+        throw AppException(
+          'Deleting user failed',
+          debugContext: 'Firebase Authentication',
+          cause: e,
+          stackTrace: s,
+        );
       } finally {
         navigator.pop();
       }

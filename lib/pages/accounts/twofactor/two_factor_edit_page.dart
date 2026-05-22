@@ -52,7 +52,7 @@ class _TwoFactorEditPageState extends State<TwoFactorEditPage> {
         if (context.read<AppState>().autosaving.value) {
           await database.save();
           scaffoldMessenger.showSnackBar(const SnackBar(
-            duration: Duration(milliseconds: 1500),
+            duration: Duration(seconds: 2),
             content: Wrap(
               spacing: 5,
               children: [

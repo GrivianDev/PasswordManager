@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:ethercrypt/pages/widgets/default_page_body.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:ethercrypt/pages/flows/app_flows.dart';
+import 'package:ethercrypt/pages/widgets/default_page_body.dart';
 import 'package:ethercrypt/pages/flows/typed_confirmation_dialog.dart';
 import 'package:ethercrypt/engine/persistence/appstate.dart';
 import 'package:ethercrypt/pages/accounts/twofactor/two_factor_edit_page.dart';
@@ -17,47 +18,35 @@ class TwoFactorManagePage extends StatelessWidget {
 
   final Account account;
 
-  /// Asynchronous method to persist changes.
-  /// Displays a snackbar if succeeded.
   Future<void> _save(BuildContext context) async {
     final NavigatorState navigator = Navigator.of(context);
     final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
     final LocalDatabase database = context.read();
 
-    try {
-      Notify.showLoading(context: context);
-      await database.save();
-    } catch (e) {
-      navigator.pop();
-      if (!context.mounted) return;
-      Notify.dialog(
-        context: context,
-        type: NotificationType.error,
-        title: 'Could not save changes!',
-        content: Text(e.toString()),
-      );
-      return;
-    }
-    navigator.pop();
-
-    scaffoldMessenger.showSnackBar(const SnackBar(
-      duration: Duration(seconds: 2),
-      content: Wrap(
-        spacing: 5,
-        children: [
-          Icon(
-            Icons.sync,
-            size: 15,
-            color: Colors.white,
-          ),
-          Text('Saved changes'),
-        ],
-      ),
-    ));
+    await runAppFlow(context, () async {
+      try {
+        Notify.showLoading(context: context);
+        await database.save();
+      } finally {
+        navigator.pop();
+      }
+      scaffoldMessenger.showSnackBar(const SnackBar(
+        duration: Duration(seconds: 2),
+        content: Wrap(
+          spacing: 5,
+          children: [
+            Icon(
+              Icons.sync,
+              size: 15,
+              color: Colors.white,
+            ),
+            Text('Saved changes'),
+          ],
+        ),
+      ));
+    });
   }
 
-  /// Displays a dialog to avoid accidentally deleting 2FA info. If autosaving is active
-  /// then the [_save] method is called.
   Future<void> _deleteClicked(BuildContext context) async {
     final LocalDatabase database = context.read();
     final AppState appState = context.read();
@@ -72,11 +61,13 @@ class TwoFactorManagePage extends StatelessWidget {
 
     if (!doDelete || !context.mounted) return;
 
-    account.twoFactorSecret = null;
-    database.replaceAccount(account.id, account);
-    if (appState.autosaving.value) {
-      await _save(context);
-    }
+    await runAppFlow(context, () async {
+      account.twoFactorSecret = null;
+      database.replaceAccount(account.id, account);
+      if (appState.autosaving.value) {
+        await _save(context);
+      }
+    });
   }
 
   @override

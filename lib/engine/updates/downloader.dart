@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:ethercrypt/engine/app_exception.dart';
 
 class DownloadProgress {
   final int downloadedBytes;
@@ -55,47 +56,44 @@ class Downloader {
   final ValueNotifier<DownloadProgress> progress;
 
   HttpClient? _client;
-  StreamSubscription<List<int>>? _subscription;
 
   bool _isCanceled = false;
 
   Future<void> startDownload(Uri url, File destination) async {
-    _isCanceled = false;
+    IOSink? sink;
 
-    progress.value = DownloadProgress.initial();
+    try {
+      _isCanceled = false;
+      progress.value = DownloadProgress.initial();
 
-    _client = HttpClient();
-    final HttpClientRequest request = await _client!.getUrl(url);
-    final HttpClientResponse response = await request.close();
+      _client = HttpClient();
+      final HttpClientRequest request = await _client!.getUrl(url);
+      final HttpClientResponse response = await request.close();
 
-    final int totalBytes = response.contentLength;
+      final int totalBytes = response.contentLength;
+      int downloadedBytes = 0;
 
-    final IOSink sink = destination.openWrite();
+      sink = destination.openWrite();
 
-    int downloadedBytes = 0;
+      final Stopwatch stopwatch = Stopwatch()..start();
 
-    final Stopwatch stopwatch = Stopwatch()..start();
+      int lastBytes = 0;
+      int lastMilliseconds = 0;
 
-    int lastBytes = 0;
-    int lastMilliseconds = 0;
-
-    final completer = Completer<void>();
-
-    _subscription = response.listen(
-      (chunk) {
+      await for (final List<int> chunk in response) {
         if (_isCanceled) {
-          return;
+          break;
         }
 
         sink.add(chunk);
 
         downloadedBytes += chunk.length;
 
-        final nowMilliseconds = stopwatch.elapsedMilliseconds;
+        final int nowMilliseconds = stopwatch.elapsedMilliseconds;
 
         double bytesPerSecond = 0;
 
-        final elapsedDelta = nowMilliseconds - lastMilliseconds;
+        final int elapsedDelta = nowMilliseconds - lastMilliseconds;
 
         if (elapsedDelta >= 500) {
           bytesPerSecond = (downloadedBytes - lastBytes) / (elapsedDelta / 1000);
@@ -111,39 +109,35 @@ class Downloader {
           totalBytes: totalBytes,
           bytesPerSecond: bytesPerSecond,
         );
-      },
-      onDone: () async {
-        await sink.flush();
-        await sink.close();
+      }
 
-        if (!_isCanceled) {
-          progress.value = progress.value.copyWith(
-            downloadedBytes: downloadedBytes,
-            totalBytes: totalBytes,
-            finished: true,
-            bytesPerSecond: 0,
-          );
-        }
+      await sink.flush();
+      await sink.close();
 
-        completer.complete();
-      },
-      onError: (error, stackTrace) async {
-        await sink.close();
+      if (!_isCanceled) {
+        progress.value = progress.value.copyWith(
+          downloadedBytes: downloadedBytes,
+          totalBytes: totalBytes,
+          finished: true,
+          bytesPerSecond: 0,
+        );
+      }
+    } catch (e, s) {
+      await sink?.close();
 
-        if (!completer.isCompleted) {
-          completer.completeError(error, stackTrace);
-        }
-      },
-      cancelOnError: true,
-    );
+      await cancel();
 
-    await completer.future;
+      throw AppException(
+        'Failed download',
+        debugContext: 'Downloader',
+        cause: e,
+        stackTrace: s,
+      );
+    }
   }
 
   Future<void> cancel() async {
     _isCanceled = true;
-
-    await _subscription?.cancel();
 
     _client?.close(force: true);
 

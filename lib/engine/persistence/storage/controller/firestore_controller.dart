@@ -5,6 +5,7 @@ import 'package:ethercrypt/engine/api/firebase/firebase_user.dart';
 import 'package:ethercrypt/engine/api/firebase/firestore.dart';
 import 'package:ethercrypt/engine/app_exception.dart';
 import 'package:ethercrypt/engine/persistence/appstate.dart';
+import 'package:ethercrypt/engine/persistence/storage/wrapper/app_exception_repo_wrapper.dart';
 import 'package:ethercrypt/engine/persistence/storage/repositories/firestore_repository.dart';
 import 'package:ethercrypt/engine/persistence/storage/storage_controller.dart';
 import 'package:ethercrypt/engine/persistence/storage/storage_file.dart';
@@ -21,7 +22,7 @@ class FirestoreController extends StorageController {
 
   FirestoreController({required AppState appState, required this.api})
       : _appState = appState,
-        _storageRepository = FirestoreRepository(api) {
+        _storageRepository = AppExceptionRepoWrapper(FirestoreRepository(api)) {
     api.configure(appState.firebaseProjectId.value, appState.firebaseApiKey.value);
     _sub = api.auth.authChanges.listen(_onAuthChanged);
   }
@@ -31,7 +32,7 @@ class FirestoreController extends StorageController {
   Future<String> getUserStorageLocation() {
     if (!api.isConfigValid || !api.auth.isUserLoggedIn) {
       throw AppException(
-        'Cloud Firestore - User is not logged in. Cannot get storage location.',
+        'User is not logged in. Cannot get storage location.',
         debugContext: 'Firestore Controller',
       );
     }

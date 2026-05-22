@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:ethercrypt/pages/flows/app_flows.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ethercrypt/engine/persistence/appstate.dart';
@@ -26,44 +27,35 @@ class TwoFactorSetupPage extends StatelessWidget {
       ),
     );
 
-    if (code == null) return;
+    if (code == null || !context.mounted) return;
 
-    try {
-      if (!context.mounted) return;
-      Notify.showLoading(context: context);
-      account.twoFactorSecret = TOTPSecret.fromUri(code);
-      db.replaceAccount(account.id, account); // This trivial replacement is just to notify listeners
+    await runAppFlow(context, () async {
+      try {
+        Notify.showLoading(context: context);
+        account.twoFactorSecret = TOTPSecret.fromUri(code);
+        db.replaceAccount(account.id, account); // This trivial replacement is just to notify listeners
 
-      if (appState.autosaving.value) {
-        await db.save();
+        if (appState.autosaving.value) {
+          await db.save();
+        }
+      } finally {
+        navigator.pop();
       }
-    } catch (e) {
-      navigator.pop();
-      if (!context.mounted) return;
-      Notify.dialog(
-        context: context,
-        type: NotificationType.error,
-        title: 'Could not save changes!',
-        content: Text(e.toString()),
-      );
-      return;
-    }
-    navigator.pop();
-
-    scaffoldMessenger.showSnackBar(const SnackBar(
-      duration: Duration(seconds: 2),
-      content: Wrap(
-        spacing: 5,
-        children: [
-          Icon(
-            Icons.sync,
-            size: 15,
-            color: Colors.white,
-          ),
-          Text('Saved changes'),
-        ],
-      ),
-    ));
+      scaffoldMessenger.showSnackBar(const SnackBar(
+        duration: Duration(seconds: 2),
+        content: Wrap(
+          spacing: 5,
+          children: [
+            Icon(
+              Icons.sync,
+              size: 15,
+              color: Colors.white,
+            ),
+            Text('Saved changes'),
+          ],
+        ),
+      ));
+    });
   }
 
   @override

@@ -15,12 +15,12 @@ class AccountListElement extends StatelessWidget {
 
   final Account _account;
 
-  Future<void> _save(BuildContext context) {
+  Future<void> _save(BuildContext context) async {
     final NavigatorState navigator = Navigator.of(context);
     final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
     final LocalDatabase database = context.read();
 
-    return runAppFlow(context, () async {
+    await runAppFlow(context, () async {
       try {
         Notify.showLoading(context: context);
         await database.save();
@@ -46,15 +46,18 @@ class AccountListElement extends StatelessWidget {
   }
 
   /// Copies password to the clipboard.
-  Future<void> _copyClicked(BuildContext context) async {
-    if (_account.password == null) return;
-    await Clipboard.setData(ClipboardData(text: _account.password!));
+  Future<void> _copyClicked(BuildContext context) {
+    if (_account.password == null) return Future.value();
 
-    if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      duration: const Duration(seconds: 2),
-      content: Text('Copied password of "${_account.name}" to clipboard'),
-    ));
+    return runAppFlow(context, () async {
+      final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
+      await Clipboard.setData(ClipboardData(text: _account.password!));
+
+      scaffoldMessenger.showSnackBar(SnackBar(
+        duration: const Duration(seconds: 2),
+        content: Text('Copied password of "${_account.name}" to clipboard'),
+      ));
+    });
   }
 
   // If autosaving is active then the [_save] method is called.
@@ -73,10 +76,12 @@ class AccountListElement extends StatelessWidget {
 
     if (!doDelete || !context.mounted) return;
 
-    database.removeAccount(_account.id);
-    if (context.read<AppState>().autosaving.value) {
-      await _save(context);
-    }
+    await runAppFlow(context, () async {
+      database.removeAccount(_account.id);
+      if (context.read<AppState>().autosaving.value) {
+        await _save(context);
+      }
+    });
   }
 
   @override

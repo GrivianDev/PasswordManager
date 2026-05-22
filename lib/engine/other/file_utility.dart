@@ -36,29 +36,47 @@ Future<String?> saveFileContentExternal({String? dialogTitle, required String fi
     dialogTitle: dialogTitle,
     filename: filename,
     sourceFile: tempFile,
+    removeSourceFileAfter: true,
   );
   return outputPath;
 }
 
-Future<String?> saveFileExternal({String? dialogTitle, required String filename, required File sourceFile}) async {
-  if (Platform.isAndroid || Platform.isIOS) {
-    return FlutterFileDialog.saveFile(
-      params: SaveFileDialogParams(
-        sourceFilePath: sourceFile.path,
-        fileName: filename,
-      ),
-    );
-  } else {
-    final String? outputPath = await FilePicker.saveFile(
-      dialogTitle: dialogTitle,
-      fileName: filename,
-      lockParentWindow: true,
-    );
+Future<String?> saveFileExternal({
+  String? dialogTitle,
+  required String filename,
+  required File sourceFile,
+  bool removeSourceFileAfter = false,
+}) async {
+  String? outputPath;
 
-    if (outputPath != null) {
-      await sourceFile.copy(outputPath);
-      return outputPath;
+  try {
+    if (Platform.isAndroid || Platform.isIOS) {
+      outputPath = await FlutterFileDialog.saveFile(
+        params: SaveFileDialogParams(
+          sourceFilePath: sourceFile.path,
+          fileName: filename,
+        ),
+      );
+    } else {
+      outputPath = await FilePicker.saveFile(
+        dialogTitle: dialogTitle,
+        fileName: filename,
+        lockParentWindow: true,
+      );
+
+      if (outputPath != null) {
+        await sourceFile.copy(outputPath);
+      }
+    }
+
+    return outputPath;
+  } finally {
+    if (removeSourceFileAfter) {
+      try {
+        if (await sourceFile.exists()) {
+          await sourceFile.delete();
+        }
+      } catch (_) {}
     }
   }
-  return null;
 }

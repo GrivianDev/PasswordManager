@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
@@ -36,7 +38,9 @@ class _GeneralSettingsState extends State<GeneralSettings> {
     await runAppFlow(context, () async {
       final AppState appState = context.read();
       await appState.clearAllData();
-      await FilePicker.clearTemporaryFiles();
+      if (Platform.isAndroid || Platform.isIOS) {
+        await FilePicker.clearTemporaryFiles();
+      }
 
       scaffoldMessenger.showSnackBar(const SnackBar(
         duration: Duration(seconds: 2),

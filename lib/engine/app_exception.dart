@@ -23,7 +23,7 @@ class AppException implements Exception {
     if (!kDebugMode) return;
 
     final String time = timestamp.toIso8601String();
-    final String prefix = debugContext != null ? '$debugContext Failed' : 'Error occurred';
+    final String prefix = debugContext != null ? '[$debugContext] Failed' : 'Error occurred';
 
     debugPrint('$time - $prefix: $message');
     if (cause != null) debugPrint('Cause: $cause');
@@ -31,5 +31,5 @@ class AppException implements Exception {
   }
 
   @override
-  String toString() => 'Error: $message';
+  String toString() => '${debugContext ?? 'Error'} : $message';
 }

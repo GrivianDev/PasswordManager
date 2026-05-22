@@ -57,102 +57,128 @@ class UpdateSettings extends StatelessWidget {
     final NavigatorState navigator = Navigator.of(context);
     final UpdateService updateService = context.read();
 
-    await updateService.checkForUpdates(force: true);
-    if (!context.mounted) return;
+    File? tmpFile;
 
-    final UpdateAsset? asset = await _showAssetPickerDialog(context, updateService.updateInfo.assets);
-    if (asset == null || !context.mounted) return;
+    await runAppFlow(context, () async {
+      await updateService.checkForUpdates(force: true);
+      if (!context.mounted) return;
 
-    final Directory tmpDir = await getTemporaryDirectory();
-    final File tmpFile = File('${tmpDir.path}${Platform.pathSeparator}${asset.fileName}');
-    final Downloader downloader = Downloader();
+      final UpdateAsset? asset = await _showAssetPickerDialog(context, updateService.updateInfo.assets);
+      if (asset == null || !context.mounted) return;
 
-    if (!context.mounted) return;
-    Future<void> dialogFuture = showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return ValueListenableBuilder<DownloadProgress>(
-          valueListenable: downloader.progress,
-          builder: (context, progress, child) {
-            return AlertDialog(
-              title: Text(progress.finished ? 'Download complete' : 'Downloading update'),
-              content: Column(
-                spacing: 10,
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(asset.fileName),
-                  LinearProgressIndicator(
-                    value: progress.hasKnownSize ? progress.progress : null,
-                    backgroundColor: Colors.blueGrey,
+      final Directory tmpDir = await getTemporaryDirectory();
+      tmpFile = File('${tmpDir.path}${Platform.pathSeparator}${asset.fileName}');
+      final Downloader downloader = Downloader();
+
+      if (!context.mounted) return;
+      Future<void> dialogFuture = showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return ValueListenableBuilder<DownloadProgress>(
+            valueListenable: downloader.progress,
+            builder: (context, progress, child) {
+              return AlertDialog(
+                title: Text(progress.finished ? 'Download complete' : 'Downloading update'),
+                content: Column(
+                  spacing: 10,
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(asset.fileName),
+                    LinearProgressIndicator(
+                      value: progress.hasKnownSize ? progress.progress : null,
+                      backgroundColor: Colors.blueGrey,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('${formatBytes(progress.downloadedBytes)} / ${formatBytes(progress.totalBytes)}'),
+                        Text('${formatBytes(progress.bytesPerSecond.toInt())}/s'),
+                      ],
+                    ),
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () async {
+                      await downloader.cancel();
+                      navigator.pop();
+                    },
+                    child: const Text('Cancel'),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('${formatBytes(progress.downloadedBytes)} / ${formatBytes(progress.totalBytes)}'),
-                      Text('${formatBytes(progress.bytesPerSecond.toInt())}/s'),
-                    ],
+                  TextButton(
+                    onPressed: progress.finished
+                        ? () async {
+                            String? resultPath;
+                            try {
+                              Notify.showLoading(context: context);
+                              resultPath = await saveFileExternal(
+                                dialogTitle: 'Save update',
+                                filename: asset.fileName,
+                                sourceFile: tmpFile!,
+                                removeSourceFileAfter: true,
+                              );
+                            } finally {
+                              navigator.pop();
+                            }
+
+                            if (!context.mounted || resultPath == null) return;
+
+                            navigator.pop();
+
+                            Notify.dialog(
+                              context: context,
+                              type: NotificationType.notification,
+                              title: 'Update ready',
+                              content: const Text(
+                                'The update was saved successfully. '
+                                'Please close the application and open the downloaded file.',
+                              ),
+                            );
+                          }
+                        : null,
+                    child: Text(
+                      'Save',
+                      style: progress.finished ? null : const TextStyle(color: Colors.blueGrey),
+                    ),
                   ),
                 ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () async {
-                    await downloader.cancel();
-                    navigator.pop();
-                  },
-                  child: const Text('Cancel'),
-                ),
-                TextButton(
-                  onPressed: progress.finished
-                      ? () async {
-                          String? resultPath;
-                          try {
-                            Notify.showLoading(context: context);
-                            resultPath = await saveFileExternal(
-                              dialogTitle: 'Save update',
-                              filename: asset.fileName,
-                              sourceFile: tmpFile,
-                            );
-                          } finally {
-                            navigator.pop();
-                          }
+              );
+            },
+          );
+        },
+      );
 
-                          if (!context.mounted || resultPath == null) return;
+      await runAppFlow(context, () async {
+        try {
+          await downloader.startDownload(
+            Uri.parse(asset.downloadUrl),
+            tmpFile!,
+          );
+        } catch (_) {
+          if (downloader.progress.value.canceled) {
+            navigator.pop();
+          }
+          rethrow;
+        }
+      });
 
-                          navigator.pop();
+      await dialogFuture;
+      if (await tmpFile!.exists()) {
+        try {
+          await tmpFile!.delete();
+        } catch (_) {}
+      }
+      downloader.dispose();
+    });
 
-                          Notify.dialog(
-                            context: context,
-                            type: NotificationType.notification,
-                            title: 'Update ready',
-                            content: const Text(
-                              'The update was saved successfully. '
-                              'Please close the application and open the downloaded file.',
-                            ),
-                          );
-                        }
-                      : null,
-                  child: Text(
-                    'Save',
-                    style: progress.finished ? null : const TextStyle(color: Colors.blueGrey),
-                  ),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-
-    await downloader.startDownload(
-      Uri.parse(asset.downloadUrl),
-      tmpFile,
-    );
-
-    await dialogFuture;
-    downloader.dispose();
+    // Cleanup
+    if (await tmpFile?.exists() == true) {
+      try {
+        await tmpFile!.delete();
+      } catch (_) {}
+    }
   }
 
   @override
@@ -237,7 +263,13 @@ class UpdateSettings extends StatelessWidget {
                             ],
                           ),
                           TextButton.icon(
-                            onPressed: updater.isChecking ? null : () => updater.checkForUpdates(force: true),
+                            onPressed: updater.isChecking
+                                ? null
+                                : () {
+                                    runAppFlow(context, () async {
+                                      await updater.checkForUpdates(force: true);
+                                    });
+                                  },
                             icon: updater.isChecking
                                 ? const SizedBox(
                                     width: 16,

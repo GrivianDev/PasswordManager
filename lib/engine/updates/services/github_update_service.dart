@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:ethercrypt/engine/updates/update_asset.dart';
 import 'package:http/http.dart' as http;
 import 'package:pub_semver/pub_semver.dart';
+import 'package:ethercrypt/engine/app_exception.dart';
+import 'package:ethercrypt/engine/updates/update_asset.dart';
 import 'package:ethercrypt/engine/api/http_client.dart';
 import 'package:ethercrypt/engine/persistence/appstate.dart';
 import 'package:ethercrypt/engine/updates/app_version.dart';
@@ -156,6 +157,13 @@ class GitHubUpdateService extends UpdateService {
         latestVersion: version,
         lastCheck: DateTime.now(),
         assets: updateAssets,
+      );
+    } catch (e, s) {
+      throw AppException(
+        'Failed to fetch update info from GitHub',
+        debugContext: 'GitHub Update Service',
+        cause: e,
+        stackTrace: s,
       );
     } finally {
       httpClient.close();

@@ -75,7 +75,7 @@ class _AccountsMasterViewState extends State<AccountsMasterView> {
     final LocalDatabase database = context.read();
     final Source source = database.source!;
 
-    return Notify.dialog(
+    await Notify.dialog(
       context: context,
       type: NotificationType.notification,
       title: 'Details',

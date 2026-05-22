@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:ethercrypt/pages/flows/app_flows.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -59,14 +60,16 @@ class _TwoFactorDisplayPageState extends State<TwoFactorDisplayPage> with Single
   }
 
   // Copies 2FA code to the clipboard.
-  Future<void> _copyClicked(BuildContext context) async {
-    final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
-    await Clipboard.setData(ClipboardData(text: _currentCode));
+  Future<void> _copyClicked(BuildContext context) {
+    return runAppFlow(context, () async {
+      final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
+      await Clipboard.setData(ClipboardData(text: _currentCode));
 
-    scaffoldMessenger.showSnackBar(const SnackBar(
-      duration: Duration(seconds: 2),
-      content: Text('Copied 2FA code to clipboard'),
-    ));
+      scaffoldMessenger.showSnackBar(const SnackBar(
+        duration: Duration(seconds: 2),
+        content: Text('Copied 2FA code to clipboard'),
+      ));
+    });
   }
 
   @override
