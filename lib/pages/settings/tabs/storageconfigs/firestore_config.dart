@@ -22,6 +22,7 @@ class _FirestoreConfigState extends State<FirestoreConfig> {
   late final TextEditingController _apiKeyController;
 
   Future<void> _handleSaveConfig() {
+    final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
     final Firestore firestore = context.read();
     final AppState appState = context.read();
 
@@ -32,6 +33,21 @@ class _FirestoreConfigState extends State<FirestoreConfig> {
       appState.firebaseProjectId.value = projectId;
       appState.firebaseApiKey.value = apiKey;
       await appState.save();
+
+      scaffoldMessenger.showSnackBar(const SnackBar(
+        duration: Duration(seconds: 2),
+        content: Wrap(
+          spacing: 5,
+          children: [
+            Icon(
+              Icons.settings,
+              size: 15,
+              color: Colors.white,
+            ),
+            Text('Saved configuration'),
+          ],
+        ),
+      ));
     });
   }
 
