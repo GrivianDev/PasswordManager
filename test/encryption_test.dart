@@ -13,7 +13,7 @@ void main() {
       final Uint8List data = utf8.encode('Text000000000000'); // 54657874303030303030303030303030
       final Encryption algorithm = AES256();
 
-      final Key key = Key(base16.decode('b675000fb18fcc59b1b1878c89313bb1a8156e4acfe59c2f24d202c665016cb3'), base16.decode('1625189bdac15f359459c4ab2a2fc5fe9973cf022a657849db9898d5b663aa62'));
+      final Key key = Key(base16.decode('b675000fb18fcc59b1b1878c89313bb1a8156e4acfe59c2f24d202c665016cb3'), Uint8List.fromList([]));
       final IV iv = IV(base16.decode('bacacb27ba02dae4a257f6804a030eeb'));
 
       final Uint8List cipher = algorithm.encrypt(data: data, key: key.bytes, iv: iv);
