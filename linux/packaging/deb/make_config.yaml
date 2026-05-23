@@ -3,7 +3,6 @@ package_name: ethercrypt
 maintainer:
   name: GrivianDev
   email: grivian-dev@posteo.de
-co_authors: []
 priority: optional
 section: x11
 installed_size: 10000
