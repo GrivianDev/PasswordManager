@@ -1,7 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:ethercrypt/engine/other/file_utility.dart';
 import 'package:ethercrypt/engine/db/local_database.dart';
+import 'package:ethercrypt/engine/other/file_utility.dart';
 import 'package:ethercrypt/engine/other/util.dart';
 import 'package:ethercrypt/engine/persistence/source.dart';
 import 'package:ethercrypt/engine/persistence/storage/storage_controller.dart';
@@ -13,6 +11,8 @@ import 'package:ethercrypt/pages/flows/typed_confirmation_dialog.dart';
 import 'package:ethercrypt/pages/flows/user_input_dialog.dart';
 import 'package:ethercrypt/pages/other/notifications.dart';
 import 'package:ethercrypt/pages/vaults/vault_create_page.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class VaultListElement extends StatelessWidget {
   const VaultListElement({super.key, required this.vault});

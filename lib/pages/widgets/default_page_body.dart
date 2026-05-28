@@ -14,7 +14,8 @@ class DefaultPageBody extends StatelessWidget {
             topLeft: Radius.circular(20.0),
             topRight: Radius.circular(20.0),
           ),
-          child: Material( // Needed so ListTile selectedTileColor renders inside the rounded clip
+          child: Material(
+            // Needed so ListTile selectedTileColor renders inside the rounded clip
             color: Theme.of(context).colorScheme.surface,
             child: child,
           ),

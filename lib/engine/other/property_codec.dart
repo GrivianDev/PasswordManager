@@ -10,7 +10,7 @@ final class PropertyCodec {
 
       final int end = formattedData.indexOf(';', eq);
       if (end == -1) break;
-      
+
       if (eq == start || eq == end - 1) {
         throw Exception('Error parsing parameters');
       }

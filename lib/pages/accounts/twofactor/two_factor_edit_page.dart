@@ -1,14 +1,14 @@
+import 'package:ethercrypt/engine/account.dart';
+import 'package:ethercrypt/engine/db/local_database.dart';
+import 'package:ethercrypt/engine/persistence/appstate.dart';
+import 'package:ethercrypt/engine/two_factor_token.dart';
+import 'package:ethercrypt/pages/flows/app_flows.dart';
+import 'package:ethercrypt/pages/other/base32_input_formatter.dart';
+import 'package:ethercrypt/pages/other/notifications.dart';
+import 'package:ethercrypt/pages/widgets/default_page_body.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:ethercrypt/pages/flows/app_flows.dart';
-import 'package:ethercrypt/engine/persistence/appstate.dart';
-import 'package:ethercrypt/engine/two_factor_token.dart';
-import 'package:ethercrypt/pages/other/base32_input_formatter.dart';
-import 'package:ethercrypt/pages/widgets/default_page_body.dart';
-import 'package:ethercrypt/engine/account.dart';
-import 'package:ethercrypt/engine/db/local_database.dart';
-import 'package:ethercrypt/pages/other/notifications.dart';
 
 class TwoFactorEditPage extends StatefulWidget {
   const TwoFactorEditPage({super.key, required this.title, required this.account});

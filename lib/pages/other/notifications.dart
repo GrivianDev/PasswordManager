@@ -78,13 +78,12 @@ class _CustomDialog extends StatelessWidget {
               ? Text(
                   title!,
                   style: Theme.of(context).textTheme.headlineLarge!.copyWith(
-                    color: type == NotificationType.error ? Colors.redAccent : null,
-                  ),
+                        color: type == NotificationType.error ? Colors.redAccent : null,
+                      ),
                 )
               : null,
           content: content,
-          actionsAlignment:
-              (type == NotificationType.confirmDialog || type == NotificationType.deleteDialog) ? MainAxisAlignment.end : MainAxisAlignment.center,
+          actionsAlignment: (type == NotificationType.confirmDialog || type == NotificationType.deleteDialog) ? MainAxisAlignment.end : MainAxisAlignment.center,
           actions: [
             TextButton(
               onPressed: () {

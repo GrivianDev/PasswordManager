@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:ethercrypt/engine/app_exception.dart';
 import 'package:ethercrypt/pages/other/notifications.dart';
+import 'package:flutter/material.dart';
 
 Future<void> runAppFlow(
   BuildContext context,

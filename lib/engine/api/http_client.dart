@@ -1,8 +1,8 @@
 import 'dart:convert';
 
+import 'package:ethercrypt/engine/other/util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:ethercrypt/engine/other/util.dart';
 
 class LoggingHttpClient extends http.BaseClient {
   final http.Client _inner;

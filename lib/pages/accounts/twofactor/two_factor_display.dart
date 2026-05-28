@@ -1,12 +1,13 @@
 import 'dart:async';
-import 'package:ethercrypt/pages/flows/app_flows.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
-import 'package:ntp/ntp.dart';
+
 import 'package:ethercrypt/engine/persistence/appstate.dart';
 import 'package:ethercrypt/engine/two_factor_token.dart';
+import 'package:ethercrypt/pages/flows/app_flows.dart';
 import 'package:ethercrypt/pages/other/notifications.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:ntp/ntp.dart';
+import 'package:provider/provider.dart';
 
 // This is the NTP time offset to calculate how much off the local system time is.
 Duration? _ntpOffset;

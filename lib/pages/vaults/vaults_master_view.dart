@@ -1,24 +1,25 @@
 import 'dart:io';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:ethercrypt/pages/settings/settings_page.dart';
-import 'package:ethercrypt/engine/other/file_utility.dart';
+
 import 'package:ethercrypt/engine/app_exception.dart';
-import 'package:ethercrypt/engine/updates/update_service.dart';
+import 'package:ethercrypt/engine/other/file_utility.dart';
+import 'package:ethercrypt/engine/other/util.dart';
+import 'package:ethercrypt/engine/persistence/appstate.dart';
 import 'package:ethercrypt/engine/persistence/storage/storage_controller.dart';
 import 'package:ethercrypt/engine/persistence/storage/storage_file.dart';
 import 'package:ethercrypt/engine/persistence/storage/storage_provider.dart';
+import 'package:ethercrypt/engine/updates/update_service.dart';
 import 'package:ethercrypt/pages/flows/app_flows.dart';
+import 'package:ethercrypt/pages/other/notifications.dart';
+import 'package:ethercrypt/pages/settings/settings_page.dart';
 import 'package:ethercrypt/pages/vaults/vault_create_page.dart';
 import 'package:ethercrypt/pages/vaults/vault_list_view.dart';
 import 'package:ethercrypt/pages/vaults/vault_load_statusbar.dart';
-import 'package:ethercrypt/pages/widgets/morphing_fab.dart';
-import 'package:ethercrypt/engine/persistence/appstate.dart';
-import 'package:ethercrypt/engine/other/util.dart';
-import 'package:ethercrypt/pages/widgets/default_page_body.dart';
 import 'package:ethercrypt/pages/vaults/vaults_master_view_navbar.dart';
-import 'package:ethercrypt/pages/other/notifications.dart';
+import 'package:ethercrypt/pages/widgets/default_page_body.dart';
+import 'package:ethercrypt/pages/widgets/morphing_fab.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 
 class VaultsMasterView extends StatelessWidget {
   const VaultsMasterView({super.key});

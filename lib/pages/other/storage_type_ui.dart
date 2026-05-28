@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:ethercrypt/engine/persistence/storage/storage_file.dart';
+import 'package:flutter/material.dart';
 
 extension StorageTypeUI on StorageType {
   String get label {

@@ -1,7 +1,7 @@
+import 'package:ethercrypt/engine/persistence/appstate.dart';
+import 'package:ethercrypt/pages/flows/app_flows.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:ethercrypt/pages/flows/app_flows.dart';
-import 'package:ethercrypt/engine/persistence/appstate.dart';
 
 class PasswordGenerationSettings extends StatefulWidget {
   const PasswordGenerationSettings({super.key});

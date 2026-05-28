@@ -20,7 +20,7 @@ final class FirestoreCodec {
   }
 
   static Map<String, dynamic> decodeDocumentFields(Map<String, dynamic> docFields) {
-    return docFields.map((key, value) =>  MapEntry(key, decodeValue(value)));
+    return docFields.map((key, value) => MapEntry(key, decodeValue(value)));
   }
 
   // Firestores field format

@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:ethercrypt/pages/settings/settings_page.dart';
+import 'package:flutter/material.dart';
 
 class VaultsMasterViewNavbar extends StatelessWidget {
   const VaultsMasterViewNavbar({super.key});

@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:ethercrypt/pages/other/notifications.dart';
+import 'package:flutter/material.dart';
 
 /// Shows a dialog requiring the user to type a specific input to confirm an action.
 ///

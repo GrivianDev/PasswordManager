@@ -1,16 +1,16 @@
-import 'package:flutter/material.dart';
-import 'package:ethercrypt/pages/flows/app_flows.dart';
-import 'package:ethercrypt/pages/other/storage_type_ui.dart';
-import 'package:provider/provider.dart';
-import 'package:ethercrypt/engine/persistence/appstate.dart';
-import 'package:ethercrypt/pages/widgets/default_page_body.dart';
-import 'package:ethercrypt/engine/db/local_database.dart';
-import 'package:ethercrypt/engine/persistence/source.dart';
 import 'package:ethercrypt/engine/account.dart';
+import 'package:ethercrypt/engine/db/local_database.dart';
+import 'package:ethercrypt/engine/persistence/appstate.dart';
+import 'package:ethercrypt/engine/persistence/source.dart';
+import 'package:ethercrypt/pages/accounts/account_editing_page.dart';
 import 'package:ethercrypt/pages/accounts/account_list_view.dart';
 import 'package:ethercrypt/pages/accounts/account_master_view_navbar.dart';
-import 'package:ethercrypt/pages/accounts/account_editing_page.dart';
+import 'package:ethercrypt/pages/flows/app_flows.dart';
 import 'package:ethercrypt/pages/other/notifications.dart';
+import 'package:ethercrypt/pages/other/storage_type_ui.dart';
+import 'package:ethercrypt/pages/widgets/default_page_body.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class AccountsMasterView extends StatefulWidget {
   const AccountsMasterView({super.key});

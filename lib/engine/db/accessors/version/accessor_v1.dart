@@ -1,20 +1,21 @@
 import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
-import 'package:flutter/foundation.dart' as foundation;
+
+import 'package:ethercrypt/engine/account.dart';
 import 'package:ethercrypt/engine/app_exception.dart';
+import 'package:ethercrypt/engine/cryptography/base16_codec.dart';
+import 'package:ethercrypt/engine/cryptography/datatypes.dart';
+import 'package:ethercrypt/engine/cryptography/implementation/aes_encryption.dart';
+import 'package:ethercrypt/engine/cryptography/service.dart';
 import 'package:ethercrypt/engine/db/accessors/accessor.dart';
 import 'package:ethercrypt/engine/db/database_content.dart';
+import 'package:flutter/foundation.dart' as foundation;
 import 'package:pointycastle/api.dart';
 import 'package:pointycastle/digests/sha256.dart';
 import 'package:pointycastle/key_derivators/api.dart';
 import 'package:pointycastle/key_derivators/pbkdf2.dart';
 import 'package:pointycastle/macs/hmac.dart';
-import 'package:ethercrypt/engine/account.dart';
-import 'package:ethercrypt/engine/cryptography/base16_codec.dart';
-import 'package:ethercrypt/engine/cryptography/datatypes.dart';
-import 'package:ethercrypt/engine/cryptography/implementation/aes_encryption.dart';
-import 'package:ethercrypt/engine/cryptography/service.dart';
 
 /// DataAccessorV1 implements a secure version of the data accessor interface,
 /// providing encryption and decryption of account data using AES-256 CBC with
@@ -114,7 +115,7 @@ class DataAccessorV1 extends DataAccessor {
     final String testHMac = base16.encode(hmac.process(bBuilder.toBytes()));
 
     if (testHMac != hmacString) {
-       throw AppException('Wrong password', debugContext: 'Accessor v1 Decrypt');
+      throw AppException('Wrong password', debugContext: 'Accessor v1 Decrypt');
     }
 
     // Decrypt AES-encrypted data asynchronously

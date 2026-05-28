@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:ethercrypt/pages/widgets/obscured_text_field.dart';
-import 'package:ethercrypt/engine/other/util.dart';
 import 'package:ethercrypt/engine/other/safety.dart';
+import 'package:ethercrypt/engine/other/util.dart';
+import 'package:ethercrypt/pages/widgets/obscured_text_field.dart';
 import 'package:ethercrypt/pages/widgets/password_strength_indicator.dart';
+import 'package:flutter/material.dart';
 
 /// Page for login or registration.
 class EmailPasswordLoginForm extends StatefulWidget {

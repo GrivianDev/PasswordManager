@@ -12,14 +12,7 @@ final class Account {
   String? password;
   TOTPSecret? twoFactorSecret;
 
-  Account({
-      this.tag,
-      this.name,
-      this.info,
-      this.email,
-      this.password,
-      this.twoFactorSecret
-  }) : id = ++_idCounter;
+  Account({this.tag, this.name, this.info, this.email, this.password, this.twoFactorSecret}) : id = ++_idCounter;
 
   factory Account.fromJson(Map<String, dynamic> json) {
     return Account(
@@ -28,9 +21,7 @@ final class Account {
       info: json['info'] as String?,
       email: json['email'] as String?,
       password: json['password'] as String?,
-      twoFactorSecret: json['twoFactorSecret'] != null
-          ? TOTPSecret.fromJson(json['twoFactorSecret'])
-          : null,
+      twoFactorSecret: json['twoFactorSecret'] != null ? TOTPSecret.fromJson(json['twoFactorSecret']) : null,
     );
   }
 

@@ -1,14 +1,14 @@
-import 'package:ethercrypt/engine/app_exception.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:ethercrypt/engine/api/firebase/firebase_user.dart';
 import 'package:ethercrypt/engine/api/firebase/firestore.dart';
+import 'package:ethercrypt/engine/app_exception.dart';
 import 'package:ethercrypt/engine/other/util.dart';
 import 'package:ethercrypt/engine/persistence/appstate.dart';
 import 'package:ethercrypt/pages/flows/app_flows.dart';
 import 'package:ethercrypt/pages/flows/typed_confirmation_dialog.dart';
 import 'package:ethercrypt/pages/other/notifications.dart';
 import 'package:ethercrypt/pages/widgets/email_password_login_form.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class FirestoreConfig extends StatefulWidget {
   const FirestoreConfig({super.key});

@@ -1,14 +1,14 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:ethercrypt/engine/db/local_database.dart';
+import 'package:ethercrypt/engine/other/util.dart';
 import 'package:ethercrypt/engine/persistence/storage/storage_controller.dart';
 import 'package:ethercrypt/engine/persistence/storage/storage_file.dart';
 import 'package:ethercrypt/engine/persistence/storage/storage_provider.dart';
 import 'package:ethercrypt/pages/flows/app_flows.dart';
-import 'package:ethercrypt/engine/other/util.dart';
 import 'package:ethercrypt/pages/flows/user_input_dialog.dart';
-import 'package:ethercrypt/pages/settings/settings_page.dart';
 import 'package:ethercrypt/pages/other/notifications.dart';
-import 'package:ethercrypt/engine/db/local_database.dart';
+import 'package:ethercrypt/pages/settings/settings_page.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class AccountMasterViewNavbar extends StatelessWidget {
   const AccountMasterViewNavbar({super.key});

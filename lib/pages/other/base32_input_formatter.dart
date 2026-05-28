@@ -6,10 +6,7 @@ class Base32InputFormatter extends TextInputFormatter {
   static String formatBase32(String input) {
     final raw = input.toUpperCase().replaceAll(' ', '');
 
-    final filtered = raw
-        .split('')
-        .where((c) => _base32CharRegex.hasMatch(c))
-        .join();
+    final filtered = raw.split('').where((c) => _base32CharRegex.hasMatch(c)).join();
 
     final buffer = StringBuffer();
     for (int i = 0; i < filtered.length; i++) {
@@ -22,9 +19,9 @@ class Base32InputFormatter extends TextInputFormatter {
 
   @override
   TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue,
-      TextEditingValue newValue,
-      ) {
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     final formatted = formatBase32(newValue.text);
     return TextEditingValue(
       text: formatted,

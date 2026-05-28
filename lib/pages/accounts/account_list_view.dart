@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:ethercrypt/engine/account.dart';
 import 'package:ethercrypt/engine/db/local_database.dart';
 import 'package:ethercrypt/pages/accounts/account_list_element.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class AccountListView extends StatelessWidget {
   const AccountListView({super.key, this.searchTag, this.searchQuery, required this.queryCaseInsensitiveSearch});

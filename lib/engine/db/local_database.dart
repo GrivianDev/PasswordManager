@@ -1,8 +1,9 @@
 import 'dart:collection';
-import 'package:flutter/foundation.dart';
+
 import 'package:ethercrypt/engine/account.dart';
 import 'package:ethercrypt/engine/db/database_content.dart';
 import 'package:ethercrypt/engine/persistence/source.dart';
+import 'package:flutter/foundation.dart';
 
 /// A central class that manages a list of [Account]s and handles loading/saving
 /// via a [Source] object.

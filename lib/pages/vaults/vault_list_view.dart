@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
 import 'package:ethercrypt/engine/persistence/storage/storage_file.dart';
-import 'package:ethercrypt/pages/vaults/vault_list_element.dart';
-import 'package:provider/provider.dart';
 import 'package:ethercrypt/engine/persistence/storage/storage_provider.dart';
+import 'package:ethercrypt/pages/vaults/vault_list_element.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class VaultListView extends StatelessWidget {
   const VaultListView({super.key});

@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:ethercrypt/engine/app_exception.dart';
+import 'package:flutter/foundation.dart';
 
 class DownloadProgress {
   final int downloadedBytes;

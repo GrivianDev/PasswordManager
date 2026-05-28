@@ -13,7 +13,9 @@ final class Source {
   DataAccessor? _accessor;
   String _password;
 
-  Source(this._controller, {required StorageFile file, required String password}) : _file = file, _password = password;
+  Source(this._controller, {required StorageFile file, required String password})
+      : _file = file,
+        _password = password;
 
   /// Version of the currently active [DataAccessor] used for interpreting and encrypting data.
   String? get accessorVersion => _accessor?.version;

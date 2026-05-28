@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:http/http.dart' as http;
 import 'package:ethercrypt/engine/api/firebase/firebase_user.dart';
 import 'package:ethercrypt/engine/api/http_client.dart';
+import 'package:http/http.dart' as http;
 
 class FirebaseAuthException implements Exception {
   final String message;

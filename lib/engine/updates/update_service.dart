@@ -1,5 +1,5 @@
-import 'package:flutter/foundation.dart';
 import 'package:ethercrypt/engine/updates/update_asset.dart';
+import 'package:flutter/foundation.dart';
 
 final class UpdateInfo {
   final String? latestVersion;

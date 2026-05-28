@@ -1,17 +1,17 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:ethercrypt/engine/other/file_utility.dart';
+import 'package:ethercrypt/engine/other/util.dart';
 import 'package:ethercrypt/engine/persistence/appstate.dart';
+import 'package:ethercrypt/engine/updates/app_version.dart';
 import 'package:ethercrypt/engine/updates/downloader.dart';
 import 'package:ethercrypt/engine/updates/update_asset.dart';
+import 'package:ethercrypt/engine/updates/update_service.dart';
 import 'package:ethercrypt/pages/flows/app_flows.dart';
 import 'package:ethercrypt/pages/other/notifications.dart';
-import 'package:ethercrypt/engine/other/util.dart';
-import 'package:ethercrypt/engine/updates/app_version.dart';
-import 'package:ethercrypt/engine/updates/update_service.dart';
+import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
 
 class UpdateSettings extends StatelessWidget {
   const UpdateSettings({super.key});

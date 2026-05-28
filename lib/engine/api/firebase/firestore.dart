@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:http/http.dart' as http;
 import 'package:ethercrypt/engine/api/firebase/firebase_auth.dart';
 import 'package:ethercrypt/engine/api/firebase/firestore_codec.dart';
 import 'package:ethercrypt/engine/api/firebase/firestore_query.dart';
 import 'package:ethercrypt/engine/api/http_client.dart';
+import 'package:http/http.dart' as http;
 
 class FirestoreApiException implements Exception {
   final String status;
@@ -191,6 +191,7 @@ class Firestore {
   }
 
   // ----------- Helpers ------------
+
   Future<http.Response> _apiRequestWithReAuth(Future<http.Response> Function(http.Client) apiCall) async {
     if (!auth.isUserLoggedIn) {
       throw Exception('Firestore user is not logged in');

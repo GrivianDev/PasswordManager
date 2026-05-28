@@ -1,12 +1,12 @@
-import 'package:flutter/material.dart';
-import 'package:ethercrypt/pages/settings/tabs/app_about.dart';
-import 'package:ethercrypt/pages/settings/tabs/update_settings.dart';
 import 'package:ethercrypt/pages/settings/settings_tab_page.dart';
+import 'package:ethercrypt/pages/settings/tabs/app_about.dart';
 import 'package:ethercrypt/pages/settings/tabs/general_settings.dart';
 import 'package:ethercrypt/pages/settings/tabs/ntp_server_settings.dart';
 import 'package:ethercrypt/pages/settings/tabs/password_generation_settings.dart';
 import 'package:ethercrypt/pages/settings/tabs/storage_options_settings.dart';
+import 'package:ethercrypt/pages/settings/tabs/update_settings.dart';
 import 'package:ethercrypt/pages/widgets/default_page_body.dart';
+import 'package:flutter/material.dart';
 
 enum SettingsTab {
   general,

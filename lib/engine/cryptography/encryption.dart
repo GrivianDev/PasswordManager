@@ -4,7 +4,6 @@ import 'package:ethercrypt/engine/cryptography/datatypes.dart';
 /// This interface provides the [encrypt] and [decrypt] method to allow
 /// symetric encryption and decryption for bytes through a given key and iv.
 abstract class Encryption {
-
   /// Encrypts the given data according to the underlying implementation with the provided key.
   /// In most cases you should also provide a valid initialization vector.
   Uint8List encrypt({required Uint8List data, required Uint8List key, required IV iv});

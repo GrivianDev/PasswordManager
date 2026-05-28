@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:ethercrypt/pages/widgets/default_page_body.dart';
+import 'package:flutter/material.dart';
 
 class SettingsTabPage extends StatefulWidget {
   const SettingsTabPage({

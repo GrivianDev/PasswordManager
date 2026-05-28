@@ -1,11 +1,11 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:ethercrypt/pages/other/notifications.dart';
 import 'package:ethercrypt/engine/persistence/appstate.dart';
 import 'package:ethercrypt/pages/flows/app_flows.dart';
+import 'package:ethercrypt/pages/other/notifications.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class GeneralSettings extends StatefulWidget {
   const GeneralSettings({super.key});

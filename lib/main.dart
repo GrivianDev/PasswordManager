@@ -1,18 +1,18 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:package_info_plus/package_info_plus.dart';
-import 'package:ethercrypt/engine/updates/app_version.dart';
-import 'package:ethercrypt/engine/persistence/storage/controller/local_file_controller.dart';
+import 'package:ethercrypt/engine/api/firebase/firestore.dart';
+import 'package:ethercrypt/engine/db/local_database.dart';
+import 'package:ethercrypt/engine/other/themes.dart';
+import 'package:ethercrypt/engine/persistence/appstate.dart';
 import 'package:ethercrypt/engine/persistence/storage/controller/firestore_controller.dart';
+import 'package:ethercrypt/engine/persistence/storage/controller/local_file_controller.dart';
 import 'package:ethercrypt/engine/persistence/storage/storage_file.dart';
 import 'package:ethercrypt/engine/persistence/storage/storage_provider.dart';
+import 'package:ethercrypt/engine/updates/app_version.dart';
 import 'package:ethercrypt/engine/updates/services/github_update_service.dart';
 import 'package:ethercrypt/engine/updates/update_service.dart';
-import 'package:ethercrypt/engine/other/themes.dart';
 import 'package:ethercrypt/pages/vaults/vaults_master_view.dart';
-import 'package:ethercrypt/engine/persistence/appstate.dart';
-import 'package:ethercrypt/engine/db/local_database.dart';
-import 'package:ethercrypt/engine/api/firebase/firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:provider/provider.dart';
 
 Future<void> main() async {
   // Ensure Flutter Widget bindings are initialised before app setup

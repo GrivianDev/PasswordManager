@@ -1,9 +1,9 @@
 import 'package:ethercrypt/engine/app_exception.dart';
+import 'package:ethercrypt/engine/updates/app_version.dart';
+import 'package:ethercrypt/pages/flows/app_flows.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:ethercrypt/pages/flows/app_flows.dart';
-import 'package:ethercrypt/engine/updates/app_version.dart';
 
 class AppAbout extends StatelessWidget {
   const AppAbout({super.key});
@@ -36,7 +36,7 @@ class AppAbout extends StatelessWidget {
           title: const Text('View source code'),
           onTap: () {
             runAppFlow(context, () async {
-              if(!await launchUrl(Uri.parse('https://github.com/GrivianDev/PasswordManager'))) {
+              if (!await launchUrl(Uri.parse('https://github.com/GrivianDev/PasswordManager'))) {
                 throw AppException('Failed to open url');
               }
             });

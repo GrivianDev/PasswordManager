@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:ethercrypt/pages/widgets/corner_border_widget.dart';
 import 'package:ethercrypt/pages/widgets/default_page_body.dart';
+import 'package:flutter/material.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 
 /// Page for the view for QR-Code scanning, will return to previous page once a QR-Code has been scanned.
 /// * Flashlight can be enabled
@@ -73,13 +73,9 @@ class _QrScannerPageState extends State<QrScannerPage> {
                             children: [
                               IconButton(
                                 icon: Icon(
-                                  _torchEnabled
-                                      ? Icons.flash_on_rounded
-                                      : Icons.flash_off_rounded,
+                                  _torchEnabled ? Icons.flash_on_rounded : Icons.flash_off_rounded,
                                 ),
-                                color: _torchEnabled
-                                    ? Colors.amberAccent
-                                    : Colors.white,
+                                color: _torchEnabled ? Colors.amberAccent : Colors.white,
                                 onPressed: () async {
                                   await _controller.toggleTorch();
                                   setState(() {
@@ -92,8 +88,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
                                   Icons.cameraswitch_outlined,
                                   color: Colors.white,
                                 ),
-                                onPressed: () async =>
-                                    await _controller.switchCamera(),
+                                onPressed: () async => await _controller.switchCamera(),
                               )
                             ],
                           ),

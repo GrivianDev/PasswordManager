@@ -1,16 +1,16 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:ethercrypt/engine/api/firebase/firebase_user.dart';
 import 'package:ethercrypt/engine/api/firebase/firestore.dart';
 import 'package:ethercrypt/engine/app_exception.dart';
 import 'package:ethercrypt/engine/persistence/appstate.dart';
-import 'package:ethercrypt/engine/persistence/storage/wrapper/app_exception_repo_wrapper.dart';
 import 'package:ethercrypt/engine/persistence/storage/repositories/firestore_repository.dart';
 import 'package:ethercrypt/engine/persistence/storage/storage_controller.dart';
 import 'package:ethercrypt/engine/persistence/storage/storage_file.dart';
 import 'package:ethercrypt/engine/persistence/storage/storage_repository.dart';
 import 'package:ethercrypt/engine/persistence/storage/storage_state.dart';
+import 'package:ethercrypt/engine/persistence/storage/wrapper/app_exception_repo_wrapper.dart';
+import 'package:flutter/foundation.dart';
 
 class FirestoreController extends StorageController {
   final AppState _appState;
