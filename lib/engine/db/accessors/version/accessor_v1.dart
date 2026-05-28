@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:math';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:ethercrypt/engine/account.dart';
@@ -7,6 +7,7 @@ import 'package:ethercrypt/engine/app_exception.dart';
 import 'package:ethercrypt/engine/cryptography/base16_codec.dart';
 import 'package:ethercrypt/engine/cryptography/datatypes.dart';
 import 'package:ethercrypt/engine/cryptography/implementation/aes_encryption.dart';
+import 'package:ethercrypt/engine/cryptography/padding_mode.dart';
 import 'package:ethercrypt/engine/cryptography/service.dart';
 import 'package:ethercrypt/engine/db/accessors/accessor.dart';
 import 'package:ethercrypt/engine/db/database_content.dart';
@@ -34,6 +35,7 @@ import 'package:pointycastle/macs/hmac.dart';
 /// - [dataIdentifier] (Base64-encoded AES-encrypted JSON data)
 class DataAccessorV1 extends DataAccessor {
   static const String versionIdentifier = 'version';
+  static const String compressedIdentifier = 'Compressed';
   static const String saltIdentifier = 'Salt';
   static const String ivIdentifier = 'IV';
   static const String hmacIdentifier = 'HMac';
@@ -89,6 +91,8 @@ class DataAccessorV1 extends DataAccessor {
     final String? ivString = properties[ivIdentifier];
     final String? hmacString = properties[hmacIdentifier];
     final String? cipher = properties[dataIdentifier];
+    
+    final bool isCompressed = properties[compressedIdentifier] == 'true';
 
     if (saltString == null || hmacString == null || ivString == null || cipher == null) throw Exception('Missing properties');
 
@@ -120,9 +124,12 @@ class DataAccessorV1 extends DataAccessor {
 
     // Decrypt AES-encrypted data asynchronously
     final String decryptedString = await foundation.compute((message) {
-      final AES256 decrypter = AES256();
-      return utf8.decode(decrypter.decrypt(cipher: message[0] as Uint8List, key: (message[1] as Key).bytes, iv: message[2] as IV), allowMalformed: true);
-    }, [cipherBytes, _aesKey, iv]);
+      bool newGzipMode = message[3] as bool;
+      final AES256CBC decrypter = AES256CBC(padding: newGzipMode ? PaddingMode.pkcs7 : PaddingMode.none);
+      final Uint8List decrypted = decrypter.decrypt(cipher: message[0] as Uint8List, key: (message[1] as Key).bytes, iv: message[2] as IV);
+      final Uint8List decompressed = newGzipMode ? Uint8List.fromList(gzip.decode(decrypted)) : decrypted;
+      return utf8.decode(decompressed);
+    }, [cipherBytes, _aesKey, iv, isCompressed]);
 
     // Extract JSON object from decrypted string
     final start = decryptedString.indexOf('{');
@@ -149,20 +156,8 @@ class DataAccessorV1 extends DataAccessor {
       throw Exception('No password was defined in accessor');
     }
 
-    // Create data string
-    const String chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
-    Random rand = Random.secure();
-    StringBuffer buffer = StringBuffer();
-    int length = rand.nextInt(10) + 1;
-    for (int j = 0; j < length; j++) {
-      buffer.write(String.fromCharCode(chars.codeUnitAt(rand.nextInt(chars.length))));
-    }
     // Serialize accounts as JSON string
-    buffer.write(json.encode({'accounts': dbContent.accounts.map((a) => a.toJson()).toList()}));
-    length = rand.nextInt(10) + 1;
-    for (int j = 0; j < length; j++) {
-      buffer.write(String.fromCharCode(chars.codeUnitAt(rand.nextInt(chars.length))));
-    }
+    final String serialized = json.encode({'accounts': dbContent.accounts.map((a) => a.toJson()).toList()});
 
     // Derive keys if not already done
     if (_totalKey == null) {
@@ -173,18 +168,16 @@ class DataAccessorV1 extends DataAccessor {
       _hmacKey = Key(_totalKey!.bytes.sublist(keyLength)); // Upper bytes are hmac key
     }
 
-    final AES256 encrypter = AES256();
-    // Expand data to block-aligned length with allowed characters
-    final Uint8List expandedData = CryptographicService.expandWithValues(utf8.encode(buffer.toString()), encrypter.blockLength, chars.codeUnits);
-
     // Compute HMAC over key + IV + ciphertext later, so create HMac object now
+    final AES256CBC encrypter = AES256CBC(padding: PaddingMode.pkcs7);
     final HMac newHmac = HMac(SHA256Digest(), 64)..init(KeyParameter(_hmacKey!.bytes));
     final IV iv = IV.fromLength(encrypter.blockLength);
 
     final Uint8List cipherBytes = await foundation.compute((message) {
-      final AES256 encrypter = AES256();
-      return encrypter.encrypt(data: message[0] as Uint8List, key: (message[1] as Key).bytes, iv: message[2] as IV);
-    }, [expandedData, _aesKey, iv]);
+      final AES256CBC encrypter = AES256CBC(padding: PaddingMode.pkcs7);
+      final Uint8List encoded = Uint8List.fromList(gzip.encode(utf8.encode(message[0] as String)));
+      return encrypter.encrypt(data: encoded, key: (message[1] as Key).bytes, iv: message[2] as IV);
+    }, [serialized, _aesKey, iv]);
 
     // Prepare bytes for HMAC calculation
     final bBuilder = BytesBuilder(copy: false);
@@ -196,6 +189,7 @@ class DataAccessorV1 extends DataAccessor {
 
     return {
       versionIdentifier: version,
+      compressedIdentifier: 'true',
       saltIdentifier: base16.encode(_totalKey!.salt!),
       hmacIdentifier: base16.encode(newHmacBytes),
       ivIdentifier: base16.encode(iv.bytes),

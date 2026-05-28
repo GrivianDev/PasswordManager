@@ -85,7 +85,7 @@ class DataAccessorV0 extends DataAccessor {
 
     // Decrypt the ciphertext using AES-256-CBC (in a separate isolate)
     final Uint8List presumedData = await foundation.compute((message) {
-      final AES256 decrypter = AES256();
+      final AES256CBC decrypter = AES256CBC();
       return decrypter.decrypt(cipher: base64.decode(message[0]), key: _key!.bytes, iv: IV(base16.decode(message[1])));
     }, [cipher, ivString]);
 
@@ -150,7 +150,7 @@ class DataAccessorV0 extends DataAccessor {
       }
     }
 
-    final AES256 encrypter = AES256();
+    final AES256CBC encrypter = AES256CBC();
     final Uint8List expandedData = CryptographicService.expandWithValues(utf8.encode(buffer.toString()), encrypter.blockLength, chars.codeUnits);
 
     // Derive key if not previously derived
@@ -165,7 +165,7 @@ class DataAccessorV0 extends DataAccessor {
 
     // Encrypt the data in a separate isolate
     final Uint8List cipher = await foundation.compute((message) {
-      final AES256 encrypter = AES256();
+      final AES256CBC encrypter = AES256CBC();
       return encrypter.encrypt(data: message[0] as Uint8List, key: (message[1] as Key).bytes, iv: message[2] as IV);
     }, [expandedData, _key, iv]);
 
