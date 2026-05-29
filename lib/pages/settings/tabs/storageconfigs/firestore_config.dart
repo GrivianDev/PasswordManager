@@ -3,9 +3,11 @@ import 'package:ethercrypt/engine/api/firebase/firestore.dart';
 import 'package:ethercrypt/engine/app_exception.dart';
 import 'package:ethercrypt/engine/other/util.dart';
 import 'package:ethercrypt/engine/persistence/appstate.dart';
+import 'package:ethercrypt/engine/persistence/storage/storage_file.dart';
 import 'package:ethercrypt/pages/flows/app_flows.dart';
 import 'package:ethercrypt/pages/flows/typed_confirmation_dialog.dart';
 import 'package:ethercrypt/pages/other/notifications.dart';
+import 'package:ethercrypt/pages/other/snackbar_util.dart';
 import 'package:ethercrypt/pages/widgets/email_password_login_form.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -34,24 +36,14 @@ class _FirestoreConfigState extends State<FirestoreConfig> {
       appState.firebaseApiKey.value = apiKey;
       await appState.save();
 
-      scaffoldMessenger.showSnackBar(const SnackBar(
-        duration: Duration(seconds: 2),
-        content: Wrap(
-          spacing: 5,
-          children: [
-            Icon(
-              Icons.settings,
-              size: 15,
-              color: Colors.white,
-            ),
-            Text('Saved configuration'),
-          ],
-        ),
-      ));
+      scaffoldMessenger.showSnackBar(
+        SnackBarUtils.message('Saved configuration', icon: Icons.settings),
+      );
     });
   }
 
   Future<void> _handleLogin(String email, String password) {
+    final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
     final Firestore firestore = context.read();
     final NavigatorState navigator = Navigator.of(context);
 
@@ -59,6 +51,9 @@ class _FirestoreConfigState extends State<FirestoreConfig> {
       try {
         Notify.showLoading(context: context);
         await firestore.auth.login(email, password);
+        scaffoldMessenger.showSnackBar(
+          SnackBarUtils.message('Logged into ${StorageType.CloudFirestore.name}', icon: Icons.check_circle_outline),
+        );
       } catch (e, s) {
         throw AppException(
           'Login failed',
@@ -73,6 +68,7 @@ class _FirestoreConfigState extends State<FirestoreConfig> {
   }
 
   Future<void> _handleSignUp(String email, String password) {
+    final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
     final Firestore firestore = context.read();
     final NavigatorState navigator = Navigator.of(context);
 
@@ -80,6 +76,9 @@ class _FirestoreConfigState extends State<FirestoreConfig> {
       try {
         Notify.showLoading(context: context);
         await firestore.auth.signUp(email, password);
+        scaffoldMessenger.showSnackBar(
+          SnackBarUtils.message('Logged into ${StorageType.CloudFirestore.name}', icon: Icons.check_circle_outline),
+        );
       } catch (e, s) {
         throw AppException(
           'Signing up failed',
@@ -96,6 +95,13 @@ class _FirestoreConfigState extends State<FirestoreConfig> {
   void _handleLogout() {
     final Firestore firestore = context.read();
     firestore.auth.logout();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBarUtils.message(
+        'Logged out from ${StorageType.CloudFirestore.name}',
+        icon: Icons.account_circle,
+        backgroundColor: Colors.redAccent,
+      ),
+    );
   }
 
   Future<void> _handleDeleteUser() async {

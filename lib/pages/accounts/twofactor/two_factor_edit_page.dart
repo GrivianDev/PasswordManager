@@ -5,6 +5,7 @@ import 'package:ethercrypt/engine/two_factor_token.dart';
 import 'package:ethercrypt/pages/flows/app_flows.dart';
 import 'package:ethercrypt/pages/other/base32_input_formatter.dart';
 import 'package:ethercrypt/pages/other/notifications.dart';
+import 'package:ethercrypt/pages/other/snackbar_util.dart';
 import 'package:ethercrypt/pages/widgets/default_page_body.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -51,20 +52,9 @@ class _TwoFactorEditPageState extends State<TwoFactorEditPage> {
 
         if (context.read<AppState>().autosaving.value) {
           await database.save();
-          scaffoldMessenger.showSnackBar(const SnackBar(
-            duration: Duration(seconds: 2),
-            content: Wrap(
-              spacing: 5,
-              children: [
-                Icon(
-                  Icons.sync,
-                  size: 15,
-                  color: Colors.white,
-                ),
-                Text('Saved changes'),
-              ],
-            ),
-          ));
+          scaffoldMessenger.showSnackBar(
+            SnackBarUtils.message('Saved changes', icon: Icons.sync),
+          );
         }
       } finally {
         navigator.pop();

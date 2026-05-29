@@ -1,9 +1,8 @@
+import 'package:ethercrypt/pages/other/snackbar_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 /// Widget to display a password either obscured as dots or visible as text.
-///
-/// - [password]: The password string to display (nullable).
 class PasswordField extends StatefulWidget {
   final String? password;
 
@@ -20,15 +19,12 @@ class _PasswordFieldState extends State<PasswordField> {
   Future<void> _copyClicked() async {
     if (widget.password == null) return;
     final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
-    final Color bgColor = Theme.of(context).colorScheme.primary;
 
     await Clipboard.setData(ClipboardData(text: widget.password!));
 
-    scaffoldMessenger.showSnackBar(SnackBar(
-      duration: const Duration(seconds: 2),
-      backgroundColor: bgColor,
-      content: const Text('Copied password to clipboard'),
-    ));
+    scaffoldMessenger.showSnackBar(
+      SnackBarUtils.message('Copied password to clipboard'),
+    );
   }
 
   Widget get obscuredDots => Wrap(

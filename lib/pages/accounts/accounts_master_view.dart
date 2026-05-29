@@ -7,6 +7,7 @@ import 'package:ethercrypt/pages/accounts/account_list_view.dart';
 import 'package:ethercrypt/pages/accounts/account_master_view_navbar.dart';
 import 'package:ethercrypt/pages/flows/app_flows.dart';
 import 'package:ethercrypt/pages/other/notifications.dart';
+import 'package:ethercrypt/pages/other/snackbar_util.dart';
 import 'package:ethercrypt/pages/other/storage_type_ui.dart';
 import 'package:ethercrypt/pages/widgets/default_page_body.dart';
 import 'package:flutter/material.dart';
@@ -54,20 +55,9 @@ class _AccountsMasterViewState extends State<AccountsMasterView> {
         navigator.pop();
       }
 
-      scaffoldMessenger.showSnackBar(const SnackBar(
-        duration: Duration(seconds: 2),
-        content: Wrap(
-          spacing: 5,
-          children: [
-            Icon(
-              Icons.sync,
-              size: 15,
-              color: Colors.white,
-            ),
-            Text('Saved changes'),
-          ],
-        ),
-      ));
+      scaffoldMessenger.showSnackBar(
+        SnackBarUtils.message('Saved changes', icon: Icons.sync),
+      );
     });
   }
 

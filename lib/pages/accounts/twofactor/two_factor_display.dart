@@ -4,6 +4,7 @@ import 'package:ethercrypt/engine/persistence/appstate.dart';
 import 'package:ethercrypt/engine/two_factor_token.dart';
 import 'package:ethercrypt/pages/flows/app_flows.dart';
 import 'package:ethercrypt/pages/other/notifications.dart';
+import 'package:ethercrypt/pages/other/snackbar_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ntp/ntp.dart';
@@ -66,10 +67,9 @@ class _TwoFactorDisplayPageState extends State<TwoFactorDisplayPage> with Single
       final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
       await Clipboard.setData(ClipboardData(text: _currentCode));
 
-      scaffoldMessenger.showSnackBar(const SnackBar(
-        duration: Duration(seconds: 2),
-        content: Text('Copied 2FA code to clipboard'),
-      ));
+      scaffoldMessenger.showSnackBar(
+        SnackBarUtils.message('Copied 2FA code to clipboard'),
+      );
     });
   }
 

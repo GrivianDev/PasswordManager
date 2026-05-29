@@ -9,6 +9,7 @@ import 'package:ethercrypt/pages/accounts/twofactor/two_factor_setup.dart';
 import 'package:ethercrypt/pages/flows/app_flows.dart';
 import 'package:ethercrypt/pages/flows/typed_confirmation_dialog.dart';
 import 'package:ethercrypt/pages/other/notifications.dart';
+import 'package:ethercrypt/pages/other/snackbar_util.dart';
 import 'package:ethercrypt/pages/widgets/default_page_body.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -31,20 +32,10 @@ class TwoFactorManagePage extends StatelessWidget {
       } finally {
         navigator.pop();
       }
-      scaffoldMessenger.showSnackBar(const SnackBar(
-        duration: Duration(seconds: 2),
-        content: Wrap(
-          spacing: 5,
-          children: [
-            Icon(
-              Icons.sync,
-              size: 15,
-              color: Colors.white,
-            ),
-            Text('Saved changes'),
-          ],
-        ),
-      ));
+
+      scaffoldMessenger.showSnackBar(
+        SnackBarUtils.message('Saved changes', icon: Icons.sync),
+      );
     });
   }
 

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:ethercrypt/engine/persistence/appstate.dart';
 import 'package:ethercrypt/pages/flows/app_flows.dart';
 import 'package:ethercrypt/pages/other/notifications.dart';
+import 'package:ethercrypt/pages/other/snackbar_util.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -42,20 +43,9 @@ class _GeneralSettingsState extends State<GeneralSettings> {
         await FilePicker.clearTemporaryFiles();
       }
 
-      scaffoldMessenger.showSnackBar(const SnackBar(
-        duration: Duration(seconds: 2),
-        content: Wrap(
-          spacing: 5,
-          children: [
-            Icon(
-              Icons.auto_awesome,
-              size: 15,
-              color: Colors.white,
-            ),
-            Text('Successfully cleared data'),
-          ],
-        ),
-      ));
+      scaffoldMessenger.showSnackBar(
+        SnackBarUtils.message('Successfully cleared data', icon: Icons.auto_awesome),
+      );
     });
   }
 

@@ -10,6 +10,7 @@ import 'package:ethercrypt/engine/persistence/storage/storage_provider.dart';
 import 'package:ethercrypt/engine/updates/update_service.dart';
 import 'package:ethercrypt/pages/flows/app_flows.dart';
 import 'package:ethercrypt/pages/other/notifications.dart';
+import 'package:ethercrypt/pages/other/snackbar_util.dart';
 import 'package:ethercrypt/pages/settings/settings_page.dart';
 import 'package:ethercrypt/pages/vaults/vault_create_page.dart';
 import 'package:ethercrypt/pages/vaults/vault_list_view.dart';
@@ -50,20 +51,9 @@ class VaultsMasterView extends StatelessWidget {
       await externalFile.copy(targetFile.path);
       controller.load();
 
-      scaffoldMessenger.showSnackBar(SnackBar(
-        duration: const Duration(seconds: 2),
-        content: Wrap(
-          spacing: 5,
-          children: [
-            const Icon(
-              Icons.download_done,
-              size: 15,
-              color: Colors.white,
-            ),
-            Text('Imported as "$fileName"'),
-          ],
-        ),
-      ));
+      scaffoldMessenger.showSnackBar(
+        SnackBarUtils.message('Imported as "$fileName"', icon: Icons.download_done),
+      );
     });
   }
 

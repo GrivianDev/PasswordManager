@@ -10,6 +10,7 @@ import 'package:ethercrypt/pages/flows/app_flows.dart';
 import 'package:ethercrypt/pages/flows/typed_confirmation_dialog.dart';
 import 'package:ethercrypt/pages/flows/user_input_dialog.dart';
 import 'package:ethercrypt/pages/other/notifications.dart';
+import 'package:ethercrypt/pages/other/snackbar_util.dart';
 import 'package:ethercrypt/pages/vaults/vault_create_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -98,20 +99,9 @@ class VaultListElement extends StatelessWidget {
         );
         if (resultPath == null) return;
 
-        scaffoldMessenger.showSnackBar(SnackBar(
-          duration: const Duration(seconds: 2),
-          content: Wrap(
-            spacing: 5,
-            children: [
-              const Icon(
-                Icons.download_done,
-                size: 15,
-                color: Colors.white,
-              ),
-              Text('Saved "${vault.name}" as local file'),
-            ],
-          ),
-        ));
+        scaffoldMessenger.showSnackBar(
+          SnackBarUtils.message('Saved "${vault.name}" as local file', icon: Icons.download_done),
+        );
       } finally {
         navigator.pop();
       }
@@ -139,20 +129,10 @@ class VaultListElement extends StatelessWidget {
         await controller.repository.delete(vault);
         controller.load();
 
-        scaffoldMessenger.showSnackBar(SnackBar(
+        scaffoldMessenger.showSnackBar(SnackBarUtils.message(
+          'Deleted "${vault.name}"',
           backgroundColor: Colors.redAccent,
-          duration: const Duration(seconds: 2),
-          content: Wrap(
-            spacing: 5,
-            children: [
-              const Icon(
-                Icons.delete,
-                size: 15,
-                color: Colors.white,
-              ),
-              Text('Deleted "${vault.name}"'),
-            ],
-          ),
+          icon: Icons.delete,
         ));
       } finally {
         navigator.pop();

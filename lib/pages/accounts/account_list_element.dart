@@ -6,6 +6,7 @@ import 'package:ethercrypt/pages/accounts/account_detail_page.dart';
 import 'package:ethercrypt/pages/flows/app_flows.dart';
 import 'package:ethercrypt/pages/flows/typed_confirmation_dialog.dart';
 import 'package:ethercrypt/pages/other/notifications.dart';
+import 'package:ethercrypt/pages/other/snackbar_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -25,20 +26,9 @@ class AccountListElement extends StatelessWidget {
         Notify.showLoading(context: context);
         await database.save();
 
-        scaffoldMessenger.showSnackBar(const SnackBar(
-          duration: Duration(seconds: 2),
-          content: Wrap(
-            spacing: 5,
-            children: [
-              Icon(
-                Icons.sync,
-                size: 15,
-                color: Colors.white,
-              ),
-              Text('Saved changes'),
-            ],
-          ),
-        ));
+        scaffoldMessenger.showSnackBar(
+          SnackBarUtils.message('Saved changes', icon: Icons.sync),
+        );
       } finally {
         navigator.pop();
       }
@@ -53,10 +43,9 @@ class AccountListElement extends StatelessWidget {
       final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
       await Clipboard.setData(ClipboardData(text: _account.password!));
 
-      scaffoldMessenger.showSnackBar(SnackBar(
-        duration: const Duration(seconds: 2),
-        content: Text('Copied password of "${_account.name}" to clipboard'),
-      ));
+      scaffoldMessenger.showSnackBar(
+        SnackBarUtils.message('Copied password of "${_account.name}" to clipboard'),
+      );
     });
   }
 
