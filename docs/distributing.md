@@ -6,3 +6,9 @@ The project supports multiple platforms:
 - Windows (.exe)
 - Linux (.deb, .AppImage)
 - Android (.apk)
+
+## For packaging
+_Uses definitions from distribute_options.yaml_
+```
+fastforge release --name=<job name>
+```

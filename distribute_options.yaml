@@ -1,0 +1,41 @@
+variables:
+
+common_build_args: &common_build_args
+  dart-define-from-file: config/release.env
+  obfuscate: true
+  split-debug-info: debug-info/
+
+output: dist/
+
+releases:
+  - name: linux-appimage
+    jobs:
+      - name: build-appimage
+        package:
+          platform: linux
+          target: appimage
+          build_args: *common_build_args
+
+  - name: linux-deb
+    jobs:
+      - name: build-deb
+        package:
+          platform: linux
+          target: deb
+          build_args: *common_build_args
+
+  - name: windows-exe
+    jobs:
+      - name: build-exe
+        package:
+          platform: windows
+          target: exe
+          build_args: *common_build_args
+
+  - name: android-apk
+    jobs:
+      - name: build-apk
+        package:
+          platform: android
+          target: apk
+          build_args: *common_build_args

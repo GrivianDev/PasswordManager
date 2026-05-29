@@ -1,0 +1,33 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Ethercrypt: Build Android APK",
+      "type": "shell",
+      "command": "fastforge",
+      "args": ["release", "--name=android-apk"],
+      "group": "build"
+    },
+    {
+      "label": "Ethercrypt: Build Windows EXE",
+      "type": "shell",
+      "command": "fastforge",
+      "args": ["release", "--name=windows-exe"],
+      "group": "build"
+    },
+    {
+      "label": "Ethercrypt: Build Linux AppImage",
+      "type": "shell",
+      "command": "fastforge",
+      "args": ["release", "--name=linux-appimage"],
+      "group": "build"
+    },
+    {
+      "label": "Ethercrypt: Build Linux DEB",
+      "type": "shell",
+      "command": "fastforge",
+      "args": ["release", "--name=linux-deb"],
+      "group": "build"
+    }
+  ]
+}
