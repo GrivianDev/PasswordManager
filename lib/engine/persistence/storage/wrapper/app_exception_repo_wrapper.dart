@@ -22,7 +22,7 @@ class AppExceptionRepoWrapper implements StorageRepository {
 
     throw AppException(
       message,
-      debugContext: _internal.runtimeType.toString(),
+      debugContext: 'Storage Repository',
       cause: error,
       stackTrace: stackTrace,
     );
