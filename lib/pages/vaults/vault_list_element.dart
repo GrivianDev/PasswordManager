@@ -72,6 +72,7 @@ class VaultListElement extends StatelessWidget {
       context: context,
       title: 'Rename storage',
       labelText: 'New name',
+      initialValue: vault.name,
       validator: (value) => _validateNameInput(value, controller),
     );
 

@@ -34,18 +34,24 @@ Future<String?> getUserInputDialog({
   String? description,
   String? labelText,
   String? hintText,
+  String? initialValue,
   FutureOr<String?> Function(String input)? validator,
   bool obscured = false,
   bool allowEmptyInput = false,
 }) async {
   bool currentlyObscured = obscured;
   String? userInput;
-  String currentInput = '';
+  String currentInput = initialValue ?? '';
 
+  final TextEditingController textController = TextEditingController(text: initialValue);
   final ValidationController controller = ValidationController(
     validator: validator,
     debounceDuration: const Duration(seconds: 1),
   );
+
+  if (initialValue != null) {
+    controller.validate(initialValue);
+  }
 
   await Notify.dialog(
     context: context,
@@ -72,6 +78,7 @@ Future<String?> getUserInputDialog({
                       Expanded(
                         child: TextField(
                           autofocus: true,
+                          controller: textController,
                           obscureText: currentlyObscured,
                           onChanged: (value) {
                             currentInput = value;
