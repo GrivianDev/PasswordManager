@@ -9,11 +9,11 @@ extension StorageTypeUI on StorageType {
       case StorageType.CloudFirestore:
         return 'Cloud Firestore';
       case StorageType.OneDrive:
-        return 'One Drive';
+        return 'OneDrive';
       case StorageType.GoogleDrive:
-        return 'Cloud Firestore';
+        return 'Google Drive';
       case StorageType.Dropbox:
-        return 'One Drive';
+        return 'Dropbox';
     }
   }
 

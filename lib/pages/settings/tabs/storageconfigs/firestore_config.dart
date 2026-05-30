@@ -8,6 +8,7 @@ import 'package:ethercrypt/pages/flows/app_flows.dart';
 import 'package:ethercrypt/pages/flows/typed_confirmation_dialog.dart';
 import 'package:ethercrypt/pages/other/notifications.dart';
 import 'package:ethercrypt/pages/other/snackbar_util.dart';
+import 'package:ethercrypt/pages/other/storage_type_ui.dart';
 import 'package:ethercrypt/pages/widgets/email_password_login_form.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -52,7 +53,7 @@ class _FirestoreConfigState extends State<FirestoreConfig> {
         Notify.showLoading(context: context);
         await firestore.auth.login(email, password);
         scaffoldMessenger.showSnackBar(
-          SnackBarUtils.message('Logged into ${StorageType.CloudFirestore.name}', icon: Icons.check_circle_outline),
+          SnackBarUtils.message('Logged into ${StorageType.CloudFirestore.label}', icon: Icons.check_circle_outline),
         );
       } catch (e, s) {
         throw AppException(
@@ -77,7 +78,7 @@ class _FirestoreConfigState extends State<FirestoreConfig> {
         Notify.showLoading(context: context);
         await firestore.auth.signUp(email, password);
         scaffoldMessenger.showSnackBar(
-          SnackBarUtils.message('Logged into ${StorageType.CloudFirestore.name}', icon: Icons.check_circle_outline),
+          SnackBarUtils.message('Logged into ${StorageType.CloudFirestore.label}', icon: Icons.check_circle_outline),
         );
       } catch (e, s) {
         throw AppException(
@@ -97,7 +98,7 @@ class _FirestoreConfigState extends State<FirestoreConfig> {
     firestore.auth.logout();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBarUtils.message(
-        'Logged out from ${StorageType.CloudFirestore.name}',
+        'Logged out from ${StorageType.CloudFirestore.label}',
         icon: Icons.account_circle,
         backgroundColor: Colors.redAccent,
       ),

@@ -11,6 +11,7 @@ import 'package:ethercrypt/pages/flows/typed_confirmation_dialog.dart';
 import 'package:ethercrypt/pages/flows/user_input_dialog.dart';
 import 'package:ethercrypt/pages/other/notifications.dart';
 import 'package:ethercrypt/pages/other/snackbar_util.dart';
+import 'package:ethercrypt/pages/other/storage_type_ui.dart';
 import 'package:ethercrypt/pages/vaults/vault_create_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -211,36 +212,6 @@ class VaultListElement extends StatelessWidget {
     return parts.join(' • ');
   }
 
-  IconData _iconForStorageType() {
-    switch (vault.type) {
-      case StorageType.LocalFilesystem:
-        return Icons.storage;
-      case StorageType.Dropbox:
-        return Icons.shelves;
-      case StorageType.OneDrive:
-        return Icons.cloud;
-      case StorageType.GoogleDrive:
-        return Icons.add_to_drive;
-      case StorageType.CloudFirestore:
-        return Icons.whatshot;
-    }
-  }
-
-  String _storageTypeLabel() {
-    switch (vault.type) {
-      case StorageType.LocalFilesystem:
-        return 'Local File System';
-      case StorageType.Dropbox:
-        return 'Dropbox';
-      case StorageType.OneDrive:
-        return 'OneDrive';
-      case StorageType.GoogleDrive:
-        return 'Google Drive';
-      case StorageType.CloudFirestore:
-        return 'Cloud Firestore';
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return ListTile(
@@ -253,8 +224,8 @@ class VaultListElement extends StatelessWidget {
             WidgetSpan(
               alignment: PlaceholderAlignment.middle,
               child: Tooltip(
-                message: _storageTypeLabel(),
-                child: Icon(_iconForStorageType(), size: 16),
+                message: vault.type.label,
+                child: Icon(vault.type.icon, size: 16),
               ),
             ),
           ],
