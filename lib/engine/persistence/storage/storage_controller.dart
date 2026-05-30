@@ -21,13 +21,23 @@ abstract class StorageController with ChangeNotifier {
 
   Future<void> performLoad();
 
-  void applyFileUpdate(StorageFile updatedFile) {
-    final index = state.files.indexWhere((f) => f.id == updatedFile.id);
+  void applyFileUpdate(StorageFile? oldFile, StorageFile? newFile) {
+    if (oldFile == null && newFile == null) return;
 
-    if (index == -1) {
-      state.files.add(updatedFile);
+    int index = -1;
+
+    if (oldFile != null) {
+      index = state.files.indexWhere((f) => f.id == oldFile.id);
+    }
+
+    if (newFile == null) {
+      if (index != -1) {
+        state.files.removeAt(index);
+      }
+    } else if (index == -1) {
+      state.files.add(newFile);
     } else {
-      state.files[index] = updatedFile;
+      state.files[index] = newFile;
     }
 
     notifyListeners();

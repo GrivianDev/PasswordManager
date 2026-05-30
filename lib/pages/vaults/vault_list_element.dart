@@ -79,7 +79,7 @@ class VaultListElement extends StatelessWidget {
 
     await runAppFlow(context, () async {
       StorageFile renamed = await controller.repository.rename(vault, newName);
-      controller.applyFileUpdate(renamed);
+      controller.applyFileUpdate(vault, renamed);
     });
   }
 
@@ -127,7 +127,7 @@ class VaultListElement extends StatelessWidget {
       try {
         Notify.showLoading(context: context);
         await controller.repository.delete(vault);
-        controller.load();
+        controller.applyFileUpdate(vault, null);
 
         scaffoldMessenger.showSnackBar(SnackBarUtils.message(
           'Deleted "${vault.name}"',

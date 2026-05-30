@@ -64,8 +64,9 @@ final class Source {
     }
 
     final String formattedData = await getFormattedData(dbContent);
-    _file = await _controller.repository.update(_file, formattedData);
-    _controller.applyFileUpdate(_file);
+    final StorageFile previous = _file;
+    _file = await _controller.repository.update(previous, formattedData);
+    _controller.applyFileUpdate(previous, _file);
   }
 
   Future<String> getFormattedData(DatabaseContent dbContent) async {

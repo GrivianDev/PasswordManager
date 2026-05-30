@@ -59,22 +59,23 @@ class _VaultCreatePageState extends State<VaultCreatePage> {
         final String location = await targetStorageController.getUserStorageLocation();
 
         if (widget.sourceFile == null) {
-          await Source.initialiseNew(
+          final Source newSource = await Source.initialiseNew(
             targetStorageController,
             name: _nameController.text,
             location: location,
             password: _pwController.text,
           );
+          targetStorageController.applyFileUpdate(null, newSource.file);
         } else {
           final StorageController sourceFileController = provider.controller(widget.sourceFile!.type);
           final String sourceData = await sourceFileController.repository.read(widget.sourceFile!);
-          await targetStorageController.repository.create(
+          final StorageFile newFile = await targetStorageController.repository.create(
             name: _nameController.text,
             location: location,
             initialData: sourceData,
           );
+          targetStorageController.applyFileUpdate(null, newFile);
         }
-        targetStorageController.load();
       } finally {
         navigator.pop();
       }
