@@ -76,12 +76,15 @@ String timeAgo(DateTime date) {
 String formatBytes(int bytes, {int decimals = 1}) {
   if (bytes <= 0) return '0 B';
 
-  const units = ['bytes', 'kb', 'MB', 'GB', 'TB', 'PB'];
+  const units = ['bytes', 'kB', 'MB', 'GB', 'TB', 'PB'];
 
-  int i = (bytes.bitLength - 1) ~/ 10; // log2(bytes) / 10 ≈ log1024
-  if (i >= units.length) i = units.length - 1;
+  int i = 0;
+  double size = bytes.toDouble();
 
-  final size = bytes / (1 << (10 * i));
+  while (size >= 1000 && i < units.length - 1) {
+    size /= 1000;
+    i++;
+  }
 
   return '${size.toStringAsFixed(decimals)} ${units[i]}';
 }

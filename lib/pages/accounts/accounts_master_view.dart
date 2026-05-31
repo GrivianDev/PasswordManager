@@ -250,90 +250,95 @@ class _CustomAutocompleteState extends State<_CustomAutocomplete> {
 
   @override
   Widget build(BuildContext context) {
-    return Autocomplete<_TwoValueContainer<String>>(
-      optionsBuilder: (TextEditingValue textEditingValue) async {
-        _searchingWithQuery = textEditingValue.text;
-        if (textEditingValue.text.isEmpty) return const Iterable<_TwoValueContainer<String>>.empty();
+    return Theme(
+      data: Theme.of(context).copyWith(
+        listTileTheme: Theme.of(context).listTileTheme.copyWith(shape: const ContinuousRectangleBorder()),
+      ),
+      child: Autocomplete<_TwoValueContainer<String>>(
+        optionsBuilder: (TextEditingValue textEditingValue) async {
+          _searchingWithQuery = textEditingValue.text;
+          if (textEditingValue.text.isEmpty) return const Iterable<_TwoValueContainer<String>>.empty();
 
-        final Iterable<_TwoValueContainer<String>> options = await _searchForOptions(textEditingValue.text);
-        if (_searchingWithQuery != textEditingValue.text) {
-          return _lastOptions; // throw away result if newer query is running
-        }
-        _lastOptions = options;
-        return options;
-      },
-      displayStringForOption: (e) => e.first,
-      onSelected: (e) => _execute(e.first),
-      optionsViewBuilder: (context, onSelected, options) => Align(
-        alignment: Alignment.topLeft,
-        child: Padding(
-          padding: const EdgeInsets.only(top: 10.0, right: 40, bottom: 215),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20.0),
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black38,
-                  spreadRadius: 3,
-                  blurRadius: 3,
-                ),
-              ],
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20.0),
-              child: Material(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemBuilder: (context, index) => ListTile(
-                    tileColor: Theme.of(context).primaryColor,
-                    leading: Icon(_switch ? Icons.sell : Icons.person),
-                    title: Text(
-                      options.elementAt(index).first,
-                      style: Theme.of(context).textTheme.displayMedium,
-                    ),
-                    subtitle: !_switch
-                        ? Text(
-                            options.elementAt(index).second,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              overflow: TextOverflow.ellipsis,
-                              fontStyle: FontStyle.italic,
-                            ),
-                          )
-                        : null,
-                    onTap: () => onSelected(options.elementAt(index)),
+          final Iterable<_TwoValueContainer<String>> options = await _searchForOptions(textEditingValue.text);
+          if (_searchingWithQuery != textEditingValue.text) {
+            return _lastOptions; // throw away result if newer query is running
+          }
+          _lastOptions = options;
+          return options;
+        },
+        displayStringForOption: (e) => e.first,
+        onSelected: (e) => _execute(e.first),
+        optionsViewBuilder: (context, onSelected, options) => Align(
+          alignment: Alignment.topLeft,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 10.0, right: 40, bottom: 215),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20.0),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black38,
+                    spreadRadius: 3,
+                    blurRadius: 3,
                   ),
-                  itemCount: options.length,
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20.0),
+                child: Material(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemBuilder: (context, index) => ListTile(
+                      tileColor: Theme.of(context).primaryColor,
+                      leading: Icon(_switch ? Icons.sell : Icons.person),
+                      title: Text(
+                        options.elementAt(index).first,
+                        style: Theme.of(context).textTheme.displayMedium,
+                      ),
+                      subtitle: !_switch
+                          ? Text(
+                              options.elementAt(index).second,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                overflow: TextOverflow.ellipsis,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            )
+                          : null,
+                      onTap: () => onSelected(options.elementAt(index)),
+                    ),
+                    itemCount: options.length,
+                  ),
                 ),
               ),
             ),
           ),
         ),
-      ),
-      fieldViewBuilder: (context, controller, focusNode, onEditingComplete) => TextField(
-        controller: controller,
-        focusNode: focusNode,
-        autofocus: false,
-        decoration: InputDecoration(
-          prefixIcon: const Padding(
-            padding: EdgeInsets.only(left: 5.0),
-            child: Icon(Icons.search),
-          ),
-          suffixIcon: Padding(
-            padding: const EdgeInsets.only(right: 5.0),
-            child: IconButton(
-              tooltip: 'Toggle tag search',
-              onPressed: () => setState(() {
-                _switch = !_switch;
-                controller.clear();
-                _execute('');
-              }),
-              icon: Icon(_switch ? Icons.sell : Icons.sell_outlined),
+        fieldViewBuilder: (context, controller, focusNode, onEditingComplete) => TextField(
+          controller: controller,
+          focusNode: focusNode,
+          autofocus: false,
+          decoration: InputDecoration(
+            prefixIcon: const Padding(
+              padding: EdgeInsets.only(left: 5.0),
+              child: Icon(Icons.search),
             ),
+            suffixIcon: Padding(
+              padding: const EdgeInsets.only(right: 5.0),
+              child: IconButton(
+                tooltip: 'Toggle tag search',
+                onPressed: () => setState(() {
+                  _switch = !_switch;
+                  controller.clear();
+                  _execute('');
+                }),
+                icon: Icon(_switch ? Icons.sell : Icons.sell_outlined),
+              ),
+            ),
+            hintText: _switch ? 'Search tag' : 'Search',
           ),
-          hintText: _switch ? 'Search tag' : 'Search',
+          onChanged: (string) => _execute(string),
         ),
-        onChanged: (string) => _execute(string),
       ),
     );
   }

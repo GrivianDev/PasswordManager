@@ -14,6 +14,7 @@ class FirestoreRepository implements StorageRepository {
   StorageFile _fromDoc(FirestoreDocument doc, String location) {
     final String documentId = doc.name.split('/').last;
     final String documentName = doc.fields['name'] ?? '<no-name>';
+    final int? size = doc.fields['size'];
 
     return StorageFile(
       id: documentId,
@@ -21,6 +22,7 @@ class FirestoreRepository implements StorageRepository {
       name: documentName,
       type: StorageType.CloudFirestore,
       revision: doc.updateTime.toUtc().toIso8601String(),
+      byteSize: size,
       lastModified: doc.updateTime,
     );
   }
@@ -30,7 +32,7 @@ class FirestoreRepository implements StorageRepository {
     final String actualLocation = location ?? '';
     final List<FirestoreDocument>? docs = await firestore.getCollection(
       actualLocation,
-      fieldMask: ['name'],
+      fieldMask: ['name', 'size'],
     );
     return docs?.map((doc) => _fromDoc(doc, actualLocation)).toList() ?? [];
   }
@@ -41,6 +43,7 @@ class FirestoreRepository implements StorageRepository {
       location!,
       {
         'name': name,
+        'size': initialData?.length ?? 0,
         'data': initialData ?? '',
       },
     );
@@ -90,8 +93,8 @@ class FirestoreRepository implements StorageRepository {
     try {
       final FirestoreDocument updatedDoc = await firestore.writeDocument(
         _fullyQualifiedPath(file),
-        {'data': data},
-        updateMask: ['data'],
+        {'size': data.length, 'data': data},
+        updateMask: ['size', 'data'],
         precondition: FirestorePrecondition.updateTime(DateTime.parse(file.revision)),
       );
       return _fromDoc(updatedDoc, file.location);

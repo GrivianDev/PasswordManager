@@ -237,20 +237,20 @@ class Firestore {
     return json.encode({FirestoreCodec.fields: FirestoreCodec.encodeDocumentFields(documentFields)});
   }
 
-  Map<String, String>? _buildQueryParams({
+  Map<String, dynamic>? _buildQueryParams({
     Iterable<String>? fieldMask,
     Iterable<String>? updateMask,
     FirestorePrecondition? precondition,
   }) {
-    final Map<String, String> query = {};
+    final Map<String, dynamic> query = {};
 
     if (fieldMask != null) {
       // Note: '__name__' is firestores internal to indicate only to documents full path name to be returned
-      query['mask.fieldPaths'] = fieldMask.isEmpty ? '__name__' : fieldMask.join(',');
+      query['mask.fieldPaths'] = fieldMask.isEmpty ? '__name__' : fieldMask;
     }
 
     if (updateMask != null && updateMask.isNotEmpty) {
-      query['updateMask.fieldPaths'] = updateMask.join(',');
+      query['updateMask.fieldPaths'] = updateMask;
     }
 
     if (precondition != null && precondition.updateTime != null) {
