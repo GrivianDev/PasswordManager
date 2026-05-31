@@ -19,7 +19,7 @@ class LocalFileController extends StorageController {
 
   LocalFileController({required AppState appState})
       : _appState = appState,
-        _storageRepository = AppExceptionRepoWrapper(LocalFileRepository());
+        _storageRepository = AppExceptionRepoWrapper(LocalFileRepository(), debugContext: 'Filesystem');
 
   @override
   Future<String> getUserStorageLocation() async {

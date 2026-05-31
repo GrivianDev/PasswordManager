@@ -22,7 +22,7 @@ class FirestoreController extends StorageController {
 
   FirestoreController({required AppState appState, required this.api})
       : _appState = appState,
-        _storageRepository = AppExceptionRepoWrapper(FirestoreRepository(api)) {
+        _storageRepository = AppExceptionRepoWrapper(FirestoreRepository(api), debugContext: 'Firestore') {
     api.configure(appState.firebaseProjectId.value, appState.firebaseApiKey.value);
     _sub = api.auth.authChanges.listen(_onAuthChanged);
   }

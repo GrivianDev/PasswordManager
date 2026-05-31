@@ -5,24 +5,16 @@ import 'package:ethercrypt/engine/persistence/storage/storage_repository.dart';
 
 class AppExceptionRepoWrapper implements StorageRepository {
   final StorageRepository _internal;
+  final String debugContext;
 
-  const AppExceptionRepoWrapper(this._internal);
+  const AppExceptionRepoWrapper(this._internal, {this.debugContext = 'Storage Repository'});
 
   Never _rethrow(Object error, StackTrace stackTrace, {required String message}) {
     if (error is AppException) throw error;
 
-    if (error is StorageConflictException) {
-      throw AppException(
-        error.message,
-        debugContext: 'Storage Repository',
-        cause: error,
-        stackTrace: stackTrace,
-      );
-    }
-
     throw AppException(
-      message,
-      debugContext: 'Storage Repository',
+      error is StorageConflictException ? error.message : message,
+      debugContext: debugContext,
       cause: error,
       stackTrace: stackTrace,
     );
