@@ -165,20 +165,15 @@ class UpdateSettings extends StatelessWidget {
       });
 
       await dialogFuture;
-      if (await tmpFile!.exists()) {
-        try {
-          await tmpFile!.delete();
-        } catch (_) {}
-      }
       downloader.dispose();
     });
 
     // Cleanup
-    if (await tmpFile?.exists() == true) {
-      try {
+    try {
+      if (await tmpFile?.exists() == true) {
         await tmpFile!.delete();
-      } catch (_) {}
-    }
+      }
+    } catch (_) {}
   }
 
   @override
