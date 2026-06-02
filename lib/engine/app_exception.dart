@@ -31,5 +31,5 @@ class AppException implements Exception {
   }
 
   @override
-  String toString() => '${debugContext ?? 'Error'} : $message';
+  String toString() => '${debugContext ?? 'Error'}: $message';
 }

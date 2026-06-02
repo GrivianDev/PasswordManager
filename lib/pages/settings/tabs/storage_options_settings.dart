@@ -3,6 +3,7 @@ import 'package:ethercrypt/engine/persistence/storage/storage_file.dart';
 import 'package:ethercrypt/engine/persistence/storage/storage_provider.dart';
 import 'package:ethercrypt/pages/other/storage_type_ui.dart';
 import 'package:ethercrypt/pages/settings/tabs/storageconfigs/firestore_config.dart';
+import 'package:ethercrypt/pages/settings/tabs/storageconfigs/googe_drive_config.dart';
 import 'package:ethercrypt/pages/settings/tabs/storageconfigs/local_file_system_config.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -19,6 +20,7 @@ class _StorageOptionsSettingsState extends State<StorageOptionsSettings> {
 
   final Map<StorageType, Widget Function()> configBuilder = {
     StorageType.LocalFilesystem: () => const LocalFileSystemConfig(),
+    StorageType.GoogleDrive: () => const GoogeDriveConfig(),
     StorageType.CloudFirestore: () => const FirestoreConfig(),
   };
 

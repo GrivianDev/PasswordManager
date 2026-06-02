@@ -1,8 +1,11 @@
+import 'package:ethercrypt/app_config.dart';
 import 'package:ethercrypt/engine/api/firebase/firestore.dart';
+import 'package:ethercrypt/engine/api/googledrive/google_drive.dart';
 import 'package:ethercrypt/engine/db/local_database.dart';
 import 'package:ethercrypt/engine/other/themes.dart';
 import 'package:ethercrypt/engine/persistence/appstate.dart';
 import 'package:ethercrypt/engine/persistence/storage/controller/firestore_controller.dart';
+import 'package:ethercrypt/engine/persistence/storage/controller/google_drive_controller.dart';
 import 'package:ethercrypt/engine/persistence/storage/controller/local_file_controller.dart';
 import 'package:ethercrypt/engine/persistence/storage/storage_file.dart';
 import 'package:ethercrypt/engine/persistence/storage/storage_provider.dart';
@@ -48,9 +51,19 @@ class Application extends StatelessWidget {
         ChangeNotifierProvider<LocalDatabase>(
           create: (context) => LocalDatabase(),
         ),
-        Provider<Firestore>(
-          create: (context) => Firestore(),
+        Provider<GoogleDrive>(
+          create: (context) => GoogleDrive(
+            oAuthClientId: AppConfig.googleDriveClientId,
+            oAuthClientSecret: AppConfig.googleDriveClientSecret,
+          ),
         ),
+        ChangeNotifierProvider<GoogleDriveController>(
+          create: (context) => GoogleDriveController(
+            appState: context.read(),
+            api: context.read(),
+          ),
+        ),
+        Provider<Firestore>(create: (context) => Firestore()),
         ChangeNotifierProvider<FirestoreController>(
           create: (context) => FirestoreController(
             appState: context.read(),
@@ -66,6 +79,7 @@ class Application extends StatelessWidget {
           final StorageProvider provider = StorageProvider(
             controllers: {
               StorageType.LocalFilesystem: context.read<LocalFileController>(),
+              StorageType.GoogleDrive: context.read<GoogleDriveController>(),
               StorageType.CloudFirestore: context.read<FirestoreController>(),
             },
           );

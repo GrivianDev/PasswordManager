@@ -154,6 +154,14 @@ class AppState with ChangeNotifier {
     onChanged: notifyListeners,
   );
 
+  late final googleDriveAuthRefreshToken = AppStateField<String?>(
+    key: 'ethercrypt.google_drive.auth.user_refresh_token',
+    storage: StorageOption.secure,
+    stype: SerilizationType.string,
+    defaultValue: null,
+    onChanged: notifyListeners,
+  );
+
   late final firebaseProjectId = AppStateField<String?>(
     key: 'ethercrypt.firebase.project_id',
     storage: StorageOption.secure,
@@ -213,6 +221,7 @@ class AppState with ChangeNotifier {
       pwGenUseSpecialChars,
       ntpTimeSyncServer,
       localSystemStorageLocation,
+      googleDriveAuthRefreshToken,
       firebaseProjectId,
       firebaseApiKey,
       firebaseAuthLastUserEmail,
