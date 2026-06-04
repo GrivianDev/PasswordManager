@@ -63,7 +63,7 @@ static void my_application_activate(GApplication* application) {
   }
 
   // Set app icon
-  std::string iconPath = getExecutableDir() + "/data/flutter_assets/assets/appIcon.png";
+  std::string iconPath = getExecutableDir() + "/data/flutter_assets/assets/appIcon48x48.png";
   gtk_window_set_icon_from_file(window, iconPath.c_str(), nullptr);
 
   gtk_window_set_default_size(window, 1280, 720);

@@ -1,3 +1,5 @@
+![icon](assets/appIcon.svg)
+
 # Ethercrypt
 
 **Powered by Flutter**

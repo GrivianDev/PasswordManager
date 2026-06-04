@@ -40,6 +40,8 @@ flutter:
   uses-material-design: true
 
   assets:
+    - assets/appIcon.svg
+    - assets/appIcon48x48.png
+    - assets/appIcon96x96.png
     - assets/lightLogo.svg
     - assets/darkLogo.svg
-    - assets/appIcon.png

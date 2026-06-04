@@ -2,6 +2,7 @@ import 'package:ethercrypt/engine/app_exception.dart';
 import 'package:ethercrypt/engine/updates/app_version.dart';
 import 'package:ethercrypt/pages/flows/app_flows.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -14,9 +15,10 @@ class AppAbout extends StatelessWidget {
       spacing: 20,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const Icon(
-          Icons.shield_outlined,
-          size: 64,
+        SizedBox(
+          width: 64,
+          height: 64,
+          child: SvgPicture.asset('assets/appIcon.svg'),
         ),
         Text(
           'Ethercrypt ${context.read<AppVersion>().version}',

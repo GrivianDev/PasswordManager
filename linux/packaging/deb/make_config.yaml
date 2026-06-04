@@ -7,7 +7,7 @@ priority: optional
 section: x11
 installed_size: 10000
 essential: false
-icon: assets/appIcon.png
+icon: assets/appIcon96x96.png
 
 postinstall_scripts:
   - echo "Installed Ethercrypt!"
