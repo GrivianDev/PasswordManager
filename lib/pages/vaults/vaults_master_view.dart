@@ -139,9 +139,10 @@ class VaultsMasterView extends StatelessWidget {
           fit: BoxFit.scaleDown,
           child: Row(
             children: [
-              const Icon(
-                Icons.shield_outlined,
-                size: 40,
+              SizedBox(
+                width: 40,
+                height: 40,
+                child: SvgPicture.asset('assets/appIcon.svg'),
               ),
               context.watch<AppState>().darkMode.value ? SvgPicture.asset('assets/darkLogo.svg') : SvgPicture.asset('assets/lightLogo.svg'),
             ],
