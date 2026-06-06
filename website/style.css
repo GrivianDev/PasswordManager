@@ -1,0 +1,153 @@
+:root {
+  --light-bg: rgb(225, 225, 225);
+  --light-card: #ffffff;
+  --light-text: rgba(0, 0, 0, 0.87);
+  --light-muted: #666666;
+
+  --light-primary: rgb(20, 75, 200);
+  --light-error: #d32f2f;
+  --light-border: #cccccc;
+
+  --dark-bg: rgb(46, 50, 51);
+  --dark-card: rgb(77, 83, 84);
+  --dark-text: #ffffff;
+  --dark-muted: #b0b0b0;
+
+  --dark-primary: #2196f3;
+  --dark-error: #ff5252;
+  --dark-border: #808080;
+
+  --bg: var(--light-bg);
+  --card: var(--light-card);
+  --text: var(--light-text);
+  --muted: var(--light-muted);
+  --primary: var(--light-primary);
+  --error: var(--light-error);
+  --border: var(--light-border);
+
+  --radius: 12px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: var(--dark-bg);
+    --card: var(--dark-card);
+    --text: var(--dark-text);
+    --muted: var(--dark-muted);
+    --primary: var(--dark-primary);
+    --error: var(--dark-error);
+    --border: var(--dark-border);
+  }
+}
+
+body.light {
+  --bg: var(--light-bg);
+  --card: var(--light-card);
+  --text: var(--light-text);
+  --muted: var(--light-muted);
+  --primary: var(--light-primary);
+  --error: var(--light-error);
+  --border: var(--light-border);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 24px;
+}
+
+.header {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 16px;
+  margin-bottom: 32px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 500;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.subtitle {
+  margin-top: 6px;
+  color: var(--muted);
+}
+
+h2 {
+  margin-top: 32px;
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--primary);
+}
+
+h3 {
+  margin-top: 20px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+p {
+  color: var(--text);
+}
+
+ul {
+  padding-left: 20px;
+}
+
+li {
+  margin-bottom: 6px;
+  color: var(--text);
+}
+
+.box {
+  margin-top: 16px;
+  padding: 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+footer {
+  margin-top: 40px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 16px;
+    margin: 20px auto;
+  }
+
+  h1 {
+    font-size: 1.6rem;
+  }
+}

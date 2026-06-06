@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ethercrypt Privacy Policy</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <main class="container">
+
+        <header class="header">
+            <h1>Ethercrypt Privacy Policy</h1>
+            <p class="subtitle">Last Updated: 06.06.2026</p>
+        </header>
+
+        <section>
+            <h2>1. Introduction</h2>
+            <p>
+                Ethercrypt is an open-source, zero-knowledge password manager and TOTP authenticator application.
+                This Privacy Policy explains how information is processed when using Ethercrypt.
+            </p>
+            <p>
+                This policy applies to all users of the application.
+            </p>
+        </section>
+
+        <section>
+            <h2>2. Core Design Principles</h2>
+            <ul>
+                <li>Ethercrypt is designed as a zero-knowledge application.</li>
+                <li>Master passwords are never stored or transmitted.</li>
+                <li>Vault data is encrypted locally on the user’s device before storage.</li>
+                <li>The developer cannot access or decrypt user vault data.</li>
+                <li>No central backend, user account system, or server-side storage is operated.</li>
+            </ul>
+            <p>
+                If the master password is lost, encrypted data cannot be recovered.
+            </p>
+        </section>
+
+        <section>
+            <h2>3. Information Processed</h2>
+
+            <h3>3.1 Vault Data (User-Controlled)</h3>
+            <ul>
+                <li>Passwords and login credentials</li>
+                <li>Notes</li>
+                <li>TOTP secrets</li>
+                <li>Other user-defined secure entries</li>
+            </ul>
+            <p>
+                This data is processed locally on the user’s device and may optionally be stored in encrypted form using
+                third-party storage providers selected by the user.
+            </p>
+
+            <h3>3.2 Local Application Data</h3>
+            <ul>
+                <li>Application settings</li>
+                <li>Encryption configuration</li>
+                <li>Local metadata required for functionality</li>
+            </ul>
+
+            <h3>3.3 Third-Party Storage Providers (Optional)</h3>
+            <ul>
+                <li>Google Cloud Firestore / Firebase</li>
+                <li>Google Drive</li>
+                <li>Microsoft OneDrive</li>
+                <li>Dropbox</li>
+            </ul>
+            <p>
+                When enabled by the user, encrypted data is transmitted directly between the user’s device and the
+                selected provider.
+                These providers act independently and are governed by their own privacy policies.
+            </p>
+
+            <h3>3.4 Data Not Collected</h3>
+            <ul>
+                <li>No analytics or telemetry</li>
+                <li>No advertising identifiers</li>
+                <li>No marketing or profiling</li>
+                <li>No identity-linked crash reporting</li>
+                <li>No server-side collection of user data</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>4. Data Controller & Developer Access</h2>
+            <p>
+                The developer does not operate servers, user accounts, or any centralized infrastructure for storing or
+                processing user vault data.
+            </p>
+            <p>
+                All encryption and decryption occur locally on the user’s device.
+                The developer has no technical ability to access, view, or recover user vault data.
+            </p>
+            <p>
+                For GDPR purposes, the user generally acts as the primary controller of their own vault data, while the
+                developer does not receive or process personal data through backend systems.
+            </p>
+        </section>
+
+        <section>
+            <h2>5. Purpose of Processing</h2>
+            <ul>
+                <li>Encrypting and storing vault data locally</li>
+                <li>Decrypting vault data on the user’s device</li>
+                <li>Generating TOTP authentication codes</li>
+                <li>Managing local application settings</li>
+                <li>Synchronizing encrypted data with user-selected storage providers</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>6. Data Sharing</h2>
+            <p>
+                Ethercrypt does not sell, rent, or monetize user data.
+            </p>
+            <ul>
+                <li>Data is only transmitted when the user enables third-party storage providers</li>
+                <li>Data is only processed locally on the user’s device otherwise</li>
+                <li>No data is shared with the developer or any backend system</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>7. Data Retention</h2>
+            <ul>
+                <li>Data remains on the user’s device</li>
+                <li>Optional storage occurs only on user-selected third-party providers</li>
+                <li>Data can be removed by deleting it locally or uninstalling the application</li>
+            </ul>
+            <p>
+                The developer does not retain any user vault data on any infrastructure.
+            </p>
+        </section>
+
+        <section>
+            <h2>8. User Rights</h2>
+            <p>
+                Under applicable laws (including the GDPR), users may have rights such as:
+            </p>
+            <ul>
+                <li>Access to personal data</li>
+                <li>Correction or deletion</li>
+                <li>Data portability</li>
+                <li>Restriction or objection to processing</li>
+            </ul>
+            <p>
+                Because Ethercrypt does not operate a backend or store user vault data, these rights can generally be
+                exercised directly by the user on their device or through the relevant third-party storage provider.
+            </p>
+        </section>
+
+        <section>
+            <h2>9. Security</h2>
+            <ul>
+                <li>All encryption occurs locally on the user’s device</li>
+                <li>Master password is never transmitted or stored</li>
+                <li>No system can guarantee absolute security</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>10. Children’s Privacy</h2>
+            <p>
+                Ethercrypt is not intended for use by individuals below the minimum age required by applicable law in
+                their jurisdiction.
+            </p>
+            <p>
+                No personal data is knowingly collected by the developer.
+            </p>
+        </section>
+
+        <section>
+            <h2>11. Open Source</h2>
+            <p>
+                Ethercrypt is open-source software distributed under the MIT License.
+            </p>
+            <p>
+                Source code is available at:
+                <a href="https://github.com/GrivianDev/PasswordManager">GitHub</a>
+            </p>
+        </section>
+
+        <section>
+            <h2>12. Changes to This Policy</h2>
+            <p>
+                This Privacy Policy may be updated from time to time. Updates will be published in the application or
+                repository.
+            </p>
+        </section>
+
+        <section>
+            <h2>13. Contact</h2>
+            <div class="box">
+                <p><strong>Email:</strong> grivian-dev@posteo.de</p>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <p>© 2026 Ethercrypt · Open-source under MIT License</p>
+            <p>
+                <a href="index.html">Home</a> ·
+                <a href="privacy-policy.html">Privacy Policy</a> ·
+                <a href="terms-of-service.html">Terms of Service</a> ·
+                <a href="https://github.com/GrivianDev/PasswordManager">GitHub</a>
+            </p>
+        </footer>
+
+    </main>
+</body>
+
+</html>
