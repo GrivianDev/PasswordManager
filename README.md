@@ -2,6 +2,9 @@
 
 # Ethercrypt
 
+![Build And Test](https://github.com/GrivianDev/PasswordManager/actions/workflows/flutter.yml/badge.svg)
+![GitHub Release](https://img.shields.io/github/v/release/GrivianDev/PasswordManager)
+
 **Powered by Flutter**
 
 A lightweight, open-source, and password manager and TOTP authenticator. Ethercrypt allows you to securely store credentials and generate 2FA codes in a single application. It supports multiple storage backends, including local encrypted files and cloud-based providers, giving you flexible access across devices.

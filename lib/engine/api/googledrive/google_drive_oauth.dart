@@ -4,9 +4,10 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:ethercrypt/engine/api/googledrive/google_drive_page.dart';
+import 'package:ethercrypt/engine/api/app_lifecycle.dart';
 import 'package:ethercrypt/engine/api/googledrive/google_drive_session.dart';
 import 'package:ethercrypt/engine/api/http_client.dart';
+import 'package:ethercrypt/engine/api/oauth_success_web_page.dart';
 import 'package:http/http.dart' as http;
 import 'package:pointycastle/digests/sha256.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -52,13 +53,15 @@ class GoogleDriveOAuth {
   final String _clientSecret;
   final Uri _oauth2TokenUrl = Uri.parse('https://oauth2.googleapis.com/token');
 
+  final AppLifecycle lifecycle;
+
   final List<GoogleDriveScope> scopes;
 
   final StreamController<GoogleDriveSession?> _sessionController = StreamController.broadcast();
 
   GoogleDriveSession? _session;
 
-  GoogleDriveOAuth({required String clientId, required String clientSecret, required this.scopes})
+  GoogleDriveOAuth({required String clientId, required String clientSecret, required this.scopes, required this.lifecycle})
       : _clientId = clientId,
         _clientSecret = clientSecret;
 
@@ -118,7 +121,7 @@ class GoogleDriveOAuth {
 
     request.response
       ..headers.contentType = ContentType.html
-      ..write(googleResultPage);
+      ..write(getOAuthSuccessPage('Google Drive'));
 
     await request.response.close();
     await server.close(force: true);
@@ -137,6 +140,8 @@ class GoogleDriveOAuth {
   }
 
   Future<GoogleDriveSession> _exchangeCodeForToken(String code, String verifier, String redirectUri) async {
+    await lifecycle.waitUntilReady();
+    
     final http.Client httpClient = LoggingHttpClient();
     try {
       final response = await httpClient.post(

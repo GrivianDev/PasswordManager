@@ -1,4 +1,5 @@
 import 'package:ethercrypt/app_config.dart';
+import 'package:ethercrypt/engine/api/app_lifecycle.dart';
 import 'package:ethercrypt/engine/api/firebase/firestore.dart';
 import 'package:ethercrypt/engine/api/googledrive/google_drive.dart';
 import 'package:ethercrypt/engine/db/local_database.dart';
@@ -33,20 +34,48 @@ Future<void> main() async {
   ));
 }
 
-/// Application, that is the root of the widget tree.
-class Application extends StatelessWidget {
+class Application extends StatefulWidget {
   const Application({super.key, required this.appState, required this.version});
 
   final AppState appState;
   final AppVersion version;
 
   @override
+  State<Application> createState() => _ApplicationState();
+}
+
+class _ApplicationState extends State<Application> with WidgetsBindingObserver {
+  final AppLifecycle appLifecycle = AppLifecycle();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        appLifecycle.markReady();
+        break;
+
+      case AppLifecycleState.paused:
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.hidden:
+        appLifecycle.markNotReady();
+        break;
+      default: break;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider(create: (context) => version),
+        Provider(create: (context) => widget.version),
         ChangeNotifierProvider<AppState>(
-          create: (context) => appState,
+          create: (context) => widget.appState,
         ),
         ChangeNotifierProvider<LocalDatabase>(
           create: (context) => LocalDatabase(),
@@ -55,6 +84,7 @@ class Application extends StatelessWidget {
           create: (context) => GoogleDrive(
             oAuthClientId: AppConfig.googleDriveClientId,
             oAuthClientSecret: AppConfig.googleDriveClientSecret,
+            lifecycle: appLifecycle,
           ),
         ),
         ChangeNotifierProvider<GoogleDriveController>(
@@ -88,7 +118,7 @@ class Application extends StatelessWidget {
         }),
         ChangeNotifierProvider<UpdateService>(create: (context) {
           final UpdateService service = GitHubUpdateService(
-            appState: appState,
+            appState: widget.appState,
             appVersion: context.read(),
             owner: 'GrivianDev',
             repo: 'PasswordManager',

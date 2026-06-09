@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:ethercrypt/engine/api/app_lifecycle.dart';
 import 'package:ethercrypt/engine/api/googledrive/google_drive_oauth.dart';
 import 'package:ethercrypt/engine/api/http_client.dart';
 import 'package:http/http.dart' as http;
@@ -81,8 +82,13 @@ class GoogleDrive {
 
   final GoogleDriveOAuth auth;
 
-  GoogleDrive({required String oAuthClientId, required String oAuthClientSecret})
-      : auth = GoogleDriveOAuth(clientId: oAuthClientId, clientSecret: oAuthClientSecret, scopes: const [GoogleDriveScope.appData]);
+  GoogleDrive({required String oAuthClientId, required String oAuthClientSecret, required AppLifecycle lifecycle})
+      : auth = GoogleDriveOAuth(
+          clientId: oAuthClientId,
+          clientSecret: oAuthClientSecret,
+          scopes: const [GoogleDriveScope.appData],
+          lifecycle: lifecycle,
+        );
 
   bool get isLoggedIn => auth.isLoggedIn;
 

@@ -1,5 +1,8 @@
 import 'package:ethercrypt/engine/api/googledrive/google_drive.dart';
+import 'package:ethercrypt/engine/persistence/storage/storage_file.dart';
 import 'package:ethercrypt/pages/flows/app_flows.dart';
+import 'package:ethercrypt/pages/other/notifications.dart';
+import 'package:ethercrypt/pages/other/storage_type_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -40,10 +43,16 @@ class _GoogeDriveConfigState extends State<GoogeDriveConfig> {
           );
         } else {
           return ElevatedButton.icon(
-            icon: const Icon(Icons.add_to_drive_outlined),
+            icon: Icon(StorageType.GoogleDrive.icon),
             onPressed: () {
-              runAppFlow(context, () {
-                context.read<GoogleDrive>().auth.authorize();
+              final NavigatorState navigator = Navigator.of(context);
+              runAppFlow(context, () async {
+                try {
+                  Notify.showLoading(context: context);
+                  await context.read<GoogleDrive>().auth.authorize();
+                } finally {
+                  navigator.pop();
+                }
               });
             },
             label: const Text('Connect Google Drive'),

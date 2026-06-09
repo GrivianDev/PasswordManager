@@ -1,4 +1,4 @@
-const googleResultPage = '''
+String getOAuthSuccessPage(String provider) => '''
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -33,9 +33,6 @@ const googleResultPage = '''
 
       padding: 40px;
       width: 420px;
-
-      box-shadow:
-        0 20px 60px rgba(0,0,0,0.4);
     }
 
     .header {
@@ -82,11 +79,11 @@ const googleResultPage = '''
 
     <div class="header">
       <div class="icon">✓</div>
-      <h1>Google Drive connected to Ethercrypt</h1>
+      <h1>$provider connected to Ethercrypt</h1>
     </div>
 
     <div class="hint">
-      You can safely close this window.
+      You can now close this window and return to the app.
     </div>
 
   </div>
