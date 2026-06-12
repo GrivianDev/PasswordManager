@@ -162,6 +162,14 @@ class AppState with ChangeNotifier {
     onChanged: notifyListeners,
   );
 
+  late final dropboxAuthRefreshToken = AppStateField<String?>(
+    key: 'ethercrypt.dropbox.auth.user_refresh_token',
+    storage: StorageOption.secure,
+    stype: SerilizationType.string,
+    defaultValue: null,
+    onChanged: notifyListeners,
+  );
+
   late final firebaseProjectId = AppStateField<String?>(
     key: 'ethercrypt.firebase.project_id',
     storage: StorageOption.secure,
@@ -222,6 +230,7 @@ class AppState with ChangeNotifier {
       ntpTimeSyncServer,
       localSystemStorageLocation,
       googleDriveAuthRefreshToken,
+      dropboxAuthRefreshToken,
       firebaseProjectId,
       firebaseApiKey,
       firebaseAuthLastUserEmail,

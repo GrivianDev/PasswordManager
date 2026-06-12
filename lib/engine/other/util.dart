@@ -16,9 +16,21 @@ String shortenPath(String fullPath, {int parentsToShow = 1}) {
   return '...${Platform.pathSeparator}${selectedParts.join(Platform.pathSeparator)}';
 }
 
+String getParentPath(String path, {String? pathSeparator}) {
+  final String seperator = pathSeparator ?? Platform.pathSeparator;
+  if (path.isEmpty || path == seperator) return seperator;
+
+  final String normalized = path.endsWith(seperator) ? path.substring(0, path.length - 1) : path;
+
+  final int lastSlash = normalized.lastIndexOf(seperator);
+  if (lastSlash <= 0) return seperator;
+
+  return normalized.substring(0, lastSlash);
+}
+
 /// Extracts the filename from a full file path (cross-platform).
-String extractFilenameFromPath(String path) {
-  final List<String> parts = path.split(Platform.pathSeparator);
+String extractFilenameFromPath(String path, {String? pathSeparator}) {
+  final List<String> parts = path.split(pathSeparator ?? Platform.pathSeparator);
   return parts.isEmpty ? '' : parts.last;
 }
 

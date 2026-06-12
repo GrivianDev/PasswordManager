@@ -1,10 +1,12 @@
 import 'package:ethercrypt/app_config.dart';
 import 'package:ethercrypt/engine/api/app_lifecycle.dart';
+import 'package:ethercrypt/engine/api/dropbox/dropbox.dart';
 import 'package:ethercrypt/engine/api/firebase/firestore.dart';
 import 'package:ethercrypt/engine/api/googledrive/google_drive.dart';
 import 'package:ethercrypt/engine/db/local_database.dart';
 import 'package:ethercrypt/engine/other/themes.dart';
 import 'package:ethercrypt/engine/persistence/appstate.dart';
+import 'package:ethercrypt/engine/persistence/storage/controller/dropbox_controller.dart';
 import 'package:ethercrypt/engine/persistence/storage/controller/firestore_controller.dart';
 import 'package:ethercrypt/engine/persistence/storage/controller/google_drive_controller.dart';
 import 'package:ethercrypt/engine/persistence/storage/controller/local_file_controller.dart';
@@ -80,6 +82,18 @@ class _ApplicationState extends State<Application> with WidgetsBindingObserver {
         ChangeNotifierProvider<LocalDatabase>(
           create: (context) => LocalDatabase(),
         ),
+        Provider<Dropbox>(
+          create: (context) => Dropbox(
+            clientId: AppConfig.dropboxAppKey,
+            lifecycle: appLifecycle,
+          ),
+        ),
+        ChangeNotifierProvider<DropboxController>(
+          create: (context) => DropboxController(
+            appState: context.read(),
+            api: context.read(),
+          ),
+        ),
         Provider<GoogleDrive>(
           create: (context) => GoogleDrive(
             oAuthClientId: AppConfig.googleDriveClientId,
@@ -110,6 +124,7 @@ class _ApplicationState extends State<Application> with WidgetsBindingObserver {
             controllers: {
               StorageType.LocalFilesystem: context.read<LocalFileController>(),
               StorageType.GoogleDrive: context.read<GoogleDriveController>(),
+              StorageType.Dropbox: context.read<DropboxController>(),
               StorageType.CloudFirestore: context.read<FirestoreController>(),
             },
           );

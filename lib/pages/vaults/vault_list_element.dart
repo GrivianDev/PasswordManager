@@ -67,6 +67,7 @@ class VaultListElement extends StatelessWidget {
   }
 
   Future<void> _renameStorage(BuildContext context) async {
+    final NavigatorState navigator = Navigator.of(context);
     final StorageController controller = context.read<StorageProvider>().controller(vault.type);
 
     final String? newName = await getUserInputDialog(
@@ -80,8 +81,13 @@ class VaultListElement extends StatelessWidget {
     if (newName == null || !context.mounted) return;
 
     await runAppFlow(context, () async {
-      StorageFile renamed = await controller.repository.rename(vault, newName);
-      controller.applyFileUpdate(vault, renamed);
+      try {
+        Notify.showLoading(context: context);
+        StorageFile renamed = await controller.repository.rename(vault, newName);
+        controller.applyFileUpdate(vault, renamed);
+      } finally {
+        navigator.pop();
+      }
     });
   }
 

@@ -28,7 +28,7 @@ extension StorageTypeUI on StorageType {
       case StorageType.GoogleDrive:
         return Icons.add_to_drive;
       case StorageType.Dropbox:
-        return Icons.question_mark;
+        return Icons.archive;
     }
   }
 }
