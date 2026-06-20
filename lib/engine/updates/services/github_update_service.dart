@@ -7,8 +7,8 @@ import 'package:ethercrypt/engine/persistence/appstate.dart';
 import 'package:ethercrypt/engine/updates/app_version.dart';
 import 'package:ethercrypt/engine/updates/update_asset.dart';
 import 'package:ethercrypt/engine/updates/update_service.dart';
+import 'package:ethercrypt/engine/updates/version_utils.dart';
 import 'package:http/http.dart' as http;
-import 'package:pub_semver/pub_semver.dart';
 
 class GitHubUpdateService extends UpdateService {
   final AppState _appState;
@@ -46,7 +46,7 @@ class GitHubUpdateService extends UpdateService {
     final String? latest = _updateInfo.latestVersion;
     if (latest == null) return false;
 
-    return Version.parse(latest) > Version.parse(appVersion.version);
+    return VersionUtils.isGreater(latest, appVersion.version);
   }
 
   bool _shouldCheck() {
