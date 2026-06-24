@@ -55,7 +55,8 @@ class FirestoreDocument {
   }
 }
 
-/// Provides Cloud Firestore document CRUD operations using REST API.
+/// Cloud Firestore REST Client.
+/// Based on https://firebase.google.com/docs/firestore/use-rest-api
 class Firestore {
   static const String _firestoreAuthority = 'firestore.googleapis.com';
 

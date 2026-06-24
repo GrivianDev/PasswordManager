@@ -94,8 +94,24 @@ class _LocalFileSystemConfigState extends State<LocalFileSystemConfig> {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: 10,
+      spacing: 15,
       children: [
+        Row(
+          children: [
+            Checkbox.adaptive(
+              value: appState.localSystemEnabled.value,
+              onChanged: (value) {
+                final StorageProvider storageProvider = context.read();
+                runAppFlow(context, () async {
+                  appState.localSystemEnabled.value = value!;
+                  await appState.save();
+                  storageProvider.load(StorageType.LocalFilesystem);
+                });
+              },
+            ),
+            const Flexible(child: Text('Enable option')),
+          ],
+        ),
         if (!Platform.isAndroid && !Platform.isIOS)
           TextField(
             controller: _storagePathController,

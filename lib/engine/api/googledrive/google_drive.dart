@@ -24,14 +24,9 @@ class GoogleDriveApiException implements Exception {
 
 enum GoogleDriveSpace {
   /// Normal user-visible Google Drive.
-  drive('drive'),
-
+  drive,
   /// Hidden app-specific storage.
-  appDataFolder('appDataFolder');
-
-  final String value;
-
-  const GoogleDriveSpace(this.value);
+  appDataFolder;
 }
 
 class GoogleDriveFile {
@@ -74,7 +69,8 @@ class GoogleDriveFile {
   }
 }
 
-/// Google Drive CRUD wrapper using the REST API.
+/// Google Drive REST Client.
+/// Based on https://developers.google.com/workspace/drive/api/reference/rest/v3
 class GoogleDrive {
   static const String _driveAuthority = 'www.googleapis.com';
   static const String _driveApiPath = '/drive/v3/files';
@@ -82,48 +78,49 @@ class GoogleDrive {
 
   final GoogleDriveOAuth auth;
 
-  GoogleDrive({required String oAuthClientId, required String oAuthClientSecret, required AppLifecycle lifecycle})
-      : auth = GoogleDriveOAuth(
+  GoogleDrive({
+    required String oAuthClientId,
+    required String oAuthClientSecret,
+    required List<GoogleDriveScope> scopes,
+    required AppLifecycle lifecycle,
+  }) : auth = GoogleDriveOAuth(
           clientId: oAuthClientId,
           clientSecret: oAuthClientSecret,
-          scopes: const [GoogleDriveScope.appData],
+          scopes: scopes,
           lifecycle: lifecycle,
         );
 
-  bool get isLoggedIn => auth.isLoggedIn;
-
   bool get isConfigValid => auth.isConfigValid;
 
-  /// Creates a file in appDataFolder.
+  /// Creates a file.
   ///
   /// If [data] is omitted, an empty metadata-only file is created.
+  /// [space] defines the Drive namespace (visibility scope), while [parentId]
+  /// defines the folder location within that space. If [parentId] is null,
+  /// the file is created in the root of the selected space.
+  /// [mimeType] for files is `application/vnd.google-apps.file` and folder is `application/vnd.google-apps.folder`.
   Future<GoogleDriveFile> createFile({
     required String name,
     required String mimeType,
-    required GoogleDriveSpace parentSpace,
+    required GoogleDriveSpace space,
+    String? parentId,
     List<int>? data,
     Map<String, String>? appProperties,
   }) async {
     final Map<String, dynamic> fileMetadata = {
       'name': name,
-      'parents': [parentSpace.value],
       'mimeType': mimeType,
+      if (parentId != null) 'parents': [parentId],
+      if (parentId == null && space == GoogleDriveSpace.appDataFolder) 'parents': ['appDataFolder'],
       if (appProperties != null && appProperties.isNotEmpty) 'appProperties': appProperties,
     };
 
     final http.Response response;
 
     if (data != null) {
-      final Uri uri = Uri.https(_driveAuthority, _uploadApiPath, {'uploadType': 'multipart', 'fields': _defaultFields.join(',')});
       final String boundary = 'drive-boundary-${DateTime.now().millisecondsSinceEpoch}';
 
-      final List<int> body = _buildMultipartBody(
-        boundary: boundary,
-        metadata: fileMetadata,
-        data: data,
-        mimeType: mimeType,
-      );
-
+      final Uri uri = Uri.https(_driveAuthority, _uploadApiPath, {'uploadType': 'multipart', 'fields': _defaultFields.join(',')});
       response = await _apiRequestWithReAuth(
         (client) => client.post(
           uri,
@@ -131,7 +128,12 @@ class GoogleDrive {
             ..._driveApiHeaders(),
             HttpHeaders.contentTypeHeader: 'multipart/related; boundary=$boundary',
           },
-          body: body,
+          body: _buildMultipartBody(
+            boundary: boundary,
+            metadata: fileMetadata,
+            data: data,
+            mimeType: mimeType,
+          ),
         ),
       );
     } else {
@@ -190,7 +192,7 @@ class GoogleDrive {
       _driveAuthority,
       _driveApiPath,
       {
-        'spaces': space.value,
+        'spaces': space.name,
         'pageSize': pageSize.toString(),
         'q': query,
         'fields': 'files(${_defaultFields.join(',')})',
@@ -229,16 +231,9 @@ class GoogleDrive {
     final http.Response response;
 
     if (data != null) {
-      final Uri uri = Uri.https(_driveAuthority, '$_uploadApiPath/$fileId', {'uploadType': 'multipart', 'fields': _defaultFields.join(',')});
       final String boundary = 'drive-boundary-${DateTime.now().millisecondsSinceEpoch}';
 
-      final List<int> body = _buildMultipartBody(
-        boundary: boundary,
-        metadata: updateMetadata,
-        data: data,
-        mimeType: mimeType ?? 'application/octet-stream',
-      );
-
+      final Uri uri = Uri.https(_driveAuthority, '$_uploadApiPath/$fileId', {'uploadType': 'multipart', 'fields': _defaultFields.join(',')});
       response = await _apiRequestWithReAuth(
         (client) => client.patch(
           uri,
@@ -246,12 +241,16 @@ class GoogleDrive {
             ..._driveApiHeaders(),
             HttpHeaders.contentTypeHeader: 'multipart/related; boundary=$boundary',
           },
-          body: body,
+          body: _buildMultipartBody(
+            boundary: boundary,
+            metadata: updateMetadata,
+            data: data,
+            mimeType: mimeType ?? 'application/octet-stream',
+          ),
         ),
       );
     } else {
       final Uri uri = Uri.https(_driveAuthority, '$_driveApiPath/$fileId', _buildFieldsQuery());
-
       response = await _apiRequestWithReAuth(
         (client) => client.patch(uri, headers: _driveApiHeaders(), body: json.encode(updateMetadata)),
       );

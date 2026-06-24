@@ -49,6 +49,9 @@ class LocalFileController extends StorageController {
   StorageRepository get repository => _storageRepository;
 
   @override
+  bool get isEnabled => _appState.localSystemEnabled.value;
+
+  @override
   bool get isConfigured => true;
 
   @override
@@ -56,6 +59,12 @@ class LocalFileController extends StorageController {
 
   @override
   Future<void> performLoad() async {
+    if (!isEnabled) {
+      _state = const StorageState();
+      notifyListeners();
+      return;
+    }
+
     _state = const StorageState(isLoading: true);
     notifyListeners();
     try {

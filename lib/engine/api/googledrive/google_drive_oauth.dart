@@ -95,7 +95,7 @@ class GoogleDriveOAuth {
     final String challenge = _generateCodeChallenge(verifier);
 
     final HttpServer server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
-    final String redirectUri = 'http://127.0.0.1:${server.port}/callback';
+    final String redirectUri = 'http://localhost:${server.port}/oauth_redirect';
 
     final Uri authUri = Uri.https(
       'accounts.google.com',

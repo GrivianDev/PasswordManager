@@ -11,9 +11,13 @@ abstract class StorageController with ChangeNotifier {
 
   StorageRepository get repository;
 
+  bool get isEnabled;
+
   bool get isConfigured;
 
   bool get requiresAuth;
+
+  bool get isFullyReady => isEnabled && isConfigured && !requiresAuth;
 
   Future<String> getUserStorageLocation();
 

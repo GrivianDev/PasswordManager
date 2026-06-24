@@ -1,4 +1,4 @@
-import 'package:ethercrypt/engine/api/dropbox/dropbox.dart';
+import 'package:ethercrypt/engine/api/onedrive/onedrive.dart';
 import 'package:ethercrypt/engine/persistence/appstate.dart';
 import 'package:ethercrypt/engine/persistence/storage/storage_file.dart';
 import 'package:ethercrypt/engine/persistence/storage/storage_provider.dart';
@@ -8,14 +8,14 @@ import 'package:ethercrypt/pages/other/storage_type_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class DropboxConfig extends StatefulWidget {
-  const DropboxConfig({super.key});
+class OneDriveConfig extends StatefulWidget {
+  const OneDriveConfig({super.key});
 
   @override
-  State<DropboxConfig> createState() => _DropboxConfigState();
+  State<OneDriveConfig> createState() => _OneDriveConfigState();
 }
 
-class _DropboxConfigState extends State<DropboxConfig> {
+class _OneDriveConfigState extends State<OneDriveConfig> {
   @override
   Widget build(BuildContext context) {
     final AppState appState = context.watch();
@@ -27,13 +27,13 @@ class _DropboxConfigState extends State<DropboxConfig> {
         Row(
           children: [
             Checkbox.adaptive(
-              value: appState.dropboxEnabled.value,
+              value: appState.oneDriveEnabled.value,
               onChanged: (value) {
                 final StorageProvider storageProvider = context.read();
                 runAppFlow(context, () async {
-                  appState.dropboxEnabled.value = value!;
+                  appState.oneDriveEnabled.value = value!;
                   await appState.save();
-                  storageProvider.load(StorageType.Dropbox);
+                  storageProvider.load(StorageType.OneDrive);
                 });
               },
             ),
@@ -41,15 +41,15 @@ class _DropboxConfigState extends State<DropboxConfig> {
           ],
         ),
         StreamBuilder(
-          stream: context.read<Dropbox>().auth.sessionChanges,
-          initialData: context.read<Dropbox>().auth.session,
+          stream: context.read<OneDrive>().auth.sessionChanges,
+          initialData: context.read<OneDrive>().auth.session,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 10,
                 children: [
-                  const Text('Dropbox connected'),
+                  const Text('OneDrive connected'),
                   TextButton.icon(
                     icon: const Icon(Icons.remove_circle_outline),
                     style: const ButtonStyle(
@@ -61,7 +61,7 @@ class _DropboxConfigState extends State<DropboxConfig> {
                       runAppFlow(context, () async {
                         Notify.showLoading(context: context);
                         try {
-                          await context.read<Dropbox>().auth.revokeAccess();
+                          context.read<OneDrive>().auth.revokeAccess();
                         } finally {
                           navigator.pop();
                         }
@@ -79,13 +79,13 @@ class _DropboxConfigState extends State<DropboxConfig> {
                   runAppFlow(context, () async {
                     try {
                       Notify.showLoading(context: context);
-                      await context.read<Dropbox>().auth.authorize();
+                      await context.read<OneDrive>().auth.authorize();
                     } finally {
                       navigator.pop();
                     }
                   });
                 },
-                label: const Text('Connect Drobox'),
+                label: const Text('Connect OneDrive'),
               );
             }
           },

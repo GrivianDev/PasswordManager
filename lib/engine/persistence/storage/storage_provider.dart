@@ -14,7 +14,7 @@ class StorageProvider with ChangeNotifier {
 
   void _onControllerChanged() {
     _allFiles.clear();
-    _allFiles.addAll(_controllers.values.expand((c) => c.state.files).toList());
+    _allFiles.addAll(_controllers.values.expand((c) => c.state.files));
     _allFiles.sort((a, b) => a.name.compareTo(b.name));
     notifyListeners();
   }
@@ -25,17 +25,15 @@ class StorageProvider with ChangeNotifier {
 
   List<StorageFile> get allFiles => List.unmodifiable(_allFiles);
 
-  bool get isLoadingAny => _controllers.values.any((s) => s.state.isLoading);
+  bool get isLoadingAny => _controllers.values.any((c) => c.state.isLoading);
 
-  List<Object> get errors => _controllers.values.map((s) => s.state.error).whereType<Object>().toList();
+  List<Object> get errors => _controllers.values.where((c) => c.isEnabled && c.isConfigured).map((c) => c.state.error).whereType<Object>().toList();
 
   Future<void> load(StorageType type) async {
     await _controllers[type]?.load();
   }
 
-  Future<void> loadAll() async {
-    await Future.wait(_controllers.keys.map(load));
-  }
+  Future<void> loadAll() => Future.wait(_controllers.keys.map(load));
 
   @override
   void dispose() {

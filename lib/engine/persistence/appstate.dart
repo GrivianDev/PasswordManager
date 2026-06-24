@@ -146,11 +146,27 @@ class AppState with ChangeNotifier {
     onChanged: notifyListeners,
   );
 
+  late final localSystemEnabled = AppStateField<bool>(
+    key: 'ethercrypt.filesystem.enabled',
+    storage: StorageOption.shared,
+    stype: SerilizationType.bool,
+    defaultValue: true,
+    onChanged: notifyListeners,
+  );
+
   late final localSystemStorageLocation = AppStateField<String>(
     key: 'ethercrypt.filesystem.storage_location',
     storage: StorageOption.shared,
     stype: SerilizationType.string,
     defaultValue: '',
+    onChanged: notifyListeners,
+  );
+
+  late final googleDriveEnabled = AppStateField<bool>(
+    key: 'ethercrypt.google_drive.enabled',
+    storage: StorageOption.shared,
+    stype: SerilizationType.bool,
+    defaultValue: false,
     onChanged: notifyListeners,
   );
 
@@ -162,11 +178,43 @@ class AppState with ChangeNotifier {
     onChanged: notifyListeners,
   );
 
+  late final oneDriveEnabled = AppStateField<bool>(
+    key: 'ethercrypt.onedrive.enabled',
+    storage: StorageOption.shared,
+    stype: SerilizationType.bool,
+    defaultValue: false,
+    onChanged: notifyListeners,
+  );
+
+  late final oneDriveAuthRefreshToken = AppStateField<String?>(
+    key: 'ethercrypt.onedrive.auth.user_refresh_token',
+    storage: StorageOption.secure,
+    stype: SerilizationType.string,
+    defaultValue: null,
+    onChanged: notifyListeners,
+  );
+
+  late final dropboxEnabled = AppStateField<bool>(
+    key: 'ethercrypt.dropbox.enabled',
+    storage: StorageOption.shared,
+    stype: SerilizationType.bool,
+    defaultValue: false,
+    onChanged: notifyListeners,
+  );
+
   late final dropboxAuthRefreshToken = AppStateField<String?>(
     key: 'ethercrypt.dropbox.auth.user_refresh_token',
     storage: StorageOption.secure,
     stype: SerilizationType.string,
     defaultValue: null,
+    onChanged: notifyListeners,
+  );
+
+  late final firebaseEnabled = AppStateField<bool>(
+    key: 'ethercrypt.firebase.enabled',
+    storage: StorageOption.shared,
+    stype: SerilizationType.bool,
+    defaultValue: false,
     onChanged: notifyListeners,
   );
 
@@ -228,9 +276,15 @@ class AppState with ChangeNotifier {
       pwGenUseNumbers,
       pwGenUseSpecialChars,
       ntpTimeSyncServer,
+      localSystemEnabled,
       localSystemStorageLocation,
+      googleDriveEnabled,
       googleDriveAuthRefreshToken,
+      oneDriveEnabled,
+      oneDriveAuthRefreshToken,
+      dropboxEnabled,
       dropboxAuthRefreshToken,
+      firebaseEnabled,
       firebaseProjectId,
       firebaseApiKey,
       firebaseAuthLastUserEmail,

@@ -3,6 +3,9 @@ import 'package:ethercrypt/engine/api/app_lifecycle.dart';
 import 'package:ethercrypt/engine/api/dropbox/dropbox.dart';
 import 'package:ethercrypt/engine/api/firebase/firestore.dart';
 import 'package:ethercrypt/engine/api/googledrive/google_drive.dart';
+import 'package:ethercrypt/engine/api/googledrive/google_drive_oauth.dart';
+import 'package:ethercrypt/engine/api/onedrive/onedrive.dart';
+import 'package:ethercrypt/engine/api/onedrive/onedrive_oauth.dart';
 import 'package:ethercrypt/engine/db/local_database.dart';
 import 'package:ethercrypt/engine/other/themes.dart';
 import 'package:ethercrypt/engine/persistence/appstate.dart';
@@ -10,6 +13,7 @@ import 'package:ethercrypt/engine/persistence/storage/controller/dropbox_control
 import 'package:ethercrypt/engine/persistence/storage/controller/firestore_controller.dart';
 import 'package:ethercrypt/engine/persistence/storage/controller/google_drive_controller.dart';
 import 'package:ethercrypt/engine/persistence/storage/controller/local_file_controller.dart';
+import 'package:ethercrypt/engine/persistence/storage/controller/onedrive_controller.dart';
 import 'package:ethercrypt/engine/persistence/storage/storage_file.dart';
 import 'package:ethercrypt/engine/persistence/storage/storage_provider.dart';
 import 'package:ethercrypt/engine/updates/app_version.dart';
@@ -67,7 +71,8 @@ class _ApplicationState extends State<Application> with WidgetsBindingObserver {
       case AppLifecycleState.hidden:
         appLifecycle.markNotReady();
         break;
-      default: break;
+      default:
+        break;
     }
   }
 
@@ -75,7 +80,7 @@ class _ApplicationState extends State<Application> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider(create: (context) => widget.version),
+        Provider<AppVersion>(create: (context) => widget.version),
         ChangeNotifierProvider<AppState>(
           create: (context) => widget.appState,
         ),
@@ -98,6 +103,7 @@ class _ApplicationState extends State<Application> with WidgetsBindingObserver {
           create: (context) => GoogleDrive(
             oAuthClientId: AppConfig.googleDriveClientId,
             oAuthClientSecret: AppConfig.googleDriveClientSecret,
+            scopes: [GoogleDriveScope.appData],
             lifecycle: appLifecycle,
           ),
         ),
@@ -105,6 +111,26 @@ class _ApplicationState extends State<Application> with WidgetsBindingObserver {
           create: (context) => GoogleDriveController(
             appState: context.read(),
             api: context.read(),
+            space: GoogleDriveSpace.appDataFolder,
+          ),
+        ),
+        Provider<OneDrive>(
+          create: (context) => OneDrive(
+            clientId: AppConfig.oneDriveClientId,
+            scopes: [
+              OneDriveScope.openId,
+              OneDriveScope.userRead,
+              OneDriveScope.offlineAccess,
+              OneDriveScope.fileReadWriteAppFolder,
+            ],
+            lifecycle: appLifecycle,
+          ),
+        ),
+        ChangeNotifierProvider<OneDriveController>(
+          create: (context) => OneDriveController(
+            appState: context.read(),
+            api: context.read(),
+            driveLocation: OneDriveLocation.appRoot,
           ),
         ),
         Provider<Firestore>(create: (context) => Firestore()),
@@ -124,6 +150,7 @@ class _ApplicationState extends State<Application> with WidgetsBindingObserver {
             controllers: {
               StorageType.LocalFilesystem: context.read<LocalFileController>(),
               StorageType.GoogleDrive: context.read<GoogleDriveController>(),
+              StorageType.OneDrive: context.read<OneDriveController>(),
               StorageType.Dropbox: context.read<DropboxController>(),
               StorageType.CloudFirestore: context.read<FirestoreController>(),
             },

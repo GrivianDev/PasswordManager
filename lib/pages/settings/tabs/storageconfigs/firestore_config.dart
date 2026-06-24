@@ -4,6 +4,7 @@ import 'package:ethercrypt/engine/app_exception.dart';
 import 'package:ethercrypt/engine/other/util.dart';
 import 'package:ethercrypt/engine/persistence/appstate.dart';
 import 'package:ethercrypt/engine/persistence/storage/storage_file.dart';
+import 'package:ethercrypt/engine/persistence/storage/storage_provider.dart';
 import 'package:ethercrypt/pages/flows/app_flows.dart';
 import 'package:ethercrypt/pages/flows/typed_confirmation_dialog.dart';
 import 'package:ethercrypt/pages/other/notifications.dart';
@@ -154,11 +155,28 @@ class _FirestoreConfigState extends State<FirestoreConfig> {
   @override
   Widget build(BuildContext context) {
     final Firestore firestore = context.read();
+    final AppState appState = context.watch();
 
     return Column(
       spacing: 15,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Row(
+          children: [
+            Checkbox.adaptive(
+              value: appState.firebaseEnabled.value,
+              onChanged: (value) {
+                final StorageProvider storageProvider = context.read();
+                runAppFlow(context, () async {
+                  appState.firebaseEnabled.value = value!;
+                  await appState.save();
+                  storageProvider.load(StorageType.CloudFirestore);
+                });
+              },
+            ),
+            const Flexible(child: Text('Enable option')),
+          ],
+        ),
         TextField(
           controller: _projectIdController,
           decoration: const InputDecoration(

@@ -26,14 +26,14 @@ class DropboxRepository implements StorageRepository {
 
   @override
   Future<List<StorageFile>> findAll({String? location}) async {
-    final List<DropboxFile> files = await dropbox.listFiles(path: location ?? '');
+    final List<DropboxFile> files = await dropbox.listFiles(path: location ?? '/');
     return files.where((file) => file.name.endsWith('.x')).map(_fromFile).toList();
   }
 
   @override
   Future<StorageFile> create({required String name, String? location, String? initialData}) async {
     final DropboxFile newFile = await dropbox.uploadFile(
-      path: '$location$name.x',
+      path: '$location/$name.x',
       data: utf8.encode(initialData ?? ''),
       overwrite: false,
     );

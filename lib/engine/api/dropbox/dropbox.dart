@@ -62,6 +62,9 @@ class DropboxFile {
   }
 }
 
+/// Dropbox REST Client.
+/// Based on https://www.dropbox.com/developers/documentation/http/documentation
+/// Note: App Folder / User File Access are handled via app config.
 class Dropbox {
   static const String _apiAuthority = 'api.dropboxapi.com';
   static const String _contentAuthority = 'content.dropboxapi.com';
@@ -70,7 +73,6 @@ class Dropbox {
 
   Dropbox({required String clientId, required AppLifecycle lifecycle}) : auth = DropboxOAuth(clientId: clientId, lifecycle: lifecycle);
 
-  bool get isLoggedIn => auth.isLoggedIn;
   bool get isConfigValid => auth.isConfigValid;
 
   /// Uploads a file to Dropbox.
@@ -87,13 +89,6 @@ class Dropbox {
     } else {
       mode = overwrite ? 'overwrite' : 'add';
     }
-    final args = {
-      'path': path,
-      'mode': mode,
-      'strict_conflict': true,
-      'autorename': false,
-      'mute': false,
-    };
 
     final Uri uri = Uri.https(_contentAuthority, '/2/files/upload');
     final http.Response response = await _apiRequestWithReAuth((client) {
@@ -102,7 +97,13 @@ class Dropbox {
         headers: {
           HttpHeaders.authorizationHeader: 'Bearer ${auth.session?.accessToken}',
           'Content-Type': 'application/octet-stream',
-          'Dropbox-API-Arg': json.encode(args),
+          'Dropbox-API-Arg': json.encode({
+            'path': path,
+            'mode': mode,
+            'strict_conflict': true,
+            'autorename': false,
+            'mute': false,
+          }),
         },
         body: data,
       );

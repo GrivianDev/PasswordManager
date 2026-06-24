@@ -78,8 +78,16 @@ String getOAuthSuccessPage(String provider) => '''
   <div class="card">
 
     <div class="header">
-      <div class="icon">✓</div>
-      <h1>$provider connected to Ethercrypt</h1>
+      <div class="icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M20 6L9 17l-5-5"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h1>Authorization received from $provider</h1>
     </div>
 
     <div class="hint">

@@ -6,6 +6,7 @@ import 'package:ethercrypt/pages/settings/tabs/storageconfigs/dropbox_config.dar
 import 'package:ethercrypt/pages/settings/tabs/storageconfigs/firestore_config.dart';
 import 'package:ethercrypt/pages/settings/tabs/storageconfigs/googe_drive_config.dart';
 import 'package:ethercrypt/pages/settings/tabs/storageconfigs/local_file_system_config.dart';
+import 'package:ethercrypt/pages/settings/tabs/storageconfigs/onedrive_config.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -22,6 +23,7 @@ class _StorageOptionsSettingsState extends State<StorageOptionsSettings> {
   final Map<StorageType, Widget Function()> configBuilder = {
     StorageType.LocalFilesystem: () => const LocalFileSystemConfig(),
     StorageType.GoogleDrive: () => const GoogeDriveConfig(),
+    StorageType.OneDrive: () => const OneDriveConfig(),
     StorageType.Dropbox: () => const DropboxConfig(),
     StorageType.CloudFirestore: () => const FirestoreConfig()
   };
@@ -29,8 +31,6 @@ class _StorageOptionsSettingsState extends State<StorageOptionsSettings> {
   Widget _storageCard(StorageType type, IconData icon, String title) {
     final StorageProvider provider = context.read();
     final StorageController controller = provider.controller(type);
-    final bool isConfigured = controller.isConfigured;
-    final bool requiresAuth = controller.requiresAuth;
 
     return Card(
       child: SizedBox(
@@ -42,12 +42,14 @@ class _StorageOptionsSettingsState extends State<StorageOptionsSettings> {
           leading: Icon(icon),
           title: Text(title),
           subtitle: Text(
-            !isConfigured
-                ? 'Not configured'
-                : requiresAuth
-                    ? 'Not authenticated'
-                    : 'Configured',
-            style: isConfigured && !requiresAuth ? Theme.of(context).textTheme.bodySmall!.copyWith(fontSize: 14, color: Colors.green) : null,
+            !controller.isEnabled
+                ? 'Disabled'
+                : !controller.isConfigured
+                    ? 'Not configured'
+                    : controller.requiresAuth
+                        ? 'Not authenticated'
+                        : 'Configured',
+            style: controller.isFullyReady ? Theme.of(context).textTheme.bodySmall!.copyWith(fontSize: 14, color: Colors.green) : null,
           ),
           onTap: () {
             setState(() {

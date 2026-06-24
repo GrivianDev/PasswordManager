@@ -46,6 +46,9 @@ class FirestoreController extends StorageController {
   StorageRepository get repository => _storageRepository;
 
   @override
+  bool get isEnabled => _appState.firebaseEnabled.value;
+
+  @override
   bool get isConfigured => api.isConfigValid;
 
   @override
@@ -69,7 +72,7 @@ class FirestoreController extends StorageController {
 
   @override
   Future<void> performLoad() async {
-    if (!api.isConfigValid) {
+    if (!api.isConfigValid || !isEnabled) {
       _state = const StorageState();
       notifyListeners();
       return;

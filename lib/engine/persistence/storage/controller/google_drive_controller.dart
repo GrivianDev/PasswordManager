@@ -20,21 +20,29 @@ class GoogleDriveController extends StorageController {
 
   StorageState _state = const StorageState();
 
-  GoogleDriveController({required AppState appState, required this.api})
+  GoogleDriveController({required AppState appState, required GoogleDriveSpace space, required this.api})
       : _appState = appState,
-        _storageRepository = AppExceptionRepoWrapper(GoogleDriveRepository(api), debugContext: 'Google Drive') {
+        _storageRepository = AppExceptionRepoWrapper(
+          GoogleDriveRepository(
+            drive: api,
+            space: space,
+          ),
+          debugContext: 'Google Drive',
+        ) {
     _sub = api.auth.sessionChanges.listen(_onAuthChanged);
   }
 
-  // Private app data folder on google drive
   @override
-  Future<String> getUserStorageLocation() => Future.value(GoogleDriveSpace.appDataFolder.value);
+  Future<String> getUserStorageLocation() => Future.value('/vaults');
 
   @override
   StorageState get state => _state;
 
   @override
   StorageRepository get repository => _storageRepository;
+
+  @override
+  bool get isEnabled => _appState.googleDriveEnabled.value;
 
   @override
   bool get isConfigured => api.isConfigValid;
@@ -59,6 +67,12 @@ class GoogleDriveController extends StorageController {
 
   @override
   Future<void> performLoad() async {
+    if (!api.isConfigValid || !isEnabled) {
+      _state = const StorageState();
+      notifyListeners();
+      return;
+    }
+
     _state = const StorageState(isLoading: true);
     notifyListeners();
     try {
@@ -70,7 +84,7 @@ class GoogleDriveController extends StorageController {
 
       final String storageLocation = await getUserStorageLocation();
       if (kDebugMode) {
-        debugPrint('Looking into space "$storageLocation" for google drive files.');
+        debugPrint('Looking into "$storageLocation" for google drive files.');
       }
       final List<StorageFile> files = await _storageRepository.findAll(location: storageLocation);
       _state = StorageState(

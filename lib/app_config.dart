@@ -4,4 +4,6 @@ final class AppConfig {
   static const googleDriveClientSecret = String.fromEnvironment('GOOGLE_DRIVE_CLIENT_SECRET');
   
   static const dropboxAppKey = String.fromEnvironment('DROPBOX_APP_KEY');
+
+  static const oneDriveClientId = String.fromEnvironment('ONE_DRIVE_CLIENT_ID');
 }
