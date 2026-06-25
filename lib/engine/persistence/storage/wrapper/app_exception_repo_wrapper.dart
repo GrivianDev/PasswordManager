@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:ethercrypt/engine/app_exception.dart';
 import 'package:ethercrypt/engine/persistence/storage/storage_conflict_exception.dart';
 import 'package:ethercrypt/engine/persistence/storage/storage_file.dart';
@@ -13,11 +16,24 @@ class AppExceptionRepoWrapper implements StorageRepository {
     if (error is AppException) throw error;
 
     throw AppException(
-      error is StorageConflictException ? error.message : message,
+      _buildMessage(error, message),
       debugContext: debugContext,
       cause: error,
       stackTrace: stackTrace,
     );
+  }
+
+  String _buildMessage(Object error, String defaultMessage) {
+    switch (error) {
+      case StorageConflictException():
+        return '$defaultMessage. ${error.message}';
+      case TimeoutException():
+        return '$defaultMessage. The operation timed out. Please try again.';
+      case SocketException():
+        return '$defaultMessage. No internet connection is available.';
+      default:
+        return defaultMessage;
+    }
   }
 
   @override
