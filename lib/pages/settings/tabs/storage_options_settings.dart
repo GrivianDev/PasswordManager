@@ -70,7 +70,7 @@ class _StorageOptionsSettingsState extends State<StorageOptionsSettings> {
         Consumer<StorageProvider>(
           builder: (context, provider, child) {
             return Wrap(
-              children: StorageType.values.where((type) => context.read<StorageProvider>().isAvailable(type)).map((type) => _storageCard(type, type.icon, type.label)).toList(),
+              children: StorageType.values.map((type) => _storageCard(type, type.icon, type.label)).toList(),
             );
           },
         ),

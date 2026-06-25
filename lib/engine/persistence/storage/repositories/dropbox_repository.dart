@@ -48,7 +48,7 @@ class DropboxRepository implements StorageRepository {
 
   @override
   Future<bool> nameExists({required String name, String? location}) async {
-    final DropboxFile? foundFile = await dropbox.getFile('$location$name.x');
+    final DropboxFile? foundFile = await dropbox.getFile('$location/$name.x');
     return foundFile != null;
   }
 
@@ -58,8 +58,8 @@ class DropboxRepository implements StorageRepository {
     if (foundFile?.rev != file.revision) throw const StorageConflictException();
 
     final DropboxFile renamed = await dropbox.moveFile(
-      fromPath: '${file.location}${file.name}.x',
-      toPath: '${file.location}$newName.x',
+      fromPath: '${file.location}/${file.name}.x',
+      toPath: '${file.location}/$newName.x',
     );
     return _fromFile(renamed);
   }
@@ -73,7 +73,7 @@ class DropboxRepository implements StorageRepository {
   @override
   Future<StorageFile> update(StorageFile file, String data) async {
     final DropboxFile updated = await dropbox.uploadFile(
-      path: '${file.location}${file.name}.x',
+      path: '${file.location}/${file.name}.x',
       data: utf8.encode(data),
       overwrite: true,
     );

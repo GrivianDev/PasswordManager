@@ -19,7 +19,10 @@ class StorageProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  bool isAvailable(StorageType type) => _controllers[type] != null;
+  bool isAvailable(StorageType type) {
+    final StorageController? controller = _controllers[type];
+    return controller != null && controller.isConfigured && controller.isEnabled;
+  }
 
   StorageController controller(StorageType type) => _controllers[type]!;
 
