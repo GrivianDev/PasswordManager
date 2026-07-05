@@ -1,6 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
 
-import 'package:ethercrypt/engine/api/firebase/firebase_user.dart';
+import 'package:ethercrypt/engine/api/firebase/firebase_session.dart';
 import 'package:ethercrypt/engine/api/firebase/firestore.dart';
 import 'package:ethercrypt/engine/app_exception.dart';
 import 'package:ethercrypt/engine/persistence/appstate.dart';
@@ -24,19 +25,22 @@ class FirestoreController extends StorageController {
       : _appState = appState,
         _storageRepository = AppExceptionRepoWrapper(FirestoreRepository(api), debugContext: 'Firestore') {
     api.configure(appState.firebaseProjectId.value, appState.firebaseApiKey.value);
+    try {
+      api.auth.setInitialSession(FirebaseSession.fromJson(json.decode(appState.firebaseAuthCredentials.value!)));
+    } catch (_) {}
     _sub = api.auth.authChanges.listen(_onAuthChanged);
   }
 
   // User vault path
   @override
   Future<String> getUserStorageLocation() {
-    if (!api.isConfigValid || !api.auth.isUserLoggedIn) {
+    if (!api.isConfigValid || !api.auth.isLoggedIn) {
       throw AppException(
         'User is not logged in. Cannot get storage location.',
         debugContext: 'Firestore Controller',
       );
     }
-    return Future.value('/ethercrypt-users/${api.auth.user!.userId}/vault');
+    return Future.value('/ethercrypt-users/${api.auth.session!.userId}/vault');
   }
 
   @override
@@ -52,18 +56,17 @@ class FirestoreController extends StorageController {
   bool get isConfigured => api.isConfigValid;
 
   @override
-  bool get requiresAuth => !api.auth.isUserLoggedIn;
+  bool get requiresAuth => !api.auth.isLoggedIn;
 
-  Future<void> _onAuthChanged(FirebaseUser? user) async {
-    if (user == null) {
-      _appState.firebaseAuthRefreshToken.value = null;
+  Future<void> _onAuthChanged(FirebaseSession? session) async {
+    if (session == null) {
+      _appState.firebaseAuthCredentials.value = null;
       await _appState.save();
 
       _state = const StorageState();
       notifyListeners();
     } else {
-      _appState.firebaseAuthLastUserEmail.value = user.email;
-      _appState.firebaseAuthRefreshToken.value = user.refreshToken;
+      _appState.firebaseAuthCredentials.value = json.encode(session.toJson());
       await _appState.save();
 
       await load();
@@ -81,13 +84,6 @@ class FirestoreController extends StorageController {
     _state = const StorageState(isLoading: true);
     notifyListeners();
     try {
-      if (_appState.firebaseAuthLastUserEmail.value != null && _appState.firebaseAuthRefreshToken.value != null && !api.auth.isUserLoggedIn) {
-        await api.auth.loginWithRefreshToken(
-          _appState.firebaseAuthLastUserEmail.value!,
-          _appState.firebaseAuthRefreshToken.value!,
-        );
-      }
-
       final String storageLocation = await getUserStorageLocation();
       if (kDebugMode) {
         debugPrint('Looking into collection "$storageLocation" for cloud firestore documents.');

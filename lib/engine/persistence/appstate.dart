@@ -170,8 +170,8 @@ class AppState with ChangeNotifier {
     onChanged: notifyListeners,
   );
 
-  late final googleDriveAuthRefreshToken = AppStateField<String?>(
-    key: 'ethercrypt.google_drive.auth.user_refresh_token',
+  late final googleDriveAuthCredentials = AppStateField<String?>(
+    key: 'ethercrypt.google_drive.auth.credentials',
     storage: StorageOption.secure,
     stype: SerilizationType.string,
     defaultValue: null,
@@ -186,8 +186,8 @@ class AppState with ChangeNotifier {
     onChanged: notifyListeners,
   );
 
-  late final oneDriveAuthRefreshToken = AppStateField<String?>(
-    key: 'ethercrypt.onedrive.auth.user_refresh_token',
+  late final oneDriveAuthCredentials = AppStateField<String?>(
+    key: 'ethercrypt.onedrive.auth.credentials',
     storage: StorageOption.secure,
     stype: SerilizationType.string,
     defaultValue: null,
@@ -202,8 +202,8 @@ class AppState with ChangeNotifier {
     onChanged: notifyListeners,
   );
 
-  late final dropboxAuthRefreshToken = AppStateField<String?>(
-    key: 'ethercrypt.dropbox.auth.user_refresh_token',
+  late final dropboxAuthCredentials = AppStateField<String?>(
+    key: 'ethercrypt.dropbox.auth.credentials',
     storage: StorageOption.secure,
     stype: SerilizationType.string,
     defaultValue: null,
@@ -242,8 +242,8 @@ class AppState with ChangeNotifier {
     onChanged: notifyListeners,
   );
 
-  late final firebaseAuthRefreshToken = AppStateField<String?>(
-    key: 'ethercrypt.firebase.auth.user_refresh_token',
+  late final firebaseAuthCredentials = AppStateField<String?>(
+    key: 'ethercrypt.firebase.auth.credentials',
     storage: StorageOption.secure,
     stype: SerilizationType.string,
     defaultValue: null,
@@ -279,16 +279,16 @@ class AppState with ChangeNotifier {
       localSystemEnabled,
       localSystemStorageLocation,
       googleDriveEnabled,
-      googleDriveAuthRefreshToken,
+      googleDriveAuthCredentials,
       oneDriveEnabled,
-      oneDriveAuthRefreshToken,
+      oneDriveAuthCredentials,
       dropboxEnabled,
-      dropboxAuthRefreshToken,
+      dropboxAuthCredentials,
       firebaseEnabled,
       firebaseProjectId,
       firebaseApiKey,
       firebaseAuthLastUserEmail,
-      firebaseAuthRefreshToken,
+      firebaseAuthCredentials,
     ];
   }
 

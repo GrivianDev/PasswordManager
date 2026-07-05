@@ -314,8 +314,10 @@ class OneDrive {
     final http.Client httpClient = LoggingHttpClient();
 
     try {
+      if (auth.session!.isExpired) {
+        await auth.authorizeWithRefreshToken(auth.session!.refreshToken);
+      }
       http.Response response = await apiCall(httpClient);
-
       if (response.statusCode == HttpStatus.unauthorized) {
         await auth.authorizeWithRefreshToken(
           auth.session!.refreshToken,

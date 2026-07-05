@@ -223,9 +223,7 @@ class Dropbox {
 
   // ---------------- HELPERS ----------------
 
-  Future<http.Response> _apiRequestWithReAuth(
-    Future<http.Response> Function(http.Client client) apiCall,
-  ) async {
+  Future<http.Response> _apiRequestWithReAuth(Future<http.Response> Function(http.Client client) apiCall) async {
     if (!auth.isLoggedIn) {
       throw Exception('Dropbox user is not logged in');
     }
@@ -233,8 +231,10 @@ class Dropbox {
     final client = LoggingHttpClient();
 
     try {
+      if (auth.session!.isExpired) {
+        await auth.authorizeWithRefreshToken(auth.session!.refreshToken);
+      }
       http.Response response = await apiCall(client);
-
       if (response.statusCode == HttpStatus.unauthorized) {
         await auth.authorizeWithRefreshToken(auth.session!.refreshToken);
         response = await apiCall(client);

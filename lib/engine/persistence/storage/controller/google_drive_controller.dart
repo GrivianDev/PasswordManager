@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:ethercrypt/engine/api/googledrive/google_drive.dart';
 import 'package:ethercrypt/engine/api/googledrive/google_drive_session.dart';
@@ -29,6 +30,9 @@ class GoogleDriveController extends StorageController {
           ),
           debugContext: 'Google Drive',
         ) {
+    try {
+      api.auth.setInitialSession(GoogleDriveSession.fromJson(json.decode(appState.googleDriveAuthCredentials.value!)));
+    } catch (_) {}
     _sub = api.auth.sessionChanges.listen(_onAuthChanged);
   }
 
@@ -52,13 +56,13 @@ class GoogleDriveController extends StorageController {
 
   Future<void> _onAuthChanged(GoogleDriveSession? session) async {
     if (session == null) {
-      _appState.googleDriveAuthRefreshToken.value = null;
+      _appState.googleDriveAuthCredentials.value = null;
       await _appState.save();
 
       _state = const StorageState();
       notifyListeners();
     } else {
-      _appState.googleDriveAuthRefreshToken.value = session.refreshToken;
+      _appState.googleDriveAuthCredentials.value = json.encode(session.toJson());
       await _appState.save();
 
       await load();
@@ -76,12 +80,6 @@ class GoogleDriveController extends StorageController {
     _state = const StorageState(isLoading: true);
     notifyListeners();
     try {
-      if (_appState.googleDriveAuthRefreshToken.value != null && !api.auth.isLoggedIn) {
-        await api.auth.authorizeWithRefreshToken(
-          _appState.googleDriveAuthRefreshToken.value!,
-        );
-      }
-
       final String storageLocation = await getUserStorageLocation();
       if (kDebugMode) {
         debugPrint('Looking into "$storageLocation" for google drive files.');

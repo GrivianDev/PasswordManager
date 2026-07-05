@@ -1,4 +1,4 @@
-import 'package:ethercrypt/engine/api/firebase/firebase_user.dart';
+import 'package:ethercrypt/engine/api/firebase/firebase_session.dart';
 import 'package:ethercrypt/engine/api/firebase/firestore.dart';
 import 'package:ethercrypt/engine/app_exception.dart';
 import 'package:ethercrypt/engine/other/util.dart';
@@ -48,11 +48,15 @@ class _FirestoreConfigState extends State<FirestoreConfig> {
     final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
     final Firestore firestore = context.read();
     final NavigatorState navigator = Navigator.of(context);
+    final AppState appState = context.read();
 
     return runAppFlow(context, () async {
       try {
         Notify.showLoading(context: context);
         await firestore.auth.login(email, password);
+        appState.firebaseAuthLastUserEmail.value = email;
+        await appState.save();
+
         scaffoldMessenger.showSnackBar(
           SnackBarUtils.message('Logged into ${StorageType.CloudFirestore.label}', icon: Icons.check_circle_outline),
         );
@@ -73,11 +77,14 @@ class _FirestoreConfigState extends State<FirestoreConfig> {
     final ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
     final Firestore firestore = context.read();
     final NavigatorState navigator = Navigator.of(context);
+    final AppState appState = context.read();
 
     return runAppFlow(context, () async {
       try {
         Notify.showLoading(context: context);
         await firestore.auth.signUp(email, password);
+        appState.firebaseAuthLastUserEmail.value = email;
+        await appState.save();
         scaffoldMessenger.showSnackBar(
           SnackBarUtils.message('Logged into ${StorageType.CloudFirestore.label}', icon: Icons.check_circle_outline),
         );
@@ -114,7 +121,7 @@ class _FirestoreConfigState extends State<FirestoreConfig> {
       context,
       NotificationType.deleteDialog,
       title: 'Are you sure?',
-      description: 'Are you sure that you want to delete your "${firestore.auth.user!.email}" account from Cloud Firestore?\nAction can not be undone!',
+      description: 'Are you sure that you want to delete your "${context.read<AppState>().firebaseAuthLastUserEmail.value}" account from Cloud Firestore?\nAction can not be undone!',
       expectedInput: 'DELETE',
     );
 
@@ -193,9 +200,9 @@ class _FirestoreConfigState extends State<FirestoreConfig> {
           onPressed: _handleSaveConfig,
           child: const Text('Apply configuration'),
         ),
-        StreamBuilder<FirebaseUser?>(
+        StreamBuilder<FirebaseSession?>(
           stream: context.read<Firestore>().auth.authChanges,
-          initialData: context.read<Firestore>().auth.user,
+          initialData: context.read<Firestore>().auth.session,
           builder: (context, snapshot) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -215,7 +222,7 @@ class _FirestoreConfigState extends State<FirestoreConfig> {
                     ),
                   if (snapshot.hasData) ...[
                     Text(
-                      'Logged in as ${mailPreview(snapshot.data!.email)}',
+                      'Logged in as ${mailPreview(context.read<AppState>().firebaseAuthLastUserEmail.value ?? '')}',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     Wrap(

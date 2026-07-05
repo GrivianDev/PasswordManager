@@ -194,15 +194,18 @@ class Firestore {
   // ----------- Helpers ------------
 
   Future<http.Response> _apiRequestWithReAuth(Future<http.Response> Function(http.Client) apiCall) async {
-    if (!auth.isUserLoggedIn) {
+    if (!auth.isLoggedIn) {
       throw Exception('Firestore user is not logged in');
     }
     final http.Client httpClient = LoggingHttpClient();
 
     try {
+      if (auth.session!.isExpired) {
+        await auth.authorizeWithRefreshToken(auth.session!.refreshToken);
+      }
       http.Response response = await apiCall(httpClient);
       if (response.statusCode == HttpStatus.unauthorized) {
-        await auth.loginWithRefreshToken(auth.user!.email, auth.user!.refreshToken);
+        await auth.authorizeWithRefreshToken(auth.session!.refreshToken);
         response = await apiCall(httpClient);
       }
 
@@ -229,7 +232,7 @@ class Firestore {
 
   Map<String, String> _firestoreApiHeaders() {
     return {
-      HttpHeaders.authorizationHeader: 'Bearer ${auth.user?.idToken}',
+      HttpHeaders.authorizationHeader: 'Bearer ${auth.session?.idToken}',
       HttpHeaders.contentTypeHeader: ContentType.json.value,
     };
   }

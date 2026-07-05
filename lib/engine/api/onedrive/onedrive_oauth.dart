@@ -1,15 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
-import 'dart:typed_data';
 
 import 'package:ethercrypt/engine/api/app_lifecycle.dart';
 import 'package:ethercrypt/engine/api/http_client.dart';
 import 'package:ethercrypt/engine/api/oauth_success_web_page.dart';
+import 'package:ethercrypt/engine/api/oauth_util.dart';
 import 'package:ethercrypt/engine/api/onedrive/onedrive_session.dart';
 import 'package:http/http.dart' as http;
-import 'package:pointycastle/digests/sha256.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class OneDriveAuthException implements Exception {
@@ -30,18 +28,25 @@ class OneDriveAuthException implements Exception {
 enum OneDriveScope {
   /// Sign in and read profile.
   openId('openid'),
+
   /// Required for refresh tokens.
   offlineAccess('offline_access'),
+
   /// Read user files.
   filesRead('Files.Read'),
+
   /// Read/write user files.
   filesReadWrite('Files.ReadWrite'),
+
   /// Read all files accessible to the user.
   filesReadAll('Files.Read.All'),
+
   /// Read/write all files accessible to the user.
   filesReadWriteAll('Files.ReadWrite.All'),
+
   /// Read/write all files inside app folder.
   fileReadWriteAppFolder('Files.ReadWrite.AppFolder'),
+
   /// Read basic user profile.
   userRead('User.Read');
 
@@ -57,7 +62,7 @@ class OneDriveOAuth {
 
   final List<OneDriveScope> scopes;
 
-  final Uri _oauth2TokenUrl = Uri.parse('https://login.microsoftonline.com/common/oauth2/v2.0/token');
+  final Uri _oauth2TokenUrl = Uri.https('login.microsoftonline.com', '/common/oauth2/v2.0/token');
 
   final StreamController<OneDriveSession?> _sessionController = StreamController.broadcast();
 
@@ -79,22 +84,7 @@ class OneDriveOAuth {
 
   Stream<OneDriveSession?> get sessionChanges => _sessionController.stream;
 
-  String _generateCodeVerifier([int byteLength = 32]) {
-    final Random random = Random.secure();
-
-    final Uint8List verifier = Uint8List.fromList(
-      List.generate(byteLength, (_) => random.nextInt(0xFF)),
-    );
-
-    return base64UrlEncode(verifier).replaceAll('=', '');
-  }
-
-  String _generateCodeChallenge(String verifier) {
-    final Uint8List bytes = utf8.encode(verifier);
-    final Uint8List digest = SHA256Digest().process(bytes);
-
-    return base64UrlEncode(digest).replaceAll('=', '');
-  }
+  void setInitialSession(OneDriveSession? session) => _session = session;
 
   void _setSession(OneDriveSession? session) {
     _session = session;
@@ -102,8 +92,8 @@ class OneDriveOAuth {
   }
 
   Future<void> authorize() async {
-    final String verifier = _generateCodeVerifier();
-    final String challenge = _generateCodeChallenge(verifier);
+    final String verifier = generateCodeVerifier();
+    final String challenge = generateCodeChallenge(verifier);
 
     final HttpServer server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
 
@@ -145,20 +135,10 @@ class OneDriveOAuth {
       );
     }
 
-    final OneDriveSession session = await _exchangeCodeForToken(
-      code,
-      verifier,
-      redirectUri,
-    );
-
-    _setSession(session);
+    await _exchangeCodeForToken(code, verifier, redirectUri);
   }
 
-  Future<OneDriveSession> _exchangeCodeForToken(
-    String code,
-    String verifier,
-    String redirectUri,
-  ) async {
+  Future<void> _exchangeCodeForToken(String code, String verifier, String redirectUri) async {
     await lifecycle.waitUntilReady();
 
     final http.Client httpClient = LoggingHttpClient();
@@ -187,21 +167,17 @@ class OneDriveOAuth {
 
       final expiresIn = data['expires_in'] as int;
 
-      return OneDriveSession(
+      _setSession(OneDriveSession(
         accessToken: data['access_token'],
         refreshToken: data['refresh_token'],
-        expiresAt: DateTime.now().add(
-          Duration(seconds: expiresIn),
-        ),
-      );
+        expiresAt: DateTime.now().add(Duration(seconds: expiresIn)),
+      ));
     } finally {
       httpClient.close();
     }
   }
 
-  Future<void> authorizeWithRefreshToken(
-    String refreshToken,
-  ) async {
+  Future<void> authorizeWithRefreshToken(String refreshToken) async {
     final http.Client httpClient = LoggingHttpClient();
 
     try {
@@ -215,6 +191,10 @@ class OneDriveOAuth {
       );
 
       if (response.statusCode < 200 || response.statusCode >= 300) {
+        if (response.statusCode == HttpStatus.unauthorized) {
+          _setSession(null);
+        }
+
         throw OneDriveAuthException(
           'Refresh token failed',
           raw: response.body,
@@ -226,21 +206,19 @@ class OneDriveOAuth {
 
       final expiresIn = data['expires_in'] as int;
 
-      _setSession(
-        OneDriveSession(
-          accessToken: data['access_token'],
-          refreshToken: data['refresh_token'] ?? refreshToken,
-          expiresAt: DateTime.now().add(
-            Duration(seconds: expiresIn),
-          ),
-        ),
-      );
+      _setSession(OneDriveSession(
+        accessToken: data['access_token'],
+        refreshToken: data['refresh_token'] ?? refreshToken,
+        expiresAt: DateTime.now().add(Duration(seconds: expiresIn)),
+      ));
     } finally {
       httpClient.close();
     }
   }
 
   void revokeAccess() {
-    _setSession(null);
+    if (isLoggedIn) {
+      _setSession(null);
+    }
   }
 }

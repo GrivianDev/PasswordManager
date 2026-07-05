@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:ethercrypt/engine/api/dropbox/dropbox.dart';
 import 'package:ethercrypt/engine/api/dropbox/dropbox_session.dart';
@@ -23,6 +24,9 @@ class DropboxController extends StorageController {
   DropboxController({required AppState appState, required this.api})
       : _appState = appState,
         _storageRepository = AppExceptionRepoWrapper(DropboxRepository(api), debugContext: 'Dropbox') {
+    try {
+      api.auth.setInitialSession(DropboxSession.fromJson(json.decode(appState.dropboxAuthCredentials.value!)));
+    } catch (_) {}
     _sub = api.auth.sessionChanges.listen(_onAuthChanged);
   }
 
@@ -46,13 +50,13 @@ class DropboxController extends StorageController {
 
   Future<void> _onAuthChanged(DropboxSession? session) async {
     if (session == null) {
-      _appState.dropboxAuthRefreshToken.value = null;
+      _appState.dropboxAuthCredentials.value = null;
       await _appState.save();
 
       _state = const StorageState();
       notifyListeners();
     } else {
-      _appState.dropboxAuthRefreshToken.value = session.refreshToken;
+      _appState.dropboxAuthCredentials.value = json.encode(session.toJson());
       await _appState.save();
 
       await load();
@@ -61,7 +65,7 @@ class DropboxController extends StorageController {
 
   @override
   Future<void> performLoad() async {
-      if (!api.isConfigValid || !isEnabled) {
+    if (!api.isConfigValid || !isEnabled) {
       _state = const StorageState();
       notifyListeners();
       return;
@@ -70,12 +74,6 @@ class DropboxController extends StorageController {
     _state = const StorageState(isLoading: true);
     notifyListeners();
     try {
-      if (_appState.dropboxAuthRefreshToken.value != null && !api.auth.isLoggedIn) {
-        await api.auth.authorizeWithRefreshToken(
-          _appState.dropboxAuthRefreshToken.value!,
-        );
-      }
-
       final String storageLocation = await getUserStorageLocation();
       if (kDebugMode) {
         debugPrint('Looking into "$storageLocation" for dropbox files.');

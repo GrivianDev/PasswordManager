@@ -1,15 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
-import 'dart:typed_data';
 
 import 'package:ethercrypt/engine/api/app_lifecycle.dart';
 import 'package:ethercrypt/engine/api/dropbox/dropbox_session.dart';
 import 'package:ethercrypt/engine/api/http_client.dart';
 import 'package:ethercrypt/engine/api/oauth_success_web_page.dart';
+import 'package:ethercrypt/engine/api/oauth_util.dart';
 import 'package:http/http.dart' as http;
-import 'package:pointycastle/digests/sha256.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class DropboxAuthException implements Exception {
@@ -25,7 +23,8 @@ class DropboxAuthException implements Exception {
 
 class DropboxOAuth {
   final String _clientId;
-  final Uri _oauth2TokenUrl = Uri.parse('https://api.dropboxapi.com/oauth2/token');
+  final Uri _oauth2TokenUrl = Uri.https('api.dropboxapi.com', '/oauth2/token');
+  final Uri _oauth2TokenRevokeUrl = Uri.https('api.dropboxapi.com', '/2/auth/token/revoke');
 
   final StreamController<DropboxSession?> _sessionController = StreamController.broadcast();
 
@@ -41,17 +40,7 @@ class DropboxOAuth {
 
   Stream<DropboxSession?> get sessionChanges => _sessionController.stream;
 
-  String _generateCodeVerifier([int byteLength = 32]) {
-    final Random random = Random.secure();
-    final Uint8List verifier = Uint8List.fromList(List.generate(byteLength, (_) => random.nextInt(0xFF)));
-    return base64UrlEncode(verifier).replaceAll('=', '');
-  }
-
-  String _generateCodeChallenge(String verifier) {
-    final Uint8List bytes = utf8.encode(verifier);
-    final Uint8List digest = SHA256Digest().process(bytes);
-    return base64UrlEncode(digest).replaceAll('=', '');
-  }
+  void setInitialSession(DropboxSession? session) => _session = session;
 
   void _setSession(DropboxSession? session) {
     _session = session;
@@ -59,8 +48,8 @@ class DropboxOAuth {
   }
 
   Future<void> authorize() async {
-    final String verifier = _generateCodeVerifier();
-    final String challenge = _generateCodeChallenge(verifier);
+    final String verifier = generateCodeVerifier();
+    final String challenge = generateCodeChallenge(verifier);
 
     final HttpServer server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
     final String redirectUri = 'http://localhost:${server.port}/oauth_redirect';
@@ -97,16 +86,10 @@ class DropboxOAuth {
       throw DropboxAuthException('Missing authorization code', raw: 'callback without code');
     }
 
-    final DropboxSession session = await _exchangeCodeForToken(
-      code,
-      verifier,
-      redirectUri,
-    );
-
-    _setSession(session);
+    await _exchangeCodeForToken(code, verifier, redirectUri);
   }
 
-  Future<DropboxSession> _exchangeCodeForToken(String code, String verifier, String redirectUri) async {
+  Future<void> _exchangeCodeForToken(String code, String verifier, String redirectUri) async {
     await lifecycle.waitUntilReady();
 
     final http.Client httpClient = LoggingHttpClient();
@@ -134,11 +117,11 @@ class DropboxOAuth {
 
       final expiresIn = data['expires_in'] as int;
 
-      return DropboxSession(
+      _setSession(DropboxSession(
         accessToken: data['access_token'],
         refreshToken: data['refresh_token'],
-        expiresAt: DateTime.now().add(Duration(seconds: expiresIn)),
-      );
+        expiresAt: DateTime.now().toUtc().add(Duration(seconds: expiresIn)),
+      ));
     } finally {
       httpClient.close();
     }
@@ -157,6 +140,10 @@ class DropboxOAuth {
       );
 
       if (response.statusCode < 200 || response.statusCode >= 300) {
+        if (response.statusCode == HttpStatus.unauthorized) {
+          _setSession(null);
+        }
+
         throw DropboxAuthException(
           'Refresh token failed',
           raw: response.body,
@@ -171,7 +158,7 @@ class DropboxOAuth {
         DropboxSession(
           accessToken: data['access_token'],
           refreshToken: refreshToken,
-          expiresAt: DateTime.now().add(Duration(seconds: expiresIn)),
+          expiresAt: DateTime.now().toUtc().add(Duration(seconds: expiresIn)),
         ),
       );
     } finally {
@@ -180,16 +167,12 @@ class DropboxOAuth {
   }
 
   Future<void> revokeAccess() async {
-    if (_session?.refreshToken != null) {
+    if (isLoggedIn) {
       final http.Client httpClient = LoggingHttpClient();
       try {
         final response = await httpClient.post(
-          _oauth2TokenUrl,
-          body: {
-            'client_id': _clientId,
-            'refresh_token': _session!.refreshToken,
-            'grant_type': 'refresh_token',
-          },
+          _oauth2TokenRevokeUrl,
+          headers: {HttpHeaders.authorizationHeader: 'Bearer ${_session?.accessToken}'},
         );
 
         if (response.statusCode < 200 || response.statusCode >= 300) {
@@ -202,7 +185,7 @@ class DropboxOAuth {
       } finally {
         httpClient.close();
       }
+      _setSession(null);
     }
-    _setSession(null);
   }
 }

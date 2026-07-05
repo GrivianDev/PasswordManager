@@ -1,15 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
-import 'dart:typed_data';
 
 import 'package:ethercrypt/engine/api/app_lifecycle.dart';
 import 'package:ethercrypt/engine/api/googledrive/google_drive_session.dart';
 import 'package:ethercrypt/engine/api/http_client.dart';
 import 'package:ethercrypt/engine/api/oauth_success_web_page.dart';
+import 'package:ethercrypt/engine/api/oauth_util.dart';
 import 'package:http/http.dart' as http;
-import 'package:pointycastle/digests/sha256.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class GoogleAuthException implements Exception {
@@ -51,7 +49,8 @@ enum GoogleDriveScope {
 class GoogleDriveOAuth {
   final String _clientId;
   final String _clientSecret;
-  final Uri _oauth2TokenUrl = Uri.parse('https://oauth2.googleapis.com/token');
+  final Uri _oauth2TokenUrl = Uri.https('oauth2.googleapis.com', '/token');
+  final Uri _oauth2TokenRevokeUrl = Uri.https('oauth2.googleapis.com', '/revoke');
 
   final AppLifecycle lifecycle;
 
@@ -73,17 +72,7 @@ class GoogleDriveOAuth {
 
   Stream<GoogleDriveSession?> get sessionChanges => _sessionController.stream;
 
-  String _generateCodeVerifier([int byteLength = 32]) {
-    final Random random = Random.secure();
-    final Uint8List verifier = Uint8List.fromList(List.generate(byteLength, (_) => random.nextInt(0xFF)));
-    return base64UrlEncode(verifier).replaceAll('=', '');
-  }
-
-  String _generateCodeChallenge(String verifier) {
-    final Uint8List bytes = utf8.encode(verifier);
-    final Uint8List digest = SHA256Digest().process(bytes);
-    return base64UrlEncode(digest).replaceAll('=', '');
-  }
+  void setInitialSession(GoogleDriveSession? session) => _session = session;
 
   void _setSession(GoogleDriveSession? session) {
     _session = session;
@@ -91,8 +80,8 @@ class GoogleDriveOAuth {
   }
 
   Future<void> authorize() async {
-    final String verifier = _generateCodeVerifier();
-    final String challenge = _generateCodeChallenge(verifier);
+    final String verifier = generateCodeVerifier();
+    final String challenge = generateCodeChallenge(verifier);
 
     final HttpServer server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
     final String redirectUri = 'http://localhost:${server.port}/oauth_redirect';
@@ -130,18 +119,12 @@ class GoogleDriveOAuth {
       throw GoogleAuthException('Missing authorization code', raw: 'callback without code');
     }
 
-    final GoogleDriveSession session = await _exchangeCodeForToken(
-      code,
-      verifier,
-      redirectUri,
-    );
-
-    _setSession(session);
+    await _exchangeCodeForToken(code, verifier, redirectUri);
   }
 
-  Future<GoogleDriveSession> _exchangeCodeForToken(String code, String verifier, String redirectUri) async {
+  Future<void> _exchangeCodeForToken(String code, String verifier, String redirectUri) async {
     await lifecycle.waitUntilReady();
-    
+
     final http.Client httpClient = LoggingHttpClient();
     try {
       final response = await httpClient.post(
@@ -168,11 +151,11 @@ class GoogleDriveOAuth {
 
       final expiresIn = data['expires_in'] as int;
 
-      return GoogleDriveSession(
+      _setSession(GoogleDriveSession(
         accessToken: data['access_token'],
         refreshToken: data['refresh_token'],
         expiresAt: DateTime.now().add(Duration(seconds: expiresIn)),
-      );
+      ));
     } finally {
       httpClient.close();
     }
@@ -192,6 +175,10 @@ class GoogleDriveOAuth {
       );
 
       if (response.statusCode < 200 || response.statusCode >= 300) {
+        if (response.statusCode == HttpStatus.unauthorized) {
+          _setSession(null);
+        }
+
         throw GoogleAuthException(
           'Refresh token failed',
           raw: response.body,
@@ -202,17 +189,36 @@ class GoogleDriveOAuth {
       final data = json.decode(response.body);
       final expiresIn = data['expires_in'] as int;
 
-      _setSession(
-        GoogleDriveSession(
-          accessToken: data['access_token'],
-          refreshToken: refreshToken,
-          expiresAt: DateTime.now().add(Duration(seconds: expiresIn)),
-        ),
-      );
+      _setSession(GoogleDriveSession(
+        accessToken: data['access_token'],
+        refreshToken: refreshToken,
+        expiresAt: DateTime.now().add(Duration(seconds: expiresIn)),
+      ));
     } finally {
       httpClient.close();
     }
   }
 
-  void revokeAccess() => _setSession(null);
+  Future<void> revokeAccess() async {
+    if (isLoggedIn) {
+      final http.Client httpClient = LoggingHttpClient();
+      try {
+        final response = await httpClient.post(
+          _oauth2TokenRevokeUrl,
+          body: {'token': _session?.refreshToken},
+        );
+
+        if (response.statusCode < 200 || response.statusCode >= 300) {
+          throw GoogleAuthException(
+            'Revoking session failed',
+            raw: response.body,
+            statusCode: response.statusCode,
+          );
+        }
+      } finally {
+        httpClient.close();
+      }
+      _setSession(null);
+    }
+  }
 }

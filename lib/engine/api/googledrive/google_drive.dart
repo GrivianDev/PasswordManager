@@ -25,6 +25,7 @@ class GoogleDriveApiException implements Exception {
 enum GoogleDriveSpace {
   /// Normal user-visible Google Drive.
   drive,
+
   /// Hidden app-specific storage.
   appDataFolder;
 }
@@ -280,6 +281,9 @@ class GoogleDrive {
     final http.Client httpClient = LoggingHttpClient();
 
     try {
+      if (auth.session!.isExpired) {
+        await auth.authorizeWithRefreshToken(auth.session!.refreshToken);
+      }
       http.Response response = await apiCall(httpClient);
       if (response.statusCode == HttpStatus.unauthorized) {
         await auth.authorizeWithRefreshToken(auth.session!.refreshToken);

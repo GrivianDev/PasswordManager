@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:ethercrypt/engine/api/onedrive/onedrive.dart';
 import 'package:ethercrypt/engine/api/onedrive/onedrive_session.dart';
@@ -23,6 +24,9 @@ class OneDriveController extends StorageController {
   OneDriveController({required AppState appState, required this.api, required OneDriveLocation driveLocation})
       : _appState = appState,
         _storageRepository = AppExceptionRepoWrapper(OneDriveRepository(api, driveLocation), debugContext: 'OneDrive') {
+    try {
+      api.auth.setInitialSession(OneDriveSession.fromJson(json.decode(appState.oneDriveAuthCredentials.value!)));
+    } catch (_) {}
     _sub = api.auth.sessionChanges.listen(_onAuthChanged);
   }
 
@@ -46,13 +50,13 @@ class OneDriveController extends StorageController {
 
   Future<void> _onAuthChanged(OneDriveSession? session) async {
     if (session == null) {
-      _appState.oneDriveAuthRefreshToken.value = null;
+      _appState.oneDriveAuthCredentials.value = null;
       await _appState.save();
 
       _state = const StorageState();
       notifyListeners();
     } else {
-      _appState.oneDriveAuthRefreshToken.value = session.refreshToken;
+      _appState.oneDriveAuthCredentials.value = json.encode(session.toJson());
       await _appState.save();
 
       await load();
@@ -70,12 +74,6 @@ class OneDriveController extends StorageController {
     _state = const StorageState(isLoading: true);
     notifyListeners();
     try {
-      if (_appState.oneDriveAuthRefreshToken.value != null && !api.auth.isLoggedIn) {
-        await api.auth.authorizeWithRefreshToken(
-          _appState.oneDriveAuthRefreshToken.value!,
-        );
-      }
-
       final String storageLocation = await getUserStorageLocation();
       if (kDebugMode) {
         debugPrint('Looking into "$storageLocation" for one drive files.');
