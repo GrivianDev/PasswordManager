@@ -1,6 +1,6 @@
 :root {
-  --light-bg: rgb(225, 225, 225);
-  --light-card: #ffffff;
+  --light-bg: #ffffff;
+  --light-card: rgb(225, 225, 225);
   --light-text: rgba(0, 0, 0, 0.87);
   --light-muted: #666666;
 

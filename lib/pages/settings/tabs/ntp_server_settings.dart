@@ -53,7 +53,7 @@ class _NtpServerSettingsState extends State<NtpServerSettings> {
         context: context,
         type: NotificationType.notification,
         title: 'Test success!',
-        content: Text('Server: $server\nTime (UTC) received: ${queriedTime.toUtc()}'),
+        content: Text('Server: $server\nTime received: ${queriedTime.toLocal()}'),
       );
     });
   }
