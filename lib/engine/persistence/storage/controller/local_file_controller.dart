@@ -27,7 +27,7 @@ class LocalFileController extends StorageController {
       if (Platform.isLinux || Platform.isWindows) {
         // On desktop environments: use possible custom storage location
         if (!_appState.localSystemStorageLocation.isDefault) {
-          return Future.value(_appState.localSystemStorageLocation.value);
+          return _appState.localSystemStorageLocation.value;
         }
       }
       final Directory dir = await getApplicationSupportDirectory();

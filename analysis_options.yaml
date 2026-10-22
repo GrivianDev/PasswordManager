@@ -13,3 +13,8 @@ formatter:
 analyzer:
   errors:
     constant_identifier_names: ignore
+  exclude:
+    - build/**
+    - android/**
+    - windows/**
+    - linux/**
